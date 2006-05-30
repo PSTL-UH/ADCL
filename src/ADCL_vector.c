@@ -159,7 +159,7 @@ int ADCL_vector_register ( int ndims, int *dims, int nc, int hwidth,
     }
     /* Datatype has to be a basic datatype */
     MPI_Type_get_envelope ( dat, &numints, &numaddr, &numdats, &combiner );
-    if ( MPI_COMBINER_NAMED == combiner ) {
+    if ( MPI_COMBINER_NAMED != combiner ) {
 	return ADCL_INVALID_DAT;
     }
     if ( NULL == data ) {
