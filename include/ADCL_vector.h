@@ -1,0 +1,121 @@
+#ifndef __ADCL_VECTOR_H__
+#define __ADCL_VECTOR_H__
+
+
+#define ADCL_VECTOR_NULL (void*) -1
+
+struct ADCL_vector_s{
+    int              v_id; /* unique identifier for this process */
+    int           v_rfcnt; /* object reference counter */
+    int           v_alloc; /* TRUE(1) if allocated by ADCL, FALSE(0) if 
+			      done by user */
+    int           v_ndims; /* number of dimensions */
+    int              v_nc; /* extent of each point */
+    int          v_hwidth; /* how many halo-cells are being used */
+    int           *v_dims; /* extent of each of the dimensions */
+    void          *v_data; /* pointer to the data array */
+    MPI_Datatype    v_dat; /* basic datatype */
+};
+typedef struct ADCL_vector_s ADCL_vector_t;
+typedef ADCL_vector_t*       ADCL_vector;
+
+/* Some internal routines to access elements of the vector will be introduced
+   later/up on demand by the other routines. */
+
+
+/* ADCL_vector_allocate:
+   Description: This routine allocate a new data object including the memory 
+                are to hold the data 
+
+   @param   ndims:   number of dimensions 
+   @param    dims:   extent of each dimension
+   @param      nc:   extent of each point of the vector 
+   @param hdiwdth:   number of ghost cells. Note: this entry does not
+                     modify dims or nc! It's stored for later usage
+   @param     dat;   basic datatype of the array, described as an
+                     MPI_Datatype
+
+   @out       vec;   ADCL_vector_t object 
+
+   @retval ADCL_SUCCESS          ok
+   @retval ADCL_NO_MEMORY        memory allocation failed
+
+   @retval ADCL_INVALID_NDIMS    invalid ndims input parameter
+   @retval ADCL_INVALID_DIMS     invalid dims array input parameter
+   @retval ADCL_INVALID_NC       invalid nc input parameter
+   @retval ADCL_INVALID_HWIDTH   invalid hwidth input parameter
+   @retval ADCL_INVALID_DAT      invalid dat input parameter
+*/
+int ADCL_vector_allocate ( int ndims, int *dims, int nc, int hwidth, 
+			   MPI_Datatype dat, ADCL_vector *vec );
+
+
+
+
+/* ADCL_vector_free
+   Description: free an ADCL_vector object including the allocated data field
+   
+   @param vec: ADCL_vector object to be freed
+   @out   vec: on successfull completion ADCL_VECTOR_NULL, undefined else
+   
+   @retval ADCL_SUCCESS          ok
+   @retval ADCL_INVALID_DATA     data pointer was not allocated with 
+                                 ADCL_vector_allocate
+*/
+int ADCL_vector_free  ( ADCL_vector *vec );
+
+
+
+
+
+/* ADCL_vector_register:
+   Description: This routine allocate a new data object. The routine
+                assumes in contrary to ADCL_vector_allocate, that the 
+		memory for the data has been allocated already
+
+   @param   ndims:   number of dimensions 
+   @param    dims:   extent of each dimension
+   @param      nc:   extent of each point of the vector 
+   @param hdiwdth:   number of ghost cells. Note: this entry does not
+                     modify dims or nc! It's stored for later usage
+   @param     dat;   basic datatype of the array, described as an
+                     MPI_Datatype
+   @param    data;   pointer to the data field
+
+   @out       vec;   ADCL_vector object 
+
+   @retval ADCL_SUCCESS          ok
+   @retval ADCL_NO_MEMORY        memory allocation failed
+
+   @retval ADCL_INVALID_NDIMS    invalid ndims input parameter
+   @retval ADCL_INVALID_DIMS     invalid dims array input parameter
+   @retval ADCL_INVALID_NC       invalid nc input parameter
+   @retval ADCL_INVALID_HWIDTH   invalid hwidth input parameter
+   @retval ADCL_INVALID_DAT      invalid dat input parameter
+   @retval ADCL_INVALID_DATA     invalid data pointer input parameter
+*/
+int ADCL_vector_register ( int ndims, int *dims, int nc, int hwidth, 
+			   MPI_Datatype dat, void *data, 
+			   ADCL_vector *vec );
+
+
+
+
+/* ADCL_vector_deregister
+   Description: free an ADCL_vector object without touching the data
+                fields, since this has been allocate by the user and not
+		by the ADCL_vector routine
+   
+   @param vec: ADCL_vector object to be freed
+   @out   vec: on successfull completion ADCL_VECTOR_NULL, undefined else
+   
+   @retval ADCL_SUCCESS          ok
+   @retval ADCL_INVALID_DATA     data array was allocated with 
+                                 ADCL_vector_allocate, should be freed with 
+				 ADCL_vector_free instead of 
+				 ADCL_vector_deregister
+*/
+int ADCL_vector_deregister  ( ADCL_vector *vec );
+
+
+#endif /* __ADCL_VECTOR_H__ */
