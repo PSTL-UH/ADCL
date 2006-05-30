@@ -11,6 +11,8 @@ ADCL_BIN_DIR  = $(ADCL_DIR)/bin
 ADCL_INC_DIR  = $(ADCL_DIR)/include
 ADCL_LIB_DIR  = $(ADCL_DIR)/lib
 
+ADCL_LIB = $(ADCL_LIB_DIR)/libadcl.a
+
 #Set some Flags
 AR	    = ar
 AR_FLAGS    = clr 
@@ -18,7 +20,7 @@ AR_FLAGS    = clr
 
 CC          = mpicc
 CFLAGS      = -Wall -g -I$(ADCL_INC_DIR)
-LDFLAGS     = -lefence -lm 
+LDFLAGS     = -L$(ADCL_LIB_DIR) $(ADCL_LIB) -lefence -lm 
 
 FC          = mpif77
 FFLAGS      = -g -I${ADCL_INC_DIR)
