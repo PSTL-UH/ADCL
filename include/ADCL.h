@@ -15,6 +15,7 @@
 #include "ADCL_emethod.h"
 #include "ADCL_memory.h"
 #include "ADCL_subarray.h"
+#include "ADCL_packunpack.h"
 
 
 #define TRUE   1

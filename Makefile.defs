@@ -6,7 +6,7 @@ MPI_INC_DIR = $(MPI_DIR)/include
 MPI_BIN_DIR = $(MPI_DIR)/bin
 MPI_LIB_DIR = $(MPI_DIR)/lib
 
-ADCL_DIR      = $(HOME)/tmp/ADCL/trunk
+ADCL_DIR      = $(HOME)/ADCL/trunk
 ADCL_BIN_DIR  = $(ADCL_DIR)/bin
 ADCL_INC_DIR  = $(ADCL_DIR)/include
 ADCL_LIB_DIR  = $(ADCL_DIR)/lib

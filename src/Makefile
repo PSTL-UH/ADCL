@@ -1,14 +1,16 @@
 include ../Makefile.defs
 
 
-OBJ =  	ADCL_Main.o	\
-	ADCL.o		\
+OBJ =  	ADCL_Main.o        	\
+	ADCL.o		        \
 	ADCL_vector.o           \
 	ADCL_memory.o 		\
 	ADCL_method.o 		\
 	ADCL_emethod.o 		\
 	ADCL_request.o 		\
-	ADCL_subarray.o
+	ADCL_subarray.o         \
+	ADCL_packunpack.o       \
+	ADCL_change.o
 
 
 HEADER = $(ADCL_INC_DIR)/ADCL.h        \

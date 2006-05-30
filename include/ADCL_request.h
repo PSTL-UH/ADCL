@@ -20,14 +20,15 @@ struct ADCL_request_s{
 				        be 2*the number of dimensions of the 
 				        cartesian structure */
     int                *r_neighbors; /* array of neighboring processes. */
+    int                   *r_coords; /* coordinate of this proc in the proc-topology */
     int                     r_psize; /* size of v_rbuf and v_sbuf data array used 
 					for pack/unpack */
     MPI_Datatype           *r_sdats; /* array of MPI datatypes used for sending */
     MPI_Datatype           *r_rdats; /* array of MPI datatypes used for receiving */
     MPI_Request            *r_sreqs; /* array of send requests used for nb ops */
     MPI_Request            *r_rreqs; /* array of recv requests used for nb ops */
-    char                    *r_rbuf; /* temp recv buffer used for pack/unpack */
-    char                    *r_sbuf; /* temp send buffer used for pack/unpack */    
+    char                   **r_rbuf; /* temp recv buffer used for pack/unpack */
+    char                   **r_sbuf; /* temp send buffer used for pack/unpack */    
 
     /* single-block methods */
     int                     rs_state; /* state of the object */

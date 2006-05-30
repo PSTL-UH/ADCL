@@ -2,6 +2,7 @@
 #define __ADCL_SUBARRAY_H__
 
 #include "mpi.h"
+#include "ADCL_request.h"
 
 /* ADCL_subarray_c:
    Description: generate the derived datatypes which describe, 
@@ -28,7 +29,8 @@
 		     So, neighbor[2*i] contains the rank of the left neighbor
 		     process in dimension i, while neighbor[2*i+1] contains
 		     the rank of the righ neighbor process in dimension i.
-   
+   @param order:  MPI_ORDER_C or MPI_ORDER_FORTRAN
+		     
    @ret sdats:    array of MPI_Datatypes of dimension 2*numdims to be 
                   used for sending data. The left and right neighbor
 		  for dimension x are subsequent in this array. 
@@ -37,7 +39,10 @@
 		  for dimension x are subsequent in this array. 
 
 */
-int ADCL_subarray_c ( int numdims, int *ldims, int hwidth, int *neighbors,
-		      MPI_Datatype **senddats, MPI_Datatype **recvdats );
+
+int  ADCL_subarray_init ( int numdims, int *ldims, int hwidth, int *neighbors, 
+			  int order, MPI_Datatype **sdats, MPI_Datatype **rdats);
+void ADCL_subarray_free ( int num, MPI_Datatype **sdats, MPI_Datatype **rdats );
+
 
 #endif /* __ADCL_SUBARRAY_H__ */

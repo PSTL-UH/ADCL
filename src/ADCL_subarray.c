@@ -1,7 +1,7 @@
 #include "ADCL.h"
 
-int ADCL_subarray_c ( int numdims, int *ldims, int hwidth, int *neighbors,
-		      MPI_Datatype **senddats, MPI_Datatype **recvdats )
+int ADCL_subarray_init ( int numdims, int *ldims, int hwidth, int *neighbors,
+			 int order,  MPI_Datatype **senddats, MPI_Datatype **recvdats)
 {
     int i, j, k;
     int ret = ADCL_SUCCESS;
@@ -63,11 +63,9 @@ int ADCL_subarray_c ( int numdims, int *ldims, int hwidth, int *neighbors,
 		    }
 		}
 		MPI_Type_create_subarray ( numdims, ldims, subdims, sstarts,
-					   MPI_ORDER_C, MPI_DOUBLE, 
-					   &(sdats[j]));
+					   order, MPI_DOUBLE, &(sdats[j]));
 		MPI_Type_create_subarray ( numdims, ldims, subdims, rstarts,
-					   MPI_ORDER_C, MPI_DOUBLE, 
-					   &(rdats[j]));
+					   order, MPI_DOUBLE, &(rdats[j]));
 		MPI_Type_commit ( &(sdats[j]));
 		MPI_Type_commit ( &(rdats[j]));
 	    }
@@ -101,3 +99,34 @@ int ADCL_subarray_c ( int numdims, int *ldims, int hwidth, int *neighbors,
     *recvdats = rdats;
     return ret;
 }
+
+void ADCL_subarray_free ( int num, MPI_Datatype **senddats, MPI_Datatype **recvdats ) 
+{
+    int i;
+    MPI_Datatype *sdats = *senddats;
+    MPI_Datatype *rdats = *recvdats;
+    
+    if ( NULL != rdats ) {
+	for ( i=0; i<num; i++ ){
+	    if ( MPI_DATATYPE_NULL != rdats[i]) {
+		MPI_Type_free ( &(rdats[i]));
+	    }
+	}
+	free ( rdats );
+    }
+    
+    if ( NULL != sdats ) {
+	for ( i=0; i<num; i++ ){
+	    if ( MPI_DATATYPE_NULL != sdats[i]) {
+		MPI_Type_free ( &(sdats[i]));
+	    }
+	}
+	free ( sdats );
+    }
+
+    *senddats = NULL;
+    *recvdats = NULL;
+    return;
+}
+
+
