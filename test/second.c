@@ -11,22 +11,25 @@
 /* how many halo-cells for each neighbor ? */
 #define HWIDTH 1
 
+/* just a helper routine */
+static void matrix_init ( int dims[2], int cdims[2], 
+			  double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH],  
+			  MPI_Comm cart_comm );
+static void matrix_dump ( double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH],  
+			  MPI_Comm cart_comm, char *msg);
 
 int main ( int argc, char ** argv ) 
 {
     /* General variables */
-    int i, j, k;
     int rank, size;
     
     /* Definition of the 2-D vector */
     int dims[2]={DIM0+2*HWIDTH, DIM1+2*HWIDTH};
     double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH];
-    double offset1, offset0;
     ADCL_vector vec;
 
     /* Variables for the process topology information */
     int cdims[]={0,0};
-    int coord[2];
     int periods[]={0,0};
     MPI_Comm cart_comm;
     ADCL_request request;
@@ -46,14 +49,41 @@ int main ( int argc, char ** argv )
     /* Describe the neighborhood relations */
     MPI_Dims_create ( size, 2, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 2, cdims, periods, 0, &cart_comm);
-    MPI_Cart_coords ( cart_comm, rank, 2, coord );
 
     /* Match the data type description and the process topology 
        to each other */
     ADCL_request_create ( vec, cart_comm, &request );
 
-
     /* Initiate matrix to zero including halo-cells */
+    matrix_init ( dims, cdims, matrix, cart_comm );
+
+    /* Now this is the real communication */
+    ADCL_change_sb_aao ( request );
+
+   /* Dump the resulting matrix */
+    matrix_dump ( matrix, cart_comm, "After the communication");
+
+    ADCL_request_free ( &request );
+    ADCL_vector_deregister ( &vec );
+    MPI_Comm_free ( &cart_comm );
+    
+    ADCL_Finalize ();
+    MPI_Finalize ();
+    return 0;
+}
+
+static void matrix_init ( int dims[2], int cdims[2], 
+			  double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH],    
+			  MPI_Comm cart_comm )
+{
+    int i, j;
+    double offset1, offset0;
+    int rank;
+    int coord[2];
+
+    MPI_Comm_rank ( cart_comm, &rank );
+    MPI_Cart_coords ( cart_comm, rank, 2, coord );
+
     for (i=0; i<DIM0+2; i++ ) {
         for ( j=0; j<DIM1+2; j++ ) {
             matrix[i][j] = 0.0;
@@ -70,31 +100,24 @@ int main ( int argc, char ** argv )
     }
 
 #if VERBOSE
-    if ( rank == 0 ) {
-        printf("The original input matrix is :\n");
-    }
-    for ( k=0; k< size; k++ ){
-        if ( rank == k ) {
-            for ( i=0; i<DIM0+2; i++ ) {
-                printf("%d: ", rank );
-                for ( j=0; j<DIM1+2; j++ ) {
-                    printf("%lf ", matrix[i][j]);
-                }
-                printf("\n");
-            }
-            printf("\n");
-        }
-        MPI_Barrier ( cart_comm );
-    }
+    matrix_dump ( matrix, cart_comm, "The original input matrix is");
 #endif
 
-    /* Now this is the real communication */
-    ADCL_change_sb_aao ( request );
+    return;
+}
 
-   /* Dump the resulting matrix */
+static void matrix_dump ( double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH], 
+			  MPI_Comm cart_comm, char *msg )
+{
+    int i, j, k;
+    int rank, size;
+
+    MPI_Comm_rank ( cart_comm, &rank );
+    MPI_Comm_size ( cart_comm, &size );
     if (rank == 0 ) {
-        printf("After the communication step\n");
+        printf("%s\n", msg);
     }
+
     for ( k=0 ; k < size; k++ ) {
         if (rank == k ) {
             for ( i=0; i<DIM0+2; i++ ) {
@@ -109,12 +132,5 @@ int main ( int argc, char ** argv )
         MPI_Barrier ( cart_comm );
     }
 
-
-    ADCL_request_free ( &request );
-    ADCL_vector_deregister ( &vec );
-    MPI_Comm_free ( &cart_comm );
-    
-    ADCL_Finalize ();
-    MPI_Finalize ();
-    return 0;
+    return;
 }
