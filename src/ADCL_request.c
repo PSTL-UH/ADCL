@@ -71,8 +71,10 @@ int ADCL_request_create ( ADCL_vector vec, MPI_Comm cart_comm,
 				 cart_comm, 
 				 &(newreq->r_sbuf), 
 				 newreq->r_sdats,
+				 &(newreq->r_spsize),
 				 &(newreq->r_rbuf), 
-				 newreq->r_rdats );
+				 newreq->r_rdats, 
+				 &(newreq->r_rpsize) );
     if ( ADCL_SUCCESS != ret ) {
 	goto exit;
     }
@@ -127,7 +129,8 @@ int ADCL_request_create ( ADCL_vector vec, MPI_Comm cart_comm,
 	ADCL_subarray_free ( newreq->r_nneighbors, &(newreq->r_sdats), 
 			     &(newreq->r_rdats) );
 	ADCL_packunpack_free ( newreq->r_nneighbors, &(newreq->r_rbuf),
-			       &(newreq->r_sbuf));
+			       &(newreq->r_sbuf), &(newreq->r_spsize), 
+			       &(newreq->r_rpsize) );
 
 	if ( MPI_WIN_NULL != newreq->r_win ) {
 	    MPI_Win_free ( &(newreq->r_win) );
@@ -182,7 +185,8 @@ int ADCL_request_free ( ADCL_request *req )
     ADCL_subarray_free ( preq->r_nneighbors, &(preq->r_sdats), 
 			 &(preq->r_rdats) );
     ADCL_packunpack_free ( preq->r_nneighbors, &(preq->r_rbuf),
-			   &(preq->r_sbuf));
+			   &(preq->r_sbuf), &(preq->r_spsize), 
+			   &(preq->r_rpsize) );
 
     if ( MPI_WIN_NULL != preq->r_win ) {
 	MPI_Win_free ( &(preq->r_win) );

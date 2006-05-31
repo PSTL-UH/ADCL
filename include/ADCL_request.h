@@ -21,7 +21,9 @@ struct ADCL_request_s{
 				        cartesian structure */
     int                *r_neighbors; /* array of neighboring processes. */
     int                   *r_coords; /* coordinate of this proc in the proc-topology */
-    int                     r_psize; /* size of v_rbuf and v_sbuf data array used 
+    int                    *r_spsize; /* size of each individual temporary sbuf used 
+					 for pack/unpack */
+    int                    *r_rpsize; /* size of each individual temporary rbuf used 
 					for pack/unpack */
     MPI_Datatype           *r_sdats; /* array of MPI datatypes used for sending */
     MPI_Datatype           *r_rdats; /* array of MPI datatypes used for receiving */

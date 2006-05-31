@@ -16,6 +16,7 @@
 #include "ADCL_memory.h"
 #include "ADCL_subarray.h"
 #include "ADCL_packunpack.h"
+#include "ADCL_change.h"
 
 
 #define TRUE   1
