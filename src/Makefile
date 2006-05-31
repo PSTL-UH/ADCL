@@ -12,9 +12,11 @@ OBJ =  	ADCL.o		        \
 	ADCL_request.o 		\
 	ADCL_subarray.o         \
 	ADCL_packunpack.o       \
+	ADCL_change_sb_aao_debug.o \
 	ADCL_change_sb_aao_IsendIrecv.o \
 	ADCL_change_sb_aao_SendIrecv.o \
 	ADCL_change_sb_aao_IsendIrecv_pack.o \
+	ADCL_change_sb_pair_debug.o \
 	ADCL_change_sb_pair_IsendIrecv.o \
 	ADCL_change_sb_pair_SendRecv.o \
 	ADCL_change_sb_pair_SendIrecv.o \
@@ -46,12 +48,16 @@ memory:	$(HEADER)
 	                -o ADCL_memory_backend_int.o
 
 change:$(HEADER)
+	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=0 \
+			-o ADCL_change_sb_aao_debug.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=1 \
 			-o ADCL_change_sb_aao_IsendIrecv.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=3 \
 			-o ADCL_change_sb_aao_SendIrecv.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=4 \
 			-o ADCL_change_sb_aao_IsendIrecv_pack.o 
+	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=0 \
+			-o ADCL_change_sb_pair_debug.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=1 \
 			-o ADCL_change_sb_pair_IsendIrecv.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=2 \

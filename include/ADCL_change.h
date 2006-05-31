@@ -3,7 +3,26 @@
 
 #include "ADCL.h"
 
-#if COMMMODE == 1
+
+#if COMMMODE == 0
+  #define COMMTEXT  DebugNoCommunication
+
+  #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_debug
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_debug
+  #define SEND_START(req,i,tag) { int _rank;   \
+         MPI_Comm_rank ( req->r_comm, &_rank );\
+         printf("%d: want to send to %d\n",    \
+                _rank, req->r_neighbors[i]);}
+  #define RECV_START(req,i,tag) { int _rank;    \
+         MPI_Comm_rank ( req->r_comm, &_rank ); \
+         printf("%d: want to recv from %d\n",   \
+                _rank, req->r_neighbors[i]); }
+  #define SEND_WAITALL(req) 
+  #define RECV_WAITALL(req) 
+  #define SEND_WAIT(req,i) 
+  #define RECV_WAIT(req,i) 
+
+#elif COMMMODE == 1
   #define COMMTEXT  IsendIrecv
 
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_IsendIrecv 
@@ -68,10 +87,10 @@
          MPI_STATUSES_IGNORE )
   #define RECV_WAITALL(req) { int _i, _pos=0;                            \
      MPI_Waitall(req->r_nneighbors, req->r_rreqs, MPI_STATUSES_IGNORE);  \
-     for (_i=0; _i< req->r_nneighbors; i++, _pos=0 ) {                   \
-         if ( req->r_neighbors[i] == MPI_PROC_NULL ) continue;           \
-         MPI_Unpack(req->r_rbuf[i], req->r_rpsize[i], &_pos,             \
-              req->r_vec->v_data, 1, req->r_rdats[i], req->r_comm ); } }
+     for (_i=0; _i< req->r_nneighbors; _i++, _pos=0 ) {                  \
+         if ( req->r_neighbors[_i] == MPI_PROC_NULL ) continue;          \
+         MPI_Unpack(req->r_rbuf[_i], req->r_rpsize[_i], &_pos,           \
+              req->r_vec->v_data, 1, req->r_rdats[_i], req->r_comm ); } }
 
   #define SEND_WAIT(req,i) MPI_Wait(&req->r_sreqs[i], MPI_STATUS_IGNORE)
   #define RECV_WAIT(req,i) { int _pos=0;                         \

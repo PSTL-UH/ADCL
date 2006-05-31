@@ -56,7 +56,14 @@ int main ( int argc, char ** argv )
     matrix_init ( dims, cdims, matrix, cart_comm );
 
     /* Now this is the real communication */
-    ADCL_change_sb_aao_IsendIrecv ( request );
+//    ADCL_change_sb_aao_IsendIrecv ( request );
+//    ADCL_change_sb_aao_SendIrecv ( request );
+      ADCL_change_sb_aao_IsendIrecv_pack ( request );
+//    ADCL_change_sb_pair_debug ( request );
+//    ADCL_change_sb_pair_IsendIrecv ( request );
+//    ADCL_change_sb_pair_SendRecv ( request );
+//    ADCL_change_sb_pair_SendIrecv ( request );
+//    ADCL_change_sb_pair_IsendIrecv_pack ( request );
 
    /* Dump the resulting matrix */
     matrix_dump ( matrix, cart_comm, "After the communication");
