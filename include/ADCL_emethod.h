@@ -1,6 +1,7 @@
 #ifndef __ADCL_EMETHOD_H__
 #define __ADCL_EMETHOD_H__
 
+#include "ADCL_method.h"
 #include <sys/time.h>
 #define TIME_TYPE double
 

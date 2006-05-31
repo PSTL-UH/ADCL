@@ -1,9 +1,11 @@
 #ifndef __ADCL_REQUEST_H__
 #define __ADCL_REQUEST_H__
 
+#include "mpi.h"
 
-
-#include "ADCL.h"
+#include "ADCL_vector.h"
+#include "ADCL_method.h"
+#include "ADCL_emethod.h"
 
 #define ADCL_COMM_ACTIVE 1024
 #define ADCL_COMM_AVAIL  1025

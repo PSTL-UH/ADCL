@@ -1,5 +1,5 @@
 #ifndef __ADCL_H__
-#define __ADLC_H__
+#define __ADCL_H__
 
 #include <stdio.h>
 #include <string.h>

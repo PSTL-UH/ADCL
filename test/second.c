@@ -56,7 +56,7 @@ int main ( int argc, char ** argv )
     matrix_init ( dims, cdims, matrix, cart_comm );
 
     /* Now this is the real communication */
-    ADCL_change_sb_aao ( request );
+    ADCL_change_sb_aao_IsendIrecv ( request );
 
    /* Dump the resulting matrix */
     matrix_dump ( matrix, cart_comm, "After the communication");

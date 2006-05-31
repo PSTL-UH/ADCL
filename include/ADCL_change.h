@@ -1,13 +1,13 @@
 #ifndef __ADCL_CHANGE_H__
 #define __ADCL_CHANGE_H__
 
-#include "mpi.h"
+#include "ADCL.h"
 
 #if COMMMODE == 1
-  #define COMMTEXT  IsendIrecvDerDatatype
+  #define COMMTEXT  IsendIrecv
 
-  #define ADCL_CHANGE_SB_AAO  ADCL_change_isendirecv_sb_aao
-  #define ADCL_CHANGE_SB_PAIR ADCL_change_isendirecv_sb_pair
+  #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_IsendIrecv 
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_IsendIrecv
   #define SEND_START(req,i,tag) MPI_Isend(req->r_vec->v_data, 1,\
          req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm,\
          &req->r_sreqs[i])
@@ -22,9 +22,9 @@
   #define RECV_WAIT(req,i) MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE)
 
 #elif COMMMODE == 2
-  #define COMMTEXT  SendRecvDerDatatype
+  #define COMMTEXT  SendRecv
 
-  #define ADCL_CHANGE_SB_PAIR ADCL_change_sendrecv_sb_pair
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendRecv
   #define SEND_START(req,i,tag) MPI_Ssend(req->r_vec->v_data, 1, \
          req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm )
   #define RECV_START(req,i,tag) MPI_Recv(req->r_vec->v_data, 1,  \
@@ -36,10 +36,10 @@
   #define RECV_WAIT(req,i) 
 
 #elif COMMMODE == 3
-  #define COMMTEXT SendIrecvDerDatatype
+  #define COMMTEXT SendIrecv
 
-  #define ADCL_CHANGE_SB_AAO  ADCL_change_sendirecv_sb_aao
-  #define ADCL_CHANGE_SB_PAIR ADCL_change_sendirecv_sb_pair
+  #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_SendIrecv
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendIrecv
   #define SEND_START(req,i,tag) MPI_Send(req->r_vec->v_data, 1,\
          req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm)
   #define RECV_START(req,i,tag) MPI_Irecv(req->r_vec->v_data, 1,\
@@ -54,8 +54,8 @@
 #elif COMMMODE == 4
   #define COMMTEXT  IsendIrecvPack
 
-  #define ADCL_CHANGE_SB_AAO  ADCL_change_isendirecv_pack_sb_aao
-  #define ADCL_CHANGE_SB_PAIR ADCL_change_isendirecv_pack_sb_pair
+  #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_IsendIrecv_pack
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_IsendIrecv_pack
   #define SEND_START(req,i,tag) { int _pos=0;                          \
      MPI_Pack ( req->r_vec->v_data, 1, req->r_sdats[i],                \
                 req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);\
@@ -81,6 +81,8 @@
     
 #endif
 
+int ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req);
+int ADCL_change_sb_pair_IsendIrecv (ADCL_request_t *req);
 
 
 #endif /* __ADCL_CHANGE_H__ */
