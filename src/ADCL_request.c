@@ -1,7 +1,8 @@
 #include "ADCL.h"
 
 static int ADCL_local_id_counter=0;
-static int ADCL_request_set_topoinfo ( ADCL_request_t *newreq, MPI_Comm cart_comm );
+static int ADCL_request_set_topoinfo ( ADCL_request_t *newreq, 
+				       MPI_Comm cart_comm );
 
 int ADCL_request_create ( ADCL_vector vec, MPI_Comm cart_comm, 
 			  ADCL_request *req )
@@ -206,8 +207,8 @@ int ADCL_3D_comm_single_block ( ADCL_request req )
     ADCL_method_t *tmethod;
  
     if ( tmpreq->r_comm_state == ADCL_COMM_ACTIVE ) {
-	printf("Illegal to initiate a new communication before finishing"
-	       " the last one\n");
+	ADCL_printf("Illegal to initiate a new communication before finishing"
+		    " the last one\n");
 	return ADCL_USER_ERROR;
     }
 
@@ -253,8 +254,8 @@ int ADCL_3D_comm_single_block ( ADCL_request req )
 						      t2, t1 );	    
 	    break;
 	default:
-	    printf("%s: Unknown object status for tmpreq %d, status %d \n", 
-		   __FILE__, tmpreq->r_id, tmpreq->rs_state );
+	    ADCL_printf("%s: Unknown object status for tmpreq %d, status %d \n", 
+			__FILE__, tmpreq->r_id, tmpreq->rs_state );
 	    break;
     }
 
@@ -275,8 +276,8 @@ int ADCL_3D_comm_dual_block_init ( ADCL_request req )
     int tmp;
     
     if ( tmpreq->r_comm_state != ADCL_COMM_AVAIL ) {
-	printf("Illegal to initiate a new communication before finishing the last"
-		    " one\n");
+	ADCL_printf("Illegal to initiate a new communication before finishing"
+		    " the last one\n");
 	return ADCL_USER_ERROR;
     }
 
@@ -325,8 +326,8 @@ int ADCL_3D_comm_dual_block_init ( ADCL_request req )
 	    tmpreq->r_comm_state = ADCL_COMM_ACTIVE;
 	    break;
 	default:
-	    printf("%s: Unknown object status for tmpreq %d, status %d \n", 
-		   __FILE__, tmpreq->r_id, tmpreq->rd_state );
+	    ADCL_printf("%s: Unknown object status for tmpreq %d, status %d \n", 
+			__FILE__, tmpreq->r_id, tmpreq->rd_state );
 	    break;
     }
 
@@ -341,7 +342,7 @@ int ADCL_3D_comm_dual_block_wait ( ADCL_request req )
     int tmp;
     
     if ( tmpreq->r_comm_state != ADCL_COMM_ACTIVE ) {
-	printf("Have to initiate a communication before calling wait\n");
+	ADCL_printf("Have to initiate a communication before calling wait\n");
 	return ADCL_USER_ERROR;
     }
 
@@ -373,8 +374,8 @@ int ADCL_3D_comm_dual_block_wait ( ADCL_request req )
 	    break;
 	case ADCL_STATE_DECISION:
 	default:
-	    printf("%s: Unknown object status for tmpreq %d, status %d \n", 
-		   __FILE__, tmpreq->r_id, tmpreq->rd_state );
+	    ADCL_printf("%s: Unknown object status for tmpreq %d, status %d \n", 
+			__FILE__, tmpreq->r_id, tmpreq->rd_state );
 	    break;
     }
 
@@ -386,19 +387,19 @@ int ADCL_3D_comm_dual_block_wait ( ADCL_request req )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static int ADCL_request_set_topoinfo ( ADCL_request_t *newreq, MPI_Comm cart_comm )
+static int ADCL_request_set_topoinfo (ADCL_request_t *newreq, MPI_Comm ccomm )
 {
     int cartdim, i, rank;
 
-    MPI_Comm_rank ( cart_comm, &rank );
+    MPI_Comm_rank ( ccomm, &rank );
     
-    MPI_Cartdim_get ( cart_comm, &cartdim );
+    MPI_Cartdim_get ( ccomm, &cartdim );
     newreq->r_coords = (int *)malloc ( cartdim * sizeof(int));
     if ( NULL == newreq->r_coords ) {
 	return ADCL_NO_MEMORY;
     }
 
-    MPI_Cart_coords ( cart_comm, rank, cartdim, newreq->r_coords );
+    MPI_Cart_coords ( ccomm, rank, cartdim, newreq->r_coords );
 
     newreq->r_nneighbors = 2*cartdim;
     newreq->r_neighbors  = (int *) malloc ( 2*cartdim *sizeof(int));
@@ -406,7 +407,7 @@ static int ADCL_request_set_topoinfo ( ADCL_request_t *newreq, MPI_Comm cart_com
 	return ADCL_NO_MEMORY;
     }
     for ( i=0; i< cartdim; i++ ) {
-	MPI_Cart_shift ( cart_comm, i, 1, &(newreq->r_neighbors[2*i]), 
+	MPI_Cart_shift ( ccomm, i, 1, &(newreq->r_neighbors[2*i]), 
 			 &(newreq->r_neighbors[2*i+1]) );
     }
 

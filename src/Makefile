@@ -12,7 +12,8 @@ OBJ =  	ADCL.o		        \
 	ADCL_request.o 		\
 	ADCL_subarray.o         \
 	ADCL_packunpack.o       \
-	ADCL_change.o
+	ADCL_change.o           \
+	ADCL_printf.o
 
 
 HEADER = $(ADCL_INC_DIR)/ADCL.h        \

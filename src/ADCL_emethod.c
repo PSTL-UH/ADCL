@@ -54,8 +54,8 @@ int ADCL_emethods_get_winner ( int count, ADCL_emethod_t *emethods,
 	for (j=0; j< count; j++ ) {
 	    if ( sorted[(2*i)+1] == emethods[j].em_id ) {
 		emethods[j].em_lpts = pts;
-		printf("Assigning %d pts for method %d avg=%lf\n", 
-		       pts, emethods[j].em_id, emethods[j].em_avg );
+		ADCL_printf("Assigning %d pts for method %d avg=%lf\n", 
+			    pts, emethods[j].em_id, emethods[j].em_avg );
 		continue;
 	    }
 	}

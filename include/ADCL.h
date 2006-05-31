@@ -47,5 +47,6 @@
 int ADCL_Init (void );
 int ADCL_Finalize (void );
 
+int ADCL_printf( const char *format, ...);
 
 #endif /* __ADCL_H__ */

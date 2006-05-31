@@ -14,7 +14,7 @@ void* ADCL_allocate_matrix ( int ndims, int *dims, MPI_Datatype dat )
 	return ADCL_allocate_int_matrix  (ndims, dims );
     }
     else {
-	printf("Datatype not supported by ADCL right now!\n");
+	ADCL_printf("Datatype not supported by ADCL right now!\n");
     }
 
     return NULL;
@@ -33,7 +33,7 @@ void ADCL_free_matrix ( int ndims, MPI_Datatype dat, void *mat )
 	ADCL_free_int_matrix  (ndims, mat );
     }
     else {
-	printf("Datatype not supported by ADCL right now!\n");
+	ADCL_printf("Datatype not supported by ADCL right now!\n");
     }
 
     return;

@@ -6,7 +6,7 @@ void* ADCL_allocate_TYPE_matrix ( int ndims, int *dims )
     switch ( ndims ) {
 	case 1: {
 	    TYPE *matrix;
-	    matrix = (TYPE *) malloc ( dims[0] * sizeof(TYPE));
+	    matrix = ( TYPE *) malloc ( dims[0] * sizeof( TYPE ));
 	    if ( NULL == matrix ) {
 		return NULL;
 	    }
@@ -33,8 +33,8 @@ void* ADCL_allocate_TYPE_matrix ( int ndims, int *dims )
 	    return &(matrix[0][0][0][0][0]);
 	}
 	default:
-	    printf("This dimension %d currently not supported\n", 
-		   ndims );
+	    ADCL_printf("This dimension %d currently not supported\n", 
+			ndims );
 	    break;
     }
 	
@@ -45,20 +45,20 @@ void ADCL_free_TYPE_matrix ( int ndims, void *mat)
 {
     switch ( ndims ) {
 	case 1: {
-	    TYPE *matrix = (TYPE* ) mat;
+	    TYPE *matrix = ( TYPE *) mat;
 	    if ( NULL != matrix ) {
 		free ( matrix );
-		*matrix = NULL;
+		matrix = NULL;
 	    }
 	    break;
 	}
 	case 2: {
-	    TYPE **matrix = (TYPE **) mat;
+	    TYPE **matrix = ( TYPE **) mat;
 	    ADCL_free_2D_TYPE_matrix ( &matrix );
 	    break;
 	}
 	case 3: {
-	    TYPE ***matrix = (TYPE ***) mat;
+	    TYPE ***matrix = ( TYPE ***) mat;
 	    ADCL_free_3D_TYPE_matrix ( &matrix );
 	    break;
 	}
@@ -68,13 +68,13 @@ void ADCL_free_TYPE_matrix ( int ndims, void *mat)
 	    break;
 	}
 	case 5: {
-	    TYPE *****matrix = (TYPE *****) mat;
+	    TYPE *****matrix = ( TYPE *****) mat;
 	    ADCL_free_5D_TYPE_matrix ( &matrix );
-	    break
+	    break;
 	}
 	default:
-	    printf("This dimension %d currently not supported\n", 
-		   ndims );
+	    ADCL_printf("This dimension %d currently not supported\n", 
+			ndims );
 	    break;
     }
 	
@@ -92,13 +92,13 @@ int ADCL_allocate_2D_TYPE_matrix (TYPE ***matrix,int dims[2])
   
   data = (TYPE *) malloc(dims[0]*dims[1]*sizeof(TYPE));
   if (data == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   
   tmp_field0 = (TYPE **) malloc (dims[0]*sizeof(TYPE *));
   if (tmp_field0 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<(dims[0]); i++) {
@@ -119,13 +119,13 @@ int ADCL_allocate_3D_TYPE_matrix (TYPE ****matrix,int dims[3])
   
   data = (TYPE *) malloc(dims[0]*dims[1]*dims[2]*sizeof(TYPE));
   if (data == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   
   tmp_field0 = (TYPE **) malloc (dims[0]*dims[1]*sizeof(TYPE *));
   if (tmp_field0 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<(dims[0]*dims[1]); i++) {
@@ -133,7 +133,7 @@ int ADCL_allocate_3D_TYPE_matrix (TYPE ****matrix,int dims[3])
   }
   tmp_field1 = (TYPE ***) malloc (dims[0]*sizeof(TYPE **));
   if (tmp_field1 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<dims[0]; i++) {
@@ -155,13 +155,13 @@ int ADCL_allocate_4D_TYPE_matrix (TYPE *****matrix,int dims[4])
   
   data = (TYPE *) malloc(dims[0]*dims[1]*dims[2]*dims[3]*sizeof(TYPE));
   if (data == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   
   tmp_field0 = (TYPE **) malloc (dims[0]*dims[1]*dims[2]*sizeof(TYPE *));
   if (tmp_field0 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<(dims[0]*dims[1]*dims[2]); i++) {
@@ -169,7 +169,7 @@ int ADCL_allocate_4D_TYPE_matrix (TYPE *****matrix,int dims[4])
   }
   tmp_field1 = (TYPE ***) malloc (dims[0]*dims[1]*sizeof(TYPE **));
   if (tmp_field1 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<dims[0]*dims[1]; i++) {
@@ -177,7 +177,7 @@ int ADCL_allocate_4D_TYPE_matrix (TYPE *****matrix,int dims[4])
   }
   tmp_field2 = (TYPE ****) malloc (dims[0]*sizeof(TYPE **));
   if (tmp_field2 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<dims[0]; i++) {
@@ -200,13 +200,13 @@ int ADCL_allocate_5D_TYPE_matrix (TYPE ******matrix,int dims[5])
   
   data = (TYPE *) malloc(dims[0]*dims[1]*dims[2]*dims[3]*dims[4]*sizeof(TYPE));
   if (data == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   
   tmp_field0 = (TYPE **) malloc (dims[0]*dims[1]*dims[2]*dims[3]*sizeof(TYPE *));
   if (tmp_field0 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<(dims[0]*dims[1]*dims[2]*dims[3]); i++) {
@@ -214,7 +214,7 @@ int ADCL_allocate_5D_TYPE_matrix (TYPE ******matrix,int dims[5])
   }
   tmp_field1 = (TYPE ***) malloc (dims[0]*dims[1]*dims[2]*sizeof(TYPE **));
   if (tmp_field1 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<dims[0]*dims[1]*dims[2]; i++) {
@@ -222,7 +222,7 @@ int ADCL_allocate_5D_TYPE_matrix (TYPE ******matrix,int dims[5])
   }
   tmp_field2 = (TYPE ****) malloc (dims[0]*dims[1]*sizeof(TYPE ***));
   if (tmp_field2 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<dims[0]*dims[1]; i++) {
@@ -230,7 +230,7 @@ int ADCL_allocate_5D_TYPE_matrix (TYPE ******matrix,int dims[5])
   }
   tmp_field3 = (TYPE *****) malloc (dims[0]*sizeof(TYPE ****));
   if (tmp_field3 == NULL ) {
-      printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
+      ADCL_printf("%d @ %s, Could not allocate memory\n",  __LINE__,__FILE__);
       return ADCL_NO_MEMORY;
   }
   for (i=0; i<dims[0]; i++) {
