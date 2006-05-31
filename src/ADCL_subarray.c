@@ -1,34 +1,35 @@
 #include "ADCL.h"
 
-int ADCL_subarray_init ( int numdims, int *ldims, int hwidth, int *neighbors,
-			 int order,  MPI_Datatype **senddats, MPI_Datatype **recvdats)
+int ADCL_subarray_init ( int topodims, int *neighbors, int vecndims, 
+			 int *vecdims, int hwidth, int nc, int order,  
+			 MPI_Datatype **senddats, MPI_Datatype **recvdats)
 {
     int i, j, k;
     int ret = ADCL_SUCCESS;
     int *subdims=NULL, *sstarts=NULL, *rstarts=NULL;
     MPI_Datatype *sdats=NULL, *rdats=NULL;
 
-    subdims  = ( int*) malloc ( numdims * sizeof(int) );
+    subdims  = ( int*) malloc ( vecndims * sizeof(int) );
     if ( NULL == subdims ) {
 	return ADCL_NO_MEMORY;
     }
 
-    sstarts  = ( int*) malloc ( numdims * sizeof(int) );
-    rstarts  = ( int*) malloc ( numdims * sizeof(int) );
+    sstarts  = ( int*) malloc ( vecndims * sizeof(int) );
+    rstarts  = ( int*) malloc ( vecndims * sizeof(int) );
     if ( NULL == sstarts || NULL == rstarts  ) {
 	ret = ADCL_NO_MEMORY;
 	goto exit;
     }
 
-    sdats = ( MPI_Datatype *) malloc ( numdims * 2 * sizeof(int));
-    rdats = ( MPI_Datatype *) malloc ( numdims * 2 * sizeof(int));
+    sdats = ( MPI_Datatype *) malloc ( topodims * 2 * sizeof(int));
+    rdats = ( MPI_Datatype *) malloc ( topodims * 2 * sizeof(int));
     if ( NULL == sdats || NULL == rdats  ) {
 	ret = ADCL_NO_MEMORY;
 	goto exit;
     }
     
-    /* Loop over all dimensions */
-    for ( i = 0; i < numdims; i++ ) {
+    /* Loop over all topology dimensions */
+    for ( i = 0; i < topodims; i++ ) {
 
 	/* handle left and right neighbor separatly */
 	for ( j=2*i; j<= 2*i+1; j++ ) 
@@ -50,21 +51,40 @@ int ADCL_subarray_init ( int numdims, int *ldims, int hwidth, int *neighbors,
 		      - 0 for the left neighbor
 		      - ldims[k]-HWDITH for the right neighbor
 		*/
-		for ( k=0; k < numdims; k++ ) {
-		    if ( k == i ) {
-			subdims[k] = 1;
-			sstarts[k] = (j == 2*i) ? 1 : (ldims[k]-2*hwidth);
-			rstarts[k] = (j == 2*i) ? 0 : (ldims[k]-hwidth);
+		if  ( nc > 0 ) {
+		    for ( k=0; k < vecndims-1; k++ ) {
+			if ( k == i ) {
+			    subdims[k] = 1;
+			    sstarts[k] = (j == 2*i) ? 1 : (vecdims[k]-2*hwidth);
+			    rstarts[k] = (j == 2*i) ? 0 : (vecdims[k]-hwidth);
+			}
+			else {
+			    subdims[k] = vecdims[k]- 2*hwidth;
+			    sstarts[k] = 1;
+			    rstarts[k] = 1;
+			}
 		    }
-		    else {
-			subdims[k] = ldims[k]- 2*hwidth;
-			sstarts[k] = 1;
-			rstarts[k] = 1;
+		    subdims[vecndims-1] = nc;
+		    sstarts[vecndims-1] = 0;
+		    rstarts[vecndims-1] = 0;
+		}
+		else {
+		    for ( k=0; k < vecndims; k++ ) {
+			if ( k == i ) {
+			    subdims[k] = 1;
+			    sstarts[k] = (j == 2*i) ? 1 : (vecdims[k]-2*hwidth);
+			    rstarts[k] = (j == 2*i) ? 0 : (vecdims[k]-hwidth);
+			}
+			else {
+			    subdims[k] = vecdims[k]- 2*hwidth;
+			    sstarts[k] = 1;
+			    rstarts[k] = 1;
+			}
 		    }
 		}
-		MPI_Type_create_subarray ( numdims, ldims, subdims, sstarts,
+		MPI_Type_create_subarray ( vecndims, vecdims, subdims, sstarts,
 					   order, MPI_DOUBLE, &(sdats[j]));
-		MPI_Type_create_subarray ( numdims, ldims, subdims, rstarts,
+		MPI_Type_create_subarray ( vecndims, vecdims, subdims, rstarts,
 					   order, MPI_DOUBLE, &(rdats[j]));
 		MPI_Type_commit ( &(sdats[j]));
 		MPI_Type_commit ( &(rdats[j]));

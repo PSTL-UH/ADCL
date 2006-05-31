@@ -40,8 +40,9 @@
 
 */
 
-int  ADCL_subarray_init ( int numdims, int *ldims, int hwidth, int *neighbors, 
-			  int order, MPI_Datatype **sdats, MPI_Datatype **rdats);
+int  ADCL_subarray_init ( int topodims, int *neighbors, int vecndims, int *vecdims, 
+			  int hwidth, int nc, int order, 
+			  MPI_Datatype **sdats, MPI_Datatype **rdats);
 void ADCL_subarray_free ( int num, MPI_Datatype **sdats, MPI_Datatype **rdats );
 
 

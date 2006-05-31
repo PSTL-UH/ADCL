@@ -31,6 +31,9 @@ int ADCL_vector_allocate ( int ndims, int *dims, int nc, int hwidth,
     if ( 0 > hwidth ) {
 	return ADCL_INVALID_HWIDTH;
     }
+    if ( 0 > nc ) {
+	return ADCL_INVALID_NC;
+    }
     if ( MPI_DATATYPE_NULL == dat ) {
 	return ADCL_INVALID_DAT;
     }
@@ -138,6 +141,9 @@ int ADCL_vector_register ( int ndims, int *dims, int nc, int hwidth,
     if ( 0 > hwidth ) {
 	return ADCL_INVALID_HWIDTH;
     }
+    if ( 0 > nc ) {
+	return ADCL_INVALID_NC;
+    }
     if ( MPI_DATATYPE_NULL == dat ) {
 	return ADCL_INVALID_DAT;
     }
@@ -227,7 +233,7 @@ static int ADCL_vector_get_realdim ( int ndims, int *dims, int nc,
 	lndims = ndims;
     }
     else {
-	lndims = ndims;
+	lndims = ndims + 1;
     }
     
     ldims = (int *) malloc ( lndims * sizeof ( int));
@@ -238,9 +244,11 @@ static int ADCL_vector_get_realdim ( int ndims, int *dims, int nc,
 	ldims[i] = dims[i];
     }
 
-    if ( nc == 0 ) {
+    if ( nc != 0 ) {
 	ldims[lndims-1] = nc;
     }
 
+    *rndims = lndims;
+    *rdims = ldims;
     return ADCL_SUCCESS;
 }

@@ -5,7 +5,7 @@ OBJ =  	ADCL.o		        \
 	ADCL_vector.o           \
 	ADCL_memory.o 		\
 	ADCL_memory_backend_double.o \
-	ADCL_memory_backend_float.o   \
+	ADCL_memory_backend_float.o  \
 	ADCL_memory_backend_int.o    \
 	ADCL_method.o 		\
 	ADCL_emethod.o 		\
@@ -28,10 +28,10 @@ HEADER = $(ADCL_INC_DIR)/ADCL.h        \
 
 .SUFFIXES: .o.c
 
-all:    memory
+all:    
 	make $(ADCL_LIB) 
 
-memory:	
+memory:	$(HEADER) 
 	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=1 \
 	                -o ADCL_memory_backend_double.o
 	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=2   \
@@ -39,7 +39,7 @@ memory:
 	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=3   \
 	                -o ADCL_memory_backend_int.o
 
-$(ADCL_LIB): $(HEADER) $(OBJ)
+$(ADCL_LIB): $(HEADER) $(OBJ) memory
 	$(AR) $(AR_FLAGS) $(ADCL_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)
