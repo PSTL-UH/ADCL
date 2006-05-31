@@ -40,11 +40,9 @@ int main ( int argc, char ** argv )
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
     MPI_Comm_size ( MPI_COMM_WORLD, &size );
 
-    /* Initiate the ADCL library */
+    /* Initiate the ADCL library and register a 2D vector with ADCL */
     ADCL_Init ();
-    
-    /* Register a two dimensional vector with ADCL */
-    ADCL_vector_register ( 2,  dims, 1, 1, MPI_DOUBLE, matrix, &vec );
+    ADCL_vector_register ( 2,  dims, 0, 1, MPI_DOUBLE, matrix, &vec );
 
     /* Describe the neighborhood relations */
     MPI_Dims_create ( size, 2, cdims );
