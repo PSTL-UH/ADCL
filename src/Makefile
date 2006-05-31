@@ -4,6 +4,9 @@ include ../Makefile.defs
 OBJ =  	ADCL.o		        \
 	ADCL_vector.o           \
 	ADCL_memory.o 		\
+	ADCL_memory_backend_double.o \
+	ADCL_memory_backend_float.o   \
+	ADCL_memory_backend_int.o    \
 	ADCL_method.o 		\
 	ADCL_emethod.o 		\
 	ADCL_request.o 		\
@@ -24,8 +27,16 @@ HEADER = $(ADCL_INC_DIR)/ADCL.h        \
 
 .SUFFIXES: .o.c
 
-all:
+all:    memory
 	make $(ADCL_LIB) 
+
+memory:	
+	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=1 \
+	                -o ADCL_memory_backend_double.o
+	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=2   \
+	                -o ADCL_memory_backend_float.o
+	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=3   \
+	                -o ADCL_memory_backend_int.o
 
 $(ADCL_LIB): $(HEADER) $(OBJ)
 	$(AR) $(AR_FLAGS) $(ADCL_LIB) $(OBJ)
