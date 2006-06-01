@@ -26,13 +26,13 @@ int main ( int argc, char ** argv )
     /* Definition of the 2-D vector */
     int dims[2]={DIM0+2*HWIDTH, DIM1+2*HWIDTH};
     double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH];
-    ADCL_vector vec;
+    ADCL_Vector vec;
 
     /* Variables for the process topology information */
     int cdims[]={0,0};
     int periods[]={0,0};
     MPI_Comm cart_comm;
-    ADCL_request request;
+    ADCL_Request request;
 
 
     /* Initiate the MPI environment */
@@ -42,7 +42,7 @@ int main ( int argc, char ** argv )
 
     /* Initiate the ADCL library and register a 2D vector with ADCL */
     ADCL_Init ();
-    ADCL_vector_register ( 2,  dims, 0, 1, MPI_DOUBLE, matrix, &vec );
+    ADCL_Vector_register ( 2,  dims, 0, 1, MPI_DOUBLE, matrix, &vec );
 
     /* Describe the neighborhood relations */
     MPI_Dims_create ( size, 2, cdims );
@@ -50,7 +50,7 @@ int main ( int argc, char ** argv )
 
     /* Match the data type description and the process topology 
        to each other */
-    ADCL_request_create ( vec, cart_comm, &request );
+    ADCL_Request_create ( vec, cart_comm, &request );
 
     /* Initiate matrix to zero including halo-cells */
     matrix_init ( dims, cdims, matrix, cart_comm );
@@ -68,8 +68,8 @@ int main ( int argc, char ** argv )
    /* Dump the resulting matrix */
     matrix_dump ( matrix, cart_comm, "After the communication");
 
-    ADCL_request_free ( &request );
-    ADCL_vector_deregister ( &vec );
+    ADCL_Request_free ( &request );
+    ADCL_Vector_deregister ( &vec );
     MPI_Comm_free ( &cart_comm );
     
     ADCL_Finalize ();

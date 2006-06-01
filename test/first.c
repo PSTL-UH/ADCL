@@ -11,8 +11,8 @@ int main ( int argc, char ** argv )
     int dims[3]={66,34,34};
     int cdims[]={0,0,0};
     int periods[]={0,0,0};
-    ADCL_vector vec;
-    ADCL_request request;
+    ADCL_Vector vec;
+    ADCL_Request request;
     
     MPI_Comm cart_comm;
 
@@ -21,19 +21,19 @@ int main ( int argc, char ** argv )
     MPI_Comm_size ( MPI_COMM_WORLD, &size );
 
     ADCL_Init ();
-    ADCL_vector_allocate ( 3,  dims, 1, 1, MPI_DOUBLE, &vec );
+    ADCL_Vector_allocate ( 3,  dims, 1, 1, MPI_DOUBLE, &vec );
 
     MPI_Dims_create ( size, 3, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, &cart_comm);
 
-    ADCL_request_create ( vec, cart_comm, &request );
+    ADCL_Request_create ( vec, cart_comm, &request );
 
     for ( i=0; i<NIT; i++ ) {
 	ADCL_3D_comm_single_block( request );
     }
 
-    ADCL_request_free ( &request );
-    ADCL_vector_free ( &vec );
+    ADCL_Request_free ( &request );
+    ADCL_Vector_free ( &vec );
     MPI_Comm_free ( &cart_comm );
     
     ADCL_Finalize ();
