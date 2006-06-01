@@ -8,15 +8,8 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 			  ADCL_request_t **req )
 {
     int i, ret = ADCL_SUCCESS;
-    int topo_type;
     ADCL_request_t *newreq;
     ADCL_vector_t *pvec = vec;
-    
-    /* Right now we can only handle cartesian topologies! */
-    MPI_Topo_test ( cart_comm, &topo_type );
-    if ( MPI_UNDEFINED==topo_type || MPI_GRAPH==topo_type ) {
-	return ADCL_INVALID_COMM;
-    }
     
     /* Alloacte the general ADCL_request structure */
     newreq = (ADCL_request_t *) calloc ( 1, sizeof(ADCL_request_t));
@@ -154,16 +147,8 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 
 int ADCL_request_free ( ADCL_request_t **req )
 {
-    ADCL_request_t *preq;
+    ADCL_request_t *preq=*req;
 
-    /* check whether the request is a valid object
-       and is allowed to be free right now (= no communciation
-       started ) */
-    if ( NULL == req ) {
-	return ADCL_INVALID_REQUEST;
-    }
-
-    preq = *req;
     if ( preq->r_id > ADCL_local_id_counter || 
 	 preq->r_id < 0 ) {
 	return ADCL_INVALID_REQUEST;
