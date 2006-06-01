@@ -1,5 +1,5 @@
 #include "ADCL.h"
-
+#include "ADCL_internal.h"
 
 int ADCL_Init (void )
 {

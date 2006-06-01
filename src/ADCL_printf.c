@@ -1,4 +1,4 @@
-#include "ADCL.h"
+#include "ADCL_internal.h"
 #include <stdarg.h>
 
 int ADCL_printf ( const char* format, ... ) 

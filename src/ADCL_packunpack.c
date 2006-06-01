@@ -1,4 +1,4 @@
-#include "ADCL.h"
+#include "ADCL_internal.h"
 
 
 int ADCL_packunpack_init ( int num, int neighbors[], MPI_Comm comm, 

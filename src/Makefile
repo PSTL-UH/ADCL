@@ -1,8 +1,7 @@
 include ../Makefile.defs
 
 
-OBJ =  	ADCL.o		        \
-	ADCL_vector.o           \
+OBJ = 	ADCL_vector.o           \
 	ADCL_memory.o 		\
 	ADCL_memory_backend_double.o \
 	ADCL_memory_backend_float.o  \
@@ -24,13 +23,14 @@ OBJ =  	ADCL.o		        \
 	ADCL_printf.o
 
 
-HEADER = $(ADCL_INC_DIR)/ADCL.h        \
-	 $(ADCL_INC_DIR)/ADCL_method.h  \
-	 $(ADCL_INC_DIR)/ADCL_emethod.h \
-	 $(ADCL_INC_DIR)/ADCL_request.h \
-	 $(ADCL_INC_DIR)/ADCL_vector.h  \
-	 $(ADCL_INC_DIR)/ADCL_memory.h  \
-	 $(ADCL_INC_DIR)/ADCL_request.h \
+HEADER = $(ADCL_INC_DIR)/ADCL.h           \
+	 $(ADCL_INC_DIR)/ADCL_internal.h  \
+	 $(ADCL_INC_DIR)/ADCL_method.h    \
+	 $(ADCL_INC_DIR)/ADCL_emethod.h   \
+	 $(ADCL_INC_DIR)/ADCL_request.h   \
+	 $(ADCL_INC_DIR)/ADCL_vector.h    \
+	 $(ADCL_INC_DIR)/ADCL_memory.h    \
+	 $(ADCL_INC_DIR)/ADCL_request.h   \
 	 $(ADCL_INC_DIR)/ADCL_subarray.h 
 
 
@@ -78,5 +78,4 @@ $(OBJ):	$(HEADER)
 
 clean:
 	rm -rf *.o *~
-	rm -f ADCL
 	rm -rf $(ADCL_LIB)

@@ -2,8 +2,6 @@
 #define __ADCL_VECTOR_H__
 
 
-#define ADCL_VECTOR_NULL (void*) -1
-
 struct ADCL_vector_s{
     int              v_id; /* unique identifier for this process */
     int           v_rfcnt; /* object reference counter */
@@ -17,7 +15,6 @@ struct ADCL_vector_s{
     MPI_Datatype    v_dat; /* basic datatype */
 };
 typedef struct ADCL_vector_s ADCL_vector_t;
-typedef ADCL_vector_t*       ADCL_vector;
 
 /* Some internal routines to access elements of the vector will be introduced
    later/up on demand by the other routines. */
@@ -47,7 +44,7 @@ typedef ADCL_vector_t*       ADCL_vector;
    @retval ADCL_INVALID_DAT      invalid dat input parameter
 */
 int ADCL_vector_allocate ( int ndims, int *dims, int nc, int hwidth, 
-			   MPI_Datatype dat, ADCL_vector *vec );
+			   MPI_Datatype dat, ADCL_vector_t **vec );
 
 
 
@@ -62,7 +59,7 @@ int ADCL_vector_allocate ( int ndims, int *dims, int nc, int hwidth,
    @retval ADCL_INVALID_DATA     data pointer was not allocated with 
                                  ADCL_vector_allocate
 */
-int ADCL_vector_free  ( ADCL_vector *vec );
+int ADCL_vector_free  ( ADCL_vector_t **vec );
 
 
 
@@ -96,7 +93,7 @@ int ADCL_vector_free  ( ADCL_vector *vec );
 */
 int ADCL_vector_register ( int ndims, int *dims, int nc, int hwidth, 
 			   MPI_Datatype dat, void *data, 
-			   ADCL_vector *vec );
+			   ADCL_vector_t **vec );
 
 
 
@@ -115,7 +112,7 @@ int ADCL_vector_register ( int ndims, int *dims, int nc, int hwidth,
 				 ADCL_vector_free instead of 
 				 ADCL_vector_deregister
 */
-int ADCL_vector_deregister  ( ADCL_vector *vec );
+int ADCL_vector_deregister  ( ADCL_vector_t **vec );
 
 
 #endif /* __ADCL_VECTOR_H__ */

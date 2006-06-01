@@ -1,4 +1,4 @@
-#include "ADCL.h"
+#include "ADCL_internal.h"
 
 int ADCL_subarray_init ( int topodims, int *neighbors, int vecndims, 
 			 int *vecdims, int hwidth, int nc, int order,  
@@ -120,7 +120,8 @@ int ADCL_subarray_init ( int topodims, int *neighbors, int vecndims,
     return ret;
 }
 
-void ADCL_subarray_free ( int num, MPI_Datatype **senddats, MPI_Datatype **recvdats ) 
+void ADCL_subarray_free ( int num, MPI_Datatype **senddats, 
+			  MPI_Datatype **recvdats ) 
 {
     int i;
     MPI_Datatype *sdats = *senddats;

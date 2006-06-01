@@ -1,4 +1,4 @@
-#include "ADCL.h"
+#include "ADCL_internal.h"
 
 
 void* ADCL_allocate_TYPE_matrix ( int ndims, int *dims ) 

@@ -1,4 +1,4 @@
-#include "ADCL.h"
+#include "ADCL_internal.h"
 
 
 static int ADCL_singleblock_total_num=0;

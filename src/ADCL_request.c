@@ -1,11 +1,11 @@
-#include "ADCL.h"
+#include "ADCL_internal.h"
 
 static int ADCL_local_id_counter=0;
 static int ADCL_request_set_topoinfo ( ADCL_request_t *newreq, 
 				       MPI_Comm cart_comm );
 
-int ADCL_request_create ( ADCL_vector vec, MPI_Comm cart_comm, 
-			  ADCL_request *req )
+int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm, 
+			  ADCL_request_t **req )
 {
     int i, ret = ADCL_SUCCESS;
     int topo_type;
@@ -152,7 +152,7 @@ int ADCL_request_create ( ADCL_vector vec, MPI_Comm cart_comm,
     return ret;
 }
 
-int ADCL_request_free ( ADCL_request *req )
+int ADCL_request_free ( ADCL_request_t **req )
 {
     ADCL_request_t *preq;
 
@@ -205,7 +205,7 @@ int ADCL_request_free ( ADCL_request *req )
     return ADCL_SUCCESS;
 }
 
-int ADCL_3D_comm_single_block ( ADCL_request req )
+int ADCL_3D_comm_single_block ( ADCL_request_t *req )
 {
     TIME_TYPE t1, t2;
     int tmp;
@@ -274,7 +274,7 @@ int ADCL_3D_comm_single_block ( ADCL_request req )
 /**********************************************************************/
 /**********************************************************************/
 
-int ADCL_3D_comm_dual_block_init ( ADCL_request req )
+int ADCL_3D_comm_dual_block_init ( ADCL_request_t *req )
 {
     TIME_TYPE t1, t2;
     ADCL_request_t *tmpreq = req;
@@ -340,7 +340,7 @@ int ADCL_3D_comm_dual_block_init ( ADCL_request req )
     return ADCL_SUCCESS;
 }
 
-int ADCL_3D_comm_dual_block_wait ( ADCL_request req )
+int ADCL_3D_comm_dual_block_wait ( ADCL_request_t *req )
 {
     TIME_TYPE t1, t2;
     ADCL_request_t *tmpreq = req;

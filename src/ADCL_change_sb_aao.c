@@ -1,4 +1,4 @@
-#include "ADCL.h"
+#include "ADCL_internal.h"
 
 #define AAO_SB_TAG 11111
 

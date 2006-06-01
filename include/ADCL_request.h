@@ -52,19 +52,17 @@ struct ADCL_request_s{
 
 };
 typedef struct ADCL_request_s ADCL_request_t;
-typedef ADCL_request_t* ADCL_request;
 
-#define ADCL_REQUEST_NULL (void*) -2
 
-int ADCL_request_create ( ADCL_vector vec, MPI_Comm comm, 
-			  ADCL_request *req );
-int ADCL_request_free ( ADCL_request *req );
+int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm comm, 
+			  ADCL_request_t **req );
+int ADCL_request_free ( ADCL_request_t **req );
 
 
 /* Do not belong really here, but for now */
-int ADCL_3D_comm_single_block ( ADCL_request req );
-int ADCL_3D_comm_dual_block_init ( ADCL_request req );
-int ADCL_3D_comm_dual_block_wait ( ADCL_request req );
+int ADCL_3D_comm_single_block ( ADCL_request_t *req );
+int ADCL_3D_comm_dual_block_init ( ADCL_request_t *req );
+int ADCL_3D_comm_dual_block_wait ( ADCL_request_t *req );
 
 #endif /* __ADCL_REQUEST_H__ */
 

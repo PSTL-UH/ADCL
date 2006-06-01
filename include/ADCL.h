@@ -1,28 +1,10 @@
 #ifndef __ADCL_H__
 #define __ADCL_H__
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdlib.h>
-
 #include "mpi.h"
 
-#include "ADCL_vector.h"
-#include "ADCL_request.h"
-#include "ADCL_method.h"
-#include "ADCL_emethod.h"
-#include "ADCL_memory.h"
-#include "ADCL_subarray.h"
-#include "ADCL_packunpack.h"
-#include "ADCL_change.h"
 
-
-#define TRUE   1
-#define FALSE  0
-
-/* define error codes */
+/* define constants and error codes */
 #define ADCL_SUCCESS        0
 #define ADCL_NO_MEMORY      -1
 #define ADCL_ERROR_INTERNAL -2
@@ -39,16 +21,30 @@
 #define ADCL_INVALID_REQUEST 17
 #define ADCL_INVALID_NC      18
 
-#define ADCL_STATE_REGULAR  100
-#define ADCL_STATE_TESTING  101
-#define ADCL_STATE_DECISION 102
+#define ADCL_VECTOR_NULL  (void*) -1
+#define ADCL_REQUEST_NULL (void*) -2
 
-#define ADCL_EVAL_DONE  110
+
+/* define the object types visible to the user */
+typedef struct ADCL_vector_s*   ADCL_Vector;
+typedef struct ADCL_request_s*  ADCL_Request;
+
+
 
 /* Prototypes of the User level interface functions */
 int ADCL_Init (void );
 int ADCL_Finalize (void );
 
-int ADCL_printf( const char *format, ...);
+int ADCL_Vector_allocate ( int ndims, int *dims, int nc, int hwidth, 
+			   MPI_Datatype dat, ADCL_Vector *vec );
+int ADCL_Vector_free     ( ADCL_Vector *vec );
+int ADCL_Vector_register ( int ndims, int *dims, int nc, int hwidth, 
+			   MPI_Datatype dat, void *data, 
+			   ADCL_Vector *vec );
+int ADCL_Vector_deregister ( ADCL_Vector *vec );
+
+int ADCL_Request_create ( ADCL_Vector vec, MPI_Comm comm, ADCL_Request *req );
+int ADCL_Request_free   ( ADCL_Request *req );
+
 
 #endif /* __ADCL_H__ */
