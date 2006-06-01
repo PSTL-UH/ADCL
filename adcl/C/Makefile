@@ -2,7 +2,8 @@ include ../../Makefile.defs
 
 
 OBJ =  	ADCL.o		        \
-	ADCL_Vector.o           
+	ADCL_Vector.o           \
+	ADCL_Request.o           
 
 
 HEADER = $(ADCL_INC_DIR)/ADCL.h           \
