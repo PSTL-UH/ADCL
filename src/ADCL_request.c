@@ -194,8 +194,10 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
     t2 = TIME;
 
     ret = ADCL_request_update ( req, t1, t2 );
-    req->r_comm_state = ADCL_COMM_ACTIVE;
     *db = tmethod->m_db;
+    if ( tmethod->m_db ) {
+	req->r_comm_state = ADCL_COMM_ACTIVE;
+    }
 
     return ret;
 }

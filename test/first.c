@@ -29,7 +29,7 @@ int main ( int argc, char ** argv )
     ADCL_Request_create ( vec, cart_comm, &request );
 
     for ( i=0; i<NIT; i++ ) {
-	ADCL_3D_comm_single_block( request );
+	ADCL_Request_start( request );
     }
 
     ADCL_Request_free ( &request );
