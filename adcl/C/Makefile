@@ -33,5 +33,3 @@ $(OBJ):	$(HEADER)
 
 clean:
 	rm -rf *.o *~
-	rm -f ADCL
-	rm -rf $(ADCL_LIB)

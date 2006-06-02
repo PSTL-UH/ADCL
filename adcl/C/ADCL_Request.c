@@ -82,12 +82,18 @@ int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fctn_ptr* midfctn,
     }
     
     if ( db ) {
-	midfctn ( arg1, arg2, arg3 );
+	if ( ADCL_NULL_FCTN_PTR != midfctn ) {
+	    midfctn ( arg1, arg2, arg3 );
+	}
 	ret = ADCL_request_wait ( req );
-	endfctn ( arg1, arg2, arg3 );
+	if ( ADCL_NULL_FCTN_PTR != endfctn ) {
+	    endfctn ( arg1, arg2, arg3 );
+	}
     }
     else {
-	totalfctn(arg1, arg2, arg3 );
+	if ( ADCL_NULL_FCTN_PTR != endfctn ) {
+	    totalfctn(arg1, arg2, arg3 );
+	}
     }
     
     return ret;

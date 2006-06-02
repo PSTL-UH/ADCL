@@ -21,9 +21,9 @@
 #define ADCL_INVALID_REQUEST 17
 #define ADCL_INVALID_NC      18
 
-#define ADCL_VECTOR_NULL  (void*) -1
-#define ADCL_REQUEST_NULL (void*) -2
-
+#define ADCL_VECTOR_NULL  (void*)   -1
+#define ADCL_REQUEST_NULL (void*)   -2
+#define ADCL_NULL_FCTN_PTR (void* ) -3
 
 /* define the object types visible to the user */
 typedef struct ADCL_vector_s*   ADCL_Vector;
