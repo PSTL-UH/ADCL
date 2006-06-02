@@ -177,7 +177,7 @@ int ADCL_request_free ( ADCL_request_t **req )
 /**********************************************************************/
 /**********************************************************************/
 
-int ADCL_request_init ( ADCL_request_t *req )
+int ADCL_request_init ( ADCL_request_t *req, int *db )
 {
     int ret;
     TIME_TYPE t1, t2;
@@ -195,6 +195,8 @@ int ADCL_request_init ( ADCL_request_t *req )
 
     ret = ADCL_request_update ( req, t1, t2 );
     req->r_comm_state = ADCL_COMM_ACTIVE;
+    *db = tmethod->m_db;
+
     return ret;
 }
 /**********************************************************************/

@@ -24,3 +24,71 @@ int ADCL_Request_free ( ADCL_Request *req )
 
     return ADCL_request_free ( req );
 }
+
+int ADCL_Request_start ( ADCL_Request req ) 
+{
+    int ret=ADCL_SUCCESS;
+    int db;
+
+    /* Check validity of the request  */
+
+    ret = ADCL_request_init ( req, &db );
+    if ( ADCL_SUCCESS != ret ) {
+	return ret;
+    }
+    
+    if ( db ) {
+	ret = ADCL_request_wait ( req );
+    }
+    return ret;
+}
+
+int ADCL_Request_init ( ADCL_Request req ) 
+{
+    int ret=ADCL_SUCCESS;
+    int db;
+
+    /* Check validity of the request  */
+
+    ret = ADCL_request_init ( req, &db );
+    return ret;
+}
+
+
+int ADCL_Request_wait ( ADCL_Request req ) 
+{
+    int ret=ADCL_SUCCESS;
+
+    /* Check validity of the request  */
+
+    ret = ADCL_request_wait ( req );
+    return ret;
+}
+
+int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fctn_ptr* midfctn,
+				 ADCL_work_fctn_ptr *endfctn, 
+				 ADCL_work_fctn_ptr *totalfctn,
+				 void *arg1, void* arg2, void *arg3 )
+
+{
+    int ret=ADCL_SUCCESS;
+    int db;
+
+    /* Check validity of the request  */
+
+    ret = ADCL_request_init ( req, &db );
+    if ( ADCL_SUCCESS != ret ) {
+	return ret;
+    }
+    
+    if ( db ) {
+	midfctn ( arg1, arg2, arg3 );
+	ret = ADCL_request_wait ( req );
+	endfctn ( arg1, arg2, arg3 );
+    }
+    else {
+	totalfctn(arg1, arg2, arg3 );
+    }
+    
+    return ret;
+}

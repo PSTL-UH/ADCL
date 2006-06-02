@@ -48,7 +48,7 @@ typedef struct ADCL_request_s ADCL_request_t;
 int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm comm, 
 			  ADCL_request_t **req, int order );
 int ADCL_request_free ( ADCL_request_t **req );
-int ADCL_request_init ( ADCL_request_t *req );
+int ADCL_request_init ( ADCL_request_t *req, int *db );
 int ADCL_request_wait ( ADCL_request_t *req );
 
 #endif /* __ADCL_REQUEST_H__ */

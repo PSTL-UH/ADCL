@@ -32,6 +32,7 @@ typedef struct ADCL_request_s*  ADCL_Request;
 
 
 /* Prototypes of the User level interface functions */
+
 int ADCL_Init (void );
 int ADCL_Finalize (void );
 
@@ -45,6 +46,15 @@ int ADCL_Vector_deregister ( ADCL_Vector *vec );
 
 int ADCL_Request_create ( ADCL_Vector vec, MPI_Comm comm, ADCL_Request *req );
 int ADCL_Request_free   ( ADCL_Request *req );
+int ADCL_Request_start ( ADCL_Request req );
+int ADCL_Request_init ( ADCL_Request req );
+int ADCL_Request_wait ( ADCL_Request req );
+
+typedef void ADCL_work_fctn_ptr ( void *arg1, void *arg2, void *arg3 );
+int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fctn_ptr* midfctn,
+				 ADCL_work_fctn_ptr *endfcnt, 
+				 ADCL_work_fctn_ptr *totalfcnt,
+				 void *arg1, void* arg2, void *arg3 );
 
 
 #endif /* __ADCL_H__ */
