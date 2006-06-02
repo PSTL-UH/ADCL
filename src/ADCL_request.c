@@ -5,7 +5,7 @@ static int ADCL_request_set_topoinfo ( ADCL_request_t *newreq,
 				       MPI_Comm cart_comm );
 
 int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm, 
-			  ADCL_request_t **req )
+			  ADCL_request_t **req, int order )
 {
     int i, ret = ADCL_SUCCESS;
     ADCL_request_t *newreq;
@@ -43,7 +43,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 			       vec->v_dims, 
 			       vec->v_hwidth, 
 			       vec->v_nc,
-			       MPI_ORDER_C, 
+			       order, 
 			       &(newreq->r_sdats), 
 			       &(newreq->r_rdats ) );
     if ( ret != ADCL_SUCCESS ) {

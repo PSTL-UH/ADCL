@@ -12,7 +12,7 @@ int ADCL_Request_create ( ADCL_Vector vec, MPI_Comm cart_comm,
 	return ADCL_INVALID_COMM;
     }
     
-    return ADCL_request_create (vec, cart_comm, req );
+    return ADCL_request_create (vec, cart_comm, req, MPI_ORDER_C );
 }
 
 int ADCL_Request_free ( ADCL_Request *req )

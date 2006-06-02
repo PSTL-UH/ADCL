@@ -23,9 +23,9 @@ struct ADCL_request_s{
 				        cartesian structure */
     int                *r_neighbors; /* array of neighboring processes. */
     int                   *r_coords; /* coordinate of this proc in the proc-topology */
-    int                    *r_spsize; /* size of each individual temporary sbuf used 
-					 for pack/unpack */
-    int                    *r_rpsize; /* size of each individual temporary rbuf used 
+    int                   *r_spsize; /* size of each individual temporary sbuf used 
+			     	        for pack/unpack */
+    int                   *r_rpsize; /* size of each individual temporary rbuf used 
 					for pack/unpack */
     MPI_Datatype           *r_sdats; /* array of MPI datatypes used for sending */
     MPI_Datatype           *r_rdats; /* array of MPI datatypes used for receiving */
@@ -35,27 +35,18 @@ struct ADCL_request_s{
     char                   **r_sbuf; /* temp send buffer used for pack/unpack */    
 
     /* single-block methods */
-    int                     rs_state; /* state of the object */
-    int              rs_num_emethods; /* how many methods shall be evaluated */
-    int              rs_last_emethod; /* position in the array of emthods currently 
-					 being evaluated */
-    ADCL_emethod_t      *rs_emethods; /* list of emethods being evaluated */
-    ADCL_method_t        *rs_wmethod; /* winner method used after the testing */
-
-    /* dual block methods */
-    int                     rd_state; /* state of the object */
-    int              rd_num_emethods; /* how many methods shall be evaluated */
-    int              rd_last_emethod; /* position in the array of emthods currently 
-					 being evaluated */
-    ADCL_emethod_t      *rd_emethods; /* list of emethods being evaluated */
-    ADCL_method_t        *rd_wmethod; /* winner method used after the testing */
-
+    int                      r_state; /* state of the object */
+    int               r_num_emethods; /* how many methods shall be evaluated */
+    int               r_last_emethod; /* position in the array of emthods currently 
+		 			 being evaluated */
+    ADCL_emethod_t       *r_emethods; /* list of emethods being evaluated */
+    ADCL_method_t         *r_wmethod; /* winner method used after the testing */
 };
 typedef struct ADCL_request_s ADCL_request_t;
 
 
 int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm comm, 
-			  ADCL_request_t **req );
+			  ADCL_request_t **req, int order );
 int ADCL_request_free ( ADCL_request_t **req );
 
 
