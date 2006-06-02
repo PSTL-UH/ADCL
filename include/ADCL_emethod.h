@@ -30,10 +30,12 @@ typedef struct ADCL_emethod_s ADCL_emethod_t;
 
 double ADCL_emethod_time(void);
 ADCL_method_t * ADCL_emethod_get_method ( ADCL_emethod_t *emethod);
-int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, TIME_TYPE tstart, TIME_TYPE tend );
+int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, TIME_TYPE tstart, 
+			   TIME_TYPE tend );
 
 int ADCL_emethods_get_winner ( int count, ADCL_emethod_t *emethods, MPI_Comm comm );
-int ADCL_emethods_get_next ( int count, ADCL_emethod_t *emethods, int lastmethod );
+int ADCL_emethods_get_next ( int count, ADCL_emethod_t *emethods, int lastmethod, 
+			     int mode);
 void ADCL_emethods_update ( int count, ADCL_emethod_t *emethods, int lastmethod, 
 			    TIME_TYPE tstart, TIME_TYPE tend );
 

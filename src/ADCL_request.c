@@ -3,7 +3,12 @@
 static int ADCL_local_id_counter=0;
 static int ADCL_request_set_topoinfo ( ADCL_request_t *newreq, 
 				       MPI_Comm cart_comm );
+static int ADCL_request_check_commstate ( ADCL_request_t *req, int mode );
+static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req, int mode);
+static int ADCL_request_update ( ADCL_request_t *req, 
+				 TIME_TYPE t1, TIME_TYPE t2 );
 
+ 
 int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm, 
 			  ADCL_request_t **req, int order )
 {
@@ -72,41 +77,25 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 	goto exit;
     }
 
-    /* Initialize data structures required for single-block operations */
-    newreq->rs_state        = ADCL_STATE_TESTING;
-    newreq->rs_num_emethods = ADCL_get_num_singleblock_methods ();
-    newreq->rs_last_emethod = ADCL_UNDEFINED;
+    /* Initialize the emethod data structures required for evaluating
+       the different communication methods */
+    newreq->r_state        = ADCL_STATE_TESTING;
+    newreq->r_num_emethods = ADCL_get_num_methods ();
+    newreq->r_last_emethod = ADCL_UNDEFINED;
 
-    newreq->rs_emethods = (ADCL_emethod_t*) calloc ( 1, newreq->rs_num_emethods*
-						     sizeof(ADCL_emethod_t));
-    if ( NULL == newreq->rs_emethods ) {
+    newreq->r_emethods = (ADCL_emethod_t*) calloc ( 1, newreq->r_num_emethods*
+						    sizeof(ADCL_emethod_t));
+    if ( NULL == newreq->r_emethods ) {
 	ret = ADCL_NO_MEMORY;
 	goto exit;
     }
-    for ( i=0; i<newreq->rs_num_emethods; i++ ) {
-	newreq->rs_emethods[i].em_id     = ADCL_emethod_get_next_id ();
-	newreq->rs_emethods[i].em_method = ADCL_get_singleblock_method(i);
-	newreq->rs_emethods[i].em_min    = 999999;
+    for ( i=0; i<newreq->r_num_emethods; i++ ) {
+	newreq->r_emethods[i].em_id     = ADCL_emethod_get_next_id ();
+	newreq->r_emethods[i].em_method = ADCL_get_method(i);
+	newreq->r_emethods[i].em_min    = 999999;
     }
-    newreq->rs_wmethod = NULL;
+    newreq->r_wmethod = NULL;
 
-    /* Initialize data structures required for dual-block operations */
-    newreq->rd_state        = ADCL_STATE_TESTING;
-    newreq->rd_num_emethods = ADCL_get_num_dualblock_methods ();
-    newreq->rd_last_emethod = ADCL_UNDEFINED;
-
-    newreq->rd_emethods = (ADCL_emethod_t *) calloc ( 1, newreq->rd_num_emethods*
-						      sizeof(ADCL_emethod_t));
-    if ( NULL == newreq->rd_emethods ) {
-	ret = ADCL_NO_MEMORY;
-	goto exit;
-    }
-    for ( i=0; i<newreq->rd_num_emethods; i++ ) {
-	newreq->rd_emethods[i].em_id = ADCL_emethod_get_next_id ();
-	newreq->rd_emethods[i].em_method = ADCL_get_dualblock_method(i);
-	newreq->rd_emethods[i].em_min    = 999999;
-    }
-    newreq->rd_wmethod = NULL;
 
  exit:
     if ( ret != ADCL_SUCCESS ) {
@@ -128,11 +117,8 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 	if ( MPI_WIN_NULL != newreq->r_win ) {
 	    MPI_Win_free ( &(newreq->r_win) );
 	}
-	if ( NULL != newreq->rs_emethods ) {
-	    free ( newreq->rs_emethods );
-	}
-	if ( NULL != newreq->rd_emethods ) {
-	    free ( newreq->rd_emethods );
+	if ( NULL != newreq->r_emethods ) {
+	    free ( newreq->r_emethods );
 	}
 
 	if ( NULL != newreq ) {
@@ -176,11 +162,8 @@ int ADCL_request_free ( ADCL_request_t **req )
     if ( MPI_WIN_NULL != preq->r_win ) {
 	MPI_Win_free ( &(preq->r_win) );
     }
-    if ( NULL != preq->rs_emethods ) {
-	free ( preq->rs_emethods );
-    }
-    if ( NULL != preq->rd_emethods ) {
-	free ( preq->rd_emethods );
+    if ( NULL != preq->r_emethods ) {
+	free ( preq->r_emethods );
     }
     if ( NULL != preq ) {
 	free ( preq );
@@ -190,187 +173,155 @@ int ADCL_request_free ( ADCL_request_t **req )
     return ADCL_SUCCESS;
 }
 
-int ADCL_3D_comm_single_block ( ADCL_request_t *req )
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+
+int ADCL_request_init ( ADCL_request_t *req )
 {
+    int ret;
     TIME_TYPE t1, t2;
-    int tmp;
-    ADCL_request_t *tmpreq = req;
     ADCL_method_t *tmethod;
- 
-    if ( tmpreq->r_comm_state == ADCL_COMM_ACTIVE ) {
-	ADCL_printf("Illegal to initiate a new communication before finishing"
-		    " the last one\n");
-	return ADCL_USER_ERROR;
+
+    ret = ADCL_request_check_commstate ( req, ADCL_COMM_AVAIL );
+    if ( ADCL_SUCCESS != ret ) {
+	return ret;
     }
+	
+    tmethod = ADCL_request_get_method ( req, ADCL_COMM_AVAIL );
+    t1 = TIME;
+    tmethod->m_ifunc ( req );
+    t2 = TIME;
 
-    switch ( tmpreq->rs_state ) {
-	case ADCL_STATE_TESTING: 
-	    tmp = ADCL_emethods_get_next ( tmpreq->rs_num_emethods, 
-					   tmpreq->rs_emethods,
-					   tmpreq->rs_last_emethod );
-	    if ( ADCL_EVAL_DONE == tmp ) {
-		tmpreq->rs_state = ADCL_STATE_DECISION;
-	    }
-	    else if ( ( ADCL_ERROR_INTERNAL == tmp )   ||
-		      ( 0 > tmp )                      || 
-		      ( tmpreq->rs_num_emethods <= tmp )) {
-		return ADCL_ERROR_INTERNAL;
-	    }
-	    else {
-		tmpreq->rs_last_emethod = tmp;
-		tmethod = ADCL_emethod_get_method (&(tmpreq->rs_emethods[tmp]));
-		
-		t1 = TIME;
-		tmethod->m_ifunc ( tmpreq );
-		t2 = TIME;
+    ret = ADCL_request_update ( req, t1, t2 );
+    req->r_comm_state = ADCL_COMM_ACTIVE;
+    return ret;
+}
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 
-		ADCL_emethods_update(tmpreq->rs_num_emethods,tmpreq->rs_emethods,
-				     tmpreq->rs_last_emethod, t1, t2 );
-	    }
-	    break;
-	case ADCL_STATE_DECISION:
-	    tmp = ADCL_emethods_get_winner ( tmpreq->rs_num_emethods,
-					     tmpreq->rs_emethods, 
-					     tmpreq->r_comm );
-	    tmpreq->rs_wmethod=ADCL_emethod_get_method(&tmpreq->rs_emethods[tmp]);
-	    tmpreq->rs_last_emethod = tmp;
-	    tmpreq->rs_state  = ADCL_STATE_REGULAR;
-	    /* no break; statement here on purpose! */
-	case ADCL_STATE_REGULAR:
-	    t1 = TIME;
-	    tmpreq->rs_wmethod->m_ifunc ( tmpreq );
-	    t2 = TIME;
+int ADCL_request_wait ( ADCL_request_t *req )
+{
+    int ret;
+    TIME_TYPE t1, t2;
+    ADCL_method_t *tmethod;
 
-	    tmpreq->rs_state=ADCL_emethod_monitor(&tmpreq->rs_emethods[tmpreq->rs_last_emethod], 
-						      t2, t1 );	    
-	    break;
-	default:
-	    ADCL_printf("%s: Unknown object status for tmpreq %d, status %d \n", 
-			__FILE__, tmpreq->r_id, tmpreq->rs_state );
-	    break;
+    ret = ADCL_request_check_commstate ( req, ADCL_COMM_ACTIVE );
+    if ( ADCL_SUCCESS != ret ) {
+	return ret;
     }
-
-    /* No need to mofify the communication state of the object, since this is 
-       a blocking operation */
-    return ADCL_SUCCESS;
+	
+    tmethod = ADCL_request_get_method ( req, ADCL_COMM_ACTIVE );
+    if ( NULL != tmethod->m_wfunc ) {
+	t1 = TIME;
+	tmethod->m_wfunc ( req );
+	t2 = TIME;
+	
+	ret = ADCL_request_update ( req, t1, t2 );
+    }
+    else {
+	ret = ADCL_request_update ( req, -1, -1 );
+    }
+    
+    req->r_comm_state = ADCL_COMM_AVAIL;
+    return ret;
 }
 
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-
-int ADCL_3D_comm_dual_block_init ( ADCL_request_t *req )
+static int ADCL_request_check_commstate ( ADCL_request_t *req, int mode ) 
 {
-    TIME_TYPE t1, t2;
-    ADCL_request_t *tmpreq = req;
-    ADCL_method_t *tmethod;
-    int tmp;
-    
-    if ( tmpreq->r_comm_state != ADCL_COMM_AVAIL ) {
-	ADCL_printf("Illegal to initiate a new communication before finishing"
-		    " the last one\n");
-	return ADCL_USER_ERROR;
+
+    /* requested mode and current communication mode 
+       have to be identical */
+    if ( req->r_comm_state == mode ) {
+	return ADCL_SUCCESS;
     }
-
-    switch ( tmpreq->rd_state ) {
-	case ADCL_STATE_TESTING:
-	    tmp = ADCL_emethods_get_next ( tmpreq->rd_num_emethods, 
-					   tmpreq->rd_emethods,
-					   tmpreq->rd_last_emethod );
-	    if ( ADCL_EVAL_DONE == tmp ) {
-		tmpreq->rd_state = ADCL_STATE_DECISION;
-	    }
-	    else if ( ( ADCL_ERROR_INTERNAL == tmp )   ||
-		      ( 0 > tmp )                      || 
-		      ( tmpreq->rd_num_emethods <= tmp )) {
-		return ADCL_ERROR_INTERNAL;
-	    }
-	    else {
-		tmpreq->rd_last_emethod = tmp;
-		tmethod = ADCL_emethod_get_method(&(tmpreq->rd_emethods[tmp]));
-		
-		t1 = TIME;
-		tmethod->m_ifunc ( tmpreq );
-		t2 = TIME;
-
-		ADCL_emethods_update ( tmpreq->rd_num_emethods, tmpreq->rd_emethods, 
-				       tmpreq->rd_last_emethod, t1, t2 );
-		tmpreq->r_comm_state = ADCL_COMM_ACTIVE;
-	    }
-	    break;
-	case ADCL_STATE_DECISION:
-	    tmp = ADCL_emethods_get_winner ( tmpreq->rd_num_emethods,
-					     tmpreq->rd_emethods, 
-					     tmpreq->r_comm );
-	    tmpreq->rd_wmethod = ADCL_emethod_get_method ( &(tmpreq->rd_emethods[tmp]) );
-	    tmpreq->rd_last_emethod = tmp;
-	    tmpreq->rd_state   = ADCL_STATE_REGULAR;
-	    /* no break; statement here on purpose! */
-	case ADCL_STATE_REGULAR:
-	    t1 = TIME;
-	    tmpreq->rd_wmethod->m_ifunc ( tmpreq );
-	    t2 = TIME;
-
-	    tmpreq->rd_state = ADCL_emethod_monitor ( &(tmpreq->rd_emethods[
-						      tmpreq->rd_last_emethod]), 
-						      t2, t1 );	    
-	    tmpreq->r_comm_state = ADCL_COMM_ACTIVE;
-	    break;
-	default:
-	    ADCL_printf("%s: Unknown object status for tmpreq %d, status %d \n", 
-			__FILE__, tmpreq->r_id, tmpreq->rd_state );
-	    break;
-    }
-
-    return ADCL_SUCCESS;
+   
+    return ADCL_USER_ERROR;
 }
 
-int ADCL_3D_comm_dual_block_wait ( ADCL_request_t *req )
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+static int ADCL_request_update ( ADCL_request_t *req, 
+				 TIME_TYPE t1, TIME_TYPE t2 )
 {
-    TIME_TYPE t1, t2;
-    ADCL_request_t *tmpreq = req;
-    ADCL_method_t *tmethod;
     int tmp;
     
-    if ( tmpreq->r_comm_state != ADCL_COMM_ACTIVE ) {
-	ADCL_printf("Have to initiate a communication before calling wait\n");
-	return ADCL_USER_ERROR;
+    if ( (t1 == -1 ) && ( t2 == -1 ) ) {
+	return ADCL_SUCCESS;
     }
 
-    switch ( tmpreq->rd_state ) {
+    tmp = req->r_last_emethod;
+    switch ( req->r_state ) {
 	case ADCL_STATE_TESTING: 	    
-	    tmp = tmpreq->rd_last_emethod;
-	    tmethod = ADCL_emethod_get_method(&(tmpreq->rd_emethods[tmp]));
-	    
-	    t1 = TIME;
-	    tmethod->m_wfunc ( tmpreq );
-	    t2 = TIME;
-
-	    ADCL_emethods_update ( tmpreq->rd_num_emethods, tmpreq->rd_emethods, 
-				   tmpreq->rd_last_emethod, t1, t2 );
-	    tmpreq->r_comm_state = ADCL_COMM_AVAIL;
+	    ADCL_emethods_update ( req->r_num_emethods, req->r_emethods, 
+				   req->r_last_emethod, t1, t2 );
 	    break;
 	case ADCL_STATE_REGULAR:
-	    tmp = tmpreq->rd_last_emethod;
-	    tmethod = ADCL_emethod_get_method(&(tmpreq->rd_emethods[tmp]));
-
-	    t1 = TIME;
-	    tmpreq->rd_wmethod->m_wfunc ( tmpreq );
-	    t2 = TIME;
-
-	    tmpreq->rd_state = ADCL_emethod_monitor ( &(tmpreq->rd_emethods[
-						      tmpreq->rd_last_emethod]), 
-						      t2, t1 );	    
-	    tmpreq->r_comm_state = ADCL_COMM_AVAIL;
+	    req->r_state = ADCL_emethod_monitor ( &(req->r_emethods[tmp]), 
+						  t2, t1 );	    
 	    break;
 	case ADCL_STATE_DECISION:
 	default:
+	    ADCL_printf("%s: Unknown object status for req %d, status %d \n", 
+			__FILE__, req->r_id, req->r_state );
+	    break;
+    }
+    
+
+    return ADCL_SUCCESS;
+}
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req, int mode ) 
+{
+    int tmp;
+    ADCL_method_t *tmethod=NULL;
+
+    switch ( req->r_state ) {
+	case ADCL_STATE_TESTING: 
+	    tmp = ADCL_emethods_get_next ( req->r_num_emethods, 
+					   req->r_emethods,
+					   req->r_last_emethod, 
+					   mode );
+	    if ( ADCL_EVAL_DONE == tmp ) {
+		req->r_state = ADCL_STATE_DECISION;
+	    }
+	    else if ( ( ADCL_ERROR_INTERNAL == tmp )   ||
+		      ( 0 > tmp )                      || 
+		      ( req->r_num_emethods <= tmp )) {
+		return NULL;
+	    }
+	    else {
+		req->r_last_emethod = tmp;
+		tmethod = ADCL_emethod_get_method (&(req->r_emethods[tmp]));
+		break;
+	    }
+	    /* no break; statement here on purpose! */
+	case ADCL_STATE_DECISION:
+	    tmp = ADCL_emethods_get_winner ( req->r_num_emethods,
+					     req->r_emethods, 
+					     req->r_comm );
+	    req->r_wmethod = ADCL_emethod_get_method(&req->r_emethods[tmp]);
+	    req->r_last_emethod = tmp;
+	    req->r_state = ADCL_STATE_REGULAR;
+	    /* no break; statement here on purpose! */
+	case ADCL_STATE_REGULAR:
+	    tmethod = req->r_wmethod;
+	    break;
+	default:
 	    ADCL_printf("%s: Unknown object status for tmpreq %d, status %d \n", 
-			__FILE__, tmpreq->r_id, tmpreq->rd_state );
+			__FILE__, req->r_id, req->r_state );
 	    break;
     }
 
-    return ADCL_SUCCESS;
+    return tmethod;
 }
 
 

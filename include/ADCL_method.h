@@ -15,6 +15,7 @@ struct ADCL_method_s {
     ADCL_fnct_ptr*   m_ifunc; /* init-function pointer. This function 
 				 will be set for single-block*/
     ADCL_fnct_ptr*   m_wfunc; /* wait-function pointer */
+    int                 m_db; /* true for dual block, false for sb */
     int              m_nattr; /* how many attributes are required by 
 				 this method */
     char            **m_attr; /* list of required attributes */
@@ -38,10 +39,8 @@ int ADCL_method_init ( void );
 */
 int ADCL_method_finalize ( void );
 
-int ADCL_get_num_singleblock_methods (void );
-int ADCL_get_num_dualblock_methods (void );
-ADCL_method_t*  ADCL_get_singleblock_method ( int i);
-ADCL_method_t*  ADCL_get_dualblock_method ( int i);
+int ADCL_get_num_methods (void );
+ADCL_method_t*  ADCL_get_method ( int i);
 
 int ADCL_method_get_num_attr ( ADCL_method_t *meth);
 char* ADCL_method_get_attr_name ( ADCL_method_t *meth, int pos );

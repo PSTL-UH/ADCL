@@ -76,7 +76,8 @@ int ADCL_emethods_get_winner ( int count, ADCL_emethod_t *emethods,
 
     return winner;
 }
-int ADCL_emethods_get_next ( int count, ADCL_emethod_t *emethods, int last )
+int ADCL_emethods_get_next ( int count, ADCL_emethod_t *emethods, int last, 
+			     int mode )
 {
     int i, next=ADCL_EVAL_DONE;
 
@@ -87,6 +88,9 @@ int ADCL_emethods_get_next ( int count, ADCL_emethod_t *emethods, int last )
     for ( i=last; i< count; i++ ) {
 	if ( emethods[i].em_count < ADCL_EMETHOD_NUMTESTS ) {
 	    next = i;
+	    if ( (!emethods[i].em_method->m_db) || 
+		 ((emethods[i].em_method->m_db)  && 
+		  (mode == ADCL_COMM_ACTIVE)) )
 	    emethods[i].em_count++;
 	    break;
 	}

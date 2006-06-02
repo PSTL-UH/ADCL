@@ -34,7 +34,7 @@ struct ADCL_request_s{
     char                   **r_rbuf; /* temp recv buffer used for pack/unpack */
     char                   **r_sbuf; /* temp send buffer used for pack/unpack */    
 
-    /* single-block methods */
+    /* list of available methods */
     int                      r_state; /* state of the object */
     int               r_num_emethods; /* how many methods shall be evaluated */
     int               r_last_emethod; /* position in the array of emthods currently 
@@ -48,12 +48,8 @@ typedef struct ADCL_request_s ADCL_request_t;
 int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm comm, 
 			  ADCL_request_t **req, int order );
 int ADCL_request_free ( ADCL_request_t **req );
-
-
-/* Do not belong really here, but for now */
-int ADCL_3D_comm_single_block ( ADCL_request_t *req );
-int ADCL_3D_comm_dual_block_init ( ADCL_request_t *req );
-int ADCL_3D_comm_dual_block_wait ( ADCL_request_t *req );
+int ADCL_request_init ( ADCL_request_t *req );
+int ADCL_request_wait ( ADCL_request_t *req );
 
 #endif /* __ADCL_REQUEST_H__ */
 

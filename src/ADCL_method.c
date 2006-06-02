@@ -1,11 +1,9 @@
 #include "ADCL_internal.h"
 
 
-static int ADCL_singleblock_total_num=0;
-static int ADCL_dualblock_total_num=0;
+static int ADCL_method_total_num=0;
 
-static ADCL_method_t* ADCL_singleblock_array=NULL;
-static ADCL_method_t* ADCL_dualblock_array=NULL;
+static ADCL_method_t* ADCL_method_array=NULL;
 
 
 int singleblock_func0 ( void *req );
@@ -35,40 +33,31 @@ int ADCL_method_init ( void )
        set right now! 
     */
 
-    ADCL_singleblock_total_num = 3;
-    ADCL_singleblock_array=(ADCL_method_t*)calloc(1, ADCL_singleblock_total_num
-						   * sizeof( ADCL_method_t));
-    if ( NULL == ADCL_singleblock_array ) {
+    ADCL_method_total_num = 5;
+    ADCL_method_array=(ADCL_method_t*)calloc(1, ADCL_method_total_num
+					     * sizeof( ADCL_method_t));
+    if ( NULL == ADCL_method_array ) {
 	return ADCL_NO_MEMORY;
     }
-    ADCL_singleblock_array[0].m_ifunc = (ADCL_fnct_ptr*)singleblock_func0;
-    ADCL_singleblock_array[1].m_ifunc = (ADCL_fnct_ptr*)singleblock_func1;
-    ADCL_singleblock_array[2].m_ifunc = (ADCL_fnct_ptr*)singleblock_func2;
+    ADCL_method_array[0].m_ifunc = (ADCL_fnct_ptr*)singleblock_func0;
+    ADCL_method_array[1].m_ifunc = (ADCL_fnct_ptr*)singleblock_func1;
+    ADCL_method_array[2].m_ifunc = (ADCL_fnct_ptr*)singleblock_func2;
 
-    
-    ADCL_dualblock_total_num=2;
-    ADCL_dualblock_array=(ADCL_method_t*)calloc (1,ADCL_dualblock_total_num *
-						 sizeof( ADCL_method_t));
-    if ( NULL == ADCL_dualblock_array ) {
-	return ADCL_NO_MEMORY;
-    }
+    ADCL_method_array[3].m_ifunc = (ADCL_fnct_ptr*)dualblock_func0_init;
+    ADCL_method_array[3].m_wfunc = (ADCL_fnct_ptr*)dualblock_func0_wait;
+    ADCL_method_array[3].m_db    = 1;
 
-    ADCL_dualblock_array[0].m_ifunc = (ADCL_fnct_ptr*)dualblock_func0_init;
-    ADCL_dualblock_array[0].m_wfunc = (ADCL_fnct_ptr*)dualblock_func0_wait;
-
-    ADCL_dualblock_array[1].m_ifunc = (ADCL_fnct_ptr*)dualblock_func1_init;
-    ADCL_dualblock_array[1].m_wfunc = (ADCL_fnct_ptr*)dualblock_func1_wait;
+    ADCL_method_array[4].m_ifunc = (ADCL_fnct_ptr*)dualblock_func1_init;
+    ADCL_method_array[4].m_wfunc = (ADCL_fnct_ptr*)dualblock_func1_wait;
+    ADCL_method_array[4].m_db    = 1;
        
     return ADCL_SUCCESS;
 }
+
 int ADCL_method_finalize (void)
 {
-    if ( NULL != ADCL_singleblock_array  ) {
-	free ( ADCL_singleblock_array );
-    }
-
-    if ( NULL != ADCL_dualblock_array  ) {
-	free ( ADCL_dualblock_array );
+    if ( NULL != ADCL_method_array  ) {
+	free ( ADCL_method_array );
     }
 
     return ADCL_SUCCESS;
@@ -101,33 +90,21 @@ char* ADCL_method_get_attr_val (ADCL_method_t *meth, int i)
     return val;
 }
 
-int ADCL_get_num_singleblock_methods (void)
+int ADCL_get_num_methods (void)
 {
-    return ADCL_singleblock_total_num;
+    return ADCL_method_total_num;
 }
 
-int ADCL_get_num_dualblock_methods (void)
-{
-    return ADCL_dualblock_total_num;
-}
 
-ADCL_method_t* ADCL_get_singleblock_method ( int i )
+ADCL_method_t* ADCL_get_method ( int i )
 {
-    if ( i>=ADCL_singleblock_total_num || i<0 ) {
+    if ( i>=ADCL_method_total_num || i<0 ) {
 	return NULL;
     }
 
-    return (&(ADCL_singleblock_array[i]));
+    return (&(ADCL_method_array[i]));
 }
 
-ADCL_method_t* ADCL_get_dualblock_method ( int i )
-{
-    if ( i>=ADCL_dualblock_total_num || i<0 ) {
-	return NULL;
-    }
-
-    return (&(ADCL_dualblock_array[i]));
-}
 
 /**********************************************************************/
 /**********************************************************************/
