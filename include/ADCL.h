@@ -20,6 +20,7 @@
 #define ADCL_INVALID_COMM    16
 #define ADCL_INVALID_REQUEST 17
 #define ADCL_INVALID_NC      18
+#define ADCL_INVALID_TYPE    19
 
 #define ADCL_VECTOR_NULL  (void*)   -1
 #define ADCL_REQUEST_NULL (void*)   -2
