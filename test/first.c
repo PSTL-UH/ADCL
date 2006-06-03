@@ -21,7 +21,7 @@ int main ( int argc, char ** argv )
     MPI_Comm_size ( MPI_COMM_WORLD, &size );
 
     ADCL_Init ();
-    ADCL_Vector_allocate ( 3,  dims, 1, 1, MPI_DOUBLE, &vec );
+    ADCL_Vector_allocate ( 3,  dims, 0, 1, MPI_DOUBLE, &vec );
 
     MPI_Dims_create ( size, 3, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, &cart_comm);
