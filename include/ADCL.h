@@ -43,6 +43,7 @@ int ADCL_Vector_register ( int ndims, int *dims, int nc, int hwidth,
 			   MPI_Datatype dat, void *data, 
 			   ADCL_Vector *vec );
 int ADCL_Vector_deregister ( ADCL_Vector *vec );
+int ADCL_Vector_get_data_ptr ( ADCL_Vector vec, void *data );
 
 int ADCL_Request_create ( ADCL_Vector vec, MPI_Comm comm, ADCL_Request *req );
 int ADCL_Request_free   ( ADCL_Request *req );

@@ -2,6 +2,7 @@ include ../Makefile.defs
 
 
 OBJ = 	ADCL_vector.o           \
+	ADCL_array.o 		\
 	ADCL_memory.o 		\
 	ADCL_memory_backend_double.o \
 	ADCL_memory_backend_float.o  \

@@ -17,8 +17,15 @@ int ADCL_Request_create ( ADCL_Vector vec, MPI_Comm cart_comm,
 
 int ADCL_Request_free ( ADCL_Request *req )
 {
+    ADCL_request_t *preq = *req;
 
     if ( NULL == req ) {
+	return ADCL_INVALID_REQUEST;
+    }
+    if ( preq->r_id < 0 ) {
+	return ADCL_INVALID_REQUEST;
+    }
+    if ( preq->r_comm_state != ADCL_COMM_AVAIL ) {
 	return ADCL_INVALID_REQUEST;
     }
 

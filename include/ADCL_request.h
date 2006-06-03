@@ -13,6 +13,7 @@
 /* The most general ADCL object used to start and identify a communication 'entity' */
 struct ADCL_request_s{
     int                        r_id; /* unique identifier */
+    int                    r_findex; /* index for the fortran interface */
     int                r_comm_state; /* communication state of the object  */
     ADCL_vector_t            *r_vec; /* ptr to the vector describing data items */
     MPI_Comm                 r_comm; /* Communicator used for communication */
@@ -34,7 +35,6 @@ struct ADCL_request_s{
     char                   **r_rbuf; /* temp recv buffer used for pack/unpack */
     char                   **r_sbuf; /* temp send buffer used for pack/unpack */    
 
-    /* list of available methods */
     int                      r_state; /* state of the object */
     int               r_num_emethods; /* how many methods shall be evaluated */
     int               r_last_emethod; /* position in the array of emthods currently 
@@ -44,6 +44,7 @@ struct ADCL_request_s{
 };
 typedef struct ADCL_request_s ADCL_request_t;
 
+extern ADCL_array_t * ADCL_request_farray;
 
 int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm comm, 
 			  ADCL_request_t **req, int order );

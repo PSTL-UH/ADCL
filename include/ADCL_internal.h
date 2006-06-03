@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #include "ADCL.h"
+#include "ADCL_array.h"
 #include "ADCL_vector.h"
 #include "ADCL_request.h"
 #include "ADCL_method.h"

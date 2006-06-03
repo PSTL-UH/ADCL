@@ -6,6 +6,8 @@ static int ADCL_local_id_counter=0;
 static int ADCL_vector_get_realdim ( int ndims, int *dims, int nc, 
 				     int *rndims, int **rdims );
 
+ADCL_array_t* ADCL_vector_farray=NULL;
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -25,6 +27,12 @@ int ADCL_vector_allocate ( int ndims, int *dims, int nc, int hwidth,
     /* Set the according elements of the structure */
     tvec->v_id     = ADCL_local_id_counter++; 
     tvec->v_rfcnt  = 1;
+
+    ADCL_array_get_next_free_pos ( ADCL_vector_farray, &(tvec->v_findex) );
+    ADCL_array_set_element ( ADCL_vector_farray, 
+			     tvec->v_findex, 
+			     tvec->v_id,
+			     tvec );
 
     ADCL_vector_get_realdim ( ndims, dims, nc, &rndims, &rdims );
     tvec->v_ndims  = rndims;
@@ -59,8 +67,9 @@ int ADCL_vector_free  ( ADCL_vector_t **vec )
 	if ( NULL != tvec->v_dims ) {
 	    free ( tvec->v_dims);
 	}
-	/* TODO: free the data pointer */
-	
+
+	ADCL_free_matrix ( tvec->v_ndims, tvec->v_dat, tvec->v_data );
+	ADCL_array_remove_element ( ADCL_vector_farray, tvec->v_findex );
 	free ( tvec );
     }
     else if ( tvec->v_rfcnt < 0 ) {
@@ -92,6 +101,12 @@ int ADCL_vector_register ( int ndims, int *dims, int nc, int hwidth,
     tvec->v_id     = ADCL_local_id_counter++; 
     tvec->v_rfcnt  = 1;
     tvec->v_alloc  = FALSE;
+
+    ADCL_array_get_next_free_pos ( ADCL_vector_farray, &(tvec->v_findex) );
+    ADCL_array_set_element ( ADCL_vector_farray, 
+			     tvec->v_findex, 
+			     tvec->v_id,
+			     tvec );
 
     ADCL_vector_get_realdim ( ndims, dims, nc, &rndims, &rdims );
     tvec->v_ndims  = rndims;
@@ -129,6 +144,12 @@ int ADCL_vector_deregister  ( ADCL_vector_t **vec )
     *vec = ADCL_VECTOR_NULL;
     return ADCL_SUCCESS;
 }
+
+void*  ADCL_vector_get_data_ptr ( ADCL_vector_t *vec ) 
+{
+    return vec->v_data;
+}
+
 
 /**********************************************************************/
 /**********************************************************************/

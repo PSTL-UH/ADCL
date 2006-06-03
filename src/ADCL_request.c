@@ -8,6 +8,7 @@ static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req, int mode);
 static int ADCL_request_update ( ADCL_request_t *req, 
 				 TIME_TYPE t1, TIME_TYPE t2 );
 
+ADCL_array_t *ADCL_request_farray;
  
 int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm, 
 			  ADCL_request_t **req, int order )
@@ -24,6 +25,12 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 
     /* Fill in the according elements, start with the simple ones */
     newreq->r_id         = ADCL_local_id_counter++;
+    ADCL_array_get_next_free_pos ( ADCL_request_farray, &(newreq->r_findex) );
+    ADCL_array_set_element ( ADCL_request_farray, 
+			     newreq->r_findex, 
+			     newreq->r_id,
+			     newreq );
+
     newreq->r_comm_state = ADCL_COMM_AVAIL;
     newreq->r_vec        = pvec;
     newreq->r_comm       = cart_comm;    /* we might have to duplicate it! */
@@ -135,15 +142,6 @@ int ADCL_request_free ( ADCL_request_t **req )
 {
     ADCL_request_t *preq=*req;
 
-    if ( preq->r_id > ADCL_local_id_counter || 
-	 preq->r_id < 0 ) {
-	return ADCL_INVALID_REQUEST;
-    }
-    if ( preq->r_comm_state != ADCL_COMM_AVAIL ) {
-	return ADCL_INVALID_REQUEST;
-    }
-
-    /* it seems to be valid, so free all allocated resources */
     if ( NULL != preq->r_sreqs ) {
 	free ( preq->r_sreqs );
     }
@@ -153,6 +151,7 @@ int ADCL_request_free ( ADCL_request_t **req )
     if ( NULL != preq->r_neighbors ) {
 	free ( preq->r_neighbors );
     }
+    ADCL_array_remove_element ( ADCL_request_farray, preq->r_findex);
     ADCL_subarray_free ( preq->r_nneighbors, &(preq->r_sdats), 
 			 &(preq->r_rdats) );
     ADCL_packunpack_free ( preq->r_nneighbors, &(preq->r_rbuf),

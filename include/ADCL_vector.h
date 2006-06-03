@@ -4,6 +4,7 @@
 
 struct ADCL_vector_s{
     int              v_id; /* unique identifier for this process */
+    int          v_findex; /* index for the fortran interface */
     int           v_rfcnt; /* object reference counter */
     int           v_alloc; /* TRUE(1) if allocated by ADCL, FALSE(0) if 
 			      done by user */
@@ -15,6 +16,8 @@ struct ADCL_vector_s{
     MPI_Datatype    v_dat; /* basic datatype */
 };
 typedef struct ADCL_vector_s ADCL_vector_t;
+
+extern ADCL_array_t *ADCL_vector_farray;
 
 /* Some internal routines to access elements of the vector will be introduced
    later/up on demand by the other routines. */
@@ -114,5 +117,7 @@ int ADCL_vector_register ( int ndims, int *dims, int nc, int hwidth,
 */
 int ADCL_vector_deregister  ( ADCL_vector_t **vec );
 
+
+void* ADCL_vector_get_data_ptr ( ADCL_vector_t *vec );
 
 #endif /* __ADCL_VECTOR_H__ */

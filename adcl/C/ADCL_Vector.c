@@ -123,3 +123,14 @@ int ADCL_Vector_deregister  ( ADCL_Vector *vec )
 
     return ADCL_vector_deregister ( vec );
 }
+
+int ADCL_Vector_get_data_ptr ( ADCL_Vector vec, void *ptr ) 
+{
+    /* Verification of input parameters */
+    if ( NULL == vec ) {
+	return ADCL_INVALID_ARG;
+    }
+
+    *((void **) ptr ) = ADCL_vector_get_data_ptr ( vec );
+    return ADCL_SUCCESS;
+}
