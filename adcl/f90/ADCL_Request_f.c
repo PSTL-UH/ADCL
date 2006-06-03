@@ -42,13 +42,14 @@ void adcl_request_create ( int *vec, int *comm, int *req, int *ierror )
     }
 
     ccomm = MPI_Comm_f2c (*comm);
-    if ( cdat == MPI_COMM_NULL ) {
+    if ( ccomm == MPI_COMM_NULL ) {
 	*ierror = ADCL_INVALID_COMM;
 	return;
     }
     MPI_Topo_test ( ccomm, &topo_type );
     if ( MPI_UNDEFINED==topo_type || MPI_GRAPH==topo_type ) {
-	return ADCL_INVALID_COMM;
+	*ierror = ADCL_INVALID_COMM;
+	return;
     }
 
     cvec = (ADCL_vector_t *) ADCL_array_get_ptr_by_pos ( ADCL_vector_farray, 
@@ -62,14 +63,59 @@ void adcl_request_create ( int *vec, int *comm, int *req, int *ierror )
     return;
 }
 
-void adcl_request_free ( int *vec, int *ierror )
+void adcl_request_free ( int *req, int *ierror )
 {
-    ADCL_vector_t *cvec;
+    ADCL_request_t *creq;
 
-    cvec = (ADCL_vector_t *) ADCL_array_get_ptr_by_pos ( ADCL_vector_farray, 
-							 *vec );
-    *ierror = ADCL_vector_deregister ( &cvec );
-
+    creq = (ADCL_request_t *) ADCL_array_get_ptr_by_pos (ADCL_request_farray, 
+							 *req );
+    *ierror = ADCL_Request_free ( &creq );
     return;
 }
 
+void adcl_request_start ( int *req, int *ierror )
+{
+    ADCL_request_t *creq;
+
+    creq = (ADCL_request_t *) ADCL_array_get_ptr_by_pos (ADCL_request_farray, 
+							 *req );
+    *ierror = ADCL_Request_start ( creq );
+    return;
+}
+
+void adcl_request_init ( int *req, int *ierror )
+{
+    ADCL_request_t *creq;
+
+    creq = (ADCL_request_t *) ADCL_array_get_ptr_by_pos (ADCL_request_farray, 
+							 *req );
+    *ierror = ADCL_Request_init ( creq );
+    return;
+}
+
+void adcl_request_wait ( int *req, int *ierror )
+{
+    ADCL_request_t *creq;
+
+    creq = (ADCL_request_t *) ADCL_array_get_ptr_by_pos (ADCL_request_farray, 
+							 *req );
+    *ierror = ADCL_Request_wait ( creq );
+    return;
+}
+
+void adcl_request_start_overlap ( int *req, ADCL_work_fctn_ptr *mid,
+				  ADCL_work_fctn_ptr *end, 
+				  ADCL_work_fctn_ptr *total, 
+				  void *arg1, void* arg2, void* arg3, 
+				  int *ierror )
+{
+    ADCL_request_t *creq;
+
+    creq = (ADCL_request_t *) ADCL_array_get_ptr_by_pos (ADCL_request_farray, 
+							 *req );
+
+    *ierror = ADCL_Request_start_overlap ( creq, mid, end, total, 
+					   arg1, arg2, arg3 );
+
+    return;
+}
