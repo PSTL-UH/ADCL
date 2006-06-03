@@ -22,9 +22,7 @@ CC          = mpicc
 CFLAGS      = -Wall -g -I$(ADCL_INC_DIR)
 LDFLAGS     = -L$(ADCL_LIB_DIR) $(ADCL_LIB) -lefence -lm 
 
-FC          = mpif77
-FFLAGS      = -g -I${ADCL_INC_DIR)
-FLDFLAGS    = -lm
-
-EXE         = adcl_test
+FC          = mpif90
+FFLAGS      = -g -I$(ADCL_INC_DIR)
+FLDFLAGS    = -L$(ADCL_LIB_DIR) $(ADCL_LIB) -lm
 
