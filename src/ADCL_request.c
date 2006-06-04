@@ -87,22 +87,17 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
     /* Initialize the emethod data structures required for evaluating
        the different communication methods */
     newreq->r_state        = ADCL_STATE_TESTING;
-    newreq->r_num_emethods = ADCL_get_num_methods ();
     newreq->r_last_emethod = ADCL_UNDEFINED;
+    newreq->r_wmethod      = NULL;
 
-    newreq->r_emethods = (ADCL_emethod_t*) calloc ( 1, newreq->r_num_emethods*
-						    sizeof(ADCL_emethod_t));
-    if ( NULL == newreq->r_emethods ) {
-	ret = ADCL_NO_MEMORY;
-	goto exit;
-    }
-    for ( i=0; i<newreq->r_num_emethods; i++ ) {
-	newreq->r_emethods[i].em_id     = ADCL_emethod_get_next_id ();
-	newreq->r_emethods[i].em_method = ADCL_get_method(i);
-	newreq->r_emethods[i].em_min    = 999999;
-    }
-    newreq->r_wmethod = NULL;
-
+    newreq->r_emethods = ADCL_emethods_request_init ( cart_comm, 
+						      newreq->r_nneighbors,
+						      newreq->r_neighbors,
+						      pvec->v_ndims, 
+						      pvec->v_dims, 
+						      pvec->v_nc,
+						      pvec->v_hwidth, 
+						      &(newreq->r_num_emethods );
 
  exit:
     if ( ret != ADCL_SUCCESS ) {

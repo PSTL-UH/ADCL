@@ -2,8 +2,9 @@
 #define __ADCL_ARRAY_H__
 
 struct ADCL_array_elem_s {
-    int    id;
-    void *ptr;
+    int     id;  /* id to search for */
+    int in_use;  /* is this element currently occupied? */
+    void  *ptr;  /* data ptr */
 };
 typedef struct ADCL_array_elem_s ADCL_array_elem_t;
 

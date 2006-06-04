@@ -4,6 +4,116 @@
 static int ADCL_local_id_counter=0;
 static int adcl_compare ( const void*, const void* );
 
+static ADCL_array_t *ADCL_emethod_req_array=NULL;
+
+int ADCL_emethod_req_init ( void ) 
+{
+    ADCL_array_init ( &(ADCL_emethod_req_array), "ADCL_emethod_req", 32 );    
+    return ADCL_SUCCESS;
+}
+
+int ADCL_emethod_req_finalize ( void ) 
+{
+    ADCL_array_free ( &(ADCL_emethod_req_array) );    
+    return ADCL_SUCCESS;
+}
+
+ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, int *neighbors, 
+				     int vndims, int *vdims, int vnc, int vhwidth, 
+				     int *num_methods )
+{
+    int i, last, found;
+    ADCL_emethod_req_t *er;    
+    int result;
+
+    /* Check first, whether we have an entry in the ADCL_emethods_req_array,
+       which fulfills already our requirements; 
+    */
+    last = ADCL_array_get_last ( ADCL_emethod_req_array );
+    for ( i=0; i< last; i++ ) {
+	er = ( ADCL_emethod_req_t * ) ADCL_array_get_ptr_by_pos ( 
+	    ADCL_emethod_req_array, i );
+
+	MPI_Comm_compare ( er->er_comm, comm, &result );
+	if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
+	    continue;
+	}
+
+	found = i;
+	if ( ( er->er_nneighbors == nneighbors ) && 
+	     ( er->er_vndims     == vndims     ) && 
+	     ( er->er_vnc        == vnc        ) && 
+	     ( er->er_vhwidth    == vhwidth    ) ) {
+
+	    for ( j=0; j< er->er_nneighbors; j++ ) {
+		if ( er->er_neighbors[i] != neighbors [i] ) {
+		    found = -1;
+		    break;
+		}
+	    }
+	    if ( found == -1 ) {
+		continue;
+	    }
+	    for ( j=0 ; j< er->er_vndims; j++ ){
+		if ( er->er_vdims[i] != vdims[i] ) {
+		    found = -1;
+		    break;
+		}
+	    }
+	    if ( found != -1 ) {
+		break;
+	    }
+	}
+    }
+
+    if ( found > -1 ) {
+	*num_methods = er->er_nummethods;
+	er->er_rfcnt ++;
+	return er->er_emethods;
+    }
+	
+    /* we did not find this configuraion yet, so we have to add it */
+    er = ( ADCL_emethod_req_t *) calloc (1, sizeof(ADCL_emethod_req_t));
+    if ( NULL == er ) {
+	*num_methods = MPI_UNDEFINED;
+	return NULL;
+    }
+    
+    er->er_nneighbors = nneighbors;
+    er->er_vndims     = vndims;
+    er->er_rfcnt      = 1;
+    er->er_neighbors  = (int *) malloc ( nneighbors * sizeof(int));
+    er->er_vdims      = (int *) malloc ( vndims * sizeof(int));
+    if ( NULL == er->er_neighbors || NULL == er->er_vdims ) {
+	free ( er );
+	*num_methods = MPI_UNDEFINED;
+	return NULL;
+    }
+    memcpy ( er->er_neighbors, neighbors, nneighbors * sizeof(int));
+    memcpy ( er->er_vdims, vdims, vndims * sizeof(int));
+    er->er_vnc      = vnc;
+    er->er_vhwidths = vhwidth;
+
+    er->er_num_emethods = ADCL_get_num_methods ();
+    er->er_emethods     = (ADCL_emethod_t*) calloc ( 1, er->er_num_emethods *
+						     sizeof(ADCL_emethod_t));
+    if ( NULL == emethods ) {
+	free ( er->er_vdims ) ;
+	free ( er->er_neighbors );
+	free ( er );
+	*num_methods = MPI_UNDEFINED;
+	return NULL;
+    }
+
+    for ( i=0; i< *num_emethods; i++ ) {
+	emethods[i].em_id     = ADCL_emethod_get_next_id ();
+	emethods[i].em_method = ADCL_get_method(i);
+	emethods[i].em_min    = 999999;
+    }
+
+    return ADCL_SUCCESS;
+}
+
 double ADCL_emethod_time (void) 
 { 
     struct timeval tp; 

@@ -14,19 +14,34 @@
 
 
 /* Structure used for evaluating a communication method. 
-   It contains of the method itself and some statistical data */
+** It contains the method itself, and statistical data
+*/
 struct ADCL_emethod_s {
     int                em_id; /* unique identifier */
     ADCL_method_t *em_method; /* which method am I associated with ? */
     int             em_count; /* how often has this routine already been called */
     double            em_sum; /* sum of all timings taken (local) */
-    double            em_avg; /* average time required to execute this method (local) */
-    double            em_max; /* max. time required to execute this function (local) */
-    double            em_min; /* min. time required to execute this function (local) */
+    double            em_avg; /* average time required to execute this method(local)*/
+    double            em_max; /* max. time required to execute this function (local)*/
+    double            em_min; /* min. time required to execute this function (local)*/
     int              em_lpts; /* local no. of pts by this method */
     int              em_gsum; /* global sum of no. of pts gather by this method */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
+
+
+struct ADCL_emethod_req_s {
+    MPI_Comm er_comm;
+    int er_nneighbors;
+    int *er_neighbors;
+    int er_vndims;
+    int *er_vdims;
+    int er_vnc;
+    int er_vhwidth;
+    int er_num_emethods;
+    ADCL_emethod_t *er_emethods;
+}
+typedef struct ADCL_emethod_req_s ADCL_emethod_req_t;
 
 double ADCL_emethod_time(void);
 ADCL_method_t * ADCL_emethod_get_method ( ADCL_emethod_t *emethod);

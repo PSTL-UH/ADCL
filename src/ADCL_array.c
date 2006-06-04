@@ -24,8 +24,9 @@ int ADCL_array_init (ADCL_array_t **arr, const char name[64], int size )
     return ADCL_SUCCESS;
 }
 
-/* Right now, we are not checking whether the element array is 
-   really free
+/* 
+** Right now, we are not checking whether the element array is 
+** really free
 */
 int ADCL_array_free (ADCL_array_t **arr )
 {
@@ -45,9 +46,16 @@ int ADCL_array_get_next_free_pos  ( ADCL_array_t *arr, int *pos)
 {
     ADCL_array_elem_t *oldarray=NULL;
     int oldsize;
+    int i;
+    int thispos=-1;
 
     if ( arr->last < (arr->size -1) ) {
-	arr->last++;
+	for (i=0; i< arr->size; i++ ) {
+	    if ( arr->array[i].in_use == FALSE ) {
+		thispos = i;
+		break;
+	    }
+	}
     }
     else {
 	oldarray = arr->array;
@@ -61,13 +69,13 @@ int ADCL_array_get_next_free_pos  ( ADCL_array_t *arr, int *pos)
 	    return ADCL_NO_MEMORY;
 	}
 
-	memcpy ( arr->array, oldarray, oldsize * sizeof(ADCL_array_elem_t));
-	arr->last++;
-	
+	memcpy ( arr->array, oldarray, oldsize * sizeof(ADCL_array_elem_t));	
 	free (oldarray);
+	thispos = oldsize;
     }
     
-    *pos = arr->last;
+    
+    *pos = thispos;
     return ADCL_SUCCESS;
 }
 
@@ -93,6 +101,15 @@ void * ADCL_array_get_ptr_by_id  ( ADCL_array_t *arr, int id  )
     return NULL;
 }
 
+int ADCL_array_get_size ( ADCL_array_t *arr ) 
+{
+    return arr->size;
+}
+
+int ADCL_array_get_last ( ADCL_array_t *arr ) 
+{
+    return arr->last;
+}
 
 int ADCL_array_set_element (ADCL_array_t *arr, int pos, int id, void *ptr)
 {
@@ -103,12 +120,24 @@ int ADCL_array_set_element (ADCL_array_t *arr, int pos, int id, void *ptr)
 	arr->array[pos].ptr = ptr;
 	ret = ADCL_SUCCESS;
     }
+
+    if ( pos > arr->last ) {
+	arr->last = thispos;
+    }
     
     return ret;
 }    
 
 int ADCL_array_remove_element ( ADCL_array_t *arr, int pos )
 {
-    /* ignored for now! */
+    if ( arr->array[pos].in_use = TRUE ) {
+	if ( NULL != arr->array[pos].ptr ) {
+	    free ( arr->array[pos].ptr ) ;
+	}
+	arr->array[pos].ptr    = NULL;
+	arr->array[pos].id     = MPI_UNDEFINED;
+	arr->array[pos].in_use = FALSE;
+    }
+	    
     return ADCL_SUCCESS;
 }
