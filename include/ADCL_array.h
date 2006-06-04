@@ -24,6 +24,8 @@ void * ADCL_array_get_ptr_by_pos ( ADCL_array_t *arr, int pos );
 void * ADCL_array_get_ptr_by_id  ( ADCL_array_t *arr, int id  );
 int ADCL_array_set_element (ADCL_array_t *arr, int pos, int id, void *ptr);
 int ADCL_array_remove_element ( ADCL_array_t *arr, int pos );
+int ADCL_array_get_last ( ADCL_array_t *arr );
+int ADCL_array_get_size ( ADCL_array_t *arr );
 
 #endif /* __ADCL_ARRAY_H__ */
 

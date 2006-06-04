@@ -13,7 +13,7 @@ ADCL_array_t *ADCL_request_farray;
 int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm, 
 			  ADCL_request_t **req, int order )
 {
-    int i, ret = ADCL_SUCCESS;
+    int ret = ADCL_SUCCESS;
     ADCL_request_t *newreq;
     ADCL_vector_t *pvec = vec;
     
@@ -90,14 +90,14 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
     newreq->r_last_emethod = ADCL_UNDEFINED;
     newreq->r_wmethod      = NULL;
 
-    newreq->r_emethods = ADCL_emethods_request_init ( cart_comm, 
-						      newreq->r_nneighbors,
-						      newreq->r_neighbors,
-						      pvec->v_ndims, 
-						      pvec->v_dims, 
-						      pvec->v_nc,
-						      pvec->v_hwidth, 
-						      &(newreq->r_num_emethods );
+    newreq->r_emethods = ADCL_emethod_init ( cart_comm, 
+					     newreq->r_nneighbors,
+					     newreq->r_neighbors,
+					     pvec->v_ndims, 
+					     pvec->v_dims, 
+					     pvec->v_nc,
+					     pvec->v_hwidth, 
+					     &(newreq->r_num_emethods) );
 
  exit:
     if ( ret != ADCL_SUCCESS ) {
@@ -107,22 +107,22 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 	if ( NULL != newreq->r_rreqs ) {
 	    free ( newreq->r_rreqs );
 	}
-	if ( NULL != newreq->r_neighbors ) {
-	    free ( newreq->r_neighbors );
-	}
 	ADCL_subarray_free ( newreq->r_nneighbors, &(newreq->r_sdats), 
 			     &(newreq->r_rdats) );
 	ADCL_packunpack_free ( newreq->r_nneighbors, &(newreq->r_rbuf),
 			       &(newreq->r_sbuf), &(newreq->r_spsize), 
 			       &(newreq->r_rpsize) );
 
+	if ( NULL != newreq->r_neighbors ) {
+	    free ( newreq->r_neighbors );
+	}
 	if ( MPI_WIN_NULL != newreq->r_win ) {
 	    MPI_Win_free ( &(newreq->r_win) );
 	}
-	if ( NULL != newreq->r_emethods ) {
+/*	if ( NULL != newreq->r_emethods ) {
 	    free ( newreq->r_emethods );
 	}
-
+*/
 	if ( NULL != newreq ) {
 	    free ( newreq );
 	    newreq = ADCL_REQUEST_NULL;
@@ -143,9 +143,6 @@ int ADCL_request_free ( ADCL_request_t **req )
     if ( NULL != preq->r_rreqs ) {
 	free ( preq->r_rreqs );
     }
-    if ( NULL != preq->r_neighbors ) {
-	free ( preq->r_neighbors );
-    }
     ADCL_array_remove_element ( ADCL_request_farray, preq->r_findex);
     ADCL_subarray_free ( preq->r_nneighbors, &(preq->r_sdats), 
 			 &(preq->r_rdats) );
@@ -153,12 +150,16 @@ int ADCL_request_free ( ADCL_request_t **req )
 			   &(preq->r_sbuf), &(preq->r_spsize), 
 			   &(preq->r_rpsize) );
 
+    if ( NULL != preq->r_neighbors ) {
+	free ( preq->r_neighbors );
+    }
     if ( MPI_WIN_NULL != preq->r_win ) {
 	MPI_Win_free ( &(preq->r_win) );
     }
-    if ( NULL != preq->r_emethods ) {
+/*    if ( NULL != preq->r_emethods ) {
 	free ( preq->r_emethods );
     }
+*/
     if ( NULL != preq ) {
 	free ( preq );
     }

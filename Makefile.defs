@@ -20,7 +20,7 @@ AR_FLAGS    = clr
 
 CC          = mpicc
 CFLAGS      = -Wall -g -I$(ADCL_INC_DIR)
-LDFLAGS     = -L$(ADCL_LIB_DIR) $(ADCL_LIB) -lefence -lm 
+LDFLAGS     = -L$(ADCL_LIB_DIR) $(ADCL_LIB) -lm 
 
 FC          = mpif90
 FFLAGS      = -g -I$(ADCL_INC_DIR)

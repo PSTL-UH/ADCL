@@ -3,6 +3,7 @@
 
 #include "ADCL_method.h"
 #include <sys/time.h>
+#include "mpi.h"
 #define TIME_TYPE double
 
 //#define TIME      MPI_Wtime()
@@ -31,17 +32,26 @@ typedef struct ADCL_emethod_s ADCL_emethod_t;
 
 
 struct ADCL_emethod_req_s {
-    MPI_Comm er_comm;
-    int er_nneighbors;
-    int *er_neighbors;
-    int er_vndims;
-    int *er_vdims;
-    int er_vnc;
-    int er_vhwidth;
-    int er_num_emethods;
+    MPI_Comm            er_comm;
+    int                er_rfcnt;
+    int           er_nneighbors;
+    int           *er_neighbors;
+    int               er_vndims;
+    int               *er_vdims;
+    int                  er_vnc;
+    int              er_vhwidth;
+    int         er_num_emethods;
     ADCL_emethod_t *er_emethods;
-}
+};
 typedef struct ADCL_emethod_req_s ADCL_emethod_req_t;
+
+int ADCL_emethod_req_init     ( void );
+int ADCL_emethod_req_finalize ( void );
+
+ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, int *neighbors, 
+				     int vndims, int *vdims, int vnc, int vhwidth, 
+				     int *num_methods );
+
 
 double ADCL_emethod_time(void);
 ADCL_method_t * ADCL_emethod_get_method ( ADCL_emethod_t *emethod);

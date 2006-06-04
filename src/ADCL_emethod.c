@@ -18,11 +18,11 @@ int ADCL_emethod_req_finalize ( void )
     return ADCL_SUCCESS;
 }
 
-ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, int *neighbors, 
-				     int vndims, int *vdims, int vnc, int vhwidth, 
-				     int *num_methods )
+ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
+				     int *neighbors, int vndims, int *vdims, 
+				     int vnc, int vhwidth, int *num_methods )
 {
-    int i, last, found;
+    int i, j, last, found=-1;
     ADCL_emethod_req_t *er;    
     int result;
 
@@ -67,8 +67,8 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, int *neighbo
     }
 
     if ( found > -1 ) {
-	*num_methods = er->er_nummethods;
-	er->er_rfcnt ++;
+	*num_methods = er->er_num_emethods;
+	er->er_rfcnt++;
 	return er->er_emethods;
     }
 	
@@ -91,13 +91,13 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, int *neighbo
     }
     memcpy ( er->er_neighbors, neighbors, nneighbors * sizeof(int));
     memcpy ( er->er_vdims, vdims, vndims * sizeof(int));
-    er->er_vnc      = vnc;
-    er->er_vhwidths = vhwidth;
+    er->er_vnc     = vnc;
+    er->er_vhwidth = vhwidth;
 
     er->er_num_emethods = ADCL_get_num_methods ();
     er->er_emethods     = (ADCL_emethod_t*) calloc ( 1, er->er_num_emethods *
 						     sizeof(ADCL_emethod_t));
-    if ( NULL == emethods ) {
+    if ( NULL == er->er_emethods ) {
 	free ( er->er_vdims ) ;
 	free ( er->er_neighbors );
 	free ( er );
@@ -105,14 +105,17 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, int *neighbo
 	return NULL;
     }
 
-    for ( i=0; i< *num_emethods; i++ ) {
-	emethods[i].em_id     = ADCL_emethod_get_next_id ();
-	emethods[i].em_method = ADCL_get_method(i);
-	emethods[i].em_min    = 999999;
+    for ( i=0; i< er->er_num_emethods; i++ ) {
+	er->er_emethods[i].em_id     = ADCL_emethod_get_next_id ();
+	er->er_emethods[i].em_method = ADCL_get_method(i);
+	er->er_emethods[i].em_min    = 999999;
     }
 
-    return ADCL_SUCCESS;
+    *num_methods = er->er_num_emethods;
+    return er->er_emethods;
 }
+
+
 
 double ADCL_emethod_time (void) 
 { 
