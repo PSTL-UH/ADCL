@@ -171,7 +171,6 @@ int ADCL_request_free ( ADCL_request_t **req )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-
 int ADCL_request_init ( ADCL_request_t *req, int *db )
 {
     int ret;
@@ -199,7 +198,6 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-
 int ADCL_request_wait ( ADCL_request_t *req )
 {
     int ret;
@@ -255,9 +253,10 @@ static int ADCL_request_update ( ADCL_request_t *req,
     }
 
     tmp = req->r_last_emethod;
-    switch ( req->r_state ) {
+    switch ( req->r_emethod->r_state ) {
 	case ADCL_STATE_TESTING: 	    
-	    ADCL_emethods_update ( req->r_num_emethods, req->r_emethods, 
+	    ADCL_emethods_update ( req->r_emethod->r_num_emethods, 
+				   req->r_emethods->er_emethods, 
 				   req->r_last_emethod, t1, t2 );
 	    break;
 	case ADCL_STATE_REGULAR:

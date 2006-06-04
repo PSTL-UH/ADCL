@@ -25,8 +25,8 @@ struct ADCL_emethod_s {
     double            em_avg; /* average time required to execute this method(local)*/
     double            em_max; /* max. time required to execute this function (local)*/
     double            em_min; /* min. time required to execute this function (local)*/
-    int              em_lpts; /* local no. of pts by this method */
-    int              em_gsum; /* global sum of no. of pts gather by this method */
+    short            em_lpts; /* local no. of pts by this method */
+    short            em_gsum; /* global sum of no. of pts gather by this method */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 
@@ -34,13 +34,14 @@ typedef struct ADCL_emethod_s ADCL_emethod_t;
 struct ADCL_emethod_req_s {
     MPI_Comm            er_comm;
     int                er_rfcnt;
+    int                er_state; /* state of the object */
+    int         er_num_emethods; /* how many methods shall be evaluated */
+    int              er_vhwidth;
+    int                  er_vnc;
+    int               er_vndims;
     int           er_nneighbors;
     int           *er_neighbors;
-    int               er_vndims;
     int               *er_vdims;
-    int                  er_vnc;
-    int              er_vhwidth;
-    int         er_num_emethods;
     ADCL_emethod_t *er_emethods;
 };
 typedef struct ADCL_emethod_req_s ADCL_emethod_req_t;

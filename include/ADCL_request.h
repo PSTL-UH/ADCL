@@ -35,11 +35,10 @@ struct ADCL_request_s{
     char                   **r_rbuf; /* temp recv buffer used for pack/unpack */
     char                   **r_sbuf; /* temp send buffer used for pack/unpack */    
 
-    int                      r_state; /* state of the object */
-    int               r_num_emethods; /* how many methods shall be evaluated */
-    int               r_last_emethod; /* position in the array of emthods currently 
+    int                r_last_method; /* position in the array of emthods currently 
 		 			 being evaluated */
-    ADCL_emethod_t       *r_emethods; /* list of emethods being evaluated */
+    int                  r_last_flag; /* flag to be passed to the state machine */
+    ADCL_emethod_req_t    *r_emethod; /* list of emethods being evaluated */
     ADCL_method_t         *r_wmethod; /* winner method used after the testing */
 };
 typedef struct ADCL_request_s ADCL_request_t;
