@@ -22,7 +22,7 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 				     int *neighbors, int vndims, int *vdims, 
 				     int vnc, int vhwidth, int *num_methods )
 {
-    int i, j, last, found=-1;
+    int i, j, pos, last, found=-1;
     ADCL_emethod_req_t *er;    
     int result;
 
@@ -30,7 +30,7 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
        which fulfills already our requirements; 
     */
     last = ADCL_array_get_last ( ADCL_emethod_req_array );
-    for ( i=0; i< last; i++ ) {
+    for ( i=0; i<= last; i++ ) {
 	er = ( ADCL_emethod_req_t * ) ADCL_array_get_ptr_by_pos ( 
 	    ADCL_emethod_req_array, i );
 
@@ -79,6 +79,7 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	return NULL;
     }
     
+    er->er_comm       = comm;
     er->er_nneighbors = nneighbors;
     er->er_vndims     = vndims;
     er->er_rfcnt      = 1;
@@ -110,6 +111,13 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	er->er_emethods[i].em_method = ADCL_get_method(i);
 	er->er_emethods[i].em_min    = 999999;
     }
+
+    ADCL_array_get_next_free_pos ( ADCL_emethod_req_array, &pos );
+    ADCL_array_set_element ( ADCL_emethod_req_array, 
+			     pos, 
+			     pos,
+			     er );
+    
 
     *num_methods = er->er_num_emethods;
     return er->er_emethods;

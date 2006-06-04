@@ -11,7 +11,7 @@ int ADCL_array_init (ADCL_array_t **arr, const char name[64], int size )
     }
 
     strncpy ( tarr->name, name, 64 );
-    tarr->last = 0;
+    tarr->last = -1;
     tarr->size = size;
 
     tarr->array=(ADCL_array_elem_t*)calloc(1,size*sizeof(ADCL_array_elem_t));
@@ -120,7 +120,6 @@ int ADCL_array_set_element (ADCL_array_t *arr, int pos, int id, void *ptr)
 
     if ( pos < arr->size ) {
 	if ( 0 == arr->array[pos].in_use ) {
-	    /* this is element is already being used ! */
 	    arr->array[pos].id      = id;
 	    arr->array[pos].in_use  = 1;
 	    arr->array[pos].ptr     = ptr;
@@ -140,7 +139,12 @@ int ADCL_array_remove_element ( ADCL_array_t *arr, int pos )
 	arr->array[pos].ptr    = NULL;
 	arr->array[pos].id     = MPI_UNDEFINED;
 	arr->array[pos].in_use = FALSE;
+
+	if ( pos == arr->last ) {
+	    arr->last--;
+	}
     }
+
 	    
     return ADCL_SUCCESS;
 }
