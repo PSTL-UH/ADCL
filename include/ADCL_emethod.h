@@ -28,8 +28,8 @@ struct ADCL_emethod_s {
     double            em_avg; /* average time required to execute this method(local)*/
     double            em_max; /* max. time required to execute this function (local)*/
     double            em_min; /* min. time required to execute this function (local)*/
-    short            em_lpts; /* local no. of pts by this method */
-    short            em_gsum; /* global sum of no. of pts gather by this method */
+    int            em_lpts; /* local no. of pts by this method */
+    int            em_gsum; /* global sum of no. of pts gather by this method */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 
