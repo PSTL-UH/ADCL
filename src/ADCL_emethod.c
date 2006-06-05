@@ -18,9 +18,9 @@ int ADCL_emethod_req_finalize ( void )
     return ADCL_SUCCESS;
 }
 
-ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
-				     int *neighbors, int vndims, int *vdims, 
-				     int vnc, int vhwidth, int *num_methods )
+ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
+					 int *neighbors, int vndims, 
+					 int *vdims, int vnc, int vhwidth )
 {
     int i, j, pos, last, found=-1;
     ADCL_emethod_req_t *er;    
@@ -67,15 +67,13 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     }
 
     if ( found > -1 ) {
-	*num_methods = er->er_num_emethods;
 	er->er_rfcnt++;
-	return er->er_emethods;
+	return er;
     }
 	
     /* we did not find this configuraion yet, so we have to add it */
     er = ( ADCL_emethod_req_t *) calloc (1, sizeof(ADCL_emethod_req_t));
     if ( NULL == er ) {
-	*num_methods = MPI_UNDEFINED;
 	return NULL;
     }
     
@@ -83,11 +81,11 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     er->er_nneighbors = nneighbors;
     er->er_vndims     = vndims;
     er->er_rfcnt      = 1;
+    er->er_state      = ADCL_STATE_TESTING;
     er->er_neighbors  = (int *) malloc ( nneighbors * sizeof(int));
     er->er_vdims      = (int *) malloc ( vndims * sizeof(int));
     if ( NULL == er->er_neighbors || NULL == er->er_vdims ) {
 	free ( er );
-	*num_methods = MPI_UNDEFINED;
 	return NULL;
     }
     memcpy ( er->er_neighbors, neighbors, nneighbors * sizeof(int));
@@ -102,7 +100,6 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	free ( er->er_vdims ) ;
 	free ( er->er_neighbors );
 	free ( er );
-	*num_methods = MPI_UNDEFINED;
 	return NULL;
     }
 
@@ -116,11 +113,8 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     ADCL_array_set_element ( ADCL_emethod_req_array, 
 			     pos, 
 			     pos,
-			     er );
-    
-
-    *num_methods = er->er_num_emethods;
-    return er->er_emethods;
+			     er );    
+    return er;
 }
 
 
@@ -137,25 +131,27 @@ int ADCL_emethod_get_next_id (void)
     return ADCL_local_id_counter++;
 }
 
-ADCL_method_t* ADCL_emethod_get_method ( ADCL_emethod_t *emethod)
+ADCL_method_t* ADCL_emethod_get_method ( ADCL_emethod_req_t *erm, int pos)
 {
-    return emethod->em_method;
+    return erm->er_emethods[pos].em_method;
 }
 
     
-int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, TIME_TYPE tstart, 
-			   TIME_TYPE tend )
+int ADCL_emethod_monitor ( ADCL_emethod_req_t *ermethod, int pos, 
+			   TIME_TYPE tstart, TIME_TYPE tend )
 {
     /* to be done later */
     return ADCL_STATE_REGULAR;
 }
 
-int ADCL_emethods_get_winner ( int count, ADCL_emethod_t *emethods, 
+int ADCL_emethods_get_winner ( ADCL_emethod_req_t *ermethod, 
 			       MPI_Comm comm )
 {
     int i, j, winner=-1;
     double *sorted=NULL;
     int pts, max;
+    ADCL_emethod_t *emethods=ermethod->er_emethods;
+    int count = ermethod->er_num_emethods;
 
     sorted = (double *) malloc ( 2*count*sizeof(double));
     if ( NULL == sorted ) {
@@ -197,43 +193,79 @@ int ADCL_emethods_get_winner ( int count, ADCL_emethod_t *emethods,
 
     return winner;
 }
-int ADCL_emethods_get_next ( int count, ADCL_emethod_t *emethods, int last, 
-			     int mode )
+int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 {
     int i, next=ADCL_EVAL_DONE;
+    int rflag = ADCL_FLAG_NOPERF;
+    ADCL_emethod_t *emethod;
 
-    if ( last >= count ||  last < 0 ) {
-	last = 0;
-    }
-
-    for ( i=last; i< count; i++ ) {
-	if ( emethods[i].em_count < ADCL_EMETHOD_NUMTESTS ) {
+    for ( i=er->er_last; i< er->er_num_emethods; i++ ) {
+	emethod = &(er->er_emethods[i]);
+	if ( emethod->em_count < ADCL_EMETHOD_NUMTESTS ) {
 	    next = i;
-	    if ( (!emethods[i].em_method->m_db) || 
-		 ((emethods[i].em_method->m_db)  && 
-		  (mode == ADCL_COMM_ACTIVE)) )
-	    emethods[i].em_count++;
+	    rflag = ADCL_FLAG_PERF;
+	    emethod->em_count++;
 	    break;
 	}
     }
+    
+    if ( next != ADCL_EVAL_DONE) {
+	er->er_last = next;
+    }
+    else { 
+	/* 
+	** At this point, all methods have been *initiated* the required number of 
+	** times. However, we need to check, whether we are really done with 
+	** evaluation, or whether we still have some performance data outstanding
+	*/
+	for ( i=er->er_last; i< er->er_num_emethods; i++ ) {
+	    emethod = &(er->er_emethods[i]);
+	    /*
+	    ** remember that dual block methods need 2 *EMETHOD_NUMTESTS
+	    ** reported back! 
+	    */
+	    if ( (emethod->em_method->m_db                           && 
+		  (emethod->em_rescount < 2* ADCL_EMETHOD_NUMTESTS)) ||
+		 (!emethod->em_method->m_db                          && 
+		  (emethod->em_rescount < ADCL_EMETHOD_NUMTESTS )    )) {
+		/* 
+		** ok, some data is still outstanding. So we 
+		** do not switch yet to the evaluation mode, 
+		** which give the last method out once again with 
+		** the noperf flag (= performance data not relevant
+		** for evaluation 
+		*/
+		next = er->er_last;
+		break;
+	    }
+	}
+    }
+
+    *flag = rflag;
     return next;
 }
 
-void ADCL_emethods_update ( int count, ADCL_emethod_t *emethods, int last, 
+void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos, int flag, 
 			    TIME_TYPE tstart, TIME_TYPE tend )
 {
-    ADCL_emethod_t *tmpem= &emethods[last];
+    ADCL_emethod_t *emethods = ermethods->er_emethods;
     double exectime = (double) (tend-tstart);
+    ADCL_emethod_t *tmpem;
 
-    tmpem->em_sum += exectime;
-    tmpem->em_avg = tmpem->em_sum / tmpem->em_count;
-    if ( exectime > tmpem->em_max ) {
-	tmpem->em_max = exectime;
-    }
-    if ( exectime < tmpem->em_min ) {
-	tmpem->em_min = exectime;
-    }
 
+    if ( flag == ADCL_FLAG_PERF ) {
+	tmpem = &emethods[pos];
+	tmpem->em_sum += exectime;
+	tmpem->em_avg = tmpem->em_sum / tmpem->em_count;
+	if ( exectime > tmpem->em_max ) {
+	    tmpem->em_max = exectime;
+	}
+	if ( exectime < tmpem->em_min ) {
+	    tmpem->em_min = exectime;
+	}
+	
+	tmpem->em_rescount++;
+    }
     return;
 }
 
