@@ -36,6 +36,7 @@ typedef struct ADCL_emethod_s ADCL_emethod_t;
 
 struct ADCL_emethod_req_s {
     MPI_Comm            er_comm;
+    int                  er_pos;
     int                er_rfcnt;
     int                er_state; /* state of the object */
     int                 er_last; /* last element given out */
@@ -47,6 +48,7 @@ struct ADCL_emethod_req_s {
     int           *er_neighbors;
     int               *er_vdims;
     ADCL_emethod_t *er_emethods;
+    ADCL_method_t   *er_wmethod; /* winner method used after the testing */
 };
 typedef struct ADCL_emethod_req_s ADCL_emethod_req_t;
 
@@ -56,6 +58,7 @@ int ADCL_emethod_req_finalize ( void );
 ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
 					 int *neighbors, int vndims, 
 					 int *vdims, int vnc, int vhwidth);
+void ADCL_emethod_free ( ADCL_emethod_req_t * er );
 
 double ADCL_emethod_time(void);
 ADCL_method_t * ADCL_emethod_get_method ( ADCL_emethod_req_t *emethod, int pos);

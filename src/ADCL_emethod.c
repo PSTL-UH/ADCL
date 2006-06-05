@@ -22,7 +22,7 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 					 int *neighbors, int vndims, 
 					 int *vdims, int vnc, int vhwidth )
 {
-    int i, j, pos, last, found=-1;
+    int i, j, last, found=-1;
     ADCL_emethod_req_t *er;    
     int result;
 
@@ -109,15 +109,33 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	er->er_emethods[i].em_min    = 999999;
     }
 
-    ADCL_array_get_next_free_pos ( ADCL_emethod_req_array, &pos );
+    ADCL_array_get_next_free_pos ( ADCL_emethod_req_array, &er->er_pos );
     ADCL_array_set_element ( ADCL_emethod_req_array, 
-			     pos, 
-			     pos,
+			     er->er_pos, 
+			     er->er_pos,
 			     er );    
     return er;
 }
 
+void ADCL_emethod_free ( ADCL_emethod_req_t * er )
+{
+    er->er_rfcnt--;
+    if ( er->er_rfcnt == 0 ) {
+	if ( NULL != er->er_vdims  ) {
+	    free ( er->er_vdims);
+	}
+	if ( NULL != er->er_neighbors ) {
+	    free ( er->er_neighbors );
+	}
+	if ( NULL != er->er_emethods ) {
+	    free ( er->er_emethods );
+	}
+	ADCL_array_remove_element ( ADCL_emethod_req_array, er->er_pos );
+	free ( er );
+    }
 
+    return;
+}
 
 double ADCL_emethod_time (void) 
 { 

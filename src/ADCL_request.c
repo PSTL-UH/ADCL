@@ -91,7 +91,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 
     /* Initialize the emethod data structures required for evaluating
        the different communication methods */
-    newreq->r_wmethod  = NULL;
+    newreq->r_cmethod  = NULL;
     newreq->r_ermethod = ADCL_emethod_init ( cart_comm, 
 					     newreq->r_nneighbors,
 					     newreq->r_neighbors,
@@ -120,10 +120,10 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 	if ( MPI_WIN_NULL != newreq->r_win ) {
 	    MPI_Win_free ( &(newreq->r_win) );
 	}
-/*	if ( NULL != newreq->r_emethods ) {
-	    free ( newreq->r_emethods );
+	if ( NULL != newreq->r_ermethod ) {
+	    ADCL_emethod_free ( newreq->r_ermethod );
 	}
-*/
+
 	if ( NULL != newreq ) {
 	    free ( newreq );
 	    newreq = ADCL_REQUEST_NULL;
@@ -151,16 +151,14 @@ int ADCL_request_free ( ADCL_request_t **req )
 			   &(preq->r_sbuf), &(preq->r_spsize), 
 			   &(preq->r_rpsize) );
 
+    ADCL_emethod_free ( preq->r_ermethod );
+
     if ( NULL != preq->r_neighbors ) {
 	free ( preq->r_neighbors );
     }
     if ( MPI_WIN_NULL != preq->r_win ) {
 	MPI_Win_free ( &(preq->r_win) );
     }
-/*    if ( NULL != preq->r_emethods ) {
-	free ( preq->r_emethods );
-    }
-*/
     if ( NULL != preq ) {
 	free ( preq );
     }
@@ -179,15 +177,15 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_AVAIL);
 	
-    req->r_wmethod = ADCL_request_get_method ( req, ADCL_COMM_AVAIL);
+    req->r_cmethod = ADCL_request_get_method ( req, ADCL_COMM_AVAIL);
 
     t1 = TIME;
-    req->r_wmethod->m_ifunc ( req );
+    req->r_cmethod->m_ifunc ( req );
     t2 = TIME;
 
     ret = ADCL_request_update ( req, t1, t2 );
-    *db = req->r_wmethod->m_db;
-    if ( req->r_wmethod->m_db ) {
+    *db = req->r_cmethod->m_db;
+    if ( req->r_cmethod->m_db ) {
 	req->r_comm_state = ADCL_COMM_ACTIVE;
     }
 
@@ -203,9 +201,9 @@ int ADCL_request_wait ( ADCL_request_t *req )
 
     CHECK_COMM_STATE (req->r_comm_state, ADCL_COMM_ACTIVE);
 	
-    if ( NULL != req->r_wmethod->m_wfunc ) {
+    if ( NULL != req->r_cmethod->m_wfunc ) {
 	t1 = TIME;
-	req->r_wmethod->m_wfunc ( req );
+	req->r_cmethod->m_wfunc ( req );
 	t2 = TIME;
 	
 	ret = ADCL_request_update ( req, t1, t2 );
@@ -237,7 +235,7 @@ static int ADCL_request_update ( ADCL_request_t *req,
 	    break;
 	case ADCL_STATE_REGULAR:
 	    req->r_ermethod->er_state = ADCL_emethod_monitor (req->r_ermethod, 
-							      req->r_erlast,
+							      req->r_ermethod->er_last,
 							      t2, t1 );	    
 	    break;
 	case ADCL_STATE_DECISION:
@@ -278,13 +276,13 @@ static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req,
 	    /* no break; statement here on purpose! */
 	case ADCL_STATE_DECISION:
 	    tmp = ADCL_emethods_get_winner ( req->r_ermethod, req->r_comm);
-	    req->r_erlast  = tmp;
-	    req->r_wmethod = ADCL_emethod_get_method(req->r_ermethod, tmp);
-
+	    req->r_ermethod->er_last    = tmp;
+	    req->r_ermethod->er_wmethod = ADCL_emethod_get_method(req->r_ermethod, tmp);
+	    
 	    req->r_ermethod->er_state = ADCL_STATE_REGULAR;
 	    /* no break; statement here on purpose! */
 	case ADCL_STATE_REGULAR:
-	    tmethod = req->r_wmethod;
+	    tmethod = req->r_ermethod->er_wmethod;
 	    break;
 	default:
 	    ADCL_printf("%s: Unknown object status for req %d, status %d\n", 
