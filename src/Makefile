@@ -65,7 +65,7 @@ change:$(HEADER)
 			-o ADCL_change_sb_pair_SendRecv.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=3 \
 			-o ADCL_change_sb_pair_SendIrecv.o 
-	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=4 \
+	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=4 \
 			-o ADCL_change_sb_pair_IsendIrecv_pack.o 
 
 

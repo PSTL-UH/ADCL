@@ -5,7 +5,7 @@
 
 
 #if COMMMODE == 0
-  #define COMMTEXT  DebugNoCommunication
+  #define COMMTEXT  "DebugNoCommunication"
 
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_debug
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_debug
@@ -23,7 +23,7 @@
   #define RECV_WAIT(req,i) 
 
 #elif COMMMODE == 1
-  #define COMMTEXT  IsendIrecv
+  #define COMMTEXT  "IsendIrecv"
 
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_IsendIrecv 
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_IsendIrecv
@@ -41,7 +41,7 @@
   #define RECV_WAIT(req,i) MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE)
 
 #elif COMMMODE == 2
-  #define COMMTEXT  SendRecv
+  #define COMMTEXT  "SendRecv"
 
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendRecv
   #define SEND_START(req,i,tag) MPI_Ssend(req->r_vec->v_data, 1, \
@@ -55,7 +55,7 @@
   #define RECV_WAIT(req,i) 
 
 #elif COMMMODE == 3
-  #define COMMTEXT SendIrecv
+  #define COMMTEXT "SendIrecv"
 
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_SendIrecv
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendIrecv
@@ -71,7 +71,7 @@
   #define RECV_WAIT(req,i) MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE)
 
 #elif COMMMODE == 4
-  #define COMMTEXT  IsendIrecvPack
+  #define COMMTEXT  "IsendIrecvPack"
 
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_IsendIrecv_pack
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_IsendIrecv_pack
@@ -102,6 +102,11 @@
 
 int ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req);
 int ADCL_change_sb_pair_IsendIrecv (ADCL_request_t *req);
+int ADCL_change_sb_aao_SendIrecv  (ADCL_request_t *req);
+int ADCL_change_sb_pair_SendIrecv (ADCL_request_t *req);
+int ADCL_change_sb_aao_IsendIrecv_pack  (ADCL_request_t *req);
+int ADCL_change_sb_pair_IsendIrecv_pack (ADCL_request_t *req);
+int ADCL_change_sb_pair_SendRecv (ADCL_request_t *req);
 
 
 #endif /* __ADCL_CHANGE_H__ */

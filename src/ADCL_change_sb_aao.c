@@ -22,6 +22,8 @@ int ADCL_CHANGE_SB_AAO ( ADCL_request_t *req )
     SEND_WAITALL(req);
     RECV_WAITALL(req);
 
+    ADCL_printf("%s\n", COMMTEXT );
+
     return ADCL_SUCCESS;
 }
 

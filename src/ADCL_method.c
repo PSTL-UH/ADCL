@@ -1,24 +1,14 @@
 #include "ADCL_internal.h"
-
+#include "ADCL_config.h"
 
 static int ADCL_method_total_num=0;
-
 static ADCL_method_t* ADCL_method_array=NULL;
 
-
-int singleblock_func0 ( void *req );
-int singleblock_func1 ( void *req );
-int singleblock_func2 ( void *req );
-
-int dualblock_func0_init ( void *req );
-int dualblock_func0_wait ( void *req );
-
-int dualblock_func1_init ( void *req );
-int dualblock_func1_wait ( void *req );
-
-
+#ifndef ADCL_NO_COMM_DEBUG
 int ADCL_method_init ( void )
 {
+    int count=0;
+    
     /* Three steps: 
        1. generate a list of all available single-block methods
        2. determine the characteristics of the current environment
@@ -33,26 +23,65 @@ int ADCL_method_init ( void )
        set right now! 
     */
 
-    ADCL_method_total_num = 5;
+    ADCL_method_total_num = 7;
     ADCL_method_array=(ADCL_method_t*)calloc(1, ADCL_method_total_num
 					     * sizeof( ADCL_method_t));
     if ( NULL == ADCL_method_array ) {
 	return ADCL_NO_MEMORY;
     }
-    ADCL_method_array[0].m_ifunc = (ADCL_fnct_ptr*)singleblock_func0;
-    ADCL_method_array[1].m_ifunc = (ADCL_fnct_ptr*)singleblock_func1;
-    ADCL_method_array[2].m_ifunc = (ADCL_fnct_ptr*)singleblock_func2;
+#ifdef DERIVED_TYPES
 
-    ADCL_method_array[3].m_ifunc = (ADCL_fnct_ptr*)dualblock_func0_init;
-    ADCL_method_array[3].m_wfunc = (ADCL_fnct_ptr*)dualblock_func0_wait;
-    ADCL_method_array[3].m_db    = 1;
+#ifdef CHANGE_AAO
+#  ifdef ISEND_IRECV
+      ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_IsendIrecv;
+      count++; 
+#  endif /* ISEND_IRECV */
 
-    ADCL_method_array[4].m_ifunc = (ADCL_fnct_ptr*)dualblock_func1_init;
-    ADCL_method_array[4].m_wfunc = (ADCL_fnct_ptr*)dualblock_func1_wait;
-    ADCL_method_array[4].m_db    = 1;
-       
+#  ifdef SEND_IRECV
+      ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_SendIrecv;
+      count++; 
+#  endif /* SEND_IRECV */
+#endif /* CHANGE_AAO */
+
+#ifdef CHANGE_PAIR
+#  ifdef ISEND_IRECV
+      ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_IsendIrecv;
+      count++; 
+#  endif /* ISEND_IRECV */
+#  ifdef SEND_RECV
+      ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendRecv;
+      count++; 
+#  endif /* SEND_RECV */
+#  ifdef SEND_IRECV
+      ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendIrecv;
+      count++; 
+#  endif /* SEND_IRECV */
+#endif /* CHANGE_PAIR */
+
+#endif /* DERIVED_TYPES */
+
+#ifdef PACK_UNPACK
+
+#ifdef CHANGE_AAO
+#  ifdef ISEND_IRECV
+      ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_IsendIrecv_pack;
+      count++; 
+#  endif /* ISEND_IRECV */
+#endif /* CHANGE_AAO */
+
+#ifdef CHANGE_PAIR
+#  ifdef ISEND_IRECV
+      ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_IsendIrecv_pack;
+      count++; 
+#  endif /* ISEND_IRECV */
+#endif /* CHANGE_PAIR  */
+
+#endif /* PACK_UNPACK */
+
+
     return ADCL_SUCCESS;
 }
+#endif
 
 int ADCL_method_finalize (void)
 {
@@ -109,6 +138,55 @@ ADCL_method_t* ADCL_get_method ( int i )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
+#ifdef ADCL_NO_COMM_DEBUG
+
+int singleblock_func0 ( void *req );
+int singleblock_func1 ( void *req );
+int singleblock_func2 ( void *req );
+
+int dualblock_func0_init ( void *req );
+int dualblock_func0_wait ( void *req );
+
+int dualblock_func1_init ( void *req );
+int dualblock_func1_wait ( void *req );
+
+int ADCL_method_init ( void )
+{
+    /* Three steps: 
+       1. generate a list of all available single-block methods
+       2. determine the characteristics of the current environment
+       3. generate a new, shorter list of single-block methods available
+
+       4. generate a list of all available dual-block methods
+       5. generate a new, shorter list of dual-block methods
+    */
+
+    /* right now we are just setting some values for code
+       development and verification purposes. No attributes 
+       set right now! 
+    */
+
+
+    ADCL_method_total_num = 5;
+    ADCL_method_array=(ADCL_method_t*)calloc(1, ADCL_method_total_num
+					     * sizeof( ADCL_method_t));
+    if ( NULL == ADCL_method_array ) {
+	return ADCL_NO_MEMORY;
+    }
+    ADCL_method_array[0].m_ifunc = (ADCL_fnct_ptr*)singleblock_func0;
+    ADCL_method_array[1].m_ifunc = (ADCL_fnct_ptr*)singleblock_func1;
+    ADCL_method_array[2].m_ifunc = (ADCL_fnct_ptr*)singleblock_func2;
+
+    ADCL_method_array[3].m_ifunc = (ADCL_fnct_ptr*)dualblock_func0_init;
+    ADCL_method_array[3].m_wfunc = (ADCL_fnct_ptr*)dualblock_func0_wait;
+    ADCL_method_array[3].m_db    = 1;
+
+    ADCL_method_array[4].m_ifunc = (ADCL_fnct_ptr*)dualblock_func1_init;
+    ADCL_method_array[4].m_wfunc = (ADCL_fnct_ptr*)dualblock_func1_wait;
+    ADCL_method_array[4].m_db    = 1;
+
+    return ADCL_SUCCESS;
+}
 int singleblock_func0 ( void *req ) 
 {
     int rank;
@@ -183,3 +261,4 @@ int dualblock_func1_wait ( void *req )
     usleep (100);
     return 0;
 }
+#endif
