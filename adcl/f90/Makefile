@@ -23,8 +23,6 @@ HEADER = $(ADCL_INC_DIR)/ADCL.h             \
 all:    
 	make $(ADCL_LIB) 
 
-
-
 $(ADCL_LIB): $(HEADER) $(OBJ)
 	$(AR) $(AR_FLAGS) $(ADCL_LIB) $(OBJ)
 
