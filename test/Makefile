@@ -1,6 +1,6 @@
 include ../Makefile.defs
 
-all: first second third fourth first_f
+all: first second third fourth first_f second_f
 
 first: 	first.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/first first.c $(LDFLAGS)
@@ -16,6 +16,9 @@ fourth:	fourth.c
 
 first_f: first_f.f90
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/first_f first_f.f90 $(LDFLAGS)
+
+second_f: second_f.f90
+	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/second_f second_f.f90 $(LDFLAGS)
 
 
 clean:

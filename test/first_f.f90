@@ -8,7 +8,7 @@
         integer vec;
         integer request;
         integer cart_comm;
-        integer, allocatable, dimension (:,:,:) :: data
+        double precision, allocatable, dimension (:,:,:) :: data
         
         NIT = 100
 
