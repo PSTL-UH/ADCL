@@ -5,10 +5,18 @@
 
 #define NIT 100
 
+#define DIM0  2
+#define DIM1  4
+#define DIM2  6
+
+/* how many halo-cells for each neighbor ? */
+#define HWIDTH 1
+
+
 int main ( int argc, char ** argv ) 
 {
     int i, rank, size;
-    int dims[3]={66,34,34};
+    int dims[3]={DIM0+2*HWIDTH,DIM1+2*HWIDTH,DIM2+2*HWIDTH};
     int cdims[]={0,0,0};
     int periods[]={0,0,0};
     ADCL_Vector vec;

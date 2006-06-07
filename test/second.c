@@ -18,10 +18,13 @@ static void matrix_init ( int dims[2], int cdims[2],
 static void matrix_dump ( double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH],  
 			  MPI_Comm cart_comm, char *msg);
 
+
+#define NIT 100
+
 int main ( int argc, char ** argv ) 
 {
     /* General variables */
-    int rank, size;
+    int i, rank, size;
     
     /* Definition of the 2-D vector */
     int dims[2]={DIM0+2*HWIDTH, DIM1+2*HWIDTH};
@@ -56,14 +59,9 @@ int main ( int argc, char ** argv )
     matrix_init ( dims, cdims, matrix, cart_comm );
 
     /* Now this is the real communication */
-//    ADCL_change_sb_aao_IsendIrecv ( request );
-//    ADCL_change_sb_aao_SendIrecv ( request );
-      ADCL_change_sb_aao_IsendIrecv_pack ( request );
-//    ADCL_change_sb_pair_debug ( request );
-//    ADCL_change_sb_pair_IsendIrecv ( request );
-//    ADCL_change_sb_pair_SendRecv ( request );
-//    ADCL_change_sb_pair_SendIrecv ( request );
-//    ADCL_change_sb_pair_IsendIrecv_pack ( request );
+    for (i=0; i<NIT; i++ ) {
+	ADCL_Request_start ( request );
+    }
 
    /* Dump the resulting matrix */
     matrix_dump ( matrix, cart_comm, "After the communication");

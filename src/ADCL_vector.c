@@ -44,7 +44,7 @@ int ADCL_vector_allocate ( int ndims, int *dims, int nc, int hwidth,
     tvec->v_dat   = dat;
 
     /* allocate the according data array */
-    tvec->v_data = ADCL_allocate_matrix ( rndims, rdims, dat );
+    tvec->v_data = ADCL_allocate_matrix ( rndims, rdims, dat, &(tvec->v_matrix) );
     if ( NULL == tvec->v_data ) {
 	free ( tvec );
 	*vec = NULL;
@@ -68,7 +68,7 @@ int ADCL_vector_free  ( ADCL_vector_t **vec )
 	    free ( tvec->v_dims);
 	}
 
-	ADCL_free_matrix ( tvec->v_ndims, tvec->v_dat, tvec->v_data );
+	ADCL_free_matrix ( tvec->v_ndims, tvec->v_dat, tvec->v_matrix );
 	ADCL_array_remove_element ( ADCL_vector_farray, tvec->v_findex );
 	free ( tvec );
     }
@@ -85,8 +85,7 @@ int ADCL_vector_free  ( ADCL_vector_t **vec )
 /**********************************************************************/
 /**********************************************************************/
 int ADCL_vector_register ( int ndims, int *dims, int nc, int hwidth, 
-			   MPI_Datatype dat, void *data, 
-			   ADCL_vector_t **vec )
+			   MPI_Datatype dat, void *data,  ADCL_vector_t **vec )
 {
     ADCL_vector_t *tvec;
     int rndims, *rdims=NULL;
@@ -114,8 +113,9 @@ int ADCL_vector_register ( int ndims, int *dims, int nc, int hwidth,
     tvec->v_hwidth = hwidth;
     tvec->v_dims   = rdims;
 
-    tvec->v_data = data;
-    tvec->v_dat  = dat;
+    tvec->v_data   = data;
+    tvec->v_matrix = NULL;
+    tvec->v_dat    = dat;
 
     /* Finally, set the returning handle correctly */
     *vec = tvec;
@@ -147,7 +147,7 @@ int ADCL_vector_deregister  ( ADCL_vector_t **vec )
 
 void*  ADCL_vector_get_data_ptr ( ADCL_vector_t *vec ) 
 {
-    return vec->v_data;
+    return vec->v_matrix;
 }
 
 

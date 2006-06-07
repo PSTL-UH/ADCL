@@ -1,7 +1,7 @@
 #include "ADCL_internal.h"
 
 
-void* ADCL_allocate_TYPE_matrix ( int ndims, int *dims ) 
+void* ADCL_allocate_TYPE_matrix ( int ndims, int *dims, void *matpt ) 
 {
     switch ( ndims ) {
 	case 1: {
@@ -10,27 +10,32 @@ void* ADCL_allocate_TYPE_matrix ( int ndims, int *dims )
 	    if ( NULL == matrix ) {
 		return NULL;
 	    }
-	    return matrix;
+	    *((void **)matpt) = matrix;
+	    return &(matrix[0]);
 	}
 	case 2: {
 	    TYPE **matrix;
 	    ADCL_allocate_2D_TYPE_matrix ( &matrix, dims );
-	    return matrix;
+	    *((void **)matpt) = matrix;
+	    return &(matrix[0][0]);
 	}
 	case 3: {
 	    TYPE ***matrix;
 	    ADCL_allocate_3D_TYPE_matrix ( &matrix, dims );
-	    return matrix;
+	    *((void **)matpt) = matrix;
+	    return &(matrix[0][0][0]);
 	}
 	case 4: {
 	    TYPE ****matrix;
 	    ADCL_allocate_4D_TYPE_matrix ( &matrix, dims );
-	    return matrix;
+	    *((void **)matpt) = matrix;
+	    return &(matrix[0][0][0][0]);
 	}
 	case 5: {
 	    TYPE *****matrix;
 	    ADCL_allocate_5D_TYPE_matrix ( &matrix, dims );
-	    return matrix;
+	    *((void **)matpt) = matrix;
+	    return &(matrix[0][0][0][0][0]);
 	}
 	default:
 	    ADCL_printf("This dimension %d currently not supported\n", 

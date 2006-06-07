@@ -12,6 +12,7 @@ struct ADCL_vector_s{
     int              v_nc; /* extent of each point */
     int          v_hwidth; /* how many halo-cells are being used */
     int           *v_dims; /* extent of each of the dimensions */
+    void        *v_matrix; /* the matrix pointer */
     void          *v_data; /* pointer to the data array */
     MPI_Datatype    v_dat; /* basic datatype */
 };

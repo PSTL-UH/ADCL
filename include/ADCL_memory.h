@@ -3,16 +3,16 @@
 
 #include "mpi.h"
 
-void* ADCL_allocate_matrix ( int ndims, int *dims, MPI_Datatype dat);
+void* ADCL_allocate_matrix ( int ndims, int *dims, MPI_Datatype dat, void *pt);
 void ADCL_free_matrix ( int ndims, MPI_Datatype dat, void *mat);
 
-void* ADCL_allocate_double_matrix ( int ndims, int *dims);
+void* ADCL_allocate_double_matrix ( int ndims, int *dims, void *pt);
 void ADCL_free_double_matrix ( int ndims, void *mat);
 
-void* ADCL_allocate_float_matrix ( int ndims, int *dims);
+void* ADCL_allocate_float_matrix ( int ndims, int *dims, void *pt );
 void ADCL_free_float_matrix ( int ndims, void *mat);
 
-void* ADCL_allocate_int_matrix ( int ndims, int *dims);
+void* ADCL_allocate_int_matrix ( int ndims, int *dims, void *pt);
 void ADCL_free_int_matrix ( int ndims, void *mat);
 
 

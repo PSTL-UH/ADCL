@@ -40,7 +40,5 @@ int ADCL_CHANGE_SB_PAIR ( ADCL_request_t *req )
 	}
     }
 
-    ADCL_printf("%s\n", COMMTEXT );
-
     return ADCL_SUCCESS;
 }
