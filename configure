@@ -272,7 +272,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_default_prefix=.
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX F77 FFLAGS ac_ct_F77 lat_dir mpi_dir mpi_inc_dir mpi_lib_dir mpi_bin_dir mpi_cc mpi_f77 num_tests num_long_tests band_tests band_long_tests lat_tests max_short_len max_len large_step num_file_tests num_file_long_tests band_file_tests band_file_long_tests file_large_step LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX F77 FFLAGS ac_ct_F77 FLDFLAGS adcl_dir adcl_inc_dir adcl_lib_dir adcl_bin_dir adcl_lib_name mpi_dir mpi_inc_dir mpi_lib_dir mpi_bin_dir mpi_cc mpi_f90 LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -817,37 +817,20 @@ if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
 
-Optional Features:
-  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
-  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-mpiio                using MPI I/O for writing output files (default=no)
-  --enable-mpi-allocmem         using MPI_Alloc_mem for allocating buffers (default=no)
-  --enable-use-nameservice      using MPI Nameservice for connect/accept (default=yes)
-  --enable-dyncomm-timing       print time to establishe dynamic communicators (default=no)
-
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-lat-dir=LATDIR             Main LATENCY directory (default=$PWD)
+  --with-adcl-dir=ADCLDIR           Main ADCL directory (default=$PWD)
+  --with-adcl-inc-dir=ADCLDIR       ADCL include directory (default=ADCL_DIR/include)
+  --with-adcl-lib-dir=dir           ADCL lib directory (default=ADCL_DIR/lib)
+  --with-adcl-bin-dir=dir           ADCL bin directory (default=ADCL_DIR/bin)
+  --with-adcl-lib-name=name         name of the ADCL library (default=libadcl.a)
   --with-mpi-dir=MPIDIR             Installation directory of MPI
   --with-mpi-inc-dir=dir            Include directory of MPI (default=MPI_DIR/include)
   --with-mpi-lib-dir=dir            Library directory of MPI (default=MPI_DIR/lib)
   --with-mpi-bin-dir=dir            Bin directory of MPI (default=MPI_DIR/bin)
   --with-mpi-cc=mpicc               MPI C compiler wrapper (default=mpicc)
-  --with-mpi-f77=mpif77             MPI f77 compiler wrapper (default=mpif77)
-  --with-num-tests=NUMTESTS         Number of measurements per short msg. (default=10)
-  --with-num-long-tests=NUMTESTS    Number of measurements per long msg. (default=10)
-  --with-band-tests=NUMTESTS        Number of tests per measurements for short msg. (default=20)
-  --with-band-long-tests=NUMTESTS   Number of tests per measurements for long msg. (default=10)
-  --with-lat-tests=NUMTESTS         Number of tests for latency measurements (default=20)
-  --with-max-short-len=LENGTH       Maximum short msg. length (default=65537)
-  --with-max-len=LENGTH             Maximum  msg. length (default=2MB)
-  --with-large-step=LENGTH          Message step for large messages (default=65536)
-  --with-num-file-tests=NUMTESTS    Number of measurements per short msg. for file tests (default=10)
-  --with-num-file-long-tests=NUMTESTS  Number of measurements per long msg. for file tests (default=10)
-  --with-band-file-tests=NUMTESTS  Number of tests per measurements for short msg. for file tests (default=10)
-  --with-band-file-long-tests=NUMTESTS   Number of tests per measurements for long msg. in file tests(default=5)
-  --with-file-large-step=LENGTH    Message step for large messages in file tests (default=65536)
+  --with-mpi-f90=mpif90             MPI f90 compiler wrapper (default=mpif90)
 
 Some influential environment variables:
   CC          C compiler command
@@ -1299,8 +1282,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
-          ac_config_headers="$ac_config_headers include/lat_sys.h"
 
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
@@ -2789,7 +2770,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2792:" \
+echo "$as_me:2773:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -2948,21 +2929,87 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-echo "$as_me:$LINENO: checking for LATENCY main directory" >&5
-echo $ECHO_N "checking for LATENCY main directory... $ECHO_C" >&6
 
-# Check whether --with-lat_dir or --without-lat_dir was given.
-if test "${with_lat_dir+set}" = set; then
-  withval="$with_lat_dir"
-  lat_dir="${withval}"
+echo "$as_me:$LINENO: checking for ADCL main directory" >&5
+echo $ECHO_N "checking for ADCL main directory... $ECHO_C" >&6
+
+# Check whether --with-adcl_dir or --without-adcl_dir was given.
+if test "${with_adcl_dir+set}" = set; then
+  withval="$with_adcl_dir"
+  adcl_dir="${withval}"
 else
-  lat_dir=""
+  adcl_dir=""
 fi;
-    if test "x$lat_dir" = "x" ; then
-       lat_dir=$PWD
+    if test "x$adcl_dir" = "x" ; then
+       adcl_dir=$PWD
     fi
-    echo "$as_me:$LINENO: result: ${lat_dir}" >&5
-echo "${ECHO_T}${lat_dir}" >&6
+    echo "$as_me:$LINENO: result: ${adcl_dir}" >&5
+echo "${ECHO_T}${adcl_dir}" >&6
+
+echo "$as_me:$LINENO: checking for ADCL include directory" >&5
+echo $ECHO_N "checking for ADCL include directory... $ECHO_C" >&6
+
+# Check whether --with-adcl_inc_dir or --without-adcl_inc_dir was given.
+if test "${with_adcl_inc_dir+set}" = set; then
+  withval="$with_adcl_inc_dir"
+  adcl_inc_dir="${withval}"
+else
+  adcl_inc_dir=""
+fi;
+    if test "x$adcl_inc_dir" = "x" ; then
+       adcl_dir=${adcl_dir}/include
+    fi
+    echo "$as_me:$LINENO: result: ${adcl_inc_dir}" >&5
+echo "${ECHO_T}${adcl_inc_dir}" >&6
+
+echo "$as_me:$LINENO: checking for ADCL lib directory" >&5
+echo $ECHO_N "checking for ADCL lib directory... $ECHO_C" >&6
+
+# Check whether --with-adcl_lib_dir or --without-adcl_lib_dir was given.
+if test "${with_adcl_lib_dir+set}" = set; then
+  withval="$with_adcl_lib_dir"
+  adcl_lib_dir="${withval}"
+else
+  adcl_lib_dir=""
+fi;
+    if test "x$adcl_lib_dir" = "x" ; then
+       adcl_lib_dir=${adcl_dir}/lib
+    fi
+    echo "$as_me:$LINENO: result: ${adcl_lib_dir}" >&5
+echo "${ECHO_T}${adcl_lib_dir}" >&6
+
+echo "$as_me:$LINENO: checking for ADCL binary directory" >&5
+echo $ECHO_N "checking for ADCL binary directory... $ECHO_C" >&6
+
+# Check whether --with-adcl_bin_dir or --without-adcl_bin_dir was given.
+if test "${with_adcl_bin_dir+set}" = set; then
+  withval="$with_adcl_bin_dir"
+  adcl_bin_dir="${withval}"
+else
+  adcl_bin_dir=""
+fi;
+    if test "x$adcl_bin_dir" = "x" ; then
+       adcl_bin_dir=${adcl_dir}/bin
+    fi
+    echo "$as_me:$LINENO: result: ${adcl_bin_dir}" >&5
+echo "${ECHO_T}${adcl_bin_dir}" >&6
+
+
+echo "$as_me:$LINENO: checking for name of the ADCL library" >&5
+echo $ECHO_N "checking for name of the ADCL library... $ECHO_C" >&6
+
+# Check whether --with-adcl_lib_name or --without-adcl_lib_name was given.
+if test "${with_adcl_lib_name+set}" = set; then
+  withval="$with_adcl_lib_name"
+  adcl_lib_name="${withval}"
+else
+  adcl_lib_name=""
+fi;
+    if test "x$adcl_lib_name" = "x" ; then
+       adcl_lib_name=libadcl.a
+    fi
+    echo "$as_me:$LINENO: result: ${adcl_lib_name}" >&5
+echo "${ECHO_T}${adcl_lib_name}" >&6
 
 
 
@@ -3045,18 +3092,18 @@ fi;
 echo "${ECHO_T}${mpi_cc}" >&6
 
 
-echo "$as_me:$LINENO: checking for MPI Fortran 77 compiler wrapper" >&5
-echo $ECHO_N "checking for MPI Fortran 77 compiler wrapper... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking for MPI Fortran 90 compiler wrapper" >&5
+echo $ECHO_N "checking for MPI Fortran 90 compiler wrapper... $ECHO_C" >&6
 
-# Check whether --with-mpi_f77 or --without-mpi_f77 was given.
-if test "${with_mpi_f77+set}" = set; then
-  withval="$with_mpi_f77"
-  mpi_f77="${withval}"
+# Check whether --with-mpi_f90 or --without-mpi_f90 was given.
+if test "${with_mpi_f90+set}" = set; then
+  withval="$with_mpi_f90"
+  mpi_f90="${withval}"
 else
-  mpi_f77="mpif77"
+  mpi_f90="mpif90"
 fi;
-    echo "$as_me:$LINENO: result: ${mpi_f77}" >&5
-echo "${ECHO_T}${mpi_f77}" >&6
+    echo "$as_me:$LINENO: result: ${mpi_f90}" >&5
+echo "${ECHO_T}${mpi_f90}" >&6
 
 
 echo "$as_me:$LINENO: checking if we can compile and link a simple MPI program with ${mpi_cc}" >&5
@@ -3084,265 +3131,6 @@ echo "${ECHO_T}yes" >&6
 fi
 /bin/rm -f testmpi.c testmpi testmpi.o
 
-# Check whether --enable-mpiio or --disable-mpiio was given.
-if test "${enable_mpiio+set}" = set; then
-  enableval="$enable_mpiio"
-  test "$enableval" = yes && LAT_USE_MPIIO=yes
-fi;
-test "$LAT_USE_MPIIO" = yes || LAT_USE_MPIIO=no
-
-echo "$as_me:$LINENO: checking whether to use MPI I/O for writing output files" >&5
-echo $ECHO_N "checking whether to use MPI I/O for writing output files... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: ${LAT_USE_MPIIO}" >&5
-echo "${ECHO_T}${LAT_USE_MPIIO}" >&6
-if test "$LAT_USE_MPIIO" = yes ; then
-  cat >>confdefs.h <<\_ACEOF
-#define USE_MPIIO 1
-_ACEOF
-
-fi
-
-# Check whether --enable-use_allocmem or --disable-use_allocmem was given.
-if test "${enable_use_allocmem+set}" = set; then
-  enableval="$enable_use_allocmem"
-  test "$enableval" = yes && LAT_USE_MPI_ALLOCMEM=yes
-fi;
-test "$LAT_USE_MPI_ALLOCMEM" = yes || LAT_USE_MPI_ALLOCMEM=no
-
-echo "$as_me:$LINENO: checking whether to use MPI_Alloc_mem for allocating buffers" >&5
-echo $ECHO_N "checking whether to use MPI_Alloc_mem for allocating buffers... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: ${LAT_USE_MPI_ALLOCMEM}" >&5
-echo "${ECHO_T}${LAT_USE_MPI_ALLOCMEM}" >&6
-if test "$LAT_USE_MPI_ALLOCMEM" = yes ; then
-  cat >>confdefs.h <<\_ACEOF
-#define USE_MPI_ALLOC_MEM 1
-_ACEOF
-
-fi
-
-# Check whether --enable-use_nameservice or --disable-use_nameservice was given.
-if test "${enable_use_nameservice+set}" = set; then
-  enableval="$enable_use_nameservice"
-  test "$enableval" = no && LAT_USE_MPI_NAMESERVICE=no
-fi;
-test "$LAT_USE_MPI_NAMESERVICE" = no || LAT_USE_MPI_NAMESERVICE=yes
-
-echo "$as_me:$LINENO: checking whether to use MPI name service for connect/accept" >&5
-echo $ECHO_N "checking whether to use MPI name service for connect/accept... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: ${LAT_USE_MPI_NAMESERVICE}" >&5
-echo "${ECHO_T}${LAT_USE_MPI_NAMESERVICE}" >&6
-if test "$LAT_USE_MPI_NAMESERVICE" = yes ; then
-  cat >>confdefs.h <<\_ACEOF
-#define USE_NAMESERVICE 1
-_ACEOF
-
-fi
-
-# Check whether --enable-dyncomm_timing or --disable-dyncomm_timing was given.
-if test "${enable_dyncomm_timing+set}" = set; then
-  enableval="$enable_dyncomm_timing"
-  test "$enableval" = yes && LAT_DYN_TIMING=yes
-fi;
-test "$LAT_DYN_TIMING" = yes || LAT_DYN_TIMING=no
-
-echo "$as_me:$LINENO: checking whether to print time to establish dynamic communicators" >&5
-echo $ECHO_N "checking whether to print time to establish dynamic communicators... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: ${LAT_DYN_TIMING}" >&5
-echo "${ECHO_T}${LAT_DYN_TIMING}" >&6
-if test "$LAT_DYN_TIMING" = yes ; then
-  cat >>confdefs.h <<\_ACEOF
-#define DYNCOMM_TIMING 1
-_ACEOF
-
-fi
-
-
-##
-## Configuring the communication parameters
-##
-echo "$as_me:$LINENO: checking for number of measurements per short message" >&5
-echo $ECHO_N "checking for number of measurements per short message... $ECHO_C" >&6
-
-# Check whether --with-num_tests or --without-num_tests was given.
-if test "${with_num_tests+set}" = set; then
-  withval="$with_num_tests"
-  num_tests="${withval}"
-else
-  num_tests="10"
-fi;
-    echo "$as_me:$LINENO: result: ${num_tests}" >&5
-echo "${ECHO_T}${num_tests}" >&6
-
-
-echo "$as_me:$LINENO: checking for number of measurements per long message" >&5
-echo $ECHO_N "checking for number of measurements per long message... $ECHO_C" >&6
-
-# Check whether --with-num_long_tests or --without-num_long_tests was given.
-if test "${with_num_long_tests+set}" = set; then
-  withval="$with_num_long_tests"
-  num_long_tests="${withval}"
-else
-  num_long_tests="10"
-fi;
-    echo "$as_me:$LINENO: result: ${num_long_tests}" >&5
-echo "${ECHO_T}${num_long_tests}" >&6
-
-
-echo "$as_me:$LINENO: checking for number of tests per measurements for short message" >&5
-echo $ECHO_N "checking for number of tests per measurements for short message... $ECHO_C" >&6
-
-# Check whether --with-band_tests or --without-band_tests was given.
-if test "${with_band_tests+set}" = set; then
-  withval="$with_band_tests"
-  band_tests="${withval}"
-else
-  band_tests="20"
-fi;
-    echo "$as_me:$LINENO: result: ${band_tests}" >&5
-echo "${ECHO_T}${band_tests}" >&6
-
-
-echo "$as_me:$LINENO: checking for number of tests per measurements for long message" >&5
-echo $ECHO_N "checking for number of tests per measurements for long message... $ECHO_C" >&6
-
-# Check whether --with-band_long_tests or --without-band_long_tests was given.
-if test "${with_band_long_tests+set}" = set; then
-  withval="$with_band_long_tests"
-  band_long_tests="${withval}"
-else
-  band_long_tests="10"
-fi;
-    echo "$as_me:$LINENO: result: ${band_long_tests}" >&5
-echo "${ECHO_T}${band_long_tests}" >&6
-
-
-echo "$as_me:$LINENO: checking for number of tests for latency measurements" >&5
-echo $ECHO_N "checking for number of tests for latency measurements... $ECHO_C" >&6
-
-# Check whether --with-lat_tests or --without-lat_tests was given.
-if test "${with_lat_tests+set}" = set; then
-  withval="$with_lat_tests"
-  lat_tests="${withval}"
-else
-  lat_tests="20"
-fi;
-    echo "$as_me:$LINENO: result: ${lat_tests}" >&5
-echo "${ECHO_T}${lat_tests}" >&6
-
-
-
-echo "$as_me:$LINENO: checking for maximum short message length" >&5
-echo $ECHO_N "checking for maximum short message length... $ECHO_C" >&6
-
-# Check whether --with-max_short_len or --without-max_short_len was given.
-if test "${with_max_short_len+set}" = set; then
-  withval="$with_max_short_len"
-  max_short_len="${withval}"
-else
-  max_short_len="65537"
-fi;
-    echo "$as_me:$LINENO: result: ${max_short_len}" >&5
-echo "${ECHO_T}${max_short_len}" >&6
-
-
-echo "$as_me:$LINENO: checking for maximum message length" >&5
-echo $ECHO_N "checking for maximum message length... $ECHO_C" >&6
-
-# Check whether --with-max_len or --without-max_len was given.
-if test "${with_max_len+set}" = set; then
-  withval="$with_max_len"
-  max_len="${withval}"
-else
-  max_len="2*1024*1024"
-fi;
-    echo "$as_me:$LINENO: result: ${max_len}" >&5
-echo "${ECHO_T}${max_len}" >&6
-
-
-echo "$as_me:$LINENO: checking for message step for large messages" >&5
-echo $ECHO_N "checking for message step for large messages... $ECHO_C" >&6
-
-# Check whether --with-b or --without-b was given.
-if test "${with_b+set}" = set; then
-  withval="$with_b"
-  large_step="${withval}"
-else
-  large_step="65536"
-fi;
-    echo "$as_me:$LINENO: result: ${large_step}" >&5
-echo "${ECHO_T}${large_step}" >&6
-
-
-
-echo "$as_me:$LINENO: checking for number of measurements per short message in file tests" >&5
-echo $ECHO_N "checking for number of measurements per short message in file tests... $ECHO_C" >&6
-
-# Check whether --with-num_file_tests or --without-num_file_tests was given.
-if test "${with_num_file_tests+set}" = set; then
-  withval="$with_num_file_tests"
-  num_file_tests="${withval}"
-else
-  num_file_tests="10"
-fi;
-    echo "$as_me:$LINENO: result: ${num_file_tests}" >&5
-echo "${ECHO_T}${num_file_tests}" >&6
-
-
-echo "$as_me:$LINENO: checking for number of measurements per long message in file tests" >&5
-echo $ECHO_N "checking for number of measurements per long message in file tests... $ECHO_C" >&6
-
-# Check whether --with-num_file_long_tests or --without-num_file_long_tests was given.
-if test "${with_num_file_long_tests+set}" = set; then
-  withval="$with_num_file_long_tests"
-  num_file_long_tests="${withval}"
-else
-  num_file_long_tests="10"
-fi;
-    echo "$as_me:$LINENO: result: ${num_file_long_tests}" >&5
-echo "${ECHO_T}${num_file_long_tests}" >&6
-
-
-echo "$as_me:$LINENO: checking for number of tests per measurements for short message in file tests" >&5
-echo $ECHO_N "checking for number of tests per measurements for short message in file tests... $ECHO_C" >&6
-
-# Check whether --with-band_file_tests or --without-band_file_tests was given.
-if test "${with_band_file_tests+set}" = set; then
-  withval="$with_band_file_tests"
-  band_file_tests="${withval}"
-else
-  band_file_tests="10"
-fi;
-    echo "$as_me:$LINENO: result: ${band_file_tests}" >&5
-echo "${ECHO_T}${band_file_tests}" >&6
-
-
-echo "$as_me:$LINENO: checking for number of tests per measurements for long messages in file tests" >&5
-echo $ECHO_N "checking for number of tests per measurements for long messages in file tests... $ECHO_C" >&6
-
-# Check whether --with-band_file_long_tests or --without-band_file_long_tests was given.
-if test "${with_band_file_long_tests+set}" = set; then
-  withval="$with_band_file_long_tests"
-  band_file_long_tests="${withval}"
-else
-  band_file_long_tests="5"
-fi;
-    echo "$as_me:$LINENO: result: ${band_file_long_tests}" >&5
-echo "${ECHO_T}${band_file_long_tests}" >&6
-
-
-echo "$as_me:$LINENO: checking for message step for large messages in file tests" >&5
-echo $ECHO_N "checking for message step for large messages in file tests... $ECHO_C" >&6
-
-# Check whether --with-b or --without-b was given.
-if test "${with_b+set}" = set; then
-  withval="$with_b"
-  file_large_step="${withval}"
-else
-  file_large_step="65536"
-fi;
-    echo "$as_me:$LINENO: result: ${file_large_step}" >&5
-echo "${ECHO_T}${file_large_step}" >&6
-
 
 #AC_HEADER_STDC
 #AC_CHECK_HEADERS(limits.h malloc.h sys/time.h unistd.h sys/types.h)
@@ -3355,7 +3143,7 @@ echo "${ECHO_T}${file_large_step}" >&6
 #AC_FUNC_MEMCMP
 #AC_CHECK_FUNCS(gethostname strerror strstr setlinebuf strcasecmp snprintf)
 
-                    ac_config_files="$ac_config_files Makefile.defs include/latconfig.h"
+          ac_config_files="$ac_config_files Makefile.defs"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -3430,7 +3218,38 @@ s/^[^=]*=[	 ]*$//;
 }'
 fi
 
-DEFS=-DHAVE_CONFIG_H
+# Transform confdefs.h into DEFS.
+# Protect against shell expansion while executing Makefile rules.
+# Protect against Makefile macro expansion.
+#
+# If the first sed substitution is executed (which looks for macros that
+# take arguments), then we branch to the quote section.  Otherwise,
+# look for a macro that doesn't take arguments.
+cat >confdef2opt.sed <<\_ACEOF
+t clear
+: clear
+s,^[	 ]*#[	 ]*define[	 ][	 ]*\([^	 (][^	 (]*([^)]*)\)[	 ]*\(.*\),-D\1=\2,g
+t quote
+s,^[	 ]*#[	 ]*define[	 ][	 ]*\([^	 ][^	 ]*\)[	 ]*\(.*\),-D\1=\2,g
+t quote
+d
+: quote
+s,[	 `~#$^&*(){}\\|;'"<>?],\\&,g
+s,\[,\\&,g
+s,\],\\&,g
+s,\$,$$,g
+p
+_ACEOF
+# We use echo to avoid assuming a particular line-breaking character.
+# The extra dot is to prevent the shell from consuming trailing
+# line-breaks from the sub-command output.  A line-break within
+# single-quotes doesn't work because, if this script is created in a
+# platform that uses two characters for line-breaks (e.g., DOS), tr
+# would break.
+ac_LF_and_DOT=`echo; echo .`
+DEFS=`sed -n -f confdef2opt.sed confdefs.h | tr "$ac_LF_and_DOT" ' .'`
+rm -f confdef2opt.sed
+
 
 ac_libobjs=
 ac_ltlibobjs=
@@ -3764,14 +3583,9 @@ Usage: $0 [OPTIONS] [FILE]...
       --recheck    update $as_me by reconfiguring in the same conditions
   --file=FILE[:TEMPLATE]
 		   instantiate the configuration file FILE
-  --header=FILE[:TEMPLATE]
-		   instantiate the configuration header FILE
 
 Configuration files:
 $config_files
-
-Configuration headers:
-$config_headers
 
 Report bugs to <bug-autoconf@gnu.org>."
 _ACEOF
@@ -3881,8 +3695,6 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile.defs" ) CONFIG_FILES="$CONFIG_FILES Makefile.defs" ;;
-  "include/latconfig.h" ) CONFIG_FILES="$CONFIG_FILES include/latconfig.h" ;;
-  "include/lat_sys.h" ) CONFIG_HEADERS="$CONFIG_HEADERS include/lat_sys.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
@@ -3895,7 +3707,6 @@ done
 # bizarre bug on SunOS 4.1.3.
 if $ac_need_defaults; then
   test "${CONFIG_FILES+set}" = set || CONFIG_FILES=$config_files
-  test "${CONFIG_HEADERS+set}" = set || CONFIG_HEADERS=$config_headers
 fi
 
 # Have a temporary directory for convenience.  Make it in the build tree
@@ -3992,26 +3803,18 @@ s,@ac_ct_CXX@,$ac_ct_CXX,;t t
 s,@F77@,$F77,;t t
 s,@FFLAGS@,$FFLAGS,;t t
 s,@ac_ct_F77@,$ac_ct_F77,;t t
-s,@lat_dir@,$lat_dir,;t t
+s,@FLDFLAGS@,$FLDFLAGS,;t t
+s,@adcl_dir@,$adcl_dir,;t t
+s,@adcl_inc_dir@,$adcl_inc_dir,;t t
+s,@adcl_lib_dir@,$adcl_lib_dir,;t t
+s,@adcl_bin_dir@,$adcl_bin_dir,;t t
+s,@adcl_lib_name@,$adcl_lib_name,;t t
 s,@mpi_dir@,$mpi_dir,;t t
 s,@mpi_inc_dir@,$mpi_inc_dir,;t t
 s,@mpi_lib_dir@,$mpi_lib_dir,;t t
 s,@mpi_bin_dir@,$mpi_bin_dir,;t t
 s,@mpi_cc@,$mpi_cc,;t t
-s,@mpi_f77@,$mpi_f77,;t t
-s,@num_tests@,$num_tests,;t t
-s,@num_long_tests@,$num_long_tests,;t t
-s,@band_tests@,$band_tests,;t t
-s,@band_long_tests@,$band_long_tests,;t t
-s,@lat_tests@,$lat_tests,;t t
-s,@max_short_len@,$max_short_len,;t t
-s,@max_len@,$max_len,;t t
-s,@large_step@,$large_step,;t t
-s,@num_file_tests@,$num_file_tests,;t t
-s,@num_file_long_tests@,$num_file_long_tests,;t t
-s,@band_file_tests@,$band_file_tests,;t t
-s,@band_file_long_tests@,$band_file_long_tests,;t t
-s,@file_large_step@,$file_large_step,;t t
+s,@mpi_f90@,$mpi_f90,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
@@ -4245,229 +4048,6 @@ s,@abs_top_builddir@,$ac_abs_top_builddir,;t t
     rm -f $tmp/out
   fi
 
-done
-_ACEOF
-cat >>$CONFIG_STATUS <<\_ACEOF
-
-#
-# CONFIG_HEADER section.
-#
-
-# These sed commands are passed to sed as "A NAME B NAME C VALUE D", where
-# NAME is the cpp macro being defined and VALUE is the value it is being given.
-#
-# ac_d sets the value in "#define NAME VALUE" lines.
-ac_dA='s,^\([	 ]*\)#\([	 ]*define[	 ][	 ]*\)'
-ac_dB='[	 ].*$,\1#\2'
-ac_dC=' '
-ac_dD=',;t'
-# ac_u turns "#undef NAME" without trailing blanks into "#define NAME VALUE".
-ac_uA='s,^\([	 ]*\)#\([	 ]*\)undef\([	 ][	 ]*\)'
-ac_uB='$,\1#\2define\3'
-ac_uC=' '
-ac_uD=',;t'
-
-for ac_file in : $CONFIG_HEADERS; do test "x$ac_file" = x: && continue
-  # Support "outfile[:infile[:infile...]]", defaulting infile="outfile.in".
-  case $ac_file in
-  - | *:- | *:-:* ) # input from stdin
-	cat >$tmp/stdin
-	ac_file_in=`echo "$ac_file" | sed 's,[^:]*:,,'`
-	ac_file=`echo "$ac_file" | sed 's,:.*,,'` ;;
-  *:* ) ac_file_in=`echo "$ac_file" | sed 's,[^:]*:,,'`
-	ac_file=`echo "$ac_file" | sed 's,:.*,,'` ;;
-  * )   ac_file_in=$ac_file.in ;;
-  esac
-
-  test x"$ac_file" != x- && { echo "$as_me:$LINENO: creating $ac_file" >&5
-echo "$as_me: creating $ac_file" >&6;}
-
-  # First look for the input files in the build tree, otherwise in the
-  # src tree.
-  ac_file_inputs=`IFS=:
-    for f in $ac_file_in; do
-      case $f in
-      -) echo $tmp/stdin ;;
-      [\\/$]*)
-	 # Absolute (can't be DOS-style, as IFS=:)
-	 test -f "$f" || { { echo "$as_me:$LINENO: error: cannot find input file: $f" >&5
-echo "$as_me: error: cannot find input file: $f" >&2;}
-   { (exit 1); exit 1; }; }
-	 # Do quote $f, to prevent DOS paths from being IFS'd.
-	 echo "$f";;
-      *) # Relative
-	 if test -f "$f"; then
-	   # Build tree
-	   echo "$f"
-	 elif test -f "$srcdir/$f"; then
-	   # Source tree
-	   echo "$srcdir/$f"
-	 else
-	   # /dev/null tree
-	   { { echo "$as_me:$LINENO: error: cannot find input file: $f" >&5
-echo "$as_me: error: cannot find input file: $f" >&2;}
-   { (exit 1); exit 1; }; }
-	 fi;;
-      esac
-    done` || { (exit 1); exit 1; }
-  # Remove the trailing spaces.
-  sed 's/[	 ]*$//' $ac_file_inputs >$tmp/in
-
-_ACEOF
-
-# Transform confdefs.h into two sed scripts, `conftest.defines' and
-# `conftest.undefs', that substitutes the proper values into
-# config.h.in to produce config.h.  The first handles `#define'
-# templates, and the second `#undef' templates.
-# And first: Protect against being on the right side of a sed subst in
-# config.status.  Protect against being in an unquoted here document
-# in config.status.
-rm -f conftest.defines conftest.undefs
-# Using a here document instead of a string reduces the quoting nightmare.
-# Putting comments in sed scripts is not portable.
-#
-# `end' is used to avoid that the second main sed command (meant for
-# 0-ary CPP macros) applies to n-ary macro definitions.
-# See the Autoconf documentation for `clear'.
-cat >confdef2sed.sed <<\_ACEOF
-s/[\\&,]/\\&/g
-s,[\\$`],\\&,g
-t clear
-: clear
-s,^[	 ]*#[	 ]*define[	 ][	 ]*\([^	 (][^	 (]*\)\(([^)]*)\)[	 ]*\(.*\)$,${ac_dA}\1${ac_dB}\1\2${ac_dC}\3${ac_dD},gp
-t end
-s,^[	 ]*#[	 ]*define[	 ][	 ]*\([^	 ][^	 ]*\)[	 ]*\(.*\)$,${ac_dA}\1${ac_dB}\1${ac_dC}\2${ac_dD},gp
-: end
-_ACEOF
-# If some macros were called several times there might be several times
-# the same #defines, which is useless.  Nevertheless, we may not want to
-# sort them, since we want the *last* AC-DEFINE to be honored.
-uniq confdefs.h | sed -n -f confdef2sed.sed >conftest.defines
-sed 's/ac_d/ac_u/g' conftest.defines >conftest.undefs
-rm -f confdef2sed.sed
-
-# This sed command replaces #undef with comments.  This is necessary, for
-# example, in the case of _POSIX_SOURCE, which is predefined and required
-# on some systems where configure will not decide to define it.
-cat >>conftest.undefs <<\_ACEOF
-s,^[	 ]*#[	 ]*undef[	 ][	 ]*[a-zA-Z_][a-zA-Z_0-9]*,/* & */,
-_ACEOF
-
-# Break up conftest.defines because some shells have a limit on the size
-# of here documents, and old seds have small limits too (100 cmds).
-echo '  # Handle all the #define templates only if necessary.' >>$CONFIG_STATUS
-echo '  if grep "^[	 ]*#[	 ]*define" $tmp/in >/dev/null; then' >>$CONFIG_STATUS
-echo '  # If there are no defines, we may have an empty if/fi' >>$CONFIG_STATUS
-echo '  :' >>$CONFIG_STATUS
-rm -f conftest.tail
-while grep . conftest.defines >/dev/null
-do
-  # Write a limited-size here document to $tmp/defines.sed.
-  echo '  cat >$tmp/defines.sed <<CEOF' >>$CONFIG_STATUS
-  # Speed up: don't consider the non `#define' lines.
-  echo '/^[	 ]*#[	 ]*define/!b' >>$CONFIG_STATUS
-  # Work around the forget-to-reset-the-flag bug.
-  echo 't clr' >>$CONFIG_STATUS
-  echo ': clr' >>$CONFIG_STATUS
-  sed ${ac_max_here_lines}q conftest.defines >>$CONFIG_STATUS
-  echo 'CEOF
-  sed -f $tmp/defines.sed $tmp/in >$tmp/out
-  rm -f $tmp/in
-  mv $tmp/out $tmp/in
-' >>$CONFIG_STATUS
-  sed 1,${ac_max_here_lines}d conftest.defines >conftest.tail
-  rm -f conftest.defines
-  mv conftest.tail conftest.defines
-done
-rm -f conftest.defines
-echo '  fi # grep' >>$CONFIG_STATUS
-echo >>$CONFIG_STATUS
-
-# Break up conftest.undefs because some shells have a limit on the size
-# of here documents, and old seds have small limits too (100 cmds).
-echo '  # Handle all the #undef templates' >>$CONFIG_STATUS
-rm -f conftest.tail
-while grep . conftest.undefs >/dev/null
-do
-  # Write a limited-size here document to $tmp/undefs.sed.
-  echo '  cat >$tmp/undefs.sed <<CEOF' >>$CONFIG_STATUS
-  # Speed up: don't consider the non `#undef'
-  echo '/^[	 ]*#[	 ]*undef/!b' >>$CONFIG_STATUS
-  # Work around the forget-to-reset-the-flag bug.
-  echo 't clr' >>$CONFIG_STATUS
-  echo ': clr' >>$CONFIG_STATUS
-  sed ${ac_max_here_lines}q conftest.undefs >>$CONFIG_STATUS
-  echo 'CEOF
-  sed -f $tmp/undefs.sed $tmp/in >$tmp/out
-  rm -f $tmp/in
-  mv $tmp/out $tmp/in
-' >>$CONFIG_STATUS
-  sed 1,${ac_max_here_lines}d conftest.undefs >conftest.tail
-  rm -f conftest.undefs
-  mv conftest.tail conftest.undefs
-done
-rm -f conftest.undefs
-
-cat >>$CONFIG_STATUS <<\_ACEOF
-  # Let's still pretend it is `configure' which instantiates (i.e., don't
-  # use $as_me), people would be surprised to read:
-  #    /* config.h.  Generated by config.status.  */
-  if test x"$ac_file" = x-; then
-    echo "/* Generated by configure.  */" >$tmp/config.h
-  else
-    echo "/* $ac_file.  Generated by configure.  */" >$tmp/config.h
-  fi
-  cat $tmp/in >>$tmp/config.h
-  rm -f $tmp/in
-  if test x"$ac_file" != x-; then
-    if diff $ac_file $tmp/config.h >/dev/null 2>&1; then
-      { echo "$as_me:$LINENO: $ac_file is unchanged" >&5
-echo "$as_me: $ac_file is unchanged" >&6;}
-    else
-      ac_dir=`(dirname "$ac_file") 2>/dev/null ||
-$as_expr X"$ac_file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$ac_file" : 'X\(//\)[^/]' \| \
-	 X"$ac_file" : 'X\(//\)$' \| \
-	 X"$ac_file" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"$ac_file" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-      { if $as_mkdir_p; then
-    mkdir -p "$ac_dir"
-  else
-    as_dir="$ac_dir"
-    as_dirs=
-    while test ! -d "$as_dir"; do
-      as_dirs="$as_dir $as_dirs"
-      as_dir=`(dirname "$as_dir") 2>/dev/null ||
-$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$as_dir" : 'X\(//\)[^/]' \| \
-	 X"$as_dir" : 'X\(//\)$' \| \
-	 X"$as_dir" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"$as_dir" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-    done
-    test ! -n "$as_dirs" || mkdir $as_dirs
-  fi || { { echo "$as_me:$LINENO: error: cannot create directory \"$ac_dir\"" >&5
-echo "$as_me: error: cannot create directory \"$ac_dir\"" >&2;}
-   { (exit 1); exit 1; }; }; }
-
-      rm -f $ac_file
-      mv $tmp/config.h $ac_file
-    fi
-  else
-    cat $tmp/config.h
-    rm -f $tmp/config.h
-  fi
 done
 _ACEOF
 

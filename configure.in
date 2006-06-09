@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT
 AC_PREREQ(2.53)
-AC_CONFIG_HEADER(include/lat_sys.h)
+dnl AC_CONFIG_HEADER(include/lat_sys.h)
 dnl First step for the cross compiling ...
 AC_CANONICAL_TARGET
 AC_PREFIX_DEFAULT(.)
@@ -30,21 +30,67 @@ AC_SUBST(F77)
 AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)
 AC_SUBST(FFLAGS)
-
+AC_SUBST(LDFLAGS)
+AC_SUBST(FLDFLAGS)
 
 dnl ==================================================
 dnl Now ask the user 'bout desired options...
 
 dnl ==================================================
-AC_MSG_CHECKING(for LATENCY main directory)
-AC_ARG_WITH(lat_dir,
- [  --with-lat-dir=LATDIR             Main LATENCY directory (default=$PWD)],
-    lat_dir="${withval}", lat_dir="")
-    if test "x$lat_dir" = "x" ; then 
-       lat_dir=$PWD
+AC_MSG_CHECKING(for ADCL main directory)
+AC_ARG_WITH(adcl_dir,
+ [  --with-adcl-dir=ADCLDIR           Main ADCL directory (default=$PWD)],
+    adcl_dir="${withval}", adcl_dir="")
+    if test "x$adcl_dir" = "x" ; then 
+       adcl_dir=$PWD
     fi
-    AC_MSG_RESULT(${lat_dir})
-    AC_SUBST(lat_dir)
+    AC_MSG_RESULT(${adcl_dir})
+    AC_SUBST(adcl_dir)
+dnl ==================================================	
+dnl ==================================================
+AC_MSG_CHECKING(for ADCL include directory)
+AC_ARG_WITH(adcl_inc_dir,
+ [  --with-adcl-inc-dir=ADCLDIR       ADCL include directory (default=ADCL_DIR/include)],
+    adcl_inc_dir="${withval}", adcl_inc_dir="")
+    if test "x$adcl_inc_dir" = "x" ; then 
+       adcl_dir=${adcl_dir}/include
+    fi
+    AC_MSG_RESULT(${adcl_inc_dir})
+    AC_SUBST(adcl_inc_dir)
+dnl ==================================================	
+dnl ==================================================
+AC_MSG_CHECKING(for ADCL lib directory)
+AC_ARG_WITH(adcl_lib_dir,
+ [  --with-adcl-lib-dir=dir           ADCL lib directory (default=ADCL_DIR/lib)],
+    adcl_lib_dir="${withval}", adcl_lib_dir="")
+    if test "x$adcl_lib_dir" = "x" ; then 
+       adcl_lib_dir=${adcl_dir}/lib
+    fi
+    AC_MSG_RESULT(${adcl_lib_dir})
+    AC_SUBST(adcl_lib_dir)
+dnl ==================================================	
+dnl ==================================================
+AC_MSG_CHECKING(for ADCL binary directory)
+AC_ARG_WITH(adcl_bin_dir,
+ [  --with-adcl-bin-dir=dir           ADCL bin directory (default=ADCL_DIR/bin)],
+    adcl_bin_dir="${withval}", adcl_bin_dir="")
+    if test "x$adcl_bin_dir" = "x" ; then 
+       adcl_bin_dir=${adcl_dir}/bin
+    fi
+    AC_MSG_RESULT(${adcl_bin_dir})
+    AC_SUBST(adcl_bin_dir)
+dnl ==================================================	
+
+dnl ==================================================
+AC_MSG_CHECKING(for name of the ADCL library)
+AC_ARG_WITH(adcl_lib_name,
+ [  --with-adcl-lib-name=name         name of the ADCL library (default=libadcl.a)],
+    adcl_lib_name="${withval}", adcl_lib_name="")
+    if test "x$adcl_lib_name" = "x" ; then 
+       adcl_lib_name=libadcl.a
+    fi
+    AC_MSG_RESULT(${adcl_lib_name})
+    AC_SUBST(adcl_lib_name)
 dnl ==================================================	
 
 
@@ -103,12 +149,12 @@ AC_ARG_WITH(mpi_cc,
 dnl ==================================================	
 
 dnl ==================================================
-AC_MSG_CHECKING(for MPI Fortran 77 compiler wrapper)
-AC_ARG_WITH(mpi_f77,
- [  --with-mpi-f77=mpif77             MPI f77 compiler wrapper (default=mpif77) ],
-    mpi_f77="${withval}", mpi_f77="mpif77")
-    AC_MSG_RESULT(${mpi_f77})
-    AC_SUBST(mpi_f77)
+AC_MSG_CHECKING(for MPI Fortran 90 compiler wrapper)
+AC_ARG_WITH(mpi_f90,
+ [  --with-mpi-f90=mpif90             MPI f90 compiler wrapper (default=mpif90) ],
+    mpi_f90="${withval}", mpi_f90="mpif90")
+    AC_MSG_RESULT(${mpi_f90})
+    AC_SUBST(mpi_f90)
 dnl ==================================================	
 
 dnl ==================================================
@@ -134,180 +180,6 @@ fi
 /bin/rm -f testmpi.c testmpi testmpi.o
 dnl ==================================================
 
-dnl ==================================================
-AC_ARG_ENABLE(mpiio,
-[  --enable-mpiio                using MPI I/O for writing output files (default=no)],
-[test "$enableval" = yes && LAT_USE_MPIIO=yes])
-test "$LAT_USE_MPIIO" = yes || LAT_USE_MPIIO=no
-
-AC_MSG_CHECKING([whether to use MPI I/O for writing output files])
-AC_MSG_RESULT(${LAT_USE_MPIIO})
-if test "$LAT_USE_MPIIO" = yes ; then
-  AC_DEFINE(USE_MPIIO)
-fi
-dnl ==================================================
-
-dnl ==================================================
-AC_ARG_ENABLE(use_allocmem,
-[  --enable-mpi-allocmem         using MPI_Alloc_mem for allocating buffers (default=no)],
-[test "$enableval" = yes && LAT_USE_MPI_ALLOCMEM=yes])
-test "$LAT_USE_MPI_ALLOCMEM" = yes || LAT_USE_MPI_ALLOCMEM=no
-
-AC_MSG_CHECKING([whether to use MPI_Alloc_mem for allocating buffers])
-AC_MSG_RESULT(${LAT_USE_MPI_ALLOCMEM})
-if test "$LAT_USE_MPI_ALLOCMEM" = yes ; then
-  AC_DEFINE(USE_MPI_ALLOC_MEM)
-fi
-dnl ==================================================
-
-dnl ==================================================
-AC_ARG_ENABLE(use_nameservice,
-[  --enable-use-nameservice      using MPI Nameservice for connect/accept (default=yes)],
-[test "$enableval" = no && LAT_USE_MPI_NAMESERVICE=no])
-test "$LAT_USE_MPI_NAMESERVICE" = no || LAT_USE_MPI_NAMESERVICE=yes
-
-AC_MSG_CHECKING([whether to use MPI name service for connect/accept])
-AC_MSG_RESULT(${LAT_USE_MPI_NAMESERVICE})
-if test "$LAT_USE_MPI_NAMESERVICE" = yes ; then
-  AC_DEFINE(USE_NAMESERVICE)
-fi
-dnl ==================================================
-
-dnl ==================================================
-AC_ARG_ENABLE(dyncomm_timing,
-[  --enable-dyncomm-timing       print time to establishe dynamic communicators (default=no)],
-[test "$enableval" = yes && LAT_DYN_TIMING=yes])
-test "$LAT_DYN_TIMING" = yes || LAT_DYN_TIMING=no
-
-AC_MSG_CHECKING([whether to print time to establish dynamic communicators])
-AC_MSG_RESULT(${LAT_DYN_TIMING})
-if test "$LAT_DYN_TIMING" = yes ; then
-  AC_DEFINE(DYNCOMM_TIMING)
-fi
-dnl ==================================================
-
-
-##
-## Configuring the communication parameters
-##
-dnl ==================================================
-AC_MSG_CHECKING(for number of measurements per short message)
-AC_ARG_WITH(num_tests,
- [  --with-num-tests=NUMTESTS         Number of measurements per short msg. (default=10)],
-    num_tests="${withval}", num_tests="10")
-    AC_MSG_RESULT(${num_tests})
-    AC_SUBST(num_tests)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for number of measurements per long message)
-AC_ARG_WITH(num_long_tests,
- [  --with-num-long-tests=NUMTESTS    Number of measurements per long msg. (default=10)],
-    num_long_tests="${withval}", num_long_tests="10")
-    AC_MSG_RESULT(${num_long_tests})
-    AC_SUBST(num_long_tests)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for number of tests per measurements for short message)
-AC_ARG_WITH(band_tests,
- [  --with-band-tests=NUMTESTS        Number of tests per measurements for short msg. (default=20)],
-    band_tests="${withval}", band_tests="20")
-    AC_MSG_RESULT(${band_tests})
-    AC_SUBST(band_tests)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for number of tests per measurements for long message)
-AC_ARG_WITH(band_long_tests,
- [  --with-band-long-tests=NUMTESTS   Number of tests per measurements for long msg. (default=10)],
-    band_long_tests="${withval}", band_long_tests="10")
-    AC_MSG_RESULT(${band_long_tests})
-    AC_SUBST(band_long_tests)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for number of tests for latency measurements)
-AC_ARG_WITH(lat_tests,
- [  --with-lat-tests=NUMTESTS         Number of tests for latency measurements (default=20)],
-    lat_tests="${withval}", lat_tests="20")
-    AC_MSG_RESULT(${lat_tests})
-    AC_SUBST(lat_tests)
-dnl ==================================================	
-
-
-dnl ==================================================
-AC_MSG_CHECKING(for maximum short message length)
-AC_ARG_WITH(max_short_len,
- [  --with-max-short-len=LENGTH       Maximum short msg. length (default=65537)],
-    max_short_len="${withval}", max_short_len="65537")
-    AC_MSG_RESULT(${max_short_len})
-    AC_SUBST(max_short_len)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for maximum message length)
-AC_ARG_WITH(max_len,
- [  --with-max-len=LENGTH             Maximum  msg. length (default=2MB)],
-    max_len="${withval}", max_len="2*1024*1024")
-    AC_MSG_RESULT(${max_len})
-    AC_SUBST(max_len)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for message step for large messages)
-AC_ARG_WITH(b,
- [  --with-large-step=LENGTH          Message step for large messages (default=65536)],
-    large_step="${withval}", large_step="65536")
-    AC_MSG_RESULT(${large_step})
-    AC_SUBST(large_step)
-dnl ==================================================	
-
-
-dnl ==================================================
-AC_MSG_CHECKING(for number of measurements per short message in file tests)
-AC_ARG_WITH(num_file_tests,
- [  --with-num-file-tests=NUMTESTS    Number of measurements per short msg. for file tests (default=10)],
-    num_file_tests="${withval}", num_file_tests="10")
-    AC_MSG_RESULT(${num_file_tests})
-    AC_SUBST(num_file_tests)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for number of measurements per long message in file tests)
-AC_ARG_WITH(num_file_long_tests,
- [  --with-num-file-long-tests=NUMTESTS  Number of measurements per long msg. for file tests (default=10)],
-    num_file_long_tests="${withval}", num_file_long_tests="10")
-    AC_MSG_RESULT(${num_file_long_tests})
-    AC_SUBST(num_file_long_tests)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for number of tests per measurements for short message in file tests)
-AC_ARG_WITH(band_file_tests,
- [  --with-band-file-tests=NUMTESTS  Number of tests per measurements for short msg. for file tests (default=10)],
-    band_file_tests="${withval}", band_file_tests="10")
-    AC_MSG_RESULT(${band_file_tests})
-    AC_SUBST(band_file_tests)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for number of tests per measurements for long messages in file tests)
-AC_ARG_WITH(band_file_long_tests,
- [  --with-band-file-long-tests=NUMTESTS   Number of tests per measurements for long msg. in file tests(default=5)],
-    band_file_long_tests="${withval}", band_file_long_tests="5")
-    AC_MSG_RESULT(${band_file_long_tests})
-    AC_SUBST(band_file_long_tests)
-dnl ==================================================	
-
-dnl ==================================================
-AC_MSG_CHECKING(for message step for large messages in file tests)
-AC_ARG_WITH(b,
- [  --with-file-large-step=LENGTH    Message step for large messages in file tests (default=65536)],
-    file_large_step="${withval}", file_large_step="65536")
-    AC_MSG_RESULT(${file_large_step})
-    AC_SUBST(file_large_step)
-dnl ==================================================	
 
 dnl Checks for header files.
 #AC_HEADER_STDC
@@ -323,4 +195,4 @@ dnl Checks for library functions.
 #AC_FUNC_MEMCMP
 #AC_CHECK_FUNCS(gethostname strerror strstr setlinebuf strcasecmp snprintf)
 
-AC_OUTPUT(Makefile.defs include/latconfig.h) 
+AC_OUTPUT(Makefile.defs) 

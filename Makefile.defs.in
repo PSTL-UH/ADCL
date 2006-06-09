@@ -11,11 +11,11 @@ ADCL_BIN_DIR  = @adcl_bin_dir@
 ADCL_INC_DIR  = @adcl_inc_dir@
 ADCL_LIB_DIR  = @adcl_lib_dir@
 
-ADCL_LIB = $(ADCL_LIB_DIR)/@adcl_lib_name@
+ADCL_LIB      = @adcl_lib_name@
 
 #Set some Flags
-AR	    = @ar@
-AR_FLAGS    = @clr@ 
+AR	    = ar
+AR_FLAGS    = clr
 
 
 CC          = $(MPI_BIN_DIR)/@mpi_cc@
