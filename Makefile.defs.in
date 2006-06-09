@@ -1,0 +1,28 @@
+# Generated automatically from Makefile.in by configure.
+#Path of MPI-Library on the Machine
+
+MPI_DIR     = @mpi_dir@
+MPI_INC_DIR = @mpi_inc_dir@
+MPI_BIN_DIR = @mpi_bin_dir@
+MPI_LIB_DIR = @mpi_lib_dir@
+
+ADCL_DIR      = @adcl_dir@
+ADCL_BIN_DIR  = @adcl_bin_dir@
+ADCL_INC_DIR  = @adcl_inc_dir@
+ADCL_LIB_DIR  = @adcl_lib_dir@
+
+ADCL_LIB = $(ADCL_LIB_DIR)/@adcl_lib_name@
+
+#Set some Flags
+AR	    = @ar@
+AR_FLAGS    = @clr@ 
+
+
+CC          = $(MPI_BIN_DIR)/@mpi_cc@
+CFLAGS      = @CFLAGS@ -I$(ADCL_INC_DIR)
+LDFLAGS     = @LDFLAGS@ -L$(ADCL_LIB_DIR) $(ADCL_LIB) -lm 
+
+FC          = $(MPI_BIN_DIR)/@mpi_f90@
+FFLAGS      = @FFLAGS@ -I$(ADCL_INC_DIR)
+FLDFLAGS    = @FLDFLAGS@ -L$(ADCL_LIB_DIR) $(ADCL_LIB) -lm
+
