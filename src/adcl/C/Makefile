@@ -8,7 +8,7 @@ OBJ =  	ADCL.o		        \
 .SUFFIXES: .o.c
 
 all:    $(HEADER) $(OBJ)
-	$(AR) $(AR_FLAGS) $(ADCL_LIB) $(OBJ)
+	$(AR) $(AR_FLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) $(OBJ)
 
 
 $(OBJ):	$(HEADER)

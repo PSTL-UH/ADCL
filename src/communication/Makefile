@@ -33,7 +33,7 @@ change:$(HEADER)
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=4 \
 			-o ADCL_change_sb_pair_IsendIrecv_pack.o 
 
-	$(AR) $(AR_FLAGS) $(ADCL_LIB) $(OBJ)
+	$(AR) $(AR_FLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)
 .c.o:	$(HEADER)

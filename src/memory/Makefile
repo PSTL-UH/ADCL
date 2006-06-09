@@ -25,7 +25,7 @@ all:
 
 
 $(ADCL_LIB): $(HEADER) $(OBJ) memory
-	$(AR) $(AR_FLAGS) $(ADCL_LIB) $(OBJ)
+	$(AR) $(AR_FLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) $(OBJ)
 
 memory:	$(HEADER) 
 	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=1 \

@@ -17,7 +17,7 @@ all:
 
 
 $(ADCL_LIB): $(HEADER) $(OBJ) 
-	$(AR) $(AR_FLAGS) $(ADCL_LIB) $(OBJ)
+	$(AR) $(AR_FLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)
 .c.o:	$(HEADER)
