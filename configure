@@ -2957,7 +2957,7 @@ else
   adcl_inc_dir=""
 fi;
     if test "x$adcl_inc_dir" = "x" ; then
-       adcl_dir=${adcl_dir}/include
+       adcl_inc_dir=${adcl_dir}/include
     fi
     echo "$as_me:$LINENO: result: ${adcl_inc_dir}" >&5
 echo "${ECHO_T}${adcl_inc_dir}" >&6

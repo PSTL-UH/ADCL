@@ -53,7 +53,7 @@ AC_ARG_WITH(adcl_inc_dir,
  [  --with-adcl-inc-dir=ADCLDIR       ADCL include directory (default=ADCL_DIR/include)],
     adcl_inc_dir="${withval}", adcl_inc_dir="")
     if test "x$adcl_inc_dir" = "x" ; then 
-       adcl_dir=${adcl_dir}/include
+       adcl_inc_dir=${adcl_dir}/include
     fi
     AC_MSG_RESULT(${adcl_inc_dir})
     AC_SUBST(adcl_inc_dir)
