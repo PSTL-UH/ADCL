@@ -1,9 +1,14 @@
-include ../../../Makefile.defs
+include ../../Makefile.defs
 
 
-OBJ =  	ADCL.o		        \
-	ADCL_Vector.o           \
-	ADCL_Request.o           
+OBJ = 	ADCL_vector.o           \
+	ADCL_array.o 		\
+	ADCL_method.o 		\
+	ADCL_emethod.o 		\
+	ADCL_request.o 		\
+	ADCL_subarray.o         \
+	ADCL_packunpack.o       \
+	ADCL_printf.o
 
 
 HEADER = $(ADCL_INC_DIR)/ADCL.h           \
@@ -23,8 +28,7 @@ all:
 	make $(ADCL_LIB) 
 
 
-
-$(ADCL_LIB): $(HEADER) $(OBJ)
+$(ADCL_LIB): $(HEADER) $(OBJ) 
 	$(AR) $(AR_FLAGS) $(ADCL_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)

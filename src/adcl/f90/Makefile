@@ -1,4 +1,4 @@
-include ../../Makefile.defs
+include ../../../Makefile.defs
 
 
 OBJ =  	ADCL_f.o		  \
