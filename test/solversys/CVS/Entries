@@ -1,0 +1,50 @@
+/Makefile/1.7/Thu Jul  7 12:00:20 2005//
+/System.config/1.10/Result of merge+Thu Jul  7 12:00:20 2005//
+/System_Change.alltoallw.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Change.blocking.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Change.comm.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Change.fcfs.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Change.fcfs.pack.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Change.split.comm.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Change.split.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Change.win_fence.get.f90/1.1/Wed Jun 15 13:23:55 2005//
+/System_Change.win_fence.put.f90/1.3/Fri Jun  3 11:03:08 2005//
+/System_Change.win_start.get.f90/1.1/Wed Jun 15 13:23:55 2005//
+/System_Change.win_start.put.f90/1.1/Wed Jun 15 13:23:55 2005//
+/System_Change_init.f90/1.2/Thu Jul  7 12:00:20 2005//
+/System_Change_org.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Display_Result.f90/1.4/Fri Jun  3 11:03:08 2005//
+/System_Init.f90/1.4/Fri Jun  3 11:03:08 2005//
+/System_Init_comm.f90/1.3/Fri Jun  3 11:03:08 2005//
+/System_Main.f90/1.7/Thu Jul  7 12:00:20 2005//
+/System_Matchange.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Matmul.blocking.f90/1.1/Fri Jun  3 11:03:08 2005//
+/System_Matmul.f90/1.3/Thu Jul  7 12:00:20 2005//
+/System_Matmul.split.f90/1.3/Fri Jun  3 11:03:08 2005//
+/System_Matmul.tridiag.f90/1.1.1.1/Fri Jun  3 11:03:08 2005//
+/System_Precon.f90/1.1.1.1/Fri Jun  3 11:03:08 2005//
+/System_Precon.frobenius.f90/1.1.1.1/Fri Jun  3 11:03:08 2005//
+/System_Precon.jakobi.f90/1.1.1.1/Fri Jun  3 11:03:08 2005//
+/System_Precon.tridiag.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Read_config.f90/1.7/Result of merge+Thu Jul  7 12:00:20 2005//
+/System_Set.bsp1.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Set.bsp2.f90/1.3/Fri Jun  3 11:03:08 2005//
+/System_Set.laplace.f90/1.1.1.1/Fri Jun  3 11:03:08 2005//
+/System_Set_DerDatatypes.f90/1.6/Fri Jun  3 11:03:08 2005//
+/System_Set_DerDatatypes.struct.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Solver.bicgstab.f90/1.4/Result of merge//
+/System_Solver.bicgstab.split.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Solver.f90/1.3/Fri Jun  3 11:03:08 2005//
+/System_Solver.qmr-restarted.f90/1.5/Fri Jun  3 11:03:08 2005//
+/System_Solver.qmr.f90/1.5/Result of merge//
+/System_Solver.qmr1.f90/1.5/Result of merge//
+/System_Solver.qmr2.f90/1.5/Result of merge//
+/System_Solver.qmrcgstab.f90/1.3/Fri Jun  3 11:03:08 2005//
+/System_Solver.tfqmr.f90/1.2/Result of merge//
+/System_Solver.tfqmr1.f90/1.3/Fri Jun  3 11:03:08 2005//
+/System_Topo_init.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_Transmatmul.blocking.f90/1.1/Fri Jun  3 11:03:08 2005//
+/System_Transmatmul.f90/1.2/Fri Jun  3 11:03:08 2005//
+/System_modules.f90/1.7/Result of merge//
+/System_objdebug.c/1.2/Fri Jun  3 11:03:08 2005//
+D
