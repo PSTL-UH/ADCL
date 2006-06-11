@@ -34,7 +34,7 @@
 !...Berechnen des Residuums, sowie Speichern des groessten 
 !   Elements
 
-         call System_Matmul ( adcl_req_dq, tmp_vect, ierror )
+         call System_Matmul ( adcl_req_dq, dq, tmp_vect, ierror )
 
          res_max = 0
          do k = dmku, dmko
