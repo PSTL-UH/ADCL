@@ -34,7 +34,6 @@ memory:	$(HEADER)
 	                -o ADCL_memory_backend_float.o
 	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=3   \
 	                -o ADCL_memory_backend_int.o
-	$(AR) $(AR_FLAGS) $(ADCL_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)
 .c.o:	$(HEADER)

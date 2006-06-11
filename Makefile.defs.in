@@ -20,9 +20,9 @@ AR_FLAGS    = clr
 
 CC          = $(MPI_BIN_DIR)/@mpi_cc@
 CFLAGS      = @CFLAGS@ -I$(ADCL_INC_DIR)
-LDFLAGS     = @LDFLAGS@ -L$(ADCL_LIB_DIR) $(ADCL_LIB) -lm 
+LDFLAGS     = @LDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm 
 
 FC          = $(MPI_BIN_DIR)/@mpi_f90@
 FFLAGS      = @FFLAGS@ -I$(ADCL_INC_DIR)
-FLDFLAGS    = @FLDFLAGS@ -L$(ADCL_LIB_DIR) $(ADCL_LIB) -lm
+FLDFLAGS    = @FLDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm
 
