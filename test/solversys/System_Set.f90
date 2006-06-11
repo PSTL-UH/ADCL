@@ -237,7 +237,6 @@
           end do
 18        format (3i3, 2x, f12.5)
 
-
           call System_Matmul ( adcl_req_loes, loes, rhs, ierror )
 
 !...Korriegieren der Raender

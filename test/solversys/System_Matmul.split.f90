@@ -273,4 +273,129 @@
 
          close (10)
     	end subroutine dump_vekt
+
+       subroutine dump_vekt_short ( vekt, id )
+
+        USE globale_daten
+
+        implicit none
+        include 'mpif.h'
+
+        double precision, dimension(dmiu:dmio, dmju:dmjo, dmku:dmko, nc ):: vekt
+        integer :: i, j, k, rank, ierror, id
+        character*80 name
+
+        call MPI_Comm_rank ( MPI_COMM_WORLD, rank, ierror )
+
+        write(name,99) rank,'_', id, '.out'
+99      format (I1,a1,i1,a4)
+        open ( unit=10, file =name )
+        write (10,*) "New entry"
+        write (10,*) "============================"
+         do k = dmku, dmko
+            do j = dmju, dmjo
+               do i = dmiu, dmio
+                write (10,*) rank, ':', i, j, k, vekt(i,j,k,1)
+               end do
+            end do
+         end do
+
+         close (10)
+        end subroutine dump_vekt_short
+
+
+       subroutine dump_matrix ( id )
+
+        USE globale_daten
+        USE matrix
+        implicit none
+        include 'mpif.h'
+
+!...Hilfsgroessen und Laufvariablen
+
+        integer :: i, j, k, rank, ierror, id
+        character*80 name
+
+        call MPI_Comm_rank ( MPI_COMM_WORLD, rank, ierror )
+
+        write(name,99) rank,'_', id, '.out'
+99      format (I1,a1,i1,a4)
+        open ( unit=10, file =name )
+
+        write (10,*) "rm000"
+        write (10,*) "============================"
+        do k = 1, dmko
+           do j = 1, dmjo
+              do i = 1, dmio
+                 write (10,*) rank, ':', i, j, k, rm000(i,j,k,1,1)
+               end do
+            end do
+         end do
+
+!...Multiplikation mit d2
+
+        write (10,*) "rmb00"
+        write (10,*) "============================"
+        do k = 1, dmko
+           do j = 1, dmjo
+              do i = 1, dmio
+                 write (10,*) rank, ':', i, j, k, rmb00(i,j,k,1,1)
+               end do
+            end do
+         end do
+
+        write (10,*) "rm0b0"
+        write (10,*) "============================"
+        do k = 1, dmko
+           do j = 1, dmjo
+              do i = 1, dmio
+                 write (10,*) rank, ':', i, j, k, rm0b0(i,j,k,1,1)
+               end do
+            end do
+         end do
+
+       write (10,*) "rm00b"
+        write (10,*) "============================"
+        do k = 1, dmko
+           do j = 1, dmjo
+              do i = 1, dmio
+                 write (10,*) rank, ':', i, j, k, rm00b(i,j,k,1,1)
+               end do
+            end do
+         end do
+
+        write (10,*) "rmf00"
+        write (10,*) "============================"
+        do k = 1, dmko
+           do j = 1, dmjo
+              do i = 1, dmio
+                 write (10,*) rank, ':', i, j, k, rmf00(i,j,k,1,1)
+               end do
+            end do
+         end do
+
+        write (10,*) "rm0f0"
+        write (10,*) "============================"
+        do k = 1, dmko
+           do j = 1, dmjo
+              do i = 1, dmio
+                 write (10,*) rank, ':', i, j, k, rm0f0(i,j,k,1,1)
+               end do
+            end do
+         end do
+
+        write (10,*) "rm00f"
+        write (10,*) "============================"
+        do k = 1, dmko
+           do j = 1, dmjo
+              do i = 1, dmio
+                 write (10,*) rank, ':', i, j, k, rm00f(i,j,k,1,1)
+               end do
+            end do
+         end do
+
+         ierror = 0
+
+         return
+         end
 	     
