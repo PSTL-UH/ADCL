@@ -17,6 +17,7 @@ struct ADCL_request_s{
     int                r_comm_state; /* communication state of the object  */
     ADCL_vector_t            *r_vec; /* ptr to the vector describing data items */
     MPI_Comm                 r_comm; /* Communicator used for communication */
+    int                      r_rank; /* Rank of this proc in this communicator */
     MPI_Win                   r_win; /* window used for one-sided operations */
     int                r_nneighbors; /* numbers of neighboring processes = dim of 
 					v_dats, v_sreqs, v_rreqs. nneighbor should
@@ -37,6 +38,8 @@ struct ADCL_request_s{
 
     int                     r_erlast; /* last method used */
     int                     r_erflag; /* flag to be passed to the state machine */
+    TIME_TYPE                 r_time; /* temporary buffer to store the exeuction 
+					 time for dual-block operations */
     ADCL_emethod_req_t   *r_ermethod; /* list of emethods being evaluated */
     ADCL_method_t         *r_cmethod; /* current method being used */
 };
@@ -49,6 +52,9 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm comm,
 int ADCL_request_free ( ADCL_request_t **req );
 int ADCL_request_init ( ADCL_request_t *req, int *db );
 int ADCL_request_wait ( ADCL_request_t *req );
+
+int ADCL_request_update ( ADCL_request_t *req, 
+			  TIME_TYPE t1, TIME_TYPE t2 );
 
 #endif /* __ADCL_REQUEST_H__ */
 

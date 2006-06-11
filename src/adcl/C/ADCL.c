@@ -5,6 +5,7 @@ int ADCL_Init (void )
 {
     int ret;
 
+    ret = ADCL_printf_init();
     ret = ADCL_method_init();
     ret = ADCL_emethod_req_init ();
 
@@ -19,6 +20,7 @@ int ADCL_Finalize ( void )
 {
     int ret;
     
+
     ret = ADCL_method_finalize();
     ret = ADCL_emethod_req_finalize();
 
@@ -26,5 +28,6 @@ int ADCL_Finalize ( void )
     ADCL_array_free ( &(ADCL_vector_farray));
     ADCL_array_free ( &(ADCL_request_farray));
 
+    ADCL_printf_finalize ();
     return ret;
 }

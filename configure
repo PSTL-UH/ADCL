@@ -272,7 +272,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_default_prefix=.
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX F77 FFLAGS ac_ct_F77 FLDFLAGS adcl_dir adcl_inc_dir adcl_lib_dir adcl_bin_dir adcl_lib_name mpi_dir mpi_inc_dir mpi_lib_dir mpi_bin_dir mpi_cc mpi_f90 LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX F77 FFLAGS ac_ct_F77 FLDFLAGS adcl_dir adcl_inc_dir adcl_lib_dir adcl_bin_dir adcl_lib_name mpi_dir mpi_inc_dir mpi_lib_dir mpi_bin_dir mpi_cc mpi_f90 adcl_file_per_proc LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -816,6 +816,11 @@ fi
 if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
+
+Optional Features:
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-printf-tofile      dump printf statements to a file (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2770,7 +2775,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2773:" \
+echo "$as_me:2778:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3130,6 +3135,22 @@ else
 echo "${ECHO_T}yes" >&6
 fi
 /bin/rm -f testmpi.c testmpi testmpi.o
+
+# Check whether --enable-printf_tofile or --disable-printf_tofile was given.
+if test "${enable_printf_tofile+set}" = set; then
+  enableval="$enable_printf_tofile"
+  test "$enableval" = yes && ADCL_FILE_PER_PROC=yes
+fi;
+test "$ADCL_FILE_PER_PROC" = yes || ADCL_FILE_PER_PROC=no
+
+echo "$as_me:$LINENO: checking whether to dump printf statements to a file instead of stdout" >&5
+echo $ECHO_N "checking whether to dump printf statements to a file instead of stdout... $ECHO_C" >&6
+echo "$as_me:$LINENO: result: ${ADCL_FILE_PER_PROC}" >&5
+echo "${ECHO_T}${ADCL_FILE_PER_PROC}" >&6
+if test "$ADCL_FILE_PER_PROC" = yes ; then
+   adcl_file_per_proc="-DADCL_FILE_PER_PROC"
+
+fi
 
 
 #AC_HEADER_STDC
@@ -3815,6 +3836,7 @@ s,@mpi_lib_dir@,$mpi_lib_dir,;t t
 s,@mpi_bin_dir@,$mpi_bin_dir,;t t
 s,@mpi_cc@,$mpi_cc,;t t
 s,@mpi_f90@,$mpi_f90,;t t
+s,@adcl_file_per_proc@,$adcl_file_per_proc,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF

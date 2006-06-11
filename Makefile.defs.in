@@ -12,6 +12,7 @@ ADCL_INC_DIR  = @adcl_inc_dir@
 ADCL_LIB_DIR  = @adcl_lib_dir@
 
 ADCL_LIB      = @adcl_lib_name@
+LOCALFLAGS    = @adcl_file_per_proc@
 
 #Set some Flags
 AR	    = ar
@@ -19,10 +20,10 @@ AR_FLAGS    = clr
 
 
 CC          = $(MPI_BIN_DIR)/@mpi_cc@
-CFLAGS      = @CFLAGS@ -I$(ADCL_INC_DIR)
+CFLAGS      = @CFLAGS@ $(LOCALFLAGS) -I$(ADCL_INC_DIR) 
 LDFLAGS     = @LDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm 
 
 FC          = $(MPI_BIN_DIR)/@mpi_f90@
 FFLAGS      = @FFLAGS@ -I$(ADCL_INC_DIR)
-FLDFLAGS    = @FLDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm
+FLDFLAGS    = @FLDFLAGS@ $(LOCALFLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm
 

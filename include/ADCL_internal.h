@@ -28,6 +28,8 @@
 
 #define ADCL_EVAL_DONE  110
 
+int ADCL_printf_init ( void );
+int ADCL_printf_finalize (void);
 int ADCL_printf( const char *format, ...);
 
 #endif /* __ADCL_INTERNAL_H__ */

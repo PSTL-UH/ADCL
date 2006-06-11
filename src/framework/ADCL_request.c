@@ -4,8 +4,6 @@ static int ADCL_local_id_counter=0;
 static int ADCL_request_set_topoinfo ( ADCL_request_t *newreq, 
 				       MPI_Comm cart_comm );
 static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req, int mode);
-static int ADCL_request_update ( ADCL_request_t *req, 
-				 TIME_TYPE t1, TIME_TYPE t2 );
 
 ADCL_array_t *ADCL_request_farray;
 
@@ -37,6 +35,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
     newreq->r_comm_state = ADCL_COMM_AVAIL;
     newreq->r_vec        = pvec;
     newreq->r_comm       = cart_comm;    /* we might have to duplicate it! */
+    MPI_Comm_rank ( cart_comm, &(newreq->r_rank) );
     newreq->r_win        = MPI_WIN_NULL; /* TBD: unused for right now! */
 
     /* 
@@ -172,62 +171,50 @@ int ADCL_request_free ( ADCL_request_t **req )
 /**********************************************************************/
 int ADCL_request_init ( ADCL_request_t *req, int *db )
 {
-    int ret;
-    TIME_TYPE t1, t2;
 
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_AVAIL);
 	
     req->r_cmethod = ADCL_request_get_method ( req, ADCL_COMM_AVAIL);
-
-    t1 = TIME;
     req->r_cmethod->m_ifunc ( req );
-    t2 = TIME;
 
-    ret = ADCL_request_update ( req, t1, t2 );
     *db = req->r_cmethod->m_db;
     if ( req->r_cmethod->m_db ) {
 	req->r_comm_state = ADCL_COMM_ACTIVE;
     }
 
-    return ret;
+    return ADCL_SUCCESS;
 }
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
 int ADCL_request_wait ( ADCL_request_t *req )
 {
-    int ret;
-    TIME_TYPE t1, t2;
 
     CHECK_COMM_STATE (req->r_comm_state, ADCL_COMM_ACTIVE);
 	
     if ( NULL != req->r_cmethod->m_wfunc ) {
-	t1 = TIME;
 	req->r_cmethod->m_wfunc ( req );
-	t2 = TIME;
-	
-	ret = ADCL_request_update ( req, t1, t2 );
-    }
-    else {
-	ret = ADCL_request_update ( req, -1, -1 );
     }
     
     req->r_comm_state = ADCL_COMM_AVAIL;
-    return ret;
+    return ADCL_SUCCESS;
 }
 
 
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static int ADCL_request_update ( ADCL_request_t *req, 
-				 TIME_TYPE t1, TIME_TYPE t2 )
+int ADCL_request_update ( ADCL_request_t *req, 
+			  TIME_TYPE t1, TIME_TYPE t2 )
 {
     
     if ( (t1 == -1 ) && ( t2 == -1 ) ) {
 	return ADCL_SUCCESS;
     }
 
+    ADCL_printf("%d: request %d method %d (%s) %8.4f \n", 
+		req->r_rank, req->r_id, req->r_cmethod->m_id, 
+		req->r_cmethod->m_name, (t2-t1));
     switch ( req->r_ermethod->er_state ) {
 	case ADCL_STATE_TESTING: 	    
 	    ADCL_emethods_update (req->r_ermethod, req->r_erlast, 

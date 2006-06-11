@@ -238,14 +238,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 	*/
 	for ( i=er->er_last; i< er->er_num_emethods; i++ ) {
 	    emethod = &(er->er_emethods[i]);
-	    /*
-	    ** remember that dual block methods need 2 *EMETHOD_NUMTESTS
-	    ** reported back! 
-	    */
-	    if ( (emethod->em_method->m_db                           && 
-		  (emethod->em_rescount < 2* ADCL_EMETHOD_NUMTESTS)) ||
-		 (!emethod->em_method->m_db                          && 
-		  (emethod->em_rescount < ADCL_EMETHOD_NUMTESTS )    )) {
+	    if ( emethod->em_rescount < ADCL_EMETHOD_NUMTESTS ) {
 		/* 
 		** ok, some data is still outstanding. So we 
 		** do not switch yet to the evaluation mode, 

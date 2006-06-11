@@ -7,19 +7,20 @@
 typedef int ADCL_fnct_ptr ( void* );
 
 #define ADCL_MAX_ATTRLEN 32
-
+#define ADCL_MAX_NAMELEN 32
 /* The structre describing a communication method */
 struct ADCL_method_s {
-    int                 m_id; /* unique identifier */
-    int              m_rfcnt; /* reference counter */
-    ADCL_fnct_ptr*   m_ifunc; /* init-function pointer. This function 
-				 will be set for single-block*/
-    ADCL_fnct_ptr*   m_wfunc; /* wait-function pointer */
-    int                 m_db; /* true for dual block, false for sb */
-    int              m_nattr; /* how many attributes are required by 
-				 this method */
-    char            **m_attr; /* list of required attributes */
-    char             **m_val; /* list of values of the required attributes */
+    int                      m_id; /* unique identifier */
+    char m_name[ADCL_MAX_NAMELEN]; /* name */
+    int                   m_rfcnt; /* reference counter */
+    ADCL_fnct_ptr*        m_ifunc; /* init-function pointer. This function 
+			              will be set for single-block*/
+    ADCL_fnct_ptr*        m_wfunc; /* wait-function pointer */
+    int                      m_db; /* true for dual block, false for sb */
+    int                   m_nattr; /* how many attributes are required by 
+				      this method */
+    char                 **m_attr; /* list of required attributes */
+    char                  **m_val; /* list of values of the required attributes */
 };
 typedef struct ADCL_method_s  ADCL_method_t;
 
