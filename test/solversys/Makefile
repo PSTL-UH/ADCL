@@ -41,7 +41,6 @@ $(EXENAME):  $(OBJ)
 clean:
 	rm -f $(OBJ)
 	rm -f System
-	rm -f *.mod
-	rm -f *~
-	rm -f *.*#
+	rm -f *.mod *.out
+	rm -f *~  *.*#
 

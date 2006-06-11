@@ -260,9 +260,15 @@ void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos, int flag,
 			    TIME_TYPE tstart, TIME_TYPE tend )
 {
     ADCL_emethod_t *emethods = ermethods->er_emethods;
-    double exectime = (double) (tend-tstart);
+    double exectime;
     ADCL_emethod_t *tmpem;
 
+    if ( tend > tstart ) {
+	exectime = (double) (tend-tstart);
+    }
+    else {
+	exectime = (1000000.0 - tstart) + tend;
+    }
 
     if ( flag == ADCL_FLAG_PERF ) {
 	tmpem = &emethods[pos];

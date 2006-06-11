@@ -28,6 +28,6 @@ clean:
 	cd src/communication ; make clean
 	cd src/adcl/C ; make clean 
 	cd src/adcl/f90 ; make clean 
-	rm -rf ./include/*~ 
+	rm -rf *~ ./include/*~ 
 	rm -rf ./lib/libadcl.a
 

@@ -214,7 +214,7 @@ int ADCL_request_update ( ADCL_request_t *req,
 
     ADCL_printf("%d: request %d method %d (%s) %8.4f \n", 
 		req->r_rank, req->r_id, req->r_cmethod->m_id, 
-		req->r_cmethod->m_name, (t2-t1));
+		req->r_cmethod->m_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
     switch ( req->r_ermethod->er_state ) {
 	case ADCL_STATE_TESTING: 	    
 	    ADCL_emethods_update (req->r_ermethod, req->r_erlast, 
