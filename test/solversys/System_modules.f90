@@ -8,8 +8,8 @@
 
           integer :: n1g, n2g, n3g 
           integer, allocatable, dimension (:)::problemsx, problemsy, problemsz
-          integer, allocatable, dimension (:)::solvarr, patternarr
-          integer :: maxnpattern, maxnsolver, maxnproblem
+          integer, allocatable, dimension (:)::solvarr
+          integer :: maxnsolver, maxnproblem
 
 !...dmxo, dmxu geben jeweils die untere und die obere Grenze
 !   der lokalen Datenbereiche an
@@ -48,14 +48,8 @@
           integer, parameter :: SIZE_OF_REALx = 8
 
 !...Abstand zwischen zwei Punkten bei der Diskretisierung
-
           double precision :: deltax, deltaquadx, deltay, deltaquady, &
                deltaz, deltaquadz
-
-          
-!...Anzahl der verwendeten Rechner und Rang des ersten Prozesses auf jedem Rechner
-          integer :: nhosts, auto 
-          integer, allocatable, dimension(:) :: firstranks
 
 
         END MODULE globale_daten
@@ -100,7 +94,6 @@
         double precision :: r_tol
 
         character*80 :: solver_text, precon_text, set_text
-        character*80 :: compattern_text
 
         END MODULE numerik_daten
 

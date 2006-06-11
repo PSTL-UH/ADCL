@@ -92,19 +92,6 @@
             write (*,*) 'Problem size :', n1g, ' x ', n2g, ' x ', n3g
             write (*,99) solver_text
             write (*,99) precon_text            
-            write (*,99) compattern_text
-            write (*,*) '=================================================='
-            write (*,*) 'Metacomputing Parameters'
-            write (*,*)
-            write (*,*) 'Number of procs: ', size
-            write (*,*) 'Number of hosts: ', nhosts
-            if ( nhosts .gt. 1 ) then
-               write (*,*) 'Process distribution:'
-               do i = 1, nhosts-1
-                  write (*,*) ' Host ',i,': ranks',   firstranks(i) , ' - ', firstranks(i+1)-1
-               end do
-               write (*,*) ' Host ', nhosts, ': ranks',   firstranks(nhosts) , ' - ', size-1
-            end if
             write (*,*) '=================================================='
             write (*,*)
             write (*,*) 'Number of iterations          : ', r_nit

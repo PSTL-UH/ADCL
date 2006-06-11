@@ -7,12 +7,11 @@
       include 'ADCL.inc'
 
       integer :: ierror
-      integer :: nproblem,  nsolver, npattern
-      integer :: maxproblem,  maxsolver, maxpattern
+      integer :: nproblem,  nsolver
+      integer :: maxproblem,  maxsolver
       integer :: px, py, pz
       integer :: size, rank
-
-      integer ::  solv, pat
+      integer ::  solv
 
 !...Initialize parallel environment
 
@@ -24,7 +23,7 @@
       call ADCL_Init ( ierror )
 
 !...Read configuration file
-      call System_Read_config (maxproblem, maxsolver, maxpattern, ierror)
+      call System_Read_config (maxproblem, maxsolver, ierror)
       if ( ierror.ne. 0 ) then
          write (*,*)rank, 'Error in System_read_config'
       end if
@@ -53,25 +52,20 @@
          do nsolver=1, maxsolver
             call System_Get_solver(nsolver, solv, ierror )
 
-!...........Loop over communication patterns
-            do npattern= 1, maxpattern
-               call System_Get_pattern(npattern, pat, ierror)
+!...........Reset solution vectors
+            call System_Reset_dq ( ierror )
 
-!..............Reset solution vectors
-               call System_Reset_dq ( ierror )
+!...........Preconditioning
+            call System_Precon ( ierror )
 
-!..............Preconditioning
-               call System_Precon ( ierror )
+!...........Call the solvers
+            call System_Solver ( solv, ierror )
 
-!..............Call the solvers
-               call System_Solver ( solv, pat, ierror )
+!...........Display results
+            call System_Display_Result ( ierror )
 
-!..............Display results
-               call System_Display_Result ( ierror )
-
-            end do
          end do
-         
+
 !.......free matrix and vector etc..
        call System_Free_matrix ( ierror )
       end do

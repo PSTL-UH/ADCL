@@ -1,4 +1,4 @@
-        subroutine System_Read_config ( npr, nsol, npat, ierror )
+        subroutine System_Read_config ( npr, nsol, ierror )
 
 !...This routine reads the configarution file
 
@@ -9,7 +9,7 @@
 
         include 'mpif.h'
 
-        integer :: npr, nsol, npat, ierror, punkt, status
+        integer :: npr, nsol, ierror, punkt, status
         integer :: anfang, ende, line, i
         integer, dimension (7) :: iarraz
         integer :: rank, size
@@ -31,8 +31,6 @@
         nit    = 300
         tol    = 1.0e-06
         subtol = 1.0e-06
-        nhosts = 1
-        auto = 0
         verbose = 1
 
         if ( rank.eq.0 ) then
@@ -97,24 +95,6 @@
                     read ( s(anfang:ende), 993 ) subtol
                  case ( 'verbos:' )
                     read ( s(anfang:ende), 992 ) verbose
-                 case ( 'nhosts:')
-                    read ( s(anfang:ende), 992 ) nhosts
-                    allocate (firstranks(1:nhosts), stat=status)
-                    if ( status.gt.0 ) then
-                       write (*,*) rank, ' : Error allocating memory '
-                    else
-                       isallocated = .true. 
-                    end if
-                 case ( 'auto:  ')
-                    read ( s(anfang:ende), 992 ) auto
-                 case ( 'franks:')
-                    if ( .NOT. isallocated ) then
-                       write (*,*) rank, ':Keyword FRANKS before Keyword NHOSTS ', &
-                            'Memory not yet allocated!'
-                       nhosts = 1
-                    else
-                       read ( s(anfang:ende), *)(firstranks(i), i= 1, nhosts)
-                    end if
                  case ('nprobs:') 
                     read (s(anfang:ende),992) maxnproblem
                     allocate (problemsx(maxnproblem), &
@@ -138,15 +118,6 @@
                     end if
                     read ( 10, 99, err=130, end=120 ) s
                     read (s, *)(solvarr(i), i= 1, maxnsolver)
-                    line = line + 1
-                 case ('npatt: ')
-                    read (s(anfang:ende), 992) maxnpattern
-                    allocate (patternarr(maxnpattern), stat=status)
-                    if ( status.gt.0 ) then
-                       write (*,*) rank, ' : Error allocating memory '
-                    end if
-                    read ( 10, 99, err=130, end=120 ) s
-                    read ( s, *)(patternarr(i), i= 1, maxnpattern)
                     line = line + 1
                  case default
                     write (*,*) 'Unknown keqword in System.config, line :',  &
@@ -173,17 +144,14 @@
 !...Distribute the collected data
         if ( rank .eq. 0 ) then 
            iarraz (1) = nit
-           iarraz (2) = nhosts
-           iarraz (3) = auto
-           iarraz (4) = maxnproblem
-           iarraz (5) = maxnsolver
-           iarraz (6) = maxnpattern
-           iarraz (7) = verbose  
+           iarraz (2) = maxnproblem
+           iarraz (3) = maxnsolver
+           iarraz (4) = verbose  
            rarraz (1) = tol
            rarraz (2) = subtol
         endif
 
-        call MPI_Bcast ( iarraz, 6, MPI_INTEGER, 0, MPI_COMM_WORLD,  &
+        call MPI_Bcast ( iarraz, 4, MPI_INTEGER, 0, MPI_COMM_WORLD,  &
              ierror )
         
         call MPI_Bcast ( rarraz, 2, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD,  &
@@ -191,19 +159,15 @@
 
         if ( rank .ne. 0 ) then
            nit         = iarraz (1)
-           nhosts      = iarraz (2)
-           auto        = iarraz (3)
-           maxnproblem = iarraz (4)
-           maxnsolver  = iarraz (5)
-           maxnpattern = iarraz (6)
-           verbose     = iarraz (7)
+           maxnproblem = iarraz (2)
+           maxnsolver  = iarraz (3)
+           verbose     = iarraz (4)
            
            tol    = rarraz (1)
            subtol = rarraz (2)
            
            if ( .NOT.isallocated) then
-              allocate (firstranks(1:nhosts), patternarr(maxnpattern), &
-                   solvarr(maxnsolver), problemsx(maxnproblem),        &
+              allocate (solvarr(maxnsolver), problemsx(maxnproblem),  &
                    problemsy(maxnproblem), problemsz(maxnproblem),    &
                    stat=status)
               if ( status.gt.0 ) then
@@ -218,12 +182,7 @@
         call MPI_Bcast (problemsy, maxnproblem, MPI_INTEGER, 0, MPI_COMM_WORLD, ierror)
         call MPI_Bcast (problemsz, maxnproblem, MPI_INTEGER, 0, MPI_COMM_WORLD, ierror)
         call MPI_Bcast (solvarr, maxnsolver, MPI_INTEGER, 0, MPI_COMM_WORLD, ierror)
-        call MPI_Bcast (patternarr, maxnpattern, MPI_INTEGER, 0, MPI_COMM_WORLD, ierror)
 
-        if ( nhosts .gt. 1 .and. auto .eq.0 ) then
-           call MPI_Bcast ( firstranks, nhosts, MPI_INTEGER, 0, MPI_COMM_WORLD, &
-                ierror)
-        end if
 
         
         
@@ -234,7 +193,6 @@
       
         npr  = maxnproblem
         nsol = maxnsolver
-        npat = maxnpattern
         ierror = 0
         
         return
