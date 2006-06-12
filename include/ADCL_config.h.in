@@ -14,5 +14,10 @@
 #define SEND_IRECV    1
 #define SEND_RECV     1
 
+/* Dump printf statements to a file? */
+#undef ADCL_FILE_PER_PROC 
+
+/* merge decision for similar requests? */
+#undef ADCL_MERGE_REQUESTS 
 
 #endif

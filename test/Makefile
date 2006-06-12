@@ -22,7 +22,7 @@ second_f: second_f.f90
 
 
 clean:
-	rm -rf *.o *~
+	rm -rf *.o *~ *.out
 	rm -f $(ADCL_BIN_DIR)/first $(ADCL_BIN_DIR)/second 
 	rm -f $(ADCL_BIN_DIR)/third $(ADCL_BIN_DIR)/fourth
 	rm -f $(ADCL_BIN_DIR)/first_f $(ADCL_BIN_DIR)/second_f

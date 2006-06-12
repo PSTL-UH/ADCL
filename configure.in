@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT
 AC_PREREQ(2.53)
-dnl AC_CONFIG_HEADER(include/lat_sys.h)
+AC_CONFIG_HEADER(include/ADCL_config.h)
 dnl First step for the cross compiling ...
 AC_CANONICAL_TARGET
 AC_PREFIX_DEFAULT(.)
@@ -163,7 +163,7 @@ AC_MSG_CHECKING(if we can compile and link a simple MPI program with ${mpi_cc})
 cat > testmpi.c <<EOF
 #include "mpi.h"
 
-int main (int argc, char *argv[])
+int main (int argc, char **argv)
 {
     MPI_Init (&argc, &argv);
     MPI_Finalize();
@@ -188,8 +188,18 @@ test "$ADCL_FILE_PER_PROC" = yes || ADCL_FILE_PER_PROC=no
 AC_MSG_CHECKING([whether to dump printf statements to a file instead of stdout])
 AC_MSG_RESULT(${ADCL_FILE_PER_PROC})
 if test "$ADCL_FILE_PER_PROC" = yes ; then
-   adcl_file_per_proc="-DADCL_FILE_PER_PROC" 
-  AC_SUBST(adcl_file_per_proc)
+  AC_DEFINE(ADCL_FILE_PER_PROC)
+fi
+
+AC_ARG_ENABLE(merge_requests,
+[  --enable-merge-requests      merge similar requests for the performance decision (default=no)],
+[test "$enableval" = yes && ADCL_MERGE_REQUESTS=yes])
+test "$ADCL_MERGE_REQUESTS" = yes || ADCL_MERGE_REQUESTS=no
+
+AC_MSG_CHECKING([whether to merge similar requests for the performance decision])
+AC_MSG_RESULT(${ADCL_MERGE_REQUESTS})
+if test "$ADCL_MERGE_REQUESTS" = yes ; then
+  AC_DEFINE(ADCL_MERGE_REQUESTS)
 fi
 
 
