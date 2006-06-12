@@ -26,7 +26,7 @@
         rand_symo  =  .false.
         rand_symu  =  .false.
         
-        call MPI_Dims_create ( size, 3, dims);
+        call MPI_Dims_create ( size, 3, dims, ierror);
         call MPI_Cart_create ( MPI_COMM_WORLD, 3, dims, periods,  &
              reorder, cart_comm, ierror )
         n1p = dims(1)
