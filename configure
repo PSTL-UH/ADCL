@@ -272,7 +272,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_default_prefix=.
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX F77 FFLAGS ac_ct_F77 FLDFLAGS adcl_dir adcl_inc_dir adcl_lib_dir adcl_bin_dir adcl_lib_name mpi_dir mpi_inc_dir mpi_lib_dir mpi_bin_dir mpi_cc mpi_f90 LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX F77 FFLAGS ac_ct_F77 FLDFLAGS adcl_dir adcl_inc_dir adcl_lib_dir adcl_bin_dir adcl_lib_name mpi_dir mpi_inc_dir mpi_lib_dir mpi_bin_dir mpi_cc mpi_f90 adcl_emethod_numtests LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -837,6 +837,7 @@ Optional Packages:
   --with-mpi-bin-dir=dir            Bin directory of MPI (default=MPI_DIR/bin)
   --with-mpi-cc=mpicc               MPI C compiler wrapper (default=mpicc)
   --with-mpi-f90=mpif90             MPI f90 compiler wrapper (default=mpif90)
+  --with-num-tests=NUMTESTS    Number of measurements per method.(default=10)
 
 Some influential environment variables:
   CC          C compiler command
@@ -2778,7 +2779,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2781:" \
+echo "$as_me:2782:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3176,6 +3177,21 @@ _ACEOF
 fi
 
 
+echo "$as_me:$LINENO: checking for number of measurements per method" >&5
+echo $ECHO_N "checking for number of measurements per method... $ECHO_C" >&6
+
+# Check whether --with-num_tests or --without-num_tests was given.
+if test "${with_num_tests+set}" = set; then
+  withval="$with_num_tests"
+  adcl_emethod_numtests="${withval}"
+else
+  adcl_emethod_numtests="10"
+fi;
+    echo "$as_me:$LINENO: result: ${adcl_emethod_numtests}" >&5
+echo "${ECHO_T}${adcl_emethod_numtests}" >&6
+
+
+
 #AC_HEADER_STDC
 #AC_CHECK_HEADERS(limits.h malloc.h sys/time.h unistd.h sys/types.h)
 #AC_CHECK_FUNCS(strdup strerror strstr strtol strlcat strlcpy)
@@ -3187,7 +3203,7 @@ fi
 #AC_FUNC_MEMCMP
 #AC_CHECK_FUNCS(gethostname strerror strstr setlinebuf strcasecmp snprintf)
 
-          ac_config_files="$ac_config_files Makefile.defs"
+                    ac_config_files="$ac_config_files Makefile.defs include/ADCL_sysconfig.h"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -3713,6 +3729,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile.defs" ) CONFIG_FILES="$CONFIG_FILES Makefile.defs" ;;
+  "include/ADCL_sysconfig.h" ) CONFIG_FILES="$CONFIG_FILES include/ADCL_sysconfig.h" ;;
   "include/ADCL_config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS include/ADCL_config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -3835,6 +3852,7 @@ s,@mpi_lib_dir@,$mpi_lib_dir,;t t
 s,@mpi_bin_dir@,$mpi_bin_dir,;t t
 s,@mpi_cc@,$mpi_cc,;t t
 s,@mpi_f90@,$mpi_f90,;t t
+s,@adcl_emethod_numtests@,$adcl_emethod_numtests,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF

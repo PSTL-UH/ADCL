@@ -9,9 +9,6 @@
 //#define TIME      MPI_Wtime()
 #define TIME ADCL_emethod_time()
 
-/* How many iterations are we testing each single method? Should
-   probably be a parameter later on */
-#define ADCL_EMETHOD_NUMTESTS 10
 
 #define ADCL_FLAG_PERF     -100
 #define ADCL_FLAG_NOPERF   -101

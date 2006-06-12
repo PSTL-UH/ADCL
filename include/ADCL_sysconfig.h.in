@@ -1,0 +1,8 @@
+#ifndef __ADCL_SYS_CONFIG_H__
+#define __ADCL_SYS_CONFIG_H__
+
+/* How many iterations are we testing each single method? Should
+   probably be a parameter later on */
+#define ADCL_EMETHOD_NUMTESTS @adcl_emethod_numtests@
+
+#endif

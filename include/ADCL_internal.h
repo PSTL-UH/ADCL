@@ -19,6 +19,7 @@
 #include "ADCL_change.h"
 
 #include "ADCL_config.h"
+#include "ADCL_sysconfig.h"
 
 #define TRUE   1
 #define FALSE  0

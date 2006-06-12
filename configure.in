@@ -203,6 +203,16 @@ if test "$ADCL_MERGE_REQUESTS" = yes ; then
 fi
 
 
+dnl ==================================================
+AC_MSG_CHECKING(for number of measurements per method)
+AC_ARG_WITH(num_tests,
+ [  --with-num-tests=NUMTESTS    Number of measurements per method.(default=10)],
+    adcl_emethod_numtests="${withval}", adcl_emethod_numtests="10")
+    AC_MSG_RESULT(${adcl_emethod_numtests})
+    AC_SUBST(adcl_emethod_numtests)
+dnl ==================================================
+
+
 dnl Checks for header files.
 #AC_HEADER_STDC
 #AC_CHECK_HEADERS(limits.h malloc.h sys/time.h unistd.h sys/types.h)
@@ -217,4 +227,4 @@ dnl Checks for library functions.
 #AC_FUNC_MEMCMP
 #AC_CHECK_FUNCS(gethostname strerror strstr setlinebuf strcasecmp snprintf)
 
-AC_OUTPUT(Makefile.defs) 
+AC_OUTPUT(Makefile.defs include/ADCL_sysconfig.h) 
