@@ -18,6 +18,7 @@
 #include "ADCL_packunpack.h"
 #include "ADCL_change.h"
 
+#include "ADCL_config.h"
 
 #define TRUE   1
 #define FALSE  0

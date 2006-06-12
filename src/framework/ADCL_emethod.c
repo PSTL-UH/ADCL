@@ -22,8 +22,10 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 					 int *neighbors, int vndims, 
 					 int *vdims, int vnc, int vhwidth )
 {
-    int i, j, last, found=-1;
     ADCL_emethod_req_t *er;    
+    int i;
+#ifdef ADCL_MERGE_REQUESTS
+    int j, last, found=-1;
     int result;
 
     /* Check first, whether we have an entry in the ADCL_emethods_req_array,
@@ -70,6 +72,7 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	er->er_rfcnt++;
 	return er;
     }
+#endif
 	
     /* we did not find this configuraion yet, so we have to add it */
     er = ( ADCL_emethod_req_t *) calloc (1, sizeof(ADCL_emethod_req_t));
