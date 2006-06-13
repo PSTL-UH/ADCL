@@ -35,7 +35,7 @@ $(OBJ): $(HEADER)
 	$(FC) -c $(FFLAGS) $<
 
 $(EXENAME):  $(OBJ) 
-	$(FC) $(OBJ)  $(FLDFLAGS) -lefence -o $(EXENAME) 
+	$(FC) $(OBJ)  $(FLDFLAGS) -o $(EXENAME) 
 
 
 clean:

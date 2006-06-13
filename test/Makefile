@@ -15,10 +15,10 @@ fourth:	fourth.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/fourth fourth.c $(LDFLAGS)
 
 first_f: first_f.f90
-	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/first_f first_f.f90 $(LDFLAGS)
+	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/first_f first_f.f90 $(FLDFLAGS)
 
 second_f: second_f.f90
-	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/second_f second_f.f90 $(LDFLAGS)
+	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/second_f second_f.f90 $(FLDFLAGS)
 
 
 clean:
