@@ -15,7 +15,6 @@ int ADCL_method_init ( void )
        1. generate a list of all available single-block methods
        2. determine the characteristics of the current environment
        3. generate a new, shorter list of single-block methods available
-
        4. generate a list of all available dual-block methods
        5. generate a new, shorter list of dual-block methods
     */
