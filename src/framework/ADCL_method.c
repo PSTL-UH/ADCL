@@ -1,8 +1,10 @@
 #include "ADCL_internal.h"
 #include "ADCL_config.h"
 
+static int ADCL_local_id_counter=0;
 static int ADCL_method_total_num=0;
 static ADCL_method_t* ADCL_method_array=NULL;
+
 
 #ifndef ADCL_NO_COMM_DEBUG
 int ADCL_method_init ( void )
@@ -33,12 +35,14 @@ int ADCL_method_init ( void )
 
 #ifdef CHANGE_AAO
 #  ifdef ISEND_IRECV
+      ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_IsendIrecv;
       strncpy ( ADCL_method_array[count].m_name, "IsendIrecv_aao", 32 );
       count++; 
 #  endif /* ISEND_IRECV */
 
 #  ifdef SEND_IRECV
+      ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_SendIrecv;
       strncpy ( ADCL_method_array[count].m_name, "SendIrecv_aao", 32 );
       count++; 
@@ -47,16 +51,19 @@ int ADCL_method_init ( void )
 
 #ifdef CHANGE_PAIR
 #  ifdef ISEND_IRECV
+      ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_IsendIrecv;
       strncpy ( ADCL_method_array[count].m_name, "IsendIrecv_pair", 32 );
       count++; 
 #  endif /* ISEND_IRECV */
 #  ifdef SEND_RECV
+      ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendRecv;
       strncpy ( ADCL_method_array[count].m_name, "SendRecv_pair", 32 );
       count++; 
 #  endif /* SEND_RECV */
 #  ifdef SEND_IRECV
+      ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendIrecv;
       strncpy ( ADCL_method_array[count].m_name, "SendIrecv_pair", 32 );
       count++; 
@@ -69,6 +76,7 @@ int ADCL_method_init ( void )
 
 #ifdef CHANGE_AAO
 #  ifdef ISEND_IRECV
+      ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_IsendIrecv_pack;
       strncpy ( ADCL_method_array[count].m_name, "IsendIrecv_aao_pack", 32 );
       count++; 
@@ -77,6 +85,7 @@ int ADCL_method_init ( void )
 
 #ifdef CHANGE_PAIR
 #  ifdef ISEND_IRECV
+      ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_IsendIrecv_pack;
       strncpy ( ADCL_method_array[count].m_name, "IsendIrecv_pair_pack", 32 );
       count++; 

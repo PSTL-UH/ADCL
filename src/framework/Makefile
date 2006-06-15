@@ -6,6 +6,7 @@ OBJ = 	ADCL_vector.o           \
 	ADCL_method.o 		\
 	ADCL_emethod.o 		\
 	ADCL_request.o 		\
+	ADCL_statistics.o       \
 	ADCL_subarray.o         \
 	ADCL_packunpack.o       \
 	ADCL_printf.o

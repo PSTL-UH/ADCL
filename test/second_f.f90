@@ -10,8 +10,8 @@
         integer cart_comm;
         double precision , allocatable, dimension (:,:,:) :: data
         integer, parameter :: NC = 1
-        integer, parameter :: DIM1=2
-        integer, parameter :: DIM2=4
+        integer, parameter :: DIM1=16
+        integer, parameter :: DIM2=32
         
         NIT = 100
 

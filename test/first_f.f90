@@ -4,17 +4,18 @@
         include 'ADCL.inc'
 
         integer i, rank, size, ierror, NIT, allocstat
-        integer dims(3), cdims(3), periods(3)
+        integer dims(4), cdims(3), periods(3)
         integer vec;
         integer request;
         integer cart_comm;
-        double precision, allocatable, dimension (:,:,:) :: data
+        double precision, allocatable, dimension (:,:,:,:) :: data
         
-        NIT = 100
+        NIT = 10
 
-        dims(1) = 66
+        dims(1) = 18
         dims(2) = 34
         dims(3) = 34
+        dims(4) = 1
         cdims(1) = 0
         cdims(2) = 0
         cdims(3) = 0
@@ -26,7 +27,7 @@
         call MPI_Comm_rank ( MPI_COMM_WORLD, rank, ierror)
         call MPI_Comm_size ( MPI_COMM_WORLD, size, ierror )
 
-        allocate ( data (0:dims(1)-1, 0:dims(2)-1, 0:dims(3)-1), &
+        allocate ( data (0:dims(1)-1, 0:dims(2)-1, 0:dims(3)-1, 1), &
              stat = allocstat ) 
         if ( allocstat.gt.0 ) then 
            write (*,*) rank, ' : Error allocating memory'
@@ -34,7 +35,7 @@
         end if
 
         call ADCL_Init ( ierror )
-        call ADCL_Vector_register ( 3, dims, 0, 1, MPI_DOUBLE_PRECISION,&
+        call ADCL_Vector_register ( 3, dims, 1, 1, MPI_DOUBLE_PRECISION,&
                                     data, vec, ierror)
 
         call MPI_Dims_create ( size, 3, cdims, ierror)

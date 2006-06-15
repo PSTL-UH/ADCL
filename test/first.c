@@ -5,9 +5,9 @@
 
 #define NIT 100
 
-#define DIM0  2
-#define DIM1  4
-#define DIM2  6
+#define DIM0  32
+#define DIM1  32
+#define DIM2  32
 
 /* how many halo-cells for each neighbor ? */
 #define HWIDTH 1

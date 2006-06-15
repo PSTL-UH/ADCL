@@ -2,12 +2,17 @@
 #define __ADCL_EMETHOD_H__
 
 #include "ADCL_method.h"
+#include "ADCL_sysconfig.h"
 #include <sys/time.h>
 #include "mpi.h"
 #define TIME_TYPE double
 
 //#define TIME      MPI_Wtime()
 #define TIME ADCL_emethod_time()
+#define ADCL_EMETHOD_TIMEDIFF(_tstart,_tend,_exec) {         \
+    if ( _tend > _tstart ) _exec = (double) (_tend-_tstart); \
+    else _exec = (1000000.0 - _tstart) + _tend; }
+
 
 
 #define ADCL_FLAG_PERF     -100
@@ -21,12 +26,8 @@ struct ADCL_emethod_s {
     ADCL_method_t *em_method; /* which method am I associated with ? */
     int             em_count; /* how often has this routine already been called */
     int          em_rescount; /* how often has this routine already reported back */
-    double            em_sum; /* sum of all timings taken (local) */
-    double            em_avg; /* average time required to execute this method(local)*/
-    double            em_max; /* max. time required to execute this function (local)*/
-    double            em_min; /* min. time required to execute this function (local)*/
-    int            em_lpts; /* local no. of pts by this method */
-    int            em_gsum; /* global sum of no. of pts gather by this method */
+    TIME_TYPE   em_time[ADCL_EMETHOD_NUMTESTS]; /* measurements */
+    double           em_lpts; /* local no. of pts by this method */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 
@@ -48,6 +49,9 @@ struct ADCL_emethod_req_s {
     ADCL_method_t   *er_wmethod; /* winner method used after the testing */
 };
 typedef struct ADCL_emethod_req_s ADCL_emethod_req_t;
+
+
+
 
 int ADCL_emethod_req_init     ( void );
 int ADCL_emethod_req_finalize ( void );

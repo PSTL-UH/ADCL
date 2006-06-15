@@ -2,22 +2,29 @@
 
 
 static int ADCL_local_id_counter=0;
-static int adcl_compare ( const void*, const void* );
-
 static ADCL_array_t *ADCL_emethod_req_array=NULL;
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_emethod_req_init ( void ) 
 {
     ADCL_array_init ( &(ADCL_emethod_req_array), "ADCL_emethod_req", 32 );    
     return ADCL_SUCCESS;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_emethod_req_finalize ( void ) 
 {
     ADCL_array_free ( &(ADCL_emethod_req_array) );    
     return ADCL_SUCCESS;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
 					 int *neighbors, int vndims, 
 					 int *vdims, int vnc, int vhwidth )
@@ -109,7 +116,6 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     for ( i=0; i< er->er_num_emethods; i++ ) {
 	er->er_emethods[i].em_id     = ADCL_emethod_get_next_id ();
 	er->er_emethods[i].em_method = ADCL_get_method(i);
-	er->er_emethods[i].em_min    = 999999;
     }
 
     ADCL_array_get_next_free_pos ( ADCL_emethod_req_array, &er->er_pos );
@@ -120,6 +126,9 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     return er;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 void ADCL_emethod_free ( ADCL_emethod_req_t * er )
 {
     er->er_rfcnt--;
@@ -140,6 +149,9 @@ void ADCL_emethod_free ( ADCL_emethod_req_t * er )
     return;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 double ADCL_emethod_time (void) 
 { 
     struct timeval tp; 
@@ -147,17 +159,26 @@ double ADCL_emethod_time (void)
     return tp.tv_usec;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_emethod_get_next_id (void)
 {
     return ADCL_local_id_counter++;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 ADCL_method_t* ADCL_emethod_get_method ( ADCL_emethod_req_t *erm, int pos)
 {
     return erm->er_emethods[pos].em_method;
 }
 
     
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_emethod_monitor ( ADCL_emethod_req_t *ermethod, int pos, 
 			   TIME_TYPE tstart, TIME_TYPE tend )
 {
@@ -165,55 +186,32 @@ int ADCL_emethod_monitor ( ADCL_emethod_req_t *ermethod, int pos,
     return ADCL_STATE_REGULAR;
 }
 
-int ADCL_emethods_get_winner ( ADCL_emethod_req_t *ermethod, 
-			       MPI_Comm comm )
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 {
-    int i, j, winner=-1;
-    double *sorted=NULL;
-    int pts, max;
-    ADCL_emethod_t *emethods=ermethod->er_emethods;
-    int count = ermethod->er_num_emethods;
-
-    sorted = (double *) malloc ( 2*count*sizeof(double));
-    if ( NULL == sorted ) {
-	return ADCL_NO_MEMORY;
-    }
-
-    for ( i=0; i < count; i++ ) {
-	sorted[2*i]     = emethods[i].em_avg;
-	sorted[(2*i)+1] = emethods[i].em_id;
-    }
-    
-    qsort ( sorted, count, 2*sizeof(double), adcl_compare );
-
-    /* Give now the fastest method count-1 pts, the 2nd fastest
-       method count-2 pts, ..., the slowest method 0 pts. */
-    for ( pts=count-1, i=0; i< count; i++, pts-- ) {
-	for (j=0; j< count; j++ ) {
-	    if ( sorted[(2*i)+1] == emethods[j].em_id ) {
-		emethods[j].em_lpts = pts;
-		ADCL_printf("Assigning %d pts for method %d avg=%lf\n", 
-			    pts, emethods[j].em_id, emethods[j].em_avg );
-		continue;
-	    }
-	}
-    }
-
-    /* Determine now how many point each method achieved globally. The
-       method with the largest number of points will be the chosen one.
+    /* 
+    ** Filter the input data, i.e. remove outliers which 
+    ** would falsify the results 
     */
-    max   = 0;
-    for ( i=0; i<count; i++ ) {
-	MPI_Allreduce ( &emethods[i].em_lpts, &emethods[i].em_gsum, 1, MPI_INT,
-			MPI_SUM, comm );
-	if ( emethods[i].em_gsum > max ) {
-	    max = emethods[i].em_gsum;
-	    winner = i;
-	}
-    }
+    ADCL_statistics_filter_timings ( ermethod );
 
-    return winner;
+    /* 
+    ** Weight now the performance of each method 
+    */
+    ADCL_statistics_determine_votes ( ermethod);
+
+    /* 
+    ** Determine now how many point each method achieved globally. The
+    ** method with the largest number of points will be the chosen one.
+    */
+    return ADCL_statistics_global_max ( ermethod );
 }
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 {
     int i, next=ADCL_EVAL_DONE;
@@ -245,9 +243,8 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 		/* 
 		** ok, some data is still outstanding. So we 
 		** do not switch yet to the evaluation mode, 
-		** which give the last method out once again with 
-		** the noperf flag (= performance data not relevant
-		** for evaluation 
+		** we return the last method with the noperf flag 
+		** (= performance data not relevant for evaluation)
 		*/
 		next = er->er_last;
 		break;
@@ -259,64 +256,22 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     return next;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos, int flag, 
 			    TIME_TYPE tstart, TIME_TYPE tend )
 {
     ADCL_emethod_t *emethods = ermethods->er_emethods;
-    double exectime;
     ADCL_emethod_t *tmpem;
-
-    if ( tend > tstart ) {
-	exectime = (double) (tend-tstart);
-    }
-    else {
-	exectime = (1000000.0 - tstart) + tend;
-    }
-
+    TIME_TYPE exectime;
+    
+    ADCL_EMETHOD_TIMEDIFF ( tstart, tend, exectime );
     if ( flag == ADCL_FLAG_PERF ) {
 	tmpem = &emethods[pos];
-	tmpem->em_sum += exectime;
-	tmpem->em_avg = tmpem->em_sum / tmpem->em_count;
-	if ( exectime > tmpem->em_max ) {
-	    tmpem->em_max = exectime;
-	}
-	if ( exectime < tmpem->em_min ) {
-	    tmpem->em_min = exectime;
-	}
-	
-	tmpem->em_rescount++;
+	tmpem->em_time[tmpem->em_rescount++] = exectime;
     }
+
     return;
 }
 
-
-static int adcl_compare ( const void *p, const void *q )
-{
-    double *a, *b;
-    
-    a = (double *) p;
-    b = (double *) q;
-
-    /* simple tests are those where the avg execution times 
-       are different */
-    if ( a[0] < b[0] ) {
-        return (-1);
-    }
-    if ( a[0] > b[0] ) {
-        return (1);
-    }
-
-    /* ok, if the avg execution times are the same then we 
-       chose the one with the smaller id number. Since these
-       are however double values, this should hopefully not
-       really happen */
-    if ( a[0] == b[0] ) {
-        if ( a[1] < b[1] ) {
-            return (-1);
-        }
-        if ( a[1] > b[1] ) {
-            return (1);
-        }
-    }
-    return ( 0 );
-}
