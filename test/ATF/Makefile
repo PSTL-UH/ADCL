@@ -17,18 +17,13 @@ OBJ =  	ATF_Main.o 		\
 	ATF_Display_result.o    \
 	ATF_Free_matrix.o
 
-HEADER = ../include/ATF.h
+HEADER = ATF.h
 
-ATF_LIB = $(ATF_LIB_DIR)/libatf.a
 
 .SUFFIXES: .o.c
 
-all:
-	make $(ATF_LIB) 
-
-$(ATF_LIB): $(HEADER) $(OBJ)
+all: $(HEADER) $(OBJ)
 	    $(CC) -o ATF $(LDFLAGS) $(OBJ) 
-#	$(AR) $(AR_FLAGS) $(ATF_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)
 .c.o:	$(HEADER)
