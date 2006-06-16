@@ -1,5 +1,8 @@
 #include "ATF.h"
 #include "ATF_Memory.h"
+
+#include "ADCL.h"
+#include "ADCL_Global.h"
 /* global variables for ATF_Init_matrix */
 
 int ATF_n1g;
@@ -67,8 +70,8 @@ int ATF_Reset()
     return ATF_SUCCESS;
 }
 
-/*Allocate and initialize matrix and vectors
-** */
+/*Allocate and initialize matrix and vectors*/
+
 ADCL_Vector ADCL_Vec_dq;
 ADCL_Vector ADCL_Vec_loes;
 
@@ -147,8 +150,8 @@ int ATF_Init_matrix(int px, int py, int pz)
     
     /*Generate now the ADC_Request object for dq*/
     /*I thinks it should be later!*/
-    ADCL_Request_create( ADCL_Vec_dq, cart_comm, &ADCL_Req_dq );
-    ADCL_Request_create( ADCL_Vec_loes, cart_comm, &ADCL_Req_loes );
+    ADCL_Request_create( ADCL_Vec_dq, ADCL_Cart_comm, &ADCL_Req_dq );
+    ADCL_Request_create( ADCL_Vec_loes, ADCL_Cart_comm, &ADCL_Req_loes );
       
     
     /*Not done yet*/    

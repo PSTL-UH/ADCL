@@ -17,8 +17,7 @@ OBJ =  	ATF_Main.o 		\
 	ATF_Display_result.o    \
 	ATF_Free_matrix.o
 
-HEADER = ATF.h
-
+HEADER = ATF.h ADCL_Global.h 
 
 .SUFFIXES: .o.c
 

@@ -1,11 +1,15 @@
 #include "ATF.h"
 #include "ATF_Matmul.h"
 
+#include "ADCL.h"
+#include "ADCL_Global.h"
+
 int ATF_Matmul(double ****vect, double ****result_vect, int npattern )
 {
     int rank;
     
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+/*    ADCL_Request_start(ADCL_request)*/
 
     switch ( npattern ) {
 	case patt_fcfs: 
@@ -17,6 +21,8 @@ int ATF_Matmul(double ****vect, double ****result_vect, int npattern )
 	    break;
     }
 
+
+    
   return ATF_SUCCESS;
 }
 

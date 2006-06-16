@@ -1,6 +1,10 @@
 #include "ATF.h"
 #include "ATF_Memory.h"
 
+#include "/home/Arthur/ADCL/trunk/include/ADCL.h"
+
+#include "ADCL_Global.h"
+
 int ATF_Free_matrix()
 {
   ATF_free_5D_double_matrix(&ATF_rm000);
@@ -21,7 +25,7 @@ int ATF_Free_matrix()
   ADCL_Vector_deregister( &ADCL_Vec_dq);
   ADCL_Vector_deregister( &ADCL_Vec_loes);
   
-  ADCL_Comm_free( &cart_comm);
+  ADCL_Comm_free( &ADCL_Cart_comm);
 
   return ATF_SUCCESS;  
 }
