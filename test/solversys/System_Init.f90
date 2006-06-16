@@ -130,6 +130,8 @@
          write (*,*) rank, ' : Error allocating memory'
       end if
 
+
+
 !...Generate an ADCL-Vector object out of dq and loes
       dims(1) = n1+2
       dims(2) = n2+2
@@ -142,6 +144,8 @@
 !...Generate now the ADCL-Request object for dq
       call ADCL_Request_create (adcl_vec_dq, cart_comm, adcl_req_dq, ierror)
       call ADCL_Request_create (adcl_vec_loes,cart_comm,adcl_req_loes,ierror)
+
+
 
 !...Initialise timing variables
       solv_ende= 0.0 ; solv_anfang= 0.0 ; solvtime  = 0.0
