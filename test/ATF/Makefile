@@ -1,4 +1,4 @@
-include ../Makefile.defs
+include ../../Makefile.defs
 
 OBJ =  	ATF_Main.o 		\
 	ATF_Read_config.o 	\
