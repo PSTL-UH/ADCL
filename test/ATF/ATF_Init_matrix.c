@@ -142,7 +142,7 @@ int ATF_Init_matrix(int px, int py, int pz)
 
     /*Vector register here!*/
     ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, ATF_dq, &ADCL_Vec_dq );
-    ADCL_Vecotr_register( 3, dim3, nc, 1, MPI_DOUBLE, ATF_loes, &ADCL_Vec_loes );
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, ATF_loes, &ADCL_Vec_loes );
 
     /*Describe the neigborhood relations*/
     MPI_Dims_create( size, 3, cdims );

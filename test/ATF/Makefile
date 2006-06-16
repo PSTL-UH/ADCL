@@ -1,4 +1,4 @@
-include Makefile.defs
+include ../../Makefile.defs
 
 OBJ =  	ATF_Main.o 		\
 	ATF_Read_config.o 	\
@@ -22,11 +22,11 @@ HEADER = ATF.h ADCL_Global.h
 .SUFFIXES: .o.c
 
 all: $(HEADER) $(OBJ)
-	    $(CC) -o ATF $(LDFLAGS) $(OBJ) 
+	    $(CC) $(OBJ) $(LDFLAGS) -o ATF
 
 $(OBJ):	$(HEADER)
 .c.o:	$(HEADER)
-	$(CC) $(CFLAGS) -c $<
+	$(CC) -I. $(CFLAGS) -c $<
 
 clean:
 	rm -rf *.o *~
