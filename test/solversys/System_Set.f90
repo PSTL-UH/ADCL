@@ -173,6 +173,7 @@
 
           integer :: ierror, dummy, i, j, k
           integer :: size, rank
+          integer, dimension(3) :: coords
           double precision, parameter :: my_pi = 3.1415926535897932384
           double precision :: x, y, z, xoffset, yoffset, zoffset
           double precision :: skalar_1, skalar_2, skalar_3
@@ -185,30 +186,12 @@
           loesung_bekannt = .true.
 
 !...Bestimmen der eigenen Position im globalen Feld:
+          call MPI_Cart_coords ( cart_comm, rank, 3, coords, ierror )
 
-          if ( n1p.gt.1 ) then             
-             dummy = MOD ( rank, n1p )
-             xoffset = ( dummy * n1 )
-          else
-             xoffset = 0.0
-          end if
+          xoffset = coords(1) * n1
+          yoffset = coords(2) * n2
+          zoffset = coords(3) * n3
 
-          if ( n2p.gt.1 ) then
-             dummy = INT ( rank / n1p )
-             yoffset = ( dummy * n2 )
-             do while ( yoffset.ge.n2g ) 
-                yoffset = yoffset - n2g
-             end do
-          else
-             yoffset = 0.0
-          end if
-
-          if ( n3p.gt.1 ) then
-             dummy = INT ( rank / (n1p*n2p) )
-             zoffset = ( dummy * n3 )
-          else
-             zoffset = 0.0
-          end if
 
 !...Die Loesung soll spaeter folgender Funktion entsprechen
 !   u(x, y, z ) = exp (xyz) * sin (pi*x) * sin(pi*y) * sin(pi*z)
