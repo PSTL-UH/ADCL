@@ -1,7 +1,10 @@
 #include "ATF.h"
 #include "ATF_Memory.h"
 #include "ATF_tfqmr.Cal.h"
-#include "ATF_Matmul.h"
+/*#include "ATF_Matmul.h"*/
+
+#include "ADCL.h"
+#include "ADCL_Global.h"
 
 /* 
 ** Implementation of the TFQMR solver based on the original paper
@@ -13,11 +16,13 @@ static int dump_vect  ( double ****vec, int id );
 static int dump_vect_short ( double ****vec, int id );
 
 int ATF_Solver_tfqmr( int nreal, int pattern)
-{
-
+{ 
     int m;
     int rank, size;
     int dim[4];
+    
+    int dim3[3];
+    int nc;
     
     double tfqmr_limit, one, zero, temp;
     double tau, theta, theta_old, eta, eta_old;
@@ -27,18 +32,33 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
     double all_vekt[2], all_erg[2];
     
     double ****tfqmr_y, ****tfqmr_y_old, ****tfqmr_y_old_1;
+    
     double ****tfqmr_r,	****tfqmr_v, ****tfqmr_r_tilde;
     double ****tfqmr_d, ****tfqmr_w;
-    double ****res, ****zwischen_vekt, ****zwischen_vekt_2;
+    double ****res;
+   
+    /*New added for ADCL*/
+    double ****tmp_vect_2, ****tmp_vect;
+      
+    /*Define ADCL objects*/
+    ADCL_Vector  adcl_Vec_tfqmr_y, adcl_Vec_tfqmr_y_old, adcl_Vec_tfqmr_y_old_1;
+    ADCL_Request adcl_Req_tfqmr_y, adcl_Req_tfqmr_y_old, adcl_Req_tfqmr_y_old_1;
     
     dim[0] = ATF_dim[0]+2;
     dim[1] = ATF_dim[1]+2;
     dim[2] = ATF_dim[2]+2;
     dim[3] = 1;
     
+    dim3[0] = dim[0];
+    dim3[1] = dim[1];
+    dim3[2] = dim[2];
+
+    nc = 0;
+    
     ATF_allocate_4D_double_matrix(&tfqmr_y, dim);
     ATF_allocate_4D_double_matrix(&tfqmr_y_old, dim);
     ATF_allocate_4D_double_matrix(&tfqmr_y_old_1, dim);
+        
     ATF_allocate_4D_double_matrix(&tfqmr_r, dim);
     ATF_allocate_4D_double_matrix(&tfqmr_v, dim);
     ATF_allocate_4D_double_matrix(&tfqmr_r_tilde, dim);
@@ -46,8 +66,19 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
     ATF_allocate_4D_double_matrix(&tfqmr_w,dim);
     
     ATF_allocate_4D_double_matrix(&res,dim);
-    ATF_allocate_4D_double_matrix(&zwischen_vekt,dim);
-    ATF_allocate_4D_double_matrix(&zwischen_vekt_2,dim);
+    
+    ATF_allocate_4D_double_matrix(&tmp_vect_2, dim);
+    ATF_allocate_4D_double_matrix(&tmp_vect,dim);
+   
+    /*For adcl library*/
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, tfqmr_y, &adcl_Vec_tfqmr_y );
+    ADCL_Request_create( adcl_Vec_tfqmr_y, ADCL_Cart_comm, &adcl_Req_tfqmr_y );
+        
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, tfqmr_y_old, &adcl_Vec_tfqmr_y_old );
+    ADCL_Request_create( adcl_Vec_tfqmr_y_old, ADCL_Cart_comm, &adcl_Req_tfqmr_y_old );
+        
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, tfqmr_y_old_1, &adcl_Vec_tfqmr_y_old_1 );
+    ADCL_Request_create( adcl_Vec_tfqmr_y_old_1, ADCL_Cart_comm, &adcl_Req_tfqmr_y_old_1 );
     
     
     tfqmr_limit = 1.0e-09;
@@ -58,10 +89,17 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
     MPI_Comm_size( MPI_COMM_WORLD, &size );
     
     /*The second one is pointer*/
+    
+    /*In ADCL, the function is substituted by ADCL_Matmul 
     ATF_Matmul ( ATF_dq, zwischen_vekt_2, pattern);
+    */
+
+    ADCL_Matmul( ADCL_Req_dq, ATF_dq, tmp_vect_2 );
 
     /*	A=B-C ,where A, B and C have the same dimensions*/
-    ATF_tfqmr_Cal_A_EQ_B_sub_C(tfqmr_r,  ATF_rhs, zwischen_vekt_2);
+    
+    /*ATF_tfqmr_Cal_A_EQ_B_sub_C(tfqmr_r,  ATF_rhs, zwischen_vekt_2);*/
+    ATF_tfqmr_Cal_A_EQ_B_sub_C(tfqmr_r, ATF_rhs, tmp_vect_2);
     
     zero = 0.0;
     one = 1.0;
@@ -73,7 +111,8 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
     ATF_tfqmr_Cal_A_EQ_c( tfqmr_d, zero);
     ATF_tfqmr_Cal_A_EQ_c( tfqmr_r_tilde, one);
     
-    ATF_Matmul ( tfqmr_y, tfqmr_v, pattern);
+    /* ATF_Matmul ( tfqmr_y, tfqmr_v, pattern);*/
+    ADCL_Matmul(adcl_Req_tfqmr_y, tfqmr_y, tfqmr_v);
 
     /* Calculate the norm of the vector tfqmr_r */
     skalar_1 = 0.0;
@@ -118,15 +157,19 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
 	for(m=(2*nreal-1); m<= 2*nreal; m++){
 /************************************************************************/
 	    if ( m == (2*nreal-1) ){
-		ATF_Matmul( tfqmr_y_old_1,zwischen_vekt_2, pattern);
+		/*ATF_Matmul( tfqmr_y_old_1,zwischen_vekt_2, pattern);*/
+                
+                ADCL_Matmul( adcl_Req_tfqmr_y_old_1, tfqmr_y_old_1, tmp_vect_2);
 	    }
 	    else{
-		ATF_Matmul( tfqmr_y_old,zwischen_vekt_2, pattern);
+		/*ATF_Matmul( tfqmr_y_old,zwischen_vekt_2, pattern);*/
+                ADCL_Matmul( adcl_Req_tfqmr_y_old, tfqmr_y_old, tmp_vect_2);
 	    }
 	    
 	    /* A=B-Z*C, where A B and C are all matrix */
-	    ATF_tfqmr_Cal_A_EQ_B_sub_z_mul_C(tfqmr_w, tfqmr_w,
-					     zwischen_vekt_2, alpha);
+	    /*changed ATF_tfqmr_Cal_A_EQ_B_sub_z_mul_C(tfqmr_w, tfqmr_w,
+					     zwischen_vekt_2, alpha); */
+            ATF_tfqmr_Cal_A_EQ_B_sub_z_mul_C( tfqmr_w, tfqmr_w, tmp_vect_2, alpha);
 	    
 	    skalar_1 = 0.0;
 	    ATF_tfqmr_Cal_c_EQ_c_plus_A_mul_B( tfqmr_w, tfqmr_w, &skalar_1);
@@ -142,16 +185,16 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
 	    temp = theta_old * theta_old * eta_old/alpha;
 	    
 	    /* A=z*B, where A and B are all matrix, make program faster */
-	    ATF_tfqmr_Cal_A_EQ_c_mul_B( zwischen_vekt_2, tfqmr_d, temp);
+	    ATF_tfqmr_Cal_A_EQ_c_mul_B( tmp_vect_2, tfqmr_d, temp);
 	    
 	    if ( m == (2*nreal-1)){
 		/* A=B+C, B is vector, A and C are matrix */
 		ATF_tfqmr_Cal_A_EQ_B_plus_C( tfqmr_d, tfqmr_y_old_1, 
-					     zwischen_vekt_2);
+					     tmp_vect_2);
 	    }
 	    else{
 		ATF_tfqmr_Cal_A_EQ_B_plus_C( tfqmr_d, tfqmr_y_old, 
-					     zwischen_vekt_2);
+					     tmp_vect_2);
 	    }
 	    
 	    /* Calculate the new estimate of the solution dq */
@@ -173,8 +216,9 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
 */
 	    /*	calculate the residuum */
 	    
-	    ATF_Matmul ( ATF_dq, zwischen_vekt_2, pattern);
-	    ATF_tfqmr_Cal_A_EQ_B_sub_C( res,  ATF_rhs, zwischen_vekt_2);
+	    /* ATF_Matmul ( ATF_dq, zwischen_vekt_2, pattern); */
+            ADCL_Matmul( ADCL_Req_dq, ATF_dq, tmp_vect_2);
+	    ATF_tfqmr_Cal_A_EQ_B_sub_C( res,  ATF_rhs, tmp_vect_2);
 	    
 	    skalar_1 = 0.0;
 	    ATF_tfqmr_Cal_c_EQ_c_plus_A_mul_B( res, res, &skalar_1);
@@ -213,15 +257,16 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
 	/*A = B+z*C*/
 	ATF_tfqmr_Cal_A_EQ_B_plus_z_mul_C( tfqmr_y,tfqmr_w, tfqmr_y_old, beta);
 	
-	ATF_Matmul ( tfqmr_y_old, zwischen_vekt_2, pattern);
+	/*ATF_Matmul ( tfqmr_y_old, zwischen_vekt_2, pattern);*/
+        ADCL_Matmul(adcl_Req_tfqmr_y_old, tfqmr_y_old, tmp_vect_2);
 	
-	ATF_tfqmr_Cal_A_EQ_B_plus_z_mul_C(zwischen_vekt, zwischen_vekt_2,
+	ATF_tfqmr_Cal_A_EQ_B_plus_z_mul_C( tmp_vect, tmp_vect_2,
 					  tfqmr_v, beta);
 	
-	ATF_Matmul ( tfqmr_y, zwischen_vekt_2, pattern);
+	ADCL_Matmul ( adcl_Req_tfqmr_y, tfqmr_y, tmp_vect_2);
 	
-	ATF_tfqmr_Cal_A_EQ_B_plus_z_mul_C( tfqmr_v, zwischen_vekt_2,
-					   zwischen_vekt, beta);
+	ATF_tfqmr_Cal_A_EQ_B_plus_z_mul_C( tfqmr_v, tmp_vect_2,
+					   tmp_vect, beta);
 	
 	/* Si!hern der Variablen, von denen spaeter auch der alte Wert noch
 	   benoetigt wird*/
@@ -246,12 +291,19 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
     ATF_free_4D_double_matrix(&tfqmr_r_tilde);
     ATF_free_4D_double_matrix(&tfqmr_d);
     ATF_free_4D_double_matrix(&tfqmr_w);
-    
+    ATF_free_4D_double_matrix(&tmp_vect);
+    ATF_free_4D_double_matrix(&tmp_vect_2);
     ATF_free_4D_double_matrix(&res);
-    ATF_free_4D_double_matrix(&zwischen_vekt);
-    ATF_free_4D_double_matrix(&zwischen_vekt_2);
     
-    
+    /*Free the ADCL objects*/
+    ADCL_Request_free( &adcl_Req_tfqmr_y);
+    ADCL_Request_free( &adcl_Req_tfqmr_y_old);
+    ADCL_Request_free( &adcl_Req_tfqmr_y_old_1);
+
+    ADCL_Vector_deregister( &adcl_Vec_tfqmr_y);
+    ADCL_Vector_deregister( &adcl_Vec_tfqmr_y_old);
+    ADCL_Vector_deregister( &adcl_Vec_tfqmr_y_old_1);
+
     return ATF_SUCCESS;
 }
 

@@ -4,6 +4,17 @@
 #include "ADCL.h"
 #include "ADCL_Global.h"
 
+/* New added functions ADCL_Matmul */
+int ADCL_Matmul(ADCL_Request adcl_req, double ****vect, double ****res_vect)
+{
+    ADCL_Request_start (adcl_req);
+  
+    ATF_Matmul_blocking( vect, res_vect );
+    return ATF_SUCCESS;
+}
+
+
+/*Change it later*/
 int ATF_Matmul(double ****vect, double ****result_vect, int npattern )
 {
     int rank;

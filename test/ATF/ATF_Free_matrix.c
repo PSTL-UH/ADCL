@@ -24,7 +24,6 @@ int ATF_Free_matrix()
   ADCL_Vector_deregister( &ADCL_Vec_dq);
   ADCL_Vector_deregister( &ADCL_Vec_loes);
   
-  MPI_Comm_free( &ADCL_Cart_comm);
 
   return ATF_SUCCESS;  
 }

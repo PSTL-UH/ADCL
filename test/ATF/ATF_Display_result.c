@@ -1,7 +1,10 @@
 #include "ATF.h"
 #include "ATF_Display_Result.h"
-#include "ATF_Matmul.h"
+/*#include "ATF_Matmul.h"*/
 #include "ATF_Memory.h"
+
+#include "ADCL.h"
+#include "ADCL_Global.h"
 
 int ATF_Display_Result()
 {
@@ -12,8 +15,13 @@ int ATF_Display_Result()
 
   double res_max, zwischenspeicher, betrag;
   double l0, l2, res;
+  /*
   double ****zwischen_vekt;
   double ****zwischen_vekt_2;
+  */
+  double ****tmp_vect;
+  double ****tmp_vect_2;
+  
   int dim[4];	
 
   MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
@@ -32,31 +40,33 @@ int ATF_Display_Result()
   dim[2] = ATF_dim[2]+2;
   dim[3] = ATF_dim[3]+2;
 
-  ATF_allocate_4D_double_matrix(&zwischen_vekt,dim);
-  ATF_allocate_4D_double_matrix(&zwischen_vekt_2,dim);
+  ATF_allocate_4D_double_matrix(&tmp_vect,dim);
+  ATF_allocate_4D_double_matrix(&tmp_vect_2,dim);
 
 /*Berechnen des Residuums, sowie Speichern des groessten
    Elements*/
-  ATF_Matmul(ATF_dq, zwischen_vekt, patt_fcfs);
+/*  ATF_Matmul(ATF_dq, zwischen_vekt, patt_fcfs);*/
+  ADCL_Matmul( ADCL_Req_dq,ATF_dq, tmp_vect);
+
   res_max = 0;
 
   for(i=1; i<n1; i++ ){
 	for(j=1; j<n2; j++){
 	  for(k=1; k<n3; k++){
-		zwischen_vekt_2 [i][j][k][0] = ATF_rhs[i][j][k][0] - zwischen_vekt[i][j][k][0];
-		betrag = abs ( zwischen_vekt_2 [i][j][k][0] );
+		tmp_vect_2 [i][j][k][0] = ATF_rhs[i][j][k][0] - tmp_vect[i][j][k][0];
+		betrag = abs ( tmp_vect_2 [i][j][k][0] );
 
 		if ( betrag > res_max){
 			res_max = betrag;
 		}
-		l2 = l2 + zwischen_vekt_2 [i][j][k][0] *zwischen_vekt_2 [i][j][k][0];
+		l2 = l2 + tmp_vect_2 [i][j][k][0] * tmp_vect_2 [i][j][k][0];
 	  }
 	}
   }
 
   MPI_Reduce ( &l2, &zwischenspeicher, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
-/*  l2 = sqrt ( zwischenspeicher );  Is it ok?*/ 
+  l2 = sqrt ( zwischenspeicher );  
 
   MPI_Reduce ( &res_max, &l0, 1, MPI_DOUBLE,  MPI_MAX, 0, MPI_COMM_WORLD );
 
@@ -128,8 +138,8 @@ int ATF_Display_Result()
 
   }
 
-  ATF_free_4D_double_matrix(&zwischen_vekt_2);
-  ATF_free_4D_double_matrix(&zwischen_vekt);
+  ATF_free_4D_double_matrix(&tmp_vect_2);
+  ATF_free_4D_double_matrix(&tmp_vect);
 
 
   return ATF_SUCCESS;
