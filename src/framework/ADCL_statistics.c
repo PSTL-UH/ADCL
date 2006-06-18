@@ -117,18 +117,17 @@ int ADCL_statistics_global_max ( ADCL_emethod_req_t *ermethod )
     double *lpts, *gpts;
     int count = ermethod->er_num_emethods;
 
-    lpts = (double *) malloc ( count * sizeof(double));
-    gpts = (double *) malloc ( count * sizeof(double));
+    lpts = (double *) malloc ( 2* count * sizeof(double));
     if ( NULL == lpts || NULL == gpts) {
 	return winner;
     }
-//    gpts = &(lpts[count]);
+    gpts = &(lpts[count]);
 
     for ( i = 0; i < count; i++ ) {
 	lpts[i] = ermethod->er_emethods[i].em_lpts;
     }
     MPI_Allreduce ( lpts, gpts, count, MPI_DOUBLE, MPI_SUM, ermethod->er_comm);
-    for ( max = gpts[0], i = 1; i < count; i++ ) {
+    for ( winner=0, max=gpts[0], i = 1; i < count; i++ ) {
 	if ( gpts[i] > max ) {
 	    max    = gpts[i];
 	    winner = i;
@@ -136,7 +135,6 @@ int ADCL_statistics_global_max ( ADCL_emethod_req_t *ermethod )
     }
 
     free ( lpts );
-    free ( gpts );
     return winner;
 }    
 
