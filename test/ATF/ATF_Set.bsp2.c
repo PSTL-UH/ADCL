@@ -231,6 +231,7 @@ int ATF_Set_rhs ( int *ATF_dim)
 	}
     }
     
+
     ATF_Matmul ( ATF_loes, ATF_rhs, patt_fcfs);
     
     if ( ATF_rand_sing ){

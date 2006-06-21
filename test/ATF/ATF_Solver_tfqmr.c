@@ -71,13 +71,14 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
     ATF_allocate_4D_double_matrix(&tmp_vect,dim);
    
     /*For adcl library*/
-    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, tfqmr_y, &adcl_Vec_tfqmr_y );
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(tfqmr_y[0][0][0][0]), &adcl_Vec_tfqmr_y );
     ADCL_Request_create( adcl_Vec_tfqmr_y, ADCL_Cart_comm, &adcl_Req_tfqmr_y );
         
-    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, tfqmr_y_old, &adcl_Vec_tfqmr_y_old );
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(tfqmr_y_old[0][0][0][0]), &adcl_Vec_tfqmr_y_old );
     ADCL_Request_create( adcl_Vec_tfqmr_y_old, ADCL_Cart_comm, &adcl_Req_tfqmr_y_old );
         
-    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, tfqmr_y_old_1, &adcl_Vec_tfqmr_y_old_1 );
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(tfqmr_y_old_1[0][0][0][0]), 
+			  &adcl_Vec_tfqmr_y_old_1 );
     ADCL_Request_create( adcl_Vec_tfqmr_y_old_1, ADCL_Cart_comm, &adcl_Req_tfqmr_y_old_1 );
     
     

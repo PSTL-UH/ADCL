@@ -141,8 +141,8 @@ int ATF_Init_matrix(int px, int py, int pz)
     dim3[2] = ATF_dim[2]+2;
 
     /*Vector register here!*/
-    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, ATF_dq, &ADCL_Vec_dq );
-    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, ATF_loes, &ADCL_Vec_loes );
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(ATF_dq[0][0][0][0]), &ADCL_Vec_dq );
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(ATF_loes[0][0][0][0]), &ADCL_Vec_loes );
 
     /*Describe the neigborhood relations*/
     MPI_Dims_create( size, 3, cdims );
@@ -154,11 +154,6 @@ int ATF_Init_matrix(int px, int py, int pz)
     ADCL_Request_create( ADCL_Vec_loes, ADCL_Cart_comm, &ADCL_Req_loes );
       
     
-    /*Not done yet*/    
-    if(!ATF_Set_Datatypes(ATF_rhs)){
-		printf("Set data types is not correct\n");
-		return ATF_ERROR;
-    }
     
     /* Initiate timing variables */
     ATF_solv_ende   = 0.0 ;
