@@ -13,19 +13,19 @@
 
 #pragma weak adcl_request_start_  = adcl_request_start
 #pragma weak adcl_request_start__ = adcl_request_start
-#pragma weak Adcl_REQUEST_START   = adcl_request_start
+#pragma weak ADCL_REQUEST_START   = adcl_request_start
 
 #pragma weak adcl_request_init_  = adcl_request_init
 #pragma weak adcl_request_init__ = adcl_request_init
-#pragma weak Adcl_REQUEST_INIT   = adcl_request_init
+#pragma weak ADCL_REQUEST_INIT   = adcl_request_init
 
 #pragma weak adcl_request_wait_  = adcl_request_wait
 #pragma weak adcl_request_wait__ = adcl_request_wait
-#pragma weak Adcl_REQUEST_WAIT   = adcl_request_wait
+#pragma weak ADCL_REQUEST_WAIT   = adcl_request_wait
 
 #pragma weak adcl_request_start_overlap_  = adcl_request_start_overlap
 #pragma weak adcl_request_start_overlap__ = adcl_request_start_overlap
-#pragma weak Adcl_REQUEST_START_OVERLAP   = adcl_request_start_overlap
+#pragma weak ADCL_REQUEST_START_OVERLAP   = adcl_request_start_overlap
 
 void adcl_request_create ( int *vec, int *comm, int *req, int *ierror ) 
 {

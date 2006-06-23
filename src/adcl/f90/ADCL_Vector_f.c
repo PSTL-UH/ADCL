@@ -11,7 +11,7 @@
 
 #pragma weak adcl_vector_deregister_  = adcl_vector_deregister
 #pragma weak adcl_vector_deregister__ = adcl_vector_deregister
-#pragma weak ADCL_Vector_Deregister   = adcl_vector_deregister
+#pragma weak ADCL_Vector_DEREGISTER   = adcl_vector_deregister
 
 void adcl_vector_register ( int *ndims, int *dims, int *nc, int *hwidth, 
 			    int *dat, void *data, int *vec, int *ierror)
