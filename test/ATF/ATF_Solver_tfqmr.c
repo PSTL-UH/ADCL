@@ -4,7 +4,7 @@
 /*#include "ATF_Matmul.h"*/
 
 #include "ADCL.h"
-#include "ADCL_Global.h"
+#include "ATF_Adcl_global.h"
 
 /* 
 ** Implementation of the TFQMR solver based on the original paper
@@ -91,11 +91,11 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
     
     /*The second one is pointer*/
     
-    /*In ADCL, the function is substituted by ADCL_Matmul 
+    /*In ADCL, the function is substituted by ATF_Matmul 
     ATF_Matmul ( ATF_dq, zwischen_vekt_2, pattern);
     */
 
-    ADCL_Matmul( ADCL_Req_dq, ATF_dq, tmp_vect_2 );
+    ATF_Matmul( ADCL_Req_dq, ATF_dq, tmp_vect_2 );
 
     /*	A=B-C ,where A, B and C have the same dimensions*/
     
@@ -113,7 +113,7 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
     ATF_tfqmr_Cal_A_EQ_c( tfqmr_r_tilde, one);
     
     /* ATF_Matmul ( tfqmr_y, tfqmr_v, pattern);*/
-    ADCL_Matmul(adcl_Req_tfqmr_y, tfqmr_y, tfqmr_v);
+    ATF_Matmul(adcl_Req_tfqmr_y, tfqmr_y, tfqmr_v);
 
     /* Calculate the norm of the vector tfqmr_r */
     skalar_1 = 0.0;
@@ -160,11 +160,11 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
 	    if ( m == (2*nreal-1) ){
 		/*ATF_Matmul( tfqmr_y_old_1,zwischen_vekt_2, pattern);*/
                 
-                ADCL_Matmul( adcl_Req_tfqmr_y_old_1, tfqmr_y_old_1, tmp_vect_2);
+                ATF_Matmul( adcl_Req_tfqmr_y_old_1, tfqmr_y_old_1, tmp_vect_2);
 	    }
 	    else{
 		/*ATF_Matmul( tfqmr_y_old,zwischen_vekt_2, pattern);*/
-                ADCL_Matmul( adcl_Req_tfqmr_y_old, tfqmr_y_old, tmp_vect_2);
+                ATF_Matmul( adcl_Req_tfqmr_y_old, tfqmr_y_old, tmp_vect_2);
 	    }
 	    
 	    /* A=B-Z*C, where A B and C are all matrix */
@@ -218,7 +218,7 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
 	    /*	calculate the residuum */
 	    
 	    /* ATF_Matmul ( ATF_dq, zwischen_vekt_2, pattern); */
-            ADCL_Matmul( ADCL_Req_dq, ATF_dq, tmp_vect_2);
+            ATF_Matmul( ADCL_Req_dq, ATF_dq, tmp_vect_2);
 	    ATF_tfqmr_Cal_A_EQ_B_sub_C( res,  ATF_rhs, tmp_vect_2);
 	    
 	    skalar_1 = 0.0;
@@ -259,12 +259,12 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
 	ATF_tfqmr_Cal_A_EQ_B_plus_z_mul_C( tfqmr_y,tfqmr_w, tfqmr_y_old, beta);
 	
 	/*ATF_Matmul ( tfqmr_y_old, zwischen_vekt_2, pattern);*/
-        ADCL_Matmul(adcl_Req_tfqmr_y_old, tfqmr_y_old, tmp_vect_2);
+        ATF_Matmul(adcl_Req_tfqmr_y_old, tfqmr_y_old, tmp_vect_2);
 	
 	ATF_tfqmr_Cal_A_EQ_B_plus_z_mul_C( tmp_vect, tmp_vect_2,
 					  tfqmr_v, beta);
 	
-	ADCL_Matmul ( adcl_Req_tfqmr_y, tfqmr_y, tmp_vect_2);
+	ATF_Matmul ( adcl_Req_tfqmr_y, tfqmr_y, tmp_vect_2);
 	
 	ATF_tfqmr_Cal_A_EQ_B_plus_z_mul_C( tfqmr_v, tmp_vect_2,
 					   tmp_vect, beta);

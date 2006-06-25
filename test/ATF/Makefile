@@ -2,6 +2,7 @@ include ../../Makefile.defs
 
 OBJ =  	ATF_Main.o 		\
 	ATF_Read_config.o 	\
+	ATF_Read_Env.o          \
 	ATF_Init.o 		\
 	ATF_Init_matrix.o 	\
 	ATF_Memory.o 		\
@@ -15,9 +16,10 @@ OBJ =  	ATF_Main.o 		\
 	ATF_Solver_tfqmr.o      \
 	ATF_tfqmr.Cal.o         \
 	ATF_Display_result.o    \
-	ATF_Free_matrix.o
+	ATF_Free_matrix.o       \
+	
 
-HEADER = ATF.h ADCL_Global.h 
+HEADER = ATF.h ATF_Adcl_global.h 
 
 .SUFFIXES: .o.c
 

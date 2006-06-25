@@ -2,7 +2,7 @@
 #include "ATF_Memory.h"
 
 #include "ADCL.h"
-#include "ADCL_Global.h"
+#include "ATF_Adcl_global.h"
 /* global variables for ATF_Init_matrix */
 
 int ATF_n1g;

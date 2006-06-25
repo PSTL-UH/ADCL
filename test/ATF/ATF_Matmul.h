@@ -2,6 +2,6 @@
 #define ATF_MATMUL_H
 
 int ATF_Matmul_blocking(double ****, double ****);
-int ATF_Matmul( double ****, double ****, int);
+/* int ATF_Matmul( double ****, double ****, int); */
 
 #endif

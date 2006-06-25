@@ -2,7 +2,7 @@
 #include "ATF_Memory.h"
 
 
-#include "ADCL_Global.h"
+#include "ATF_Adcl_global.h"
 
 int ATF_Free_matrix()
 {

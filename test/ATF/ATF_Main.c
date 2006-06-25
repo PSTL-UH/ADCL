@@ -8,6 +8,7 @@
 #include "ATF_Display_Result.h"
 #include "ATF_Memory.h"
 #include "ADCL.h"
+#include "ATF_Adcl_global.h"
 
 int main(int argc, char **argv)
 {
@@ -39,12 +40,16 @@ int main(int argc, char **argv)
     ADCL_Init();
     /*Read configure information from System.conf */
     if ( !ATF_Read_config(&MaxProblem, &MaxSolver, &MaxPattern)){
-	printf("%d: Error in read config@System_Read_config\n", rank);
+	fprintf(stderr, "%d: Error in read config@System_Read_config\n", rank);
 	MPI_Abort ( MPI_COMM_WORLD, ATF_ERROR );
     }
     
+    if( !ATF_Read_Env()){
+        fprintf(stderr, "%d: Error in read environment variables\n");
+    
+    }
     if (!ATF_Init()){
-	printf("%d: Error in Init@ATF_Init", rank);
+	fprintf(stderr, "%d: Error in Init@ATF_Init", rank);
     }
     
     /* Loop over problem size */

@@ -2,10 +2,10 @@
 #include "ATF_Matmul.h"
 
 #include "ADCL.h"
-#include "ADCL_Global.h"
+#include "ATF_Adcl_global.h"
 
 /* New added functions ADCL_Matmul */
-int ADCL_Matmul(ADCL_Request adcl_req, double ****vect, double ****res_vect)
+int ATF_Matmul(ADCL_Request adcl_req, double ****vect, double ****res_vect)
 {
     ADCL_Request_start (adcl_req);
   
@@ -15,12 +15,13 @@ int ADCL_Matmul(ADCL_Request adcl_req, double ****vect, double ****res_vect)
 
 
 /*Change it later*/
+/*
 int ATF_Matmul(double ****vect, double ****result_vect, int npattern )
 {
     int rank;
     
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-/*    ADCL_Request_start(ADCL_request)*/
+    ADCL_Request_start(ADCL_request);
 
     switch ( npattern ) {
 	case patt_fcfs: 
@@ -37,6 +38,7 @@ int ATF_Matmul(double ****vect, double ****result_vect, int npattern )
   return ATF_SUCCESS;
 }
 
+*/
 /* This routine implements the matrix-vector multiply operation */
 int ATF_Matmul_blocking(double ****vect, double ****result_vect)
 {

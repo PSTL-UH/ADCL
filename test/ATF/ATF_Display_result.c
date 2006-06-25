@@ -4,7 +4,7 @@
 #include "ATF_Memory.h"
 
 #include "ADCL.h"
-#include "ADCL_Global.h"
+#include "ATF_Adcl_global.h"
 
 int ATF_Display_Result()
 {
@@ -46,7 +46,7 @@ int ATF_Display_Result()
 /*Berechnen des Residuums, sowie Speichern des groessten
    Elements*/
 /*  ATF_Matmul(ATF_dq, zwischen_vekt, patt_fcfs);*/
-  ADCL_Matmul( ADCL_Req_dq,ATF_dq, tmp_vect);
+  ATF_Matmul( ADCL_Req_dq,ATF_dq, tmp_vect);
 
   res_max = 0;
 

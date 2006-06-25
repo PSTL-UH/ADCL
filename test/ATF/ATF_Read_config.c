@@ -83,7 +83,7 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 	/* read data into iarray and rarray */
 	if ( (Conf_File =fopen("System.config", "r")) == NULL){
 	    
-	    printf("%d @ %s, open file error !\n",  __LINE__,__FILE__);
+	    fprintf(stderr, "%d @ %s, open file error !\n",  __LINE__,__FILE__);
 	    return ATF_ERROR;
 	}	
 	
@@ -121,7 +121,9 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 		    if(strncmp(keyword, "nit", strlen("nit")) == 0){
 			
 			sscanf(ptr, "%d", &ATF_nit);
+#ifdef Debug
 			printf("nit : %d\n", ATF_nit);	
+#endif
 			ptr = NULL;						
 		    }
 		    
@@ -129,7 +131,9 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 		    if(strncmp(keyword, "tol", strlen("tol")) == 0){
 			
 			sscanf(ptr, "%f", &ATF_tol);
+#ifdef Debug
 			printf("tol : %f\n", ATF_tol);	
+#endif
 			ptr = NULL;						
 		    }
 		    
@@ -137,7 +141,9 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 		    if(strncmp(keyword, "subtol", strlen("subtol")) == 0){
 			
 			sscanf(ptr, "%f", &subtol);
+#ifdef Debug
 			printf("subtol : %f\n", subtol);	
+#endif
 			ptr = NULL;						
 		    }
 		    
@@ -146,7 +152,9 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 		    if(strncmp(keyword, "verbos", strlen("verbos")) == 0){
 			
 			sscanf(ptr, "%d", &ATF_verbose);
+#ifdef Debug
 			printf("verbos : %d\n", ATF_verbose);	
+#endif
 			ptr = NULL;						
 		    }
 		    
@@ -155,8 +163,9 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 		    if(strncmp(keyword, "nprobs", strlen("nprobs")) == 0){
 			
 			sscanf(ptr, "%d", &ATF_maxnproblem);
+#ifdef Debug
 			printf("nprobs : %d\n", ATF_maxnproblem);	
-			
+#endif			
 			/*  allocate space to problems; */
 			ATF_problemsx =  (int *)malloc(sizeof(int) * ATF_maxnproblem);
 			ATF_problemsy =  (int *)malloc(sizeof(int) * ATF_maxnproblem);
@@ -209,7 +218,7 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 			}
 			
 			for(j=0;j<ATF_maxnproblem;j++){
-			    
+
 			    printf("The %d dimension of x, y, z are %d,%d,%d\n",j+1,ATF_problemsx[j], ATF_problemsy[j],ATF_problemsz[j]);
 			}
 			
@@ -222,7 +231,9 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 		    if(strncmp(keyword, "nsolv", strlen("nsolv")) == 0){
 			
 			sscanf(ptr, "%d", &ATF_maxnsolver);
+#ifdef Debug
 			printf("nsolv: %d \n", ATF_maxnsolver);	
+#endif
 			ptr = NULL;			
 			
 			ATF_solvarr =  (int *)malloc(sizeof(int) * ATF_maxnsolver);
@@ -255,7 +266,9 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 		    if(strncmp(keyword, "npatt", strlen("npatt")) == 0){
 			
 			sscanf(ptr, "%d", &ATF_maxnpattern);
+#ifdef Debug
 			printf("There are %d patterns \n", ATF_maxnpattern);	
+#endif
 			ptr = NULL;	
 			
 			ATF_patternarr =  (int *)malloc(sizeof(int) * ATF_maxnpattern);
@@ -289,7 +302,9 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 		    if(strncmp(keyword, "ATF_nhosts", strlen("ATF_nhosts")) == 0){
 			
 			sscanf(ptr, "%d", &ATF_nhosts);
-			printf("ATF_nhosts : %d\n", ATF_nhosts);	
+#ifdef Debug 
+			fprintf(stderr, "ATF_nhosts : %d\n", ATF_nhosts);	
+#endif
 			ptr = NULL;						
 			
 			ATF_firstranks = (int *)malloc(sizeof(int) * ATF_maxnpattern);
@@ -300,14 +315,18 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 		    if(strncmp(keyword, "ATF_autos", strlen("ATF_autos")) == 0){
 			
 			sscanf(ptr, "%d", &ATF_autos);
-			printf("ATF_autos : %d\n", ATF_autos);	
+#ifdef Debug
+			fprintf(stderr, "ATF_autos : %d\n", ATF_autos);	
+#endif
 			ptr = NULL;						
 		    }
 		    /* franks */
 		    if(strncmp(keyword, "franks", strlen("franks")) == 0){
 			
 			sscanf(ptr, "%d", &franks);
-			printf("franks : %d\n", franks);	
+#ifdef Debug
+			fprintf(stderr, "franks : %d\n", franks);	
+#endif
 			ptr = NULL;						
 		    }
 		    
@@ -395,7 +414,7 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
     *nSol = ATF_maxnsolver;
     *nPat = ATF_maxnpattern;
     
-    printf("Read config_correct !\n");
+    /* printf("Read config_correct !\n"); */
     
     return ATF_SUCCESS ;
 	
