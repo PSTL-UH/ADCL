@@ -50,6 +50,7 @@ int ATF_Matmul_blocking(double ****vect, double ****result_vect)
     n2 = ATF_dim[1]+1;
     n3 = ATF_dim[2]+1;
   
+    printf("Hello!\n");
     /* multiplication with the main diagonal*/
     for( i=1; i<n1; i++ ){
 	for( j=1; j<n2; j++ ){
@@ -59,6 +60,8 @@ int ATF_Matmul_blocking(double ****vect, double ****result_vect)
 	    }
 	}
     }
+
+    printf("Back!\n");
 
     /*Multiplikation mit d2*/
     for( i=1; i<n1; i++ ){
