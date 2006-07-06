@@ -18,12 +18,13 @@ int ATF_Free_matrix()
   ATF_free_4D_double_matrix(&ATF_dq);
   ATF_free_4D_double_matrix(&ATF_loes);
 
-  ADCL_Request_free( &ADCL_Req_dq );
-  ADCL_Request_free( &ADCL_Req_loes );
+  ADCL_Request_free( &adcl_Req_dq );
+  ADCL_Request_free( &adcl_Req_loes );
+  ADCL_Request_free( &adcl_Req_rhs);
   
-  ADCL_Vector_deregister( &ADCL_Vec_dq);
-  ADCL_Vector_deregister( &ADCL_Vec_loes);
-  
+  ADCL_Vector_deregister( &adcl_Vec_dq);
+  ADCL_Vector_deregister( &adcl_Vec_loes);
+  ADCL_Vector_deregister( &adcl_Vec_rhs);
 
   return ATF_SUCCESS;  
 }

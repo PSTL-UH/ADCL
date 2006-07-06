@@ -6,6 +6,9 @@ Modified history:								*/
 #include "ATF.h"
 #include "ATF_Matmul.h"
 
+#include "ATF_Memory.h"
+#include "ATF_Adcl_global.h"
+
 double deltax;
 double deltay;
 double deltaz;
@@ -186,9 +189,11 @@ int ATF_Set_rhs ( int *ATF_dim)
 {
     int i, j, k;
     int size, rank;
+    int dim[4];
     
     double my_pi = 3.1415926535897932384;
     double x, y, z, xoffset, yoffset, zoffset;
+    double **** tmp_vect_3;
     
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank);
     MPI_Comm_size ( MPI_COMM_WORLD, &size);
@@ -201,8 +206,13 @@ int ATF_Set_rhs ( int *ATF_dim)
     yoffset = ATF_coord[1]*ATF_dim[1];
     zoffset = ATF_coord[2]*ATF_dim[2];
     
+    dim[0] = ATF_dim[0]+2;
+    dim[1] = ATF_dim[1]+2;
+    dim[2] = ATF_dim[2]+2;
+    dim[3] = 1;
+      
     ATF_loesung_bekannt = true;
-
+    
     /*  Die Loesung soll spaeter folgender Funktion entsprechen
      *  u(x, y, z ) = exp (xyz) * sin (pi*x) * sin(pi*y) * sin(pi*z)
     */ 
@@ -230,9 +240,9 @@ int ATF_Set_rhs ( int *ATF_dim)
 	    }
 	}
     }
-    
+    ATF_allocate_4D_double_matrix(&tmp_vect_3, dim);
 
-    ATF_Matmul ( ATF_loes, ATF_rhs, patt_fcfs);
+    ATF_Matmul ( adcl_Req_loes, ATF_rhs, tmp_vect_3);
     
     if ( ATF_rand_sing ){
 	for(j=1; j<=ATF_dim[1]; j++){
@@ -295,6 +305,8 @@ int ATF_Set_rhs ( int *ATF_dim)
 	}
     }
             
+    ATF_free_4D_double_matrix(&tmp_vect_3);
+
     return ATF_SUCCESS;
 }
 

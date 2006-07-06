@@ -57,12 +57,12 @@ int main(int argc, char **argv)
     for ( nproblem = 0; nproblem < MaxProblem; nproblem++){
 	
         if( !ATF_Get_problemsize (nproblem, &px, &py, &pz)){
-	    printf("%d,Error in System_Get_problemsize",rank);
+	    fprintf( stderr,"%d,Error in System_Get_problemsize",rank);
 	}
 	
 	/*Nearly ok!*/
 	if( !ATF_Init_matrix ( px, py, pz)){
-	    printf("%d,Error in ATF_Init_matrix", rank);
+	    fprintf(stderr, "%d,Error in ATF_Init_matrix", rank);
 	}
 	
         /* Loop over solvers */

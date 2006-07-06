@@ -48,60 +48,59 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
     dim[1] = ATF_dim[1]+2;
     dim[2] = ATF_dim[2]+2;
     dim[3] = 1;
-    
+
     dim3[0] = dim[0];
     dim3[1] = dim[1];
     dim3[2] = dim[2];
 
     nc = 0;
-    
+
     ATF_allocate_4D_double_matrix(&tfqmr_y, dim);
     ATF_allocate_4D_double_matrix(&tfqmr_y_old, dim);
     ATF_allocate_4D_double_matrix(&tfqmr_y_old_1, dim);
-        
+
     ATF_allocate_4D_double_matrix(&tfqmr_r, dim);
     ATF_allocate_4D_double_matrix(&tfqmr_v, dim);
     ATF_allocate_4D_double_matrix(&tfqmr_r_tilde, dim);
     ATF_allocate_4D_double_matrix(&tfqmr_d,dim);
     ATF_allocate_4D_double_matrix(&tfqmr_w,dim);
-    
+
     ATF_allocate_4D_double_matrix(&res,dim);
-    
+
     ATF_allocate_4D_double_matrix(&tmp_vect_2, dim);
     ATF_allocate_4D_double_matrix(&tmp_vect,dim);
-   
+
     /*For adcl library*/
     ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(tfqmr_y[0][0][0][0]), &adcl_Vec_tfqmr_y );
     ADCL_Request_create( adcl_Vec_tfqmr_y, ADCL_Cart_comm, &adcl_Req_tfqmr_y );
-        
+
     ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(tfqmr_y_old[0][0][0][0]), &adcl_Vec_tfqmr_y_old );
     ADCL_Request_create( adcl_Vec_tfqmr_y_old, ADCL_Cart_comm, &adcl_Req_tfqmr_y_old );
-        
+
     ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(tfqmr_y_old_1[0][0][0][0]), 
 			  &adcl_Vec_tfqmr_y_old_1 );
     ADCL_Request_create( adcl_Vec_tfqmr_y_old_1, ADCL_Cart_comm, &adcl_Req_tfqmr_y_old_1 );
-    
-    
+
     tfqmr_limit = 1.0e-09;
-    
+
     /* Initialize all variables*/
-    
+
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     MPI_Comm_size( MPI_COMM_WORLD, &size );
-    
+
     /*The second one is pointer*/
-    
+
     /*In ADCL, the function is substituted by ATF_Matmul 
     ATF_Matmul ( ATF_dq, zwischen_vekt_2, pattern);
     */
 
-    ATF_Matmul( ADCL_Req_dq, ATF_dq, tmp_vect_2 );
+    ATF_Matmul( adcl_Req_dq, ATF_dq, tmp_vect_2 );
 
     /*	A=B-C ,where A, B and C have the same dimensions*/
-    
+
     /*ATF_tfqmr_Cal_A_EQ_B_sub_C(tfqmr_r,  ATF_rhs, zwischen_vekt_2);*/
     ATF_tfqmr_Cal_A_EQ_B_sub_C(tfqmr_r, ATF_rhs, tmp_vect_2);
-    
+
     zero = 0.0;
     one = 1.0;
     
@@ -218,7 +217,7 @@ int ATF_Solver_tfqmr( int nreal, int pattern)
 	    /*	calculate the residuum */
 	    
 	    /* ATF_Matmul ( ATF_dq, zwischen_vekt_2, pattern); */
-            ATF_Matmul( ADCL_Req_dq, ATF_dq, tmp_vect_2);
+            ATF_Matmul( adcl_Req_dq, ATF_dq, tmp_vect_2);
 	    ATF_tfqmr_Cal_A_EQ_B_sub_C( res,  ATF_rhs, tmp_vect_2);
 	    
 	    skalar_1 = 0.0;

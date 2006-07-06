@@ -72,11 +72,14 @@ int ATF_Reset()
 
 /*Allocate and initialize matrix and vectors*/
 
-ADCL_Vector ADCL_Vec_dq;
-ADCL_Vector ADCL_Vec_loes;
+ADCL_Vector adcl_Vec_dq;
+ADCL_Vector adcl_Vec_loes;
+ADCL_Vector adcl_Vec_rhs;
 
-ADCL_Request ADCL_Req_dq;
-ADCL_Request ADCL_Req_loes;
+ADCL_Request adcl_Req_dq;
+ADCL_Request adcl_Req_loes;
+ADCL_Request adcl_Req_rhs;
+
 MPI_Comm ADCL_Cart_comm;
 
 int ATF_Init_matrix(int px, int py, int pz)
@@ -141,8 +144,9 @@ int ATF_Init_matrix(int px, int py, int pz)
     dim3[2] = ATF_dim[2]+2;
 
     /*Vector register here!*/
-    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(ATF_dq[0][0][0][0]), &ADCL_Vec_dq );
-    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(ATF_loes[0][0][0][0]), &ADCL_Vec_loes );
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(ATF_dq[0][0][0][0]), &adcl_Vec_dq );
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(ATF_loes[0][0][0][0]), &adcl_Vec_loes );
+    ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(ATF_rhs[0][0][0][0]), &adcl_Vec_rhs );
 
     /*Describe the neigborhood relations*/
     MPI_Dims_create( size, 3, cdims );
@@ -150,8 +154,9 @@ int ATF_Init_matrix(int px, int py, int pz)
     
     /*Generate now the ADC_Request object for dq*/
     /*I thinks it should be later!*/
-    ADCL_Request_create( ADCL_Vec_dq, ADCL_Cart_comm, &ADCL_Req_dq );
-    ADCL_Request_create( ADCL_Vec_loes, ADCL_Cart_comm, &ADCL_Req_loes );
+    ADCL_Request_create( adcl_Vec_dq, ADCL_Cart_comm, &adcl_Req_dq );
+    ADCL_Request_create( adcl_Vec_loes, ADCL_Cart_comm, &adcl_Req_loes );
+    ADCL_Request_create( adcl_Vec_rhs, ADCL_Cart_comm, &adcl_Req_rhs );
       
     
     

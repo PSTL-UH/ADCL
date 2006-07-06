@@ -46,7 +46,7 @@ int ATF_Display_Result()
 /*Berechnen des Residuums, sowie Speichern des groessten
    Elements*/
 /*  ATF_Matmul(ATF_dq, zwischen_vekt, patt_fcfs);*/
-  ATF_Matmul( ADCL_Req_dq,ATF_dq, tmp_vect);
+  ATF_Matmul( adcl_Req_dq,ATF_dq, tmp_vect);
 
   res_max = 0;
 
