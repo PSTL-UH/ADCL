@@ -74,7 +74,7 @@
         call MPI_Comm_size ( MPI_COMM_WORLD, size, ierror )
 
         call System_Matmul ( adcl_req_dq, dq, tmp_vect_2, ierror )
-        
+       !Stops at here! 
         do l = 1, nc
            do k = dmku, dmko
               do j = dmju, dmjo

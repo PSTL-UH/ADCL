@@ -15,7 +15,7 @@ static int dump_matrix ( int id);
 static int dump_vect  ( double ****vec, int id );
 static int dump_vect_short ( double ****vec, int id );
 
-int ATF_Solver_tfqmr( int nreal, int pattern)
+int ATF_Solver_tfqmr( int nreal)
 { 
     int m;
     int rank, size;

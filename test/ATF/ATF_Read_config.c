@@ -7,7 +7,7 @@
 
 int ATF_maxnproblem;
 int ATF_maxnsolver;
-int ATF_maxnpattern;
+/* int ATF_maxnpattern;*/
 
 int ATF_nhosts ;
 int ATF_verbose;
@@ -18,12 +18,12 @@ int *ATF_problemsx;
 int *ATF_problemsy;
 int *ATF_problemsz;
 int *ATF_solvarr;
-int *ATF_patternarr;
+/* int *ATF_patternarr;*/
 
 float ATF_tol;
 int ATF_nit;
 
-int ATF_Read_config(int *nPr, int *nSol, int *nPat)
+int ATF_Read_config(int *nPr, int *nSol)
 {
     int i, j, flag, flag2;
     int rank, size;
@@ -72,7 +72,7 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
     ATF_problemsy = NULL;
     ATF_problemsz = NULL;
     ATF_solvarr = NULL;
-    ATF_patternarr = NULL;
+    /* ATF_patternarr = NULL;*/
     
     memset(buffer, 0, MAXLINE);
     memset(keyword, 0, MAXKEYLEN);
@@ -261,8 +261,8 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 			printf("\n");
 			
 		    }
-		    
-		    /* npatt */
+		    /*
+		     npatt 
 		    if(strncmp(keyword, "npatt", strlen("npatt")) == 0){
 			
 			sscanf(ptr, "%d", &ATF_maxnpattern);
@@ -297,7 +297,9 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 			printf("\n");
 			
 		    }
-		    
+		    */
+                      
+                    
 		    /* ATF_nhosts */
 		    if(strncmp(keyword, "ATF_nhosts", strlen("ATF_nhosts")) == 0){
 			
@@ -307,7 +309,7 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 #endif
 			ptr = NULL;						
 			
-			ATF_firstranks = (int *)malloc(sizeof(int) * ATF_maxnpattern);
+			ATF_firstranks = (int *)malloc(sizeof(int) * ATF_nhosts);
 			flag =1;
 		    }
 		    
@@ -357,7 +359,7 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 	iarray[2] = ATF_autos;
 	iarray[3] = ATF_maxnproblem;
 	iarray[4] = ATF_maxnsolver;
-	iarray[5] = ATF_maxnpattern;
+	/* iarray[5] = ATF_maxnpattern;*/
 	iarray[6] = ATF_verbose;
 	
 	rarray[0] = ATF_tol;
@@ -376,22 +378,20 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
 	ATF_autos = iarray[2];
         ATF_maxnproblem = iarray[3];
 	ATF_maxnsolver = iarray[4];
-	ATF_maxnpattern = iarray[5];
 	ATF_verbose = iarray[6];
 	
 	ATF_tol = rarray[0];
 	subtol = rarray[1];
 	
 	ATF_firstranks = (int *) malloc ( ATF_nhosts * sizeof(int) );
-	ATF_patternarr = (int *) malloc ( ATF_maxnpattern* sizeof(int) );
+	/* ATF_patternarr = (int *) malloc ( ATF_maxnpattern* sizeof(int) ); */
 	ATF_solvarr = (int *) malloc ( ATF_maxnsolver* sizeof(int) );
 	ATF_problemsx = (int *) malloc ( ATF_maxnproblem *sizeof(int) );
 	ATF_problemsy = (int *) malloc ( ATF_maxnproblem * sizeof(int) );
 	ATF_problemsz = (int *) malloc ( ATF_maxnproblem* sizeof(int) );
 	
 	if((ATF_problemsx == NULL) ||(ATF_problemsy == NULL)||
-	   (ATF_problemsy == NULL)||(ATF_solvarr == NULL) ||
-	   (ATF_patternarr == NULL) ||(ATF_firstranks== NULL)){
+	   (ATF_problemsy == NULL)||(ATF_solvarr == NULL) ||(ATF_firstranks== NULL)){
 	    
 	    printf("Memory malloc error at %d of %s!\n", __LINE__, __FILE__);
 	}	
@@ -402,7 +402,8 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
     MPI_Bcast (ATF_problemsy, ATF_maxnproblem, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast (ATF_problemsz, ATF_maxnproblem, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast (ATF_solvarr, ATF_maxnsolver, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast (ATF_patternarr, ATF_maxnpattern, MPI_INT, 0, MPI_COMM_WORLD);
+   /*  MPI_Bcast (ATF_patternarr, ATF_maxnpattern, MPI_INT, 0,
+   **  MPI_COMM_WORLD);*/
     
     
     if((ATF_nhosts>1) &&(ATF_autos == 0)){
@@ -412,7 +413,6 @@ int ATF_Read_config(int *nPr, int *nSol, int *nPat)
     
     *nPr  = ATF_maxnproblem;
     *nSol = ATF_maxnsolver;
-    *nPat = ATF_maxnpattern;
     
     /* printf("Read config_correct !\n"); */
     

@@ -13,10 +13,10 @@
 int main(int argc, char **argv)
 {
     /* problem number, solver number, pattern numbers*/
-    int nproblem,nsolver,npattern;
+    int nproblem,nsolver;
 
     /* maximum problem numbers, solver numbers and pattern numbers*/
-    int MaxProblem, MaxSolver, MaxPattern;
+    int MaxProblem, MaxSolver;
     
     /* problem number on x, y and z coordinate*/
     int px, py, pz;
@@ -29,7 +29,6 @@ int main(int argc, char **argv)
 
     MaxProblem = 0;
     MaxSolver = 0;
-    MaxPattern = 0;
     
     
     MPI_Init(&argc, &argv);
@@ -39,15 +38,11 @@ int main(int argc, char **argv)
     
     ADCL_Init();
     /*Read configure information from System.conf */
-    if ( !ATF_Read_config(&MaxProblem, &MaxSolver, &MaxPattern)){
+    if ( !ATF_Read_config(&MaxProblem, &MaxSolver)){
 	fprintf(stderr, "%d: Error in read config@System_Read_config\n", rank);
 	MPI_Abort ( MPI_COMM_WORLD, ATF_ERROR );
     }
     
-    if( !ATF_Read_Env()){
-        fprintf(stderr, "%d: Error in read environment variables\n");
-    
-    }
     if (!ATF_Init()){
 	fprintf(stderr, "%d: Error in Init@ATF_Init", rank);
     }
@@ -68,26 +63,26 @@ int main(int argc, char **argv)
         /* Loop over solvers */
 
 	for( nsolver=0; nsolver < MaxSolver; nsolver++){
-	    ATF_Get_solver(nsolver, &solv);
+	    
+            ATF_Get_solver(nsolver, &solv);
 	    
 /*...........Loop over communication patterns*/
-	    for( npattern = 0; npattern < MaxPattern; npattern++){
+/*	    for( npattern = 0; npattern < MaxPattern; npattern++){ */
 		
-                ATF_Get_pattern(npattern, &pat);
 		
 /*..............Reset solution vectors*/
-		ATF_Reset_dq ();
+            ATF_Reset_dq ();
 		
 /*..............Preconditioning*/
-		ATF_Precon ( );
+            ATF_Precon ( );
 		
 /*..............Call the solvers*/
-		ATF_Solver ( solv, pat);
+            ATF_Solver ( solv);
 		
 /*..............Display results*/
-		ATF_Display_Result ();
+            ATF_Display_Result ();
 	
-	    }
+	    
 	}
         ATF_Free_matrix();
     }

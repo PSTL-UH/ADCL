@@ -12,7 +12,7 @@ HEADER = $(ADCL_INC_DIR)/ADCL_array.h      \
 	 $(ADCL_INC_DIR)/ADCL_packunpack.h \
 	 $(ADCL_INC_DIR)/ADCL_request.h    \
 	 $(ADCL_INC_DIR)/ADCL_subarray.h   \
-	 $(ADCL_INC_DIR)/ADCL_vector.h    
+	 $(ADCL_INC_DIR)/ADCL_vector.h     \
 
 
 all:

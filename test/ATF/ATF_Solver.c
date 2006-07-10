@@ -3,7 +3,7 @@
 char SolverText[100];
 
 /*Get solvers from data base*/
-int ATF_Solver (int solv, int pattern)
+int ATF_Solver (int solv)
 {
 	int rank;
 	int nreal;
@@ -25,7 +25,7 @@ int ATF_Solver (int solv, int pattern)
                     MPI_Barrier( MPI_COMM_WORLD);
                     ATF_solv_anfang = MPI_Wtime();
 
-                    if(!ATF_Solver_tfqmr(nreal, pattern)){
+                    if(!ATF_Solver_tfqmr(nreal)){
                         printf("Solver_tfqmr1 error!\n");
                     }
 				

@@ -20,7 +20,7 @@
 
 extern int ATF_maxnproblem;
 extern int ATF_maxnsolver;
-extern int ATF_maxnpattern;
+/* extern int ATF_maxnpattern; */
 
 extern int ATF_nhosts ;
 extern int ATF_verbose;
@@ -33,7 +33,7 @@ extern int *ATF_problemsx;
 extern int *ATF_problemsy;
 extern int *ATF_problemsz;
 extern int *ATF_solvarr;
-extern int *ATF_patternarr;
+/* extern int *ATF_patternarr;*/
 
 
 /* For ATF_Init() */
@@ -148,18 +148,17 @@ extern MPI_Request ATF_sendhandle[6];
 extern char ComPatternText[100];
 extern char SolverText[100];
 
-int ATF_Read_config(int *, int *, int *);
+int ATF_Read_config(int *, int *);
 /* ATF_Main.c calls ATF_Get_sover, ATF_Get_pattern, ATF_Reset_dq, */
 /* ATF_Precon, ATF_Solver */
 /* They are defined in ATF_Get.c */
 
 int ATF_Get_solver(int , int *);
-int ATF_Get_pattern(int, int *);
+/* int ATF_Get_pattern(int, int *);*/
 int ATF_Reset_dq (void);
 int ATF_Precon (void);
 int ATF_Precon_Matset (double ****);
 /*int ATF_Precon_Matset (double ****);*/
-int ATF_Solver (int, int);
 
 /* ATF_Init.c includes Set_logic and Set_id */
 /* ATF calls Set_logic, Set_id and Init_comm */
@@ -190,8 +189,8 @@ int ATF_Change_fcfs(double ****);
 
 /*ATF_Solver.c*/
 
-int ATF_Solver( int, int );
-int ATF_Solver_tfqmr( int , int );
+int ATF_Solver( int);
+int ATF_Solver_tfqmr( int );
 
 
 

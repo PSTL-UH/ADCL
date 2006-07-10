@@ -9,6 +9,7 @@ OBJ = 	ADCL_vector.o           \
 	ADCL_statistics.o       \
 	ADCL_subarray.o         \
 	ADCL_packunpack.o       \
+	ADCL_readenv.o          \
 	ADCL_printf.o
 
 .SUFFIXES: .o.c

@@ -13,11 +13,8 @@ extern ADCL_Request adcl_Req_rhs;
 
 extern MPI_Comm ADCL_Cart_comm;
 
-extern int ADCL_OUTLITER_FACTOR;
-extern int ADCL_OUTLITER_FRACTION;
 
 int ATF_Matmul(ADCL_Request , double ****, double ****);
-int ATF_Read_Env(void);
 
 #endif
 

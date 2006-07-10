@@ -21,6 +21,7 @@
 #include "ADCL_config.h"
 #include "ADCL_sysconfig.h"
 
+
 #define TRUE   1
 #define FALSE  0
 
@@ -34,6 +35,7 @@ int ADCL_printf_init     ( void );
 int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);
 
+int ADCL_readenv();
 int ADCL_statistics_filter_timings  ( ADCL_emethod_req_t *ermethod );
 int ADCL_statistics_determine_votes ( ADCL_emethod_req_t *ermethod );
 int ADCL_statistics_global_max      ( ADCL_emethod_req_t *ermethod );

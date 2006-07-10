@@ -2,7 +2,6 @@ include ../../Makefile.defs
 
 OBJ =  	ATF_Main.o 		\
 	ATF_Read_config.o 	\
-	ATF_Read_Env.o          \
 	ATF_Init.o 		\
 	ATF_Init_matrix.o 	\
 	ATF_Memory.o 		\

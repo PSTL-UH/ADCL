@@ -8,12 +8,13 @@ int ATF_Get_solver(int n, int *solv)
 }
 
 /*Get solvers from data base*/
+/*
 int ATF_Get_pattern(int n, int *patt)
 {
     *patt = ATF_patternarr[n];
     return ATF_SUCCESS;
 }
-
+*/
 /*Get solvers from data base*/
 int ATF_Reset_dq ( void )
 {
