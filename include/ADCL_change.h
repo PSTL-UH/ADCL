@@ -44,7 +44,7 @@
   #define COMMTEXT  "SendRecv"
 
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendRecv
-  #define SEND_START(req,i,tag) MPI_Ssend(req->r_vec->v_data, 1, \
+  #define SEND_START(req,i,tag) MPI_Send(req->r_vec->v_data, 1, \
          req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm )
   #define RECV_START(req,i,tag) MPI_Recv(req->r_vec->v_data, 1,  \
          req->r_rdats[i], req->r_neighbors[i], tag, req->r_comm, \
