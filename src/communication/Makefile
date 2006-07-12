@@ -8,7 +8,8 @@ OBJ =	ADCL_change_sb_aao_debug.o \
 	ADCL_change_sb_pair_IsendIrecv.o \
 	ADCL_change_sb_pair_SendRecv.o \
 	ADCL_change_sb_pair_SendIrecv.o \
-	ADCL_change_sb_pair_IsendIrecv_pack.o
+	ADCL_change_sb_pair_IsendIrecv_pack.o\
+	ADCL_change_sb_pair_SendRecv_pack.o
 
 
 .SUFFIXES: .o.c
@@ -31,7 +32,9 @@ change:$(HEADER)
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=3 \
 			-o ADCL_change_sb_pair_SendIrecv.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=4 \
-			-o ADCL_change_sb_pair_IsendIrecv_pack.o 
+			-o ADCL_change_sb_pair_IsendIrecv_pack.o
+	$(CC) $(CFLAGS) -c ADCL_change_sb_pair_SendRecv_pack.c -DCOMMMODE=5 \
+			-o ADCL_change_sb_pair_SendRecv_pack.o	
 	$(AR) $(AR_FLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)
