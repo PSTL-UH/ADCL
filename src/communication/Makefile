@@ -23,6 +23,8 @@ change:$(HEADER)
 			-o ADCL_change_sb_aao_SendIrecv.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=4 \
 			-o ADCL_change_sb_aao_IsendIrecv_pack.o 
+	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=6 \
+			-o ADCL_change_sb_aao_SendIrecv_pack.o	
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=0 \
 			-o ADCL_change_sb_pair_debug.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=1 \
@@ -33,8 +35,10 @@ change:$(HEADER)
 			-o ADCL_change_sb_pair_SendIrecv.o 
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=4 \
 			-o ADCL_change_sb_pair_IsendIrecv_pack.o
-	$(CC) $(CFLAGS) -c ADCL_change_sb_pair_SendRecv_pack.c -DCOMMMODE=5 \
+	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=5 \
 			-o ADCL_change_sb_pair_SendRecv_pack.o	
+	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=6 \
+			-o ADCL_change_sb_pair_SendIrecv_pack.o	
 	$(AR) $(AR_FLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)
