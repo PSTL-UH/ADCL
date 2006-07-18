@@ -2,7 +2,7 @@
 
 #include "ADCL.h"
 #include "mpi.h"
-
+#include "ADCL_internal.h"
 
 /* Dimensions of the data matrix per process */
 #define DIM0  2
@@ -60,7 +60,8 @@ int main ( int argc, char ** argv )
 
     /* Now this is the real communication */
     for (i=0; i<NIT; i++ ) {
-	ADCL_Request_start ( request );
+//	ADCL_Request_start ( request );
+    ADCL_CHANGE_SB_PAIR( request); 
     }
 
    /* Dump the resulting matrix */
