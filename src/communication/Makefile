@@ -9,7 +9,9 @@ OBJ =	ADCL_change_sb_aao_debug.o \
 	ADCL_change_sb_pair_SendRecv.o \
 	ADCL_change_sb_pair_SendIrecv.o \
 	ADCL_change_sb_pair_IsendIrecv_pack.o\
-	ADCL_change_sb_pair_SendRecv_pack.o
+	ADCL_change_sb_pair_SendRecv_pack.o\
+	ADCL_change_sb_pair_SendIrecv_pack.o \
+	ADCL_change_sb_aao_SendIrecv_pack.o
 
 
 .SUFFIXES: .o.c
