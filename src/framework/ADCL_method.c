@@ -84,8 +84,8 @@ int ADCL_method_init ( void )
 #ifdef SEND_IRECV
        ADCL_method_array[count].m_id = ADCL_local_id_counter++;
        ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_SendIrecv_pack;
-       strncpy( ADCL_method_array[count].m_name, "SendIrecv_pair_pack", 32 );
-                  
+       strncpy( ADCL_method_array[count].m_name, "SendIrecv_aao_pack", 32 );
+       count++;
 #endif      
       
 #endif /* CHANGE_AAO */
@@ -110,6 +110,7 @@ int ADCL_method_init ( void )
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendIrecv_pack;
       strncpy( ADCL_method_array[count].m_name, "SendIrecv_pair_pack", 32 );
+      count++;
 #endif       
 
 #endif /* CHANGE_PAIR  */
