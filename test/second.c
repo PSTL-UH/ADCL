@@ -61,7 +61,8 @@ int main ( int argc, char ** argv )
     /* Now this is the real communication */
     for (i=0; i<NIT; i++ ) {
 //	ADCL_Request_start ( request );
-    ADCL_CHANGE_SB_PAIR( request); 
+    //ADCL_CHANGE_SB_PAIR( request); 
+    ADCL_change_sb_pair_SendRecv_pack( request);    
     }
 
    /* Dump the resulting matrix */
