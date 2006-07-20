@@ -67,6 +67,15 @@ int ADCL_method_init ( void )
       strncpy ( ADCL_method_array[count].m_name, "SendIrecv_pair", 32 );
       count++; 
 #  endif /* SEND_IRECV */
+
+#  ifdef SENDRECV
+    ADCL_method_array[count].m_id = ADCL_local_id_counter++;
+    ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_Sendrecv;
+    strncpy ( ADCL_method_array[count].m_name, "Sendrecv_pair", 32 );
+    count++;
+#  endif /* SEND_IRECV */
+              
+     
 #endif /* CHANGE_PAIR */
 
 #endif /* DERIVED_TYPES */
@@ -113,6 +122,14 @@ int ADCL_method_init ( void )
       count++;
 #endif       
 
+      
+#ifdef SENDRECV
+    ADCL_method_array[count].m_id = ADCL_local_id_counter++;
+    ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_Sendrecv_pack;
+    strncpy( ADCL_method_array[count].m_name, "Sendrecv_pair_pack", 32 );
+    count++;
+# endif /* SENDRECV */
+                          
 #endif /* CHANGE_PAIR  */
 
 #endif /* PACK_UNPACK */
