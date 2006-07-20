@@ -133,7 +133,7 @@ int ADCL_statistics_global_max ( ADCL_emethod_req_t *ermethod )
     int count = ermethod->er_num_emethods;
 
     lpts = (double *) malloc ( 2* count * sizeof(double));
-    if ( NULL == lpts || NULL == gpts) {
+    if ( NULL == lpts ) {
 	return winner;
     }
     gpts = &(lpts[count]);
