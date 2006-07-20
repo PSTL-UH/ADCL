@@ -18,7 +18,7 @@ extern ADCL_method_t * ADCL_method_array;
 
 #define Debug 1
 
-int ADCL_read_env()
+int ADCL_readenv()
 {
     int result;
     int len;
