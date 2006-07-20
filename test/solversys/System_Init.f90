@@ -168,7 +168,6 @@
          write (*,*) rank, ' : Error in System_Set'
       end if
       
-
       ierror = 0
       
       end subroutine System_Init_matrix

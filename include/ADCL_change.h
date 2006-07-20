@@ -144,9 +144,10 @@
         if ( req->r_neighbors[_i] == MPI_PROC_NULL ) continue;       \
             MPI_Unpack(req->r_rbuf[_i], req->r_rpsize[_i], &_pos,       \
             req->r_vec->v_data, 1, req->r_rdats[_i], req->r_comm );     \
-        }   }
+    	} \
+   }
+ 
   #define SEND_WAIT(req,i)
-
   #define RECV_WAIT(req,i) { int _pos=0;                                \
     MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE);              		\
     MPI_Unpack(req->r_rbuf[i], req->r_rpsize[i], &_pos,         		\
@@ -155,6 +156,20 @@
 #endif
 
 
+#if COMMODE == 9
+
+ #define PREPARE_COMMUNICATION(req) MPI_Win_fence (req->r_win);
+ #define STOP_COMMUNICATION(req)    MPI_Win_fence (req->r_win);
+
+ #define SEND_START(req, i, tag) {\
+   MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], req->r_neighbors[i], \
+             tag, 0, 1, req->r_rdats[i], req->r_win); \
+ }
+ #define RECV_START(req,i,tag)
+ #define SEND_WAITALL (req)
+ #define RECV_WAITALL (req)
+ 
+#endif
 
 /*COMM 1*/
 int ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req);

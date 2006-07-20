@@ -36,9 +36,11 @@ int main ( int argc, char ** argv )
 	    sprintf(curepsname, "%s-%d-%d.eps", basefname, i, j );
 
 	    fprintf(outfd, "set out '%s'\n", curepsname );
-	    fprintf(outfd, "set title 'proc %d req %d winner %s'\n", 
+	    fprintf(outfd, "set title 'Proc %d req %d winner %s'\n", 
 		    i, j, curwinner);
-	    fprintf(outfd, "plot [0:][0:15000] '%s' u 7 w linespoints\n\n", 
+	    fprintf(outfd, "set xlabel 'No. of iterations' \n");
+	    fprintf(outfd, "set ylabel 'Execution time [usec]' \n");
+	    fprintf(outfd, "plot '%s' u 7 w linespoints\n\n", 
 		    curfname );
 	    free (curwinner );
 	    curwinner = NULL;

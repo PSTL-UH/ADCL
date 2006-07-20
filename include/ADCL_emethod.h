@@ -26,7 +26,7 @@ struct ADCL_emethod_s {
     ADCL_method_t *em_method; /* which method am I associated with ? */
     int             em_count; /* how often has this routine already been called */
     int          em_rescount; /* how often has this routine already reported back */
-    TIME_TYPE   em_time[ADCL_EMETHOD_NUMTESTS]; /* measurements */
+    TIME_TYPE       *em_time; /* measurements */
     double           em_lpts; /* local no. of pts by this method */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;

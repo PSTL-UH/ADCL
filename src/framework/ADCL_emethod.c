@@ -119,6 +119,8 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     }
 
     for ( i=0; i< er->er_num_emethods; i++ ) {
+	er->er_emethods[i].em_time   = (TIME_TYPE *) calloc (1, ADCL_emethod_numtests * 
+							     sizeof(TIME_TYPE));
 	er->er_emethods[i].em_id     = ADCL_emethod_get_next_id ();
 	er->er_emethods[i].em_method = ADCL_get_method(i);
     }
@@ -142,8 +144,15 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 /**********************************************************************/
 void ADCL_emethod_free ( ADCL_emethod_req_t * er )
 {
+    int i;
+
     er->er_rfcnt--;
     if ( er->er_rfcnt == 0 ) {
+	for ( i=0; i< er->er_num_emethods; i++ ) {
+	    if ( NULL != er->er_emethods[i].em_time ) {
+		free ( er->er_emethods[i].em_time );
+	    }
+	}
 	if ( NULL != er->er_vdims  ) {
 	    free ( er->er_vdims);
 	}

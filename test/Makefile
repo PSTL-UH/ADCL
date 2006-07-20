@@ -3,7 +3,7 @@ include ../Makefile.defs
 all: first second third fourth first_f second_f
 
 first: 	first.c
-	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/first first.c $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/first first.c $(LDFLAGS) -lefence
 
 second:	second.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/second second.c $(LDFLAGS)

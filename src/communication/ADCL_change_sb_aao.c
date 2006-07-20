@@ -8,6 +8,7 @@ int ADCL_CHANGE_SB_AAO ( ADCL_request_t *req )
 {
     int i, nneighs=req->r_nneighbors;
 
+
     for ( i=0; i<nneighs; i++ ) {
 	if ( MPI_PROC_NULL != req->r_neighbors[i] ) {
 	    RECV_START(req, i, AAO_SB_TAG);
