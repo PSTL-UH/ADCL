@@ -3,6 +3,7 @@
 
 
 static FILE *fd=NULL;
+int ADCL_printf_silence=0;
 
 int ADCL_printf_init ( void )
 {
@@ -32,13 +33,15 @@ int ADCL_printf ( const char* format, ... )
 {
     va_list ap;
 
-    va_start ( ap, format );
+    if ( !ADCL_printf_silence ) {
+	va_start ( ap, format );
 #ifdef ADCL_FILE_PER_PROC 
-    vfprintf(fd, format, ap );
+	vfprintf(fd, format, ap );
 #else
-    vprintf( format, ap );
+	vprintf( format, ap );
 #endif
-    va_end (ap);
+	va_end (ap);
+    }
 
     return ADCL_SUCCESS;
 }

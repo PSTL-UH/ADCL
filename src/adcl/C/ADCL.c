@@ -4,10 +4,11 @@
 int ADCL_Init (void )
 {
     int ret;
-    ADCL_read_env();
 
     ret = ADCL_printf_init();
     ret = ADCL_method_init();
+
+    ret = ADCL_read_env();
     ret = ADCL_emethod_req_init ();
 
     /* Initialize the request and vector fortran pointer arrays */

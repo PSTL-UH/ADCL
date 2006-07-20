@@ -2,8 +2,8 @@
 #include "ADCL_config.h"
 
 static int ADCL_local_id_counter=0;
-static int ADCL_method_total_num=0;
-static ADCL_method_t* ADCL_method_array=NULL;
+int ADCL_method_total_num=0;
+ADCL_method_t* ADCL_method_array=NULL;
 
 
 #ifndef ADCL_NO_COMM_DEBUG

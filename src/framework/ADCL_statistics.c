@@ -10,6 +10,11 @@ int ADCL_OUTLIER_FACTOR=3;
    treat them as outliers */
 int ADCL_OUTLIER_FRACTION=20;
 
+/* what measure shall be used ? */
+int ADCL_statistic_method=ADCL_STATISTIC_VOTE;
+
+
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -73,38 +78,48 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_req_t *ermethod )
     ADCL_emethod_t *emethods=ermethod->er_emethods;
     int count=ermethod->er_num_emethods;
 
-    MPI_Comm_rank ( ermethod->er_comm, &rank );
-    sorted = (double *) malloc ( 2*count*sizeof(double));
-    if ( NULL == sorted ) {
-	return ADCL_NO_MEMORY;
-    }
-
-    for ( i=0; i < count; i++ ) {
-	for ( sum=0, j=0; j< emethods[i].em_rescount; j++ ) {
-	    sum += emethods[i].em_time[j];
+    if ( ADCL_STATISTIC_VOTE == ADCL_statistic_method ) {
+	MPI_Comm_rank ( ermethod->er_comm, &rank );
+	sorted = (double *) malloc ( 2*count*sizeof(double));
+	if ( NULL == sorted ) {
+	    return ADCL_NO_MEMORY;
 	}
-	sorted[2*i]     = sum/emethods[i].em_rescount;
-	sorted[(2*i)+1] = emethods[i].em_id;
-    }
-    
-    qsort ( sorted, count, 2*sizeof(double), adcl_compare );
-
-    /* Give now the fastest method count-1 pts, the 2nd fastest
-       method count-2 pts, ..., the slowest method 0 pts. */
-    for ( pts=count-1, i=0; i< count; i++, pts-- ) {
-	for (j=0; j< count; j++ ) {
-	    if ( sorted[(2*i)+1] == emethods[j].em_id ) {
-//		emethods[j].em_lpts = pts;
-		emethods[j].em_lpts = count * sorted[0]/sorted[2*i];
-		ADCL_printf("#%d: assigning %lf pts for emethod %d"
-			    " method %d\n", rank, emethods[j].em_lpts, 
-			    emethods[j].em_id, emethods[j].em_method->m_id );
-		continue;
+	
+	for ( i=0; i < count; i++ ) {
+	    for ( sum=0, j=0; j< emethods[i].em_rescount; j++ ) {
+		sum += emethods[i].em_time[j];
+	    }
+	    sorted[2*i]     = sum/emethods[i].em_rescount;
+	    sorted[(2*i)+1] = emethods[i].em_id;
+	}
+	
+	qsort ( sorted, count, 2*sizeof(double), adcl_compare );
+	
+	/* Give now the fastest method count-1 pts, the 2nd fastest
+	   method count-2 pts, ..., the slowest method 0 pts. */
+	for ( pts=count-1, i=0; i< count; i++, pts-- ) {
+	    for (j=0; j< count; j++ ) {
+		if ( sorted[(2*i)+1] == emethods[j].em_id ) {
+		    /*	emethods[j].em_lpts = pts; */
+		    emethods[j].em_lpts = count * sorted[0]/sorted[2*i];
+		    ADCL_printf("#%d: assigning %lf pts for emethod %d"
+				" method %d\n", rank, emethods[j].em_lpts, 
+				emethods[j].em_id, emethods[j].em_method->m_id );
+		    continue;
+		}
 	    }
 	}
+	free ( sorted );
     }
-    
-    free ( sorted );
+    else if (ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
+	for ( i=0; i < count; i++ ) {
+	    for ( sum=0, j=0; j< emethods[i].em_rescount; j++ ) {
+		sum += emethods[i].em_time[j];
+	    }
+	    emethods[i].em_lpts = sum/emethods[i].em_rescount;
+	}
+    }
+
     return ADCL_SUCCESS;
 }
 
@@ -113,7 +128,7 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_req_t *ermethod )
 /**********************************************************************/
 int ADCL_statistics_global_max ( ADCL_emethod_req_t *ermethod )
 {
-    int i, max, winner=-1;
+    int i, winner=-1;
     double *lpts, *gpts;
     int count = ermethod->er_num_emethods;
 
@@ -126,11 +141,27 @@ int ADCL_statistics_global_max ( ADCL_emethod_req_t *ermethod )
     for ( i = 0; i < count; i++ ) {
 	lpts[i] = ermethod->er_emethods[i].em_lpts;
     }
-    MPI_Allreduce ( lpts, gpts, count, MPI_DOUBLE, MPI_SUM, ermethod->er_comm);
-    for ( winner=0, max=gpts[0], i = 1; i < count; i++ ) {
-	if ( gpts[i] > max ) {
-	    max    = gpts[i];
-	    winner = i;
+
+    if ( ADCL_STATISTIC_VOTE == ADCL_statistic_method ) {
+	int max;
+
+	MPI_Allreduce ( lpts, gpts, count, MPI_DOUBLE, MPI_SUM, ermethod->er_comm);
+	for ( winner=0, max=gpts[0], i = 1; i < count; i++ ) {
+	    if ( gpts[i] > max ) {
+		max    = gpts[i];
+		winner = i;
+	    }
+	}
+    }
+    else if  ( ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
+	int min;
+
+	MPI_Allreduce ( lpts, gpts, count, MPI_DOUBLE, MPI_MAX, ermethod->er_comm);
+	for ( winner=0, min=gpts[0], i = 1; i < count; i++ ) {
+	    if ( gpts[i] < min ) {
+		min = gpts[i];
+		winner = i;
+	    }
 	}
     }
 
