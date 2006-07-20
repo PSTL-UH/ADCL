@@ -31,11 +31,15 @@
 
 #define ADCL_EVAL_DONE  110
 
+#define ADCL_STATISTIC_VOTE 0
+#define ADCL_STATISTIC_MAX  1
+
+
 int ADCL_printf_init     ( void );
 int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);
 
-int ADCL_readenv();
+int ADCL_readenv( void );
 int ADCL_statistics_filter_timings  ( ADCL_emethod_req_t *ermethod );
 int ADCL_statistics_determine_votes ( ADCL_emethod_req_t *ermethod );
 int ADCL_statistics_global_max      ( ADCL_emethod_req_t *ermethod );
