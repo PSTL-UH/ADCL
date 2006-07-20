@@ -191,17 +191,6 @@ if test "$ADCL_FILE_PER_PROC" = yes ; then
   AC_DEFINE(ADCL_FILE_PER_PROC)
 fi
 
-AC_ARG_ENABLE(merge_requests,
-[  --enable-merge-requests      merge similar requests for the performance decision (default=no)],
-[test "$enableval" = yes && ADCL_MERGE_REQUESTS=yes])
-test "$ADCL_MERGE_REQUESTS" = yes || ADCL_MERGE_REQUESTS=no
-
-AC_MSG_CHECKING([whether to merge similar requests for the performance decision])
-AC_MSG_RESULT(${ADCL_MERGE_REQUESTS})
-if test "$ADCL_MERGE_REQUESTS" = yes ; then
-  AC_DEFINE(ADCL_MERGE_REQUESTS)
-fi
-
 
 dnl ==================================================
 AC_MSG_CHECKING(for number of measurements per method)
