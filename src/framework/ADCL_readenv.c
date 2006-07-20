@@ -80,7 +80,7 @@ int ADCL_read_env()
 		if(strncmp(keyword, "ADCL_OUTLIER_FACTOR", strlen("ADCL_OUTLIER_FACTOR")) == 0){
 		    sscanf(ptr, "%d", &ADCL_OUTLIER_FACTOR);
 #ifndef	Debug	
-		    ADCL_printf("ADCL_OUTLIER_FACTOR : %d\n", ADCL_OUTLIER_FACTOR);	
+		    //ADCL_printf("ADCL_OUTLIER_FACTOR : %d\n", ADCL_OUTLIER_FACTOR);	
 #endif
 		    ptr = NULL;
 		}
@@ -88,7 +88,7 @@ int ADCL_read_env()
 		if(strncmp(keyword, "ADCL_OUTLIER_FRACTION", strlen("ADCL_OUTLIER_FRACTION"))==0){
 		    sscanf(ptr, "%d", &ADCL_OUTLIER_FRACTION);
 #ifndef	Debug	
-		    ADCL_printf("ADCL_OUTLIER_FRACTION : %d\n", ADCL_OUTLIER_FRACTION);	
+		    //ADCL_printf("ADCL_OUTLIER_FRACTION : %d\n", ADCL_OUTLIER_FRACTION);	
 #endif
 		    ptr = NULL;
 		}
