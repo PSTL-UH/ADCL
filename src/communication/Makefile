@@ -41,6 +41,13 @@ change:$(HEADER)
 			-o ADCL_change_sb_pair_SendRecv_pack.o	
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=6 \
 			-o ADCL_change_sb_pair_SendIrecv_pack.o	
+	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=7 \
+	                        -o ADCL_change_sb_pair_Sendrecv_pack.o
+	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=8 \
+	                        -o ADCL_change_sb_pair_Sendrecv.o
+				
+				
+	
 	$(AR) $(AR_FLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)

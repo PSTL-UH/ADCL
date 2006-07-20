@@ -153,10 +153,44 @@
     MPI_Unpack(req->r_rbuf[i], req->r_rpsize[i], &_pos,         		\
                req->r_vec->v_data, 1, req->r_rdats[i], req->r_comm ); }
 
+#elif COMMMODE == 7
+
+  #define COMMTEXT "SendrecvPack"
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_Sendrecv_pack
+  
+  #define SEND_START(req, i, tag) {  int _pos=0;                      \
+         MPI_Pack( req->r_vec->v_data, 1, req->r_sdats[i],            \
+                   req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);   \
+         MPI_Sendrecv(req->r_sbuf[i], _pos, MPI_PACKED, req->r_neighbors[i], tag, \
+                      req->r_rbuf[i], req->r_rpsize[i],MPI_PACKED,  req->r_neighbors[i], tag, \
+                      req->r_comm, MPI_STATUS_IGNORE ); }
+   
+  #define RECV_START(req,i,tag) 
+  #define SEND_WAITALL(req) 
+  #define RECV_WAITALL(req) 
+  #define SEND_WAIT(req,i) 
+  #define RECV_WAIT(req,i) 
+   
+#elif COMMMODE == 8
+
+  #define COMMTEXT "Sendrecv"
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_Sendrecv
+      
+  #define SEND_START(req,i,tag) MPI_Sendrecv(req->r_vec->v_data, 1,req->r_sdats[i],\
+                    req->r_neighbors[i], tag, req->r_vec->v_data,1, req->r_rdats[i],\
+                    req->r_neighbors[i], tag, req->r_comm, MPI_STATUS_IGNORE )
+
+    #define RECV_START(req,i,tag) 
+    #define SEND_WAITALL(req) 
+    #define RECV_WAITALL(req) 
+    #define SEND_WAIT(req,i) 
+    #define RECV_WAIT(req,i) 
+           
 #endif
+ 
 
-
-#if COMMODE == 9
+    
+/*#elif COMMMODE == 9
 
  #define PREPARE_COMMUNICATION(req) MPI_Win_fence (req->r_win);
  #define STOP_COMMUNICATION(req)    MPI_Win_fence (req->r_win);
@@ -170,7 +204,7 @@
  #define RECV_WAITALL (req)
  
 #endif
-
+*/
 /*COMM 1*/
 int ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req);
 int ADCL_change_sb_pair_IsendIrecv (ADCL_request_t *req);
@@ -194,7 +228,9 @@ int ADCL_change_sb_pair_SendRecv_pack (ADCL_request_t *req);
 int ADCL_change_sb_aao_SendIrecv_pack  (ADCL_request_t *req);
 int ADCL_change_sb_pair_SendIrecv_pack (ADCL_request_t *req);
 
+/* COMM 7 */
 
+int ADCL_change_sb_pair_Sendrecv_pack (ADCL_request_t *req);
 
 #endif /* __ADCL_CHANGE_H__ */
 
