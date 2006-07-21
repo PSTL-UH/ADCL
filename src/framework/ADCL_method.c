@@ -24,7 +24,7 @@ int ADCL_method_init ( void )
        set right now! 
     */
 
-    ADCL_method_total_num = 10;
+    ADCL_method_total_num = 12;
     ADCL_method_array=(ADCL_method_t*)calloc(1, ADCL_method_total_num
 					     * sizeof( ADCL_method_t));
     if ( NULL == ADCL_method_array ) {
