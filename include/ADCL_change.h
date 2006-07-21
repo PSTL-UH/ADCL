@@ -185,26 +185,47 @@
     #define RECV_WAITALL(req) 
     #define SEND_WAIT(req,i) 
     #define RECV_WAIT(req,i) 
-           
-#endif
+       
+#elif COMMMODE == 9
+  
+  #define COMMTEXT  "WinFencePut"
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_Put
+
+  #define PREPARE_COMMUNICATION(req) MPI_Win_fence (0, req->r_win);
+  #define STOP_COMMUNICATION(req)    MPI_Win_fence (0, req->r_win);
+
+  #define SEND_START( req, i, tag )  MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], \
+                                               req->r_neighbors[i], 0, 1, req->r_rdats[i], req->r_win); \
+  
+  #define RECV_START(req,i,tag)
+  
+  #define SEND_WAITALL (req)
+  #define RECV_WAITALL (req)
+  #define SEND_WAIT(req,i) 
+  #define RECV_WAIT(req,i) 
+
+
+#elif COMMMODE == 10
+  
+  #define COMMTEXT  "WinFenceGet"
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_Get
+
+  #define PREPARE_COMMUNICATION(req) MPI_Win_fence (0, req->r_win);
+  #define STOP_COMMUNICATION(req)    MPI_Win_fence (0, req->r_win);
+
+  #define RECV_START( req, i, tag )  MPI_Get ( req->r_vec->v_data, 1, req->r_sdats[i], \
+                                               req->r_neighbors[i], 0, 1, req->r_rdats[i], req->r_win); \
  
-
-    
-/*#elif COMMMODE == 9
-
- #define PREPARE_COMMUNICATION(req) MPI_Win_fence (req->r_win);
- #define STOP_COMMUNICATION(req)    MPI_Win_fence (req->r_win);
-
- #define SEND_START(req, i, tag) {\
-   MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], req->r_neighbors[i], \
-             tag, 0, 1, req->r_rdats[i], req->r_win); \
- }
- #define RECV_START(req,i,tag)
- #define SEND_WAITALL (req)
- #define RECV_WAITALL (req)
  
+  #define SEND_START(req,i,tag)
+  
+  #define SEND_WAITALL (req)
+  #define RECV_WAITALL (req)
+  #define SEND_WAIT(req,i) 
+  #define RECV_WAIT(req,i) 
+
 #endif
-*/
+
 /*COMM 1*/
 int ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req);
 int ADCL_change_sb_pair_IsendIrecv (ADCL_request_t *req);
