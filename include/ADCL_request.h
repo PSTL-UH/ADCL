@@ -19,6 +19,7 @@ struct ADCL_request_s{
     MPI_Comm                 r_comm; /* Communicator used for communication */
     int                      r_rank; /* Rank of this proc in this communicator */
     MPI_Win                   r_win; /* window used for one-sided operations */
+	MPI_Group               r_group; /* Group used for some window operations */
     int                r_nneighbors; /* numbers of neighboring processes = dim of 
 					v_dats, v_sreqs, v_rreqs. nneighbor should
 				        be 2*the number of dimensions of the 

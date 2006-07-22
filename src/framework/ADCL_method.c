@@ -68,14 +68,42 @@ int ADCL_method_init ( void )
       count++; 
 #  endif /* SEND_IRECV */
 
-#  ifdef SENDRECV
+#  ifdef SENDRECV /* Comm 8*/
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_Sendrecv;
     strncpy ( ADCL_method_array[count].m_name, "Sendrecv_pair", 32 );
     count++;
 #  endif /* SEND_IRECV */
-              
-     
+
+#  ifdef SENDRECV /* Comm 9*/
+    ADCL_method_array[count].m_id = ADCL_local_id_counter++;
+    ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_win_fence_put;
+    strncpy ( ADCL_method_array[count].m_name, "WinFencePut", 32 );
+    count++;
+#  endif /* SEND_IRECV */
+
+#  ifdef SENDRECV /* Comm 10*/
+    ADCL_method_array[count].m_id = ADCL_local_id_counter++;
+    ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_win_fence_get;
+    strncpy ( ADCL_method_array[count].m_name, "WinFenceGet", 32 );
+    count++;
+#  endif /* SEND_IRECV */
+
+
+#  ifdef SENDRECV /* Comm 11*/
+    ADCL_method_array[count].m_id = ADCL_local_id_counter++;
+    ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_post_start_put;
+    strncpy ( ADCL_method_array[count].m_name, "PostStartPut", 32 );
+    count++;
+#  endif /* SEND_IRECV */
+
+#  ifdef SENDRECV /* Comm 12*/
+    ADCL_method_array[count].m_id = ADCL_local_id_counter++;
+    ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_post_start_get;
+    strncpy ( ADCL_method_array[count].m_name, "PostStartGet", 32 );
+    count++;
+#  endif /* SEND_IRECV */
+
 #endif /* CHANGE_PAIR */
 
 #endif /* DERIVED_TYPES */
@@ -113,23 +141,25 @@ int ADCL_method_init ( void )
       strncpy( ADCL_method_array[count].m_name, "SendRecv_pair_pack", 32 );
       count ++;
             
-# endif
+# endif /* SEND_RECV_PACK */
       
 #ifdef SEND_IRECV
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendIrecv_pack;
       strncpy( ADCL_method_array[count].m_name, "SendIrecv_pair_pack", 32 );
       count++;
-#endif       
+#endif /* SEND_IRECV_PACK */
 
-      
-#ifdef SENDRECV
-    ADCL_method_array[count].m_id = ADCL_local_id_counter++;
-    ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_Sendrecv_pack;
-    strncpy( ADCL_method_array[count].m_name, "Sendrecv_pair_pack", 32 );
-    count++;
-# endif /* SENDRECV */
-                          
+
+#ifdef SENDRECV /*Comm 7*/
+      ADCL_method_array[count].m_id = ADCL_local_id_counter++;
+      ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_Sendrecv_pack;
+      strncpy( ADCL_method_array[count].m_name, "Sendrecv_pair_pack", 32 );
+      count++;
+# endif /* SENDRECV_PACK */
+
+
+
 #endif /* CHANGE_PAIR  */
 
 #endif /* PACK_UNPACK */

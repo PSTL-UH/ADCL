@@ -9,6 +9,10 @@
 
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_debug
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_debug
+
+  #define PREPARE_COMMUNICATION(req)
+  #define STOP_COMMUNICATION(req)
+
   #define SEND_START(req,i,tag) { int _rank;   \
          MPI_Comm_rank ( req->r_comm, &_rank );\
          printf("%d: want to send to %d\n",    \
@@ -27,6 +31,10 @@
 
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_IsendIrecv 
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_IsendIrecv
+
+  #define PREPARE_COMMUNICATION(req)
+  #define STOP_COMMUNICATION(req)
+
   #define SEND_START(req,i,tag) MPI_Isend(req->r_vec->v_data, 1,\
          req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm,\
          &req->r_sreqs[i])
@@ -42,8 +50,11 @@
 
 #elif COMMMODE == 2
   #define COMMTEXT  "SendRecv"
-
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendRecv
+
+  #define PREPARE_COMMUNICATION(req)
+  #define STOP_COMMUNICATION(req)
+
   #define SEND_START(req,i,tag) MPI_Send(req->r_vec->v_data, 1, \
          req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm )
   #define RECV_START(req,i,tag) MPI_Recv(req->r_vec->v_data, 1,  \
@@ -56,8 +67,11 @@
 
 #elif COMMMODE == 3
   #define COMMTEXT "SendIrecv"
-
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_SendIrecv
+
+  #define PREPARE_COMMUNICATION(req)
+  #define STOP_COMMUNICATION(req)
+
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendIrecv
   #define SEND_START(req,i,tag) MPI_Send(req->r_vec->v_data, 1,\
          req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm)
@@ -75,6 +89,10 @@
 
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_IsendIrecv_pack
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_IsendIrecv_pack
+
+  #define PREPARE_COMMUNICATION(req)
+  #define STOP_COMMUNICATION(req)
+
   #define SEND_START(req,i,tag) { int _pos=0;                          \
      MPI_Pack ( req->r_vec->v_data, 1, req->r_sdats[i],                \
                 req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);\
@@ -101,7 +119,11 @@
 #elif COMMMODE == 5
 
   #define COMMTEXT "SendRecvPack"
+
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendRecv_pack
+
+  #define PREPARE_COMMUNICATION(req)
+  #define STOP_COMMUNICATION(req)
 
    #define SEND_START(req, i, tag) {  int _pos=0;                      \
      MPI_Pack( req->r_vec->v_data, 1, req->r_sdats[i],                 \
@@ -127,6 +149,9 @@
   #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_SendIrecv_pack
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendIrecv_pack
 
+  #define PREPARE_COMMUNICATION(req)
+  #define STOP_COMMUNICATION(req)
+
   #define SEND_START(req, i, tag) {  int _pos=0;                      \
      MPI_Pack( req->r_vec->v_data, 1, req->r_sdats[i],                 \
               req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);   \
@@ -140,13 +165,13 @@
   #define SEND_WAITALL(req) 
   #define RECV_WAITALL(req) { int _i, _pos=0;   MPI_Waitall(req->r_nneighbors,\
       req->r_rreqs, MPI_STATUSES_IGNORE);  \
-	for (_i=0; _i< req->r_nneighbors; _i++, _pos=0 ) {                 \
+    for (_i=0; _i< req->r_nneighbors; _i++, _pos=0 ) {                 \
         if ( req->r_neighbors[_i] == MPI_PROC_NULL ) continue;       \
             MPI_Unpack(req->r_rbuf[_i], req->r_rpsize[_i], &_pos,       \
             req->r_vec->v_data, 1, req->r_rdats[_i], req->r_comm );     \
-    	} \
+	} \
    }
- 
+
   #define SEND_WAIT(req,i)
   #define RECV_WAIT(req,i) { int _pos=0;                                \
     MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE);              		\
@@ -157,39 +182,49 @@
 
   #define COMMTEXT "SendrecvPack"
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_Sendrecv_pack
-  
+
+  #define PREPARE_COMMUNICATION(req)
+  #define STOP_COMMUNICATION(req)
+
   #define SEND_START(req, i, tag) {  int _pos=0;                      \
          MPI_Pack( req->r_vec->v_data, 1, req->r_sdats[i],            \
                    req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);   \
          MPI_Sendrecv(req->r_sbuf[i], _pos, MPI_PACKED, req->r_neighbors[i], tag, \
                       req->r_rbuf[i], req->r_rpsize[i],MPI_PACKED,  req->r_neighbors[i], tag, \
-                      req->r_comm, MPI_STATUS_IGNORE ); }
-   
+                      req->r_comm, MPI_STATUS_IGNORE );                      \
+         MPI_Unpack( req->r_rbuf[i], req->r_rpsize[i], &_pos,              \
+                req->r_vec->v_data, 1, req->r_rdats[i], req->r_comm ); }
+
+  #define RECV_START(req,i,tag)
+  #define SEND_WAITALL(req)
+  #define RECV_WAITALL(req)
+  #define SEND_WAIT(req,i)
+  #define RECV_WAIT(req,i)
+ 
+#elif COMMMODE == 8
+
+  #define COMMTEXT "Sendrecv"
+
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_Sendrecv
+
+  #define PREPARE_COMMUNICATION(req)
+  #define STOP_COMMUNICATION(req)
+
+  #define SEND_START(req,i,tag) MPI_Sendrecv(req->r_vec->v_data, 1,req->r_sdats[i],\
+                    req->r_neighbors[i], tag, req->r_vec->v_data,1, req->r_rdats[i],\
+                    req->r_neighbors[i], tag, req->r_comm, MPI_STATUS_IGNORE )
+
   #define RECV_START(req,i,tag) 
   #define SEND_WAITALL(req) 
   #define RECV_WAITALL(req) 
   #define SEND_WAIT(req,i) 
   #define RECV_WAIT(req,i) 
-   
-#elif COMMMODE == 8
 
-  #define COMMTEXT "Sendrecv"
-  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_Sendrecv
-      
-  #define SEND_START(req,i,tag) MPI_Sendrecv(req->r_vec->v_data, 1,req->r_sdats[i],\
-                    req->r_neighbors[i], tag, req->r_vec->v_data,1, req->r_rdats[i],\
-                    req->r_neighbors[i], tag, req->r_comm, MPI_STATUS_IGNORE )
-
-    #define RECV_START(req,i,tag) 
-    #define SEND_WAITALL(req) 
-    #define RECV_WAITALL(req) 
-    #define SEND_WAIT(req,i) 
-    #define RECV_WAIT(req,i) 
-       
 #elif COMMMODE == 9
-  
+
   #define COMMTEXT  "WinFencePut"
-  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_Put
+
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_win_fence_put
 
   #define PREPARE_COMMUNICATION(req) MPI_Win_fence (0, req->r_win);
   #define STOP_COMMUNICATION(req)    MPI_Win_fence (0, req->r_win);
@@ -206,19 +241,58 @@
 
 
 #elif COMMMODE == 10
-  
+
   #define COMMTEXT  "WinFenceGet"
-  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_Get
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_win_fence_get
 
   #define PREPARE_COMMUNICATION(req) MPI_Win_fence (0, req->r_win);
   #define STOP_COMMUNICATION(req)    MPI_Win_fence (0, req->r_win);
 
-  #define RECV_START( req, i, tag )  MPI_Get ( req->r_vec->v_data, 1, req->r_sdats[i], \
-                                               req->r_neighbors[i], 0, 1, req->r_rdats[i], req->r_win); \
- 
- 
   #define SEND_START(req,i,tag)
+
+  #define RECV_START( req, i, tag )  MPI_Get ( req->r_vec->v_data, 1, req->r_rdats[i], \
+                                               req->r_neighbors[i], 0, 1, req->r_sdats[i], req->r_win); \
+ 
+  #define SEND_WAITALL (req)
+  #define RECV_WAITALL (req)
+  #define SEND_WAIT(req,i) 
+  #define RECV_WAIT(req,i) 
+
+#elif COMMMODE == 11
+
+  #define COMMTEXT  "PostStartPut"
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_post_start_put
+
+  #define PREPARE_COMMUNICATION(req) {MPI_Win_post(req->r_group, 0, req->r_win);\
+                                      MPI_Win_start(req->r_group, 0, req->r_win); }
+  #define STOP_COMMUNICATION(req)	{MPI_Win_complete(req->r_win); \
+									 MPI_Win_wait(req->r_win);}
+
+  #define SEND_START( req, i, tag )  MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], \
+                                               req->r_neighbors[i], 0, 1, req->r_rdats[i], req->r_win); 
   
+  #define RECV_START(req,i,tag)
+
+  #define SEND_WAITALL (req)
+  #define RECV_WAITALL (req)
+  #define SEND_WAIT(req,i) 
+  #define RECV_WAIT(req,i) 
+
+#elif COMMMODE == 12
+
+  #define COMMTEXT  "PostStartGet"
+  #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_post_start_get
+
+  #define PREPARE_COMMUNICATION(req) { MPI_Win_post(req->r_group, 0, req->r_win);\
+                                       MPI_Win_start(req->r_group, 0, req->r_win); }
+
+  #define STOP_COMMUNICATION(req)    { MPI_Win_complete(req->r_win); \
+                                       MPI_Win_wait(req->r_win); }   
+
+  #define SEND_START(req,i,tag)
+
+  #define RECV_START( req, i, tag )  MPI_Get( req->r_vec->v_data, 1, req->r_rdats[i],  \
+                                              req->r_neighbors[i], 0, 1, req->r_sdats[i], req->r_win);
   #define SEND_WAITALL (req)
   #define RECV_WAITALL (req)
   #define SEND_WAIT(req,i) 
@@ -249,9 +323,24 @@ int ADCL_change_sb_pair_SendRecv_pack (ADCL_request_t *req);
 int ADCL_change_sb_aao_SendIrecv_pack  (ADCL_request_t *req);
 int ADCL_change_sb_pair_SendIrecv_pack (ADCL_request_t *req);
 
-/* COMM 7 */
+/* COMM 7: SendRecv-Packed datatype*/
 
 int ADCL_change_sb_pair_Sendrecv_pack (ADCL_request_t *req);
+
+/* COMM 8: SendRecv-Derived datatype*/
+int ADCL_change_sb_pair_Sendrecv(ADCL_request_t *req);
+
+/* COMM 9: Win_fence_put-Derived datatype*/
+int ADCL_change_sb_pair_win_fence_put(ADCL_request_t *req);
+
+/* COMM 10:Win_fence_get-Derived datatype */
+int ADCL_change_sb_pair_win_fence_get( ADCL_request_t *req);
+
+/*COMM 11: Post_start_put-Derived datatype*/
+int ADCL_change_sb_pair_post_start_put( ADCL_request_t *req);
+
+/*COMM 12: Post_start_get-Derived datatype*/
+int ADCL_change_sb_pair_post_start_get( ADCL_request_t *req);
 
 #endif /* __ADCL_CHANGE_H__ */
 
