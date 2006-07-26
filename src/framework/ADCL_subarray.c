@@ -21,8 +21,8 @@ int ADCL_subarray_init ( int topodims, int *neighbors, int vecndims,
 	goto exit;
     }
 
-    sdats = ( MPI_Datatype *) malloc ( topodims * 2 * sizeof(int));
-    rdats = ( MPI_Datatype *) malloc ( topodims * 2 * sizeof(int));
+    sdats = ( MPI_Datatype *) malloc ( topodims * 2 * sizeof(MPI_Datatype));
+    rdats = ( MPI_Datatype *) malloc ( topodims * 2 * sizeof(MPI_Datatype));
     if ( NULL == sdats || NULL == rdats  ) {
 	ret = ADCL_NO_MEMORY;
 	goto exit;
@@ -32,7 +32,7 @@ int ADCL_subarray_init ( int topodims, int *neighbors, int vecndims,
     for ( i = 0; i < topodims; i++ ) {
 
 	/* handle left and right neighbor separatly */
-	for ( j=2*i; j<= 2*i+1; j++ ) 
+	for ( j=2*i; j<= 2*i+1; j++ ) {
 
 	    /* Set subdims and starts arrays. Basically,
 	       subdims is in each direction the total extent of the  
@@ -65,7 +65,7 @@ int ADCL_subarray_init ( int topodims, int *neighbors, int vecndims,
 		subdims[vecndims-1] = nc;
 		sstarts[vecndims-1] = 0;
 		rstarts[vecndims-1] = 0;
-	    }
+            } 
 	    else {
 		for ( k=0; k < vecndims; k++ ) {
 		    if ( k == i ) {
