@@ -231,11 +231,13 @@
   #define STOP_COMMUNICATION(req)    MPI_Win_fence (0, req->r_win);
 
   #define SEND_START( req, i, tag )  MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], \
-                                               req->r_neighbors[i], 0, 1, ( (i%2 == 0) ? req->r_rdats[i+1]:req->r_rdats[i-1]), req->r_win)
+                                               req->r_neighbors[i], 0, 1, \
+					       ( (i%2 == 0) ? req->r_rdats[i+1]:req->r_rdats[i-1]), \
+                                               req->r_win)
   
   #define RECV_START(req,i,tag)
-  #define SEND_WAITALL (req)
-  #define RECV_WAITALL (req)
+  #define SEND_WAITALL(req)
+  #define RECV_WAITALL(req)
   #define SEND_WAIT(req,i) 
   #define RECV_WAIT(req,i) 
 
@@ -252,10 +254,12 @@
   #define SEND_START(req,i,tag)
 
   #define RECV_START( req, i, tag )  MPI_Get ( req->r_vec->v_data, 1, req->r_rdats[i], \
-                                               req->r_neighbors[i], 0, 1, ((i%2 == 0)?req->r_sdats[i+1]:req->r_sdats[i-1]), req->r_win)
+                                               req->r_neighbors[i], 0, 1, \
+                                               ((i%2 == 0)?req->r_sdats[i+1]:req->r_sdats[i-1]), \
+                                               req->r_win)
  
-  #define SEND_WAITALL (req)
-  #define RECV_WAITALL (req)
+  #define SEND_WAITALL(req)
+  #define RECV_WAITALL(req)
   #define SEND_WAIT(req,i) 
   #define RECV_WAIT(req,i) 
 
