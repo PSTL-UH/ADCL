@@ -15,6 +15,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 			  ADCL_request_t **req, int order )
 {
     int ret = ADCL_SUCCESS;
+    int i, tsize =-1, tcount=1; 
     ADCL_request_t *newreq;
     ADCL_vector_t *pvec = vec;
     
@@ -36,8 +37,20 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
     newreq->r_vec        = pvec;
     newreq->r_comm       = cart_comm;    /* we might have to duplicate it! */
     MPI_Comm_rank ( cart_comm, &(newreq->r_rank) );
+#ifdef MPI_WIN 
+    MPI_Type_size (MPI_DOUBLE, &tsize);
+    if ( pvec->v_nc > 0 ) {
+      tcount = pvec->v_nc;
+    }
+    for (i=0; i <pvec->v_ndims; i++){
+        tcount *= pvec->v_dims[i];
+    }
+    MPI_Win_create ( newreq->r_vec->v_data, tcount , tsize, MPI_INFO_NULL, cart_comm, &(newreq->r_win));
+    MPI_Comm_group ( cart_comm, &(newreq->r_group) );   
+#else
     newreq->r_win        = MPI_WIN_NULL; /* TBD: unused for right now! */
-
+    newreq->r_group      = MPI_GROUP_NULL; /* TBD: unused for right now! */
+#endif
     /* 
     ** Determine how many neighboring processes I have and who they are. 
     ** Needed later for the neighborhood communication 
