@@ -106,13 +106,6 @@
             write (*,*) 'Timing'
             write (*,*) 'Time for solving the equations    :',  &
                         solvtime 
-            if ( commtime .ne. 0 ) then
-               write (*,*) 'Time spent in communication       :',  &
-                    commtime
-               else
-                  write (*,*) 'Time spent in communication       :',  &
-                       ' not measured'
-               end if
                write (*,*) '=================================================='
             end if
 

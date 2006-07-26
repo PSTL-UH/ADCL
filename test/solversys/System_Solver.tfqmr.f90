@@ -449,6 +449,7 @@
         call ADCL_Vector_deregister ( adcl_vec_tfqmr_y_old, ierror )
         call ADCL_Vector_deregister ( adcl_vec_tfqmr_y_old_1, ierror )
 
+        r_nit = nreal
 
         end
 
