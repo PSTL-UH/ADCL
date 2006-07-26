@@ -9,7 +9,7 @@ int ADCL_CHANGE_SB_PAIR ( ADCL_request_t *req )
     int i, dim;
     int nneighs = req->r_nneighbors;
 
-    PREPARE_COMMUNICATION(req);  
+     PREPARE_COMMUNICATION(req);  
     
     for ( dim=0, i=0; i<nneighs ; i+=2, dim++ ) {
 	

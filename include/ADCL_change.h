@@ -56,7 +56,7 @@
   #define STOP_COMMUNICATION(req)
 
   #define SEND_START(req,i,tag) MPI_Send(req->r_vec->v_data, 1, \
-         req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm )
+                                req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm )
   #define RECV_START(req,i,tag) MPI_Recv(req->r_vec->v_data, 1,  \
          req->r_rdats[i], req->r_neighbors[i], tag, req->r_comm, \
          MPI_STATUS_IGNORE )
@@ -225,15 +225,15 @@
   #define COMMTEXT  "WinFencePut"
 
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_win_fence_put
+  #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_win_fence_put
 
   #define PREPARE_COMMUNICATION(req) MPI_Win_fence (0, req->r_win);
   #define STOP_COMMUNICATION(req)    MPI_Win_fence (0, req->r_win);
 
   #define SEND_START( req, i, tag )  MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], \
-                                               req->r_neighbors[i], 0, 1, req->r_rdats[i], req->r_win); \
+                                               req->r_neighbors[i], 0, 1, ((i%2 == 0)?req->r_rdats[i+1]:req->r_rdats[i-1]), req->r_win)
   
   #define RECV_START(req,i,tag)
-  
   #define SEND_WAITALL (req)
   #define RECV_WAITALL (req)
   #define SEND_WAIT(req,i) 
@@ -244,6 +244,7 @@
 
   #define COMMTEXT  "WinFenceGet"
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_win_fence_get
+  #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_win_fence_get
 
   #define PREPARE_COMMUNICATION(req) MPI_Win_fence (0, req->r_win);
   #define STOP_COMMUNICATION(req)    MPI_Win_fence (0, req->r_win);
@@ -251,7 +252,7 @@
   #define SEND_START(req,i,tag)
 
   #define RECV_START( req, i, tag )  MPI_Get ( req->r_vec->v_data, 1, req->r_rdats[i], \
-                                               req->r_neighbors[i], 0, 1, req->r_sdats[i], req->r_win); \
+                                               req->r_neighbors[i], 0, 1, ((i%2 == 0)?req->r_sdats[i+1]:req->r_sdats[i-1]), req->r_win)
  
   #define SEND_WAITALL (req)
   #define RECV_WAITALL (req)
@@ -262,17 +263,17 @@
 
   #define COMMTEXT  "PostStartPut"
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_post_start_put
+  #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_post_start_put
 
   #define PREPARE_COMMUNICATION(req) {MPI_Win_post(req->r_group, 0, req->r_win);\
                                       MPI_Win_start(req->r_group, 0, req->r_win); }
   #define STOP_COMMUNICATION(req)	{MPI_Win_complete(req->r_win); \
-									 MPI_Win_wait(req->r_win);}
+					 MPI_Win_wait(req->r_win);}
 
   #define SEND_START( req, i, tag )  MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], \
-                                               req->r_neighbors[i], 0, 1, req->r_rdats[i], req->r_win); 
+                                               req->r_neighbors[i], 0, 1, ((i%2 == 0)? req->r_rdats[i+1]:req->r_rdats[i-1]), req->r_win)
   
   #define RECV_START(req,i,tag)
-
   #define SEND_WAITALL (req)
   #define RECV_WAITALL (req)
   #define SEND_WAIT(req,i) 
@@ -282,6 +283,7 @@
 
   #define COMMTEXT  "PostStartGet"
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_post_start_get
+  #define ADCL_CHANGE_SB_AAO  ADCL_change_sb_aao_post_start_get
 
   #define PREPARE_COMMUNICATION(req) { MPI_Win_post(req->r_group, 0, req->r_win);\
                                        MPI_Win_start(req->r_group, 0, req->r_win); }
@@ -292,7 +294,7 @@
   #define SEND_START(req,i,tag)
 
   #define RECV_START( req, i, tag )  MPI_Get( req->r_vec->v_data, 1, req->r_rdats[i],  \
-                                              req->r_neighbors[i], 0, 1, req->r_sdats[i], req->r_win);
+                                              req->r_neighbors[i], 0, 1, ((i%2 ==0)?req->r_sdats[i+1]:req->r_sdats[i-1]), req->r_win)
   #define SEND_WAITALL (req)
   #define RECV_WAITALL (req)
   #define SEND_WAIT(req,i) 
@@ -332,15 +334,20 @@ int ADCL_change_sb_pair_Sendrecv(ADCL_request_t *req);
 
 /* COMM 9: Win_fence_put-Derived datatype*/
 int ADCL_change_sb_pair_win_fence_put(ADCL_request_t *req);
+int ADCL_change_sb_aaor_win_fence_put(ADCL_request_t *req);
 
 /* COMM 10:Win_fence_get-Derived datatype */
 int ADCL_change_sb_pair_win_fence_get( ADCL_request_t *req);
+int ADCL_change_sb_aao_win_fence_get(ADCL_request_t *req);
 
 /*COMM 11: Post_start_put-Derived datatype*/
 int ADCL_change_sb_pair_post_start_put( ADCL_request_t *req);
+int ADCL_change_sb_aao_post_start_put (ADCL_request_t *req);
+
 
 /*COMM 12: Post_start_get-Derived datatype*/
 int ADCL_change_sb_pair_post_start_get( ADCL_request_t *req);
+int ADCL_change_sb_aao_post_start_get( ADCL_request_t *req);
 
 #endif /* __ADCL_CHANGE_H__ */
 

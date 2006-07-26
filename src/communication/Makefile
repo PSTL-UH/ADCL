@@ -17,8 +17,12 @@ OBJ =	ADCL_change_sb_aao_debug.o \
 	ADCL_change_sb_pair_win_fence_put.o \
 	ADCL_change_sb_pair_win_fence_get.o \
 	ADCL_change_sb_pair_post_start_put.o \
-	ADCL_change_sb_pair_post_start_get.o
-	
+	ADCL_change_sb_pair_post_start_get.o \
+        ADCL_change_sb_aao_win_fence_put.o \
+        ADCL_change_sb_aao_win_fence_get.o \
+        ADCL_change_sb_aao_post_start_put.o \
+        ADCL_change_sb_aao_post_start_get.o
+					
 
 
 .SUFFIXES: .o.c
@@ -60,7 +64,17 @@ change:$(HEADER)
 	                -o ADCL_change_sb_pair_post_start_put.o
 	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=12 \
 			-o ADCL_change_sb_pair_post_start_get.o	
-	
+	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=9 \
+			-o ADCL_change_sb_aao_win_fence_put.o
+	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=10 \
+			-o ADCL_change_sb_aao_win_fence_get.o
+	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=11 \
+			-o ADCL_change_sb_aao_post_start_put.o
+	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=12 \
+			-o ADCL_change_sb_aao_post_start_get.o
+
+
+
 	$(AR) $(AR_FLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) $(OBJ)
 
 $(OBJ):	$(HEADER)
