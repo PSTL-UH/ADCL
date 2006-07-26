@@ -80,14 +80,14 @@ int ADCL_subarray_init ( int topodims, int *neighbors, int vecndims,
 		    }
 		}
 	    }
-	MPI_Type_create_subarray ( vecndims, vecdims, subdims, sstarts,
-				   order, MPI_DOUBLE, &(sdats[j]));
-	MPI_Type_create_subarray ( vecndims, vecdims, subdims, rstarts,
-				   order, MPI_DOUBLE, &(rdats[j]));
-	MPI_Type_commit ( &(sdats[j]));
-	MPI_Type_commit ( &(rdats[j]));
+	    MPI_Type_create_subarray ( vecndims, vecdims, subdims, sstarts,
+				       order, MPI_DOUBLE, &(sdats[j]));
+	    MPI_Type_create_subarray ( vecndims, vecdims, subdims, rstarts,
+				       order, MPI_DOUBLE, &(rdats[j]));
+	    MPI_Type_commit ( &(sdats[j]));
+	    MPI_Type_commit ( &(rdats[j]));
+	}
     }
-    
 
  exit:
     if ( ret != ADCL_SUCCESS ) {
