@@ -338,7 +338,7 @@ int ADCL_change_sb_pair_Sendrecv(ADCL_request_t *req);
 
 /* COMM 9: Win_fence_put-Derived datatype*/
 int ADCL_change_sb_pair_win_fence_put(ADCL_request_t *req);
-int ADCL_change_sb_aaor_win_fence_put(ADCL_request_t *req);
+int ADCL_change_sb_aao_win_fence_put(ADCL_request_t *req);
 
 /* COMM 10:Win_fence_get-Derived datatype */
 int ADCL_change_sb_pair_win_fence_get( ADCL_request_t *req);
