@@ -186,14 +186,15 @@
   #define PREPARE_COMMUNICATION(req)
   #define STOP_COMMUNICATION(req)
 
-  #define SEND_START(req, i, tag) {  int _pos=0;                      \
-         MPI_Pack( req->r_vec->v_data, 1, req->r_sdats[i],            \
+  #define SEND_START(req, i, tag) {  int _pos=0;                            \
+         MPI_Pack( req->r_vec->v_data, 1, req->r_sdats[i],                  \
                    req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);   \
-         MPI_Sendrecv(req->r_sbuf[i], _pos, MPI_PACKED, req->r_neighbors[i], tag, \
-                      req->r_rbuf[i], req->r_rpsize[i],MPI_PACKED,  req->r_neighbors[i], tag, \
-                      req->r_comm, MPI_STATUS_IGNORE );                      \
-         MPI_Unpack( req->r_rbuf[i], req->r_rpsize[i], &_pos,              \
-                req->r_vec->v_data, 1, req->r_rdats[i], req->r_comm ); }
+         MPI_Sendrecv(req->r_sbuf[i], _pos, MPI_PACKED, req->r_neighbors[i],\
+		      tag, req->r_rbuf[i], req->r_rpsize[i], MPI_PACKED,    \
+                      req->r_neighbors[i], tag, req->r_comm, MPI_STATUS_IGNORE ); \
+         _pos=0;                                                            \
+         MPI_Unpack( req->r_rbuf[i], req->r_rpsize[i], &_pos,               \
+                     req->r_vec->v_data, 1, req->r_rdats[i], req->r_comm ); }
 
   #define RECV_START(req,i,tag)
   #define SEND_WAITALL(req)
