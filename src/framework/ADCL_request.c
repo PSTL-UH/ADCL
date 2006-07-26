@@ -164,7 +164,11 @@ int ADCL_request_free ( ADCL_request_t **req )
 			   &(preq->r_rpsize) );
 
     ADCL_emethod_free ( preq->r_ermethod );
-
+#ifdef MPI_WIN
+    MPI_Win_free ( &(preq->r_win));
+    MPI_Group_free (&(preq->r_group));
+#endif
+        
     if ( NULL != preq->r_neighbors ) {
 	free ( preq->r_neighbors );
     }
