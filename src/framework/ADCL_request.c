@@ -242,7 +242,7 @@ int ADCL_request_update ( ADCL_request_t *req,
 static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req, 
 						 int mode ) 
 {
-    int tmp, flag;
+    int tmp, flag, rank;
     ADCL_method_t *tmethod=NULL;
 
     switch ( req->r_ermethod->er_state ) {
@@ -262,9 +262,15 @@ static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req,
 	    }
 	    /* no break; statement here on purpose! */
 	case ADCL_STATE_DECISION:
+	    MPI_Comm_rank ( req->r_comm, &rank );
+	    ADCL_printf("#%d: Initiating decision procedure for req %d\n", 
+			rank, req->r_id);
 	    tmp = ADCL_emethods_get_winner ( req->r_ermethod, req->r_comm);
 	    req->r_ermethod->er_last    = tmp;
 	    req->r_ermethod->er_wmethod = ADCL_emethod_get_method(req->r_ermethod, tmp);
+	    ADCL_printf("#%d:  req %d winner is %d %s\n", 
+			rank, req->r_id, req->r_ermethod->er_wmethod->m_id, 
+			req->r_ermethod->er_wmethod->m_name);
 	    
 	    req->r_ermethod->er_state = ADCL_STATE_REGULAR;
 	    /* no break; statement here on purpose! */
@@ -272,7 +278,7 @@ static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req,
 	    tmethod = req->r_ermethod->er_wmethod;
 	    break;
 	default:
-	    ADCL_printf("%s: Unknown object status for req %d, status %d\n", 
+	    ADCL_printf("#%s: Unknown object status for req %d, status %d\n", 
 			__FILE__, req->r_id, req->r_ermethod->er_state );
 	    break;
     }

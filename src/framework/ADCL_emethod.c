@@ -5,7 +5,7 @@ static int ADCL_local_id_counter=0;
 static ADCL_array_t *ADCL_emethod_req_array=NULL;
 
 int ADCL_emethod_selection = -1;
-int ADCL_merge_requests=0;
+int ADCL_merge_requests=1;
 int ADCL_emethod_numtests=ADCL_EMETHOD_NUMTESTS;
 
 /**********************************************************************/
@@ -91,7 +91,7 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     if ( NULL == er ) {
 	return NULL;
     }
-    
+
     er->er_comm       = comm;
     er->er_nneighbors = nneighbors;
     er->er_vndims     = vndims;

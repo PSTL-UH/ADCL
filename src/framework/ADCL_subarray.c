@@ -34,67 +34,60 @@ int ADCL_subarray_init ( int topodims, int *neighbors, int vecndims,
 	/* handle left and right neighbor separatly */
 	for ( j=2*i; j<= 2*i+1; j++ ) 
 
-	    /* Only define the datatype if the neighbor really exists */
-	    if ( neighbors[j] != MPI_PROC_NULL ) {
-		/* Set subdims and starts arrays. Basically,
-		   subdims is in each direction the total extent of the  
-		   according dimension of the data array without the halo-cells
-		   except for the dimension which we are currently dealing 
-		   with. For this dimension it is 1.
-
-		   The starts arrays are 1 for all dimensions except 
-		   for the dimension (lets say k)  which we are dealing with. 
-		   There it is for sending:
-                      - 1 for the left neighbor, 
-		      - ldims[k]-2*HWIDTH for the right neighbor
-		   for receiving: 
-		      - 0 for the left neighbor
-		      - ldims[k]-HWDITH for the right neighbor
-		*/
-		if  ( nc > 0 ) {
-		    for ( k=0; k < vecndims-1; k++ ) {
-			if ( k == i ) {
-			    subdims[k] = 1;
-			    sstarts[k] = (j == 2*i) ? 1 : (vecdims[k]-2*hwidth);
-			    rstarts[k] = (j == 2*i) ? 0 : (vecdims[k]-hwidth);
-			}
-			else {
-			    subdims[k] = vecdims[k]- 2*hwidth;
-			    sstarts[k] = 1;
-			    rstarts[k] = 1;
-			}
+	    /* Set subdims and starts arrays. Basically,
+	       subdims is in each direction the total extent of the  
+	       according dimension of the data array without the halo-cells
+	       except for the dimension which we are currently dealing 
+	       with. For this dimension it is 1.
+	       
+	       The starts arrays are 1 for all dimensions except 
+	       for the dimension (lets say k)  which we are dealing with. 
+	       There it is for sending:
+	       - 1 for the left neighbor, 
+	       - ldims[k]-2*HWIDTH for the right neighbor
+	       for receiving: 
+	       - 0 for the left neighbor
+	       - ldims[k]-HWDITH for the right neighbor
+	    */
+	    if  ( nc > 0 ) {
+		for ( k=0; k < vecndims-1; k++ ) {
+		    if ( k == i ) {
+			subdims[k] = 1;
+			sstarts[k] = (j == 2*i) ? 1 : (vecdims[k]-2*hwidth);
+			rstarts[k] = (j == 2*i) ? 0 : (vecdims[k]-hwidth);
 		    }
-		    subdims[vecndims-1] = nc;
-		    sstarts[vecndims-1] = 0;
-		    rstarts[vecndims-1] = 0;
-		}
-		else {
-		    for ( k=0; k < vecndims; k++ ) {
-			if ( k == i ) {
-			    subdims[k] = 1;
-			    sstarts[k] = (j == 2*i) ? 1 : (vecdims[k]-2*hwidth);
-			    rstarts[k] = (j == 2*i) ? 0 : (vecdims[k]-hwidth);
-			}
-			else {
-			    subdims[k] = vecdims[k]- 2*hwidth;
-			    sstarts[k] = 1;
-			    rstarts[k] = 1;
-			}
+		    else {
+			subdims[k] = vecdims[k]- 2*hwidth;
+			sstarts[k] = 1;
+			rstarts[k] = 1;
 		    }
 		}
-		MPI_Type_create_subarray ( vecndims, vecdims, subdims, sstarts,
-					   order, MPI_DOUBLE, &(sdats[j]));
-		MPI_Type_create_subarray ( vecndims, vecdims, subdims, rstarts,
-					   order, MPI_DOUBLE, &(rdats[j]));
-		MPI_Type_commit ( &(sdats[j]));
-		MPI_Type_commit ( &(rdats[j]));
+		subdims[vecndims-1] = nc;
+		sstarts[vecndims-1] = 0;
+		rstarts[vecndims-1] = 0;
 	    }
 	    else {
-		sdats[j] = MPI_DATATYPE_NULL;
-		rdats[j] = MPI_DATATYPE_NULL;
+		for ( k=0; k < vecndims; k++ ) {
+		    if ( k == i ) {
+			subdims[k] = 1;
+			sstarts[k] = (j == 2*i) ? 1 : (vecdims[k]-2*hwidth);
+			rstarts[k] = (j == 2*i) ? 0 : (vecdims[k]-hwidth);
+		    }
+		    else {
+			subdims[k] = vecdims[k]- 2*hwidth;
+			sstarts[k] = 1;
+			rstarts[k] = 1;
+		    }
+		}
 	    }
+	MPI_Type_create_subarray ( vecndims, vecdims, subdims, sstarts,
+				   order, MPI_DOUBLE, &(sdats[j]));
+	MPI_Type_create_subarray ( vecndims, vecdims, subdims, rstarts,
+				   order, MPI_DOUBLE, &(rdats[j]));
+	MPI_Type_commit ( &(sdats[j]));
+	MPI_Type_commit ( &(rdats[j]));
     }
-
+    
 
  exit:
     if ( ret != ADCL_SUCCESS ) {
