@@ -13,6 +13,7 @@
 #define ISEND_IRECV   1
 #define SEND_IRECV    1
 #define SEND_RECV     1
+#define SENDRECV      1
 
 #define MPI_WIN       1
 #define FENCE_PUT     1
