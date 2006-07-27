@@ -68,9 +68,9 @@ change:$(HEADER)
 			-o ADCL_change_sb_aao_win_fence_put.o
 	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=10 \
 			-o ADCL_change_sb_aao_win_fence_get.o
-	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=11 \
+	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=11 \
 			-o ADCL_change_sb_aao_post_start_put.o
-	$(CC) $(CFLAGS) -c ADCL_change_sb_pair.c -DCOMMMODE=12 \
+	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=12 \
 			-o ADCL_change_sb_aao_post_start_get.o
 
 

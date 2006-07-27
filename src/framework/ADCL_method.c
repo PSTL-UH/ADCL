@@ -47,6 +47,8 @@ int ADCL_method_init ( void )
     count++; 
 #endif /* SEND_IRECV */
 
+#ifdef MPI_WIN
+    
 #ifdef WINFENCEPUT /* Comm 9*/
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_win_fence_put;
@@ -61,6 +63,8 @@ int ADCL_method_init ( void )
     strncpy ( ADCL_method_array[count].m_name, "WinFenceGet_aao", 32 );
     count++;
 #endif /* WINFENCEGET */
+
+#endif    
     
 #ifdef POSTSTARTPUT /* Comm 11*/
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
@@ -105,6 +109,8 @@ int ADCL_method_init ( void )
     count++;
 #  endif /* SENDRECV */
 
+#ifdef MPI_WIN
+    
 #  ifdef WINFENCEPUT /* Comm 9*/
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_win_fence_put;
@@ -119,7 +125,8 @@ int ADCL_method_init ( void )
     count++;
 #  endif /* WINFENCEGET */
 
-
+#endif
+    
 #  ifdef POSTSTARTPUT /* Comm 11*/
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_post_start_put;
