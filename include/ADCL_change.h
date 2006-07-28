@@ -279,7 +279,9 @@
 					 MPI_Win_wait(req->r_win);}
 
   #define SEND_START( req, i, tag )  MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], \
-                                               req->r_neighbors[i], 0, 1, ((i%2 == 0)? req->r_rdats[i+1]:req->r_rdats[i-1]), req->r_win)
+                                               req->r_neighbors[i], 0, 1, \
+					       ((i%2 == 0)? req->r_rdats[i+1]:req->r_rdats[i-1]), \
+					       req->r_win)
   
   #define RECV_START(req,i,tag)
   #define SEND_WAITALL(req)
