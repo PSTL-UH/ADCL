@@ -418,7 +418,7 @@
            end do
 
            
-!...Si!hern der Variablen, von denen spaeter auch der alte Wert noch
+!...Sichern der Variablen, von denen spaeter auch der alte Wert noch
 !   benoetigt wird
            tfqmr_rho_old = tfqmr_rho
 
