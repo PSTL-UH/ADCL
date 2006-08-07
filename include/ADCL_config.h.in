@@ -16,12 +16,11 @@
 #define SENDRECV      1
 
 #undef MPI_WIN       
-#define FENCE_PUT     1
-#define FENCE_GET     1
-#define POSTSTART_PUT 1
-#define POSTSTART_GET 1
-
 #undef MPI_SUBARRAY
+#undef FENCE_PUT     
+#undef FENCE_GET     
+#undef POSTSTART_PUT 
+#undef POSTSTART_GET 
 
 /* Dump printf statements to a file? */
 #undef ADCL_FILE_PER_PROC 

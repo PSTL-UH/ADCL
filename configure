@@ -3167,6 +3167,7 @@ _ACEOF
 
 fi
 /bin/rm -f TestWinCreate TestWinCreate.o TestWinCreate.c
+
 echo "$as_me:$LINENO: checking if MPI library supports sub-array datatype constructor" >&5
 echo $ECHO_N "checking if MPI library supports sub-array datatype constructor... $ECHO_C" >&6
 cat >  TestCreateSubarray.c <<EOF
@@ -3197,6 +3198,165 @@ _ACEOF
 fi
 /bin/rm -f TestCreateSubarray TestCreateSubarray.* TestCreateSubarray.c
 
+echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_fence-Put" >&5
+echo $ECHO_N "checking if MPI library supports MPI_Win_fence-Put... $ECHO_C" >&6
+cat >  TestFencePut.c <<EOF
+#include <mpi.h>
+int main()
+{
+	int assert=0;
+	int orgaddr, orgcnt=1,rank=0,targcnt = 0;
+
+	MPI_Aint tardisp=0;
+	MPI_Datatype targtype;
+	MPI_Win win;
+
+	MPI_Win_fence(assert, win);
+	MPI_Put(&orgaddr, orgcnt, MPI_INT, rank,
+        	tardisp, targcnt, targtype,win);
+
+	MPI_Win_fence(assert, win);
+
+	return MPI_SUCCESS;
+}
+EOF
+
+$mpi_cc -Wall -o TestFencePut TestFencePut.c > /dev/null 2>&1
+if test ! -s TestFencePut; then
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+else
+   echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+   FENCE_PUT=1
+   cat >>confdefs.h <<\_ACEOF
+#define FENCE_PUT 1
+_ACEOF
+
+fi
+/bin/rm -f TestFencePut TestFencePut.*
+echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_fence-Get" >&5
+echo $ECHO_N "checking if MPI library supports MPI_Win_fence-Get... $ECHO_C" >&6
+cat >  TestFenceGet.c <<EOF
+
+#include <mpi.h>
+int main()
+{
+	int assert=0;
+	int orgaddr, orgcnt=1,tarrank=0, targcnt = 0;
+
+	MPI_Aint tardisp=0;
+	MPI_Datatype targtype;
+	MPI_Win win;
+
+	MPI_Win_fence(assert, win);
+	MPI_Get(&orgaddr, orgcnt, MPI_INT, tarrank, tardisp, targcnt, targtype,win);
+
+	MPI_Win_fence(assert, win);
+
+	return MPI_SUCCESS;
+}
+EOF
+
+$mpi_cc -Wall -o TestFenceGet TestFenceGet.c > /dev/null 2>&1
+if test ! -s TestFenceGet; then
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+else
+   echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+   FENCE_GET=1
+   cat >>confdefs.h <<\_ACEOF
+#define FENCE_GET 1
+_ACEOF
+
+fi
+/bin/rm -f TestFenceGet TestFenceGet.*
+
+
+
+echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_Post_start-put" >&5
+echo $ECHO_N "checking if MPI library supports MPI_Win_Post_start-put... $ECHO_C" >&6
+cat >  TestPostPut.c <<EOF
+
+#include <mpi.h>
+int main()
+{
+	int orgaddr, orgcnt=1,rank=0,targcnt = 0,assert=0;
+
+	MPI_Group group;
+	MPI_Win win;
+	MPI_Aint tardisp=0;
+	MPI_Datatype targtype;
+
+	MPI_Win_post(group, assert, win);
+	MPI_Win_start(group, assert, win);
+
+	MPI_Put(&orgaddr, orgcnt, MPI_INT, rank,tardisp, targcnt, targtype,win);
+
+
+	MPI_Win_complete(win);
+	MPI_Win_wait(win);
+
+	return MPI_SUCCESS;
+}
+EOF
+
+$mpi_cc -Wall -o TestPostPut TestPostPut.c > /dev/null 2>&1
+if test ! -s TestPostPut; then
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+else
+   echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+   POSTSTART_PUT=1
+   cat >>confdefs.h <<\_ACEOF
+#define POSTSTART_PUT 1
+_ACEOF
+
+fi
+/bin/rm -f TestPostPut TestPostPut.*
+
+echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_Post_start-get" >&5
+echo $ECHO_N "checking if MPI library supports MPI_Win_Post_start-get... $ECHO_C" >&6
+cat >  TestPostGet.c <<EOF
+#include <mpi.h>
+int main()
+{
+	int orgaddr, orgcnt=1,tarrank=0,targcnt = 0,assert=0;
+
+	MPI_Group group;
+	MPI_Win win;
+	MPI_Aint tardisp=0;
+	MPI_Datatype targtype;
+
+	MPI_Win_post(group, assert, win);
+	MPI_Win_start(group, assert, win);
+
+	MPI_Get(&orgaddr, orgcnt, MPI_INT, tarrank,tardisp, targcnt, targtype,win);
+
+
+	MPI_Win_complete(win);
+	MPI_Win_wait(win);
+
+	return MPI_SUCCESS;
+}
+EOF
+
+$mpi_cc -Wall -o TestPostGet TestPostGet.c > /dev/null 2>&1
+if test ! -s TestPostGet; then
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+else
+   echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+   TestPostGet=1
+   cat >>confdefs.h <<\_ACEOF
+#define TestPostGet 1
+_ACEOF
+
+fi
+/bin/rm -f TestPostGet TestPostGet.*
 
 # Check whether --enable-printf_tofile or --disable-printf_tofile was given.
 if test "${enable_printf_tofile+set}" = set; then
