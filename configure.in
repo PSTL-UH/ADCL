@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT
 AC_PREREQ(2.53)
-AC_CONFIG_HEADER(include/ADCL_config.h)q
+AC_CONFIG_HEADER(include/ADCL_config.h)
 dnl First step for the cross compiling ...
 AC_CANONICAL_TARGET
 AC_PREFIX_DEFAULT(.)
@@ -178,7 +178,60 @@ else
    AC_MSG_RESULT(yes)
 fi
 /bin/rm -f testmpi.c testmpi testmpi.o
+
 dnl ==================================================
+dnl ==================================================
+dnl Test MPI_Win_create in MPI library
+
+AC_MSG_CHECKING(if MPI library supports window objecst)
+cat >  TestWinCreate.c <<EOF
+#include <mpi.h>
+int main(int argc, char **argv)
+{
+    int sum;
+    MPI_Win sum_win;
+    MPI_Win_create(&sum, sizeof(sum), sizeof(sum), 0, MPI_COMM_WORLD, &sum_win);
+    return MPI_SUCCESS;
+}
+EOF
+
+$mpi_cc -Wall -o TestWinCreate TestWinCreate.c > /dev/null 2>&1
+if test ! -s TestWinCreate ; then
+    AC_MSG_RESULT(no)
+else
+   AC_MSG_RESULT(yes)
+   MPI_WIN=1
+   AC_DEFINE(MPI_WIN)
+fi
+/bin/rm -f TestWinCreate TestWinCreate.o TestWinCreate.c 
+dnl ==================================================
+dnl ==================================================
+dnl Test MPI_Type_create_subarray in MPI library
+AC_MSG_CHECKING(if MPI library supports sub-array datatype constructor)
+cat >  TestCreateSubarray.c <<EOF
+#include <mpi.h>
+int main(int argc, char **argv)
+{
+    int	gsizes=1, lsizes=1, start_indices=0;
+    MPI_Datatype newtype;
+
+    MPI_Type_create_subarray(1, &gsizes, &lsizes, &start_indices,
+                             MPI_ORDER_C, MPI_FLOAT, &newtype);    
+    return MPI_SUCCESS;
+}
+EOF
+
+$mpi_cc -Wall -o TestCreateSubarray TestCreateSubarray.c > /dev/null 2>&1
+if test ! -s TestCreateSubarray; then
+    AC_MSG_RESULT(no)
+else
+   AC_MSG_RESULT(yes)
+   MPI_SUBARRAY=1
+   AC_DEFINE(MPI_SUBARRAY)
+fi
+/bin/rm -f TestCreateSubarray TestCreateSubarray.* TestCreateSubarray.c
+dnl ==================================================
+
 
 AC_ARG_ENABLE(printf_tofile,
 [  --enable-printf-tofile      dump printf statements to a file (default=no)],

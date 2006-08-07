@@ -1290,7 +1290,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
           ac_config_headers="$ac_config_headers include/ADCL_config.h"
-q
+
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -3138,6 +3138,65 @@ else
 echo "${ECHO_T}yes" >&6
 fi
 /bin/rm -f testmpi.c testmpi testmpi.o
+
+
+echo "$as_me:$LINENO: checking if MPI library supports window objecst" >&5
+echo $ECHO_N "checking if MPI library supports window objecst... $ECHO_C" >&6
+cat >  TestWinCreate.c <<EOF
+#include <mpi.h>
+int main(int argc, char **argv)
+{
+    int sum;
+    MPI_Win sum_win;
+    MPI_Win_create(&sum, sizeof(sum), sizeof(sum), 0, MPI_COMM_WORLD, &sum_win);
+    return MPI_SUCCESS;
+}
+EOF
+
+$mpi_cc -Wall -o TestWinCreate TestWinCreate.c > /dev/null 2>&1
+if test ! -s TestWinCreate ; then
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+else
+   echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+   MPI_WIN=1
+   cat >>confdefs.h <<\_ACEOF
+#define MPI_WIN 1
+_ACEOF
+
+fi
+/bin/rm -f TestWinCreate TestWinCreate.o TestWinCreate.c
+echo "$as_me:$LINENO: checking if MPI library supports sub-array datatype constructor" >&5
+echo $ECHO_N "checking if MPI library supports sub-array datatype constructor... $ECHO_C" >&6
+cat >  TestCreateSubarray.c <<EOF
+#include <mpi.h>
+int main(int argc, char **argv)
+{
+    int	gsizes=1, lsizes=1, start_indices=0;
+    MPI_Datatype newtype;
+
+    MPI_Type_create_subarray(1, &gsizes, &lsizes, &start_indices,
+                             MPI_ORDER_C, MPI_FLOAT, &newtype);
+    return MPI_SUCCESS;
+}
+EOF
+
+$mpi_cc -Wall -o TestCreateSubarray TestCreateSubarray.c > /dev/null 2>&1
+if test ! -s TestCreateSubarray; then
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+else
+   echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+   MPI_SUBARRAY=1
+   cat >>confdefs.h <<\_ACEOF
+#define MPI_SUBARRAY 1
+_ACEOF
+
+fi
+/bin/rm -f TestCreateSubarray TestCreateSubarray.* TestCreateSubarray.c
+
 
 # Check whether --enable-printf_tofile or --disable-printf_tofile was given.
 if test "${enable_printf_tofile+set}" = set; then
