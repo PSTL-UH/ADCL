@@ -1290,7 +1290,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
           ac_config_headers="$ac_config_headers include/ADCL_config.h"
-
+q
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -3139,6 +3139,65 @@ echo "${ECHO_T}yes" >&6
 fi
 /bin/rm -f testmpi.c testmpi testmpi.o
 
+
+echo "$as_me:$LINENO: checking if currect MPI lib can create Windows object in one-side operation with ${mpi_cc}" >&5
+echo $ECHO_N "checking if currect MPI lib can create Windows object in one-side operation with ${mpi_cc}... $ECHO_C" >&6
+cat >  TestWinCreate.c <<EOF
+#include <mpi.h>
+int main(int argc, char **argv)
+{
+    int size;
+    int rank;
+    int sum;
+
+    MPI_Win sum_win;
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Win_create(&sum, sizeof(sum), sizeof(sum), 0, MPI_COMM_WORLD, &sum_win);
+
+    MPI_Win_fence(0, sum_win);
+    MPI_Win_fence(0, sum_win);
+
+    MPI_Finalize();
+
+    return MPI_SUCCESS;
+
+}
+
+EOF
+
+$mpi_cc -Wall -o TestWinCreate TestWinCreate.c > /dev/null 2>&1
+if test ! -s TestWinCreate ; then
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+    { { echo "$as_me:$LINENO: error: cannot create windows object in one-side operation with ${mpi_cc}" >&5
+echo "$as_me: error: cannot create windows object in one-side operation with ${mpi_cc}" >&2;}
+   { (exit 1); exit 1; }; }
+else
+   echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+fi
+/bin/rm -f TestWinCreate TestWinCreate.o
+echo "$as_me:$LINENO: checking if currect MPI lib can create sub-array datatypes with ${mpi_cc}" >&5
+echo $ECHO_N "checking if currect MPI lib can create sub-array datatypes with ${mpi_cc}... $ECHO_C" >&6
+
+$mpi_cc -Wall -o TestCreateSubArray TestCreateSubArray.c > /dev/null 2>&1
+if test ! -s TestCreateSubArray ; then
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+    { { echo "$as_me:$LINENO: error: cannot create windows object in one-side operation with ${mpi_cc}" >&5
+echo "$as_me: error: cannot create windows object in one-side operation with ${mpi_cc}" >&2;}
+   { (exit 1); exit 1; }; }
+else
+   echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+fi
+/bin/rm -f TestCreateSubArray TestCreateSubArray.o
+
+
 # Check whether --enable-printf_tofile or --disable-printf_tofile was given.
 if test "${enable_printf_tofile+set}" = set; then
   enableval="$enable_printf_tofile"
@@ -3146,8 +3205,8 @@ if test "${enable_printf_tofile+set}" = set; then
 fi;
 test "$ADCL_FILE_PER_PROC" = yes || ADCL_FILE_PER_PROC=no
 
-echo "$as_me:$LINENO: checking whether to dump printf statements to a file instead of stdout" >&5
-echo $ECHO_N "checking whether to dump printf statements to a file instead of stdout... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking whether ??to dump printf statements to a file instead of stdout" >&5
+echo $ECHO_N "checking whether ??to dump printf statements to a file instead of stdout... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: ${ADCL_FILE_PER_PROC}" >&5
 echo "${ECHO_T}${ADCL_FILE_PER_PROC}" >&6
 if test "$ADCL_FILE_PER_PROC" = yes ; then
