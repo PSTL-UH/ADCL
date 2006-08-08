@@ -3140,34 +3140,6 @@ fi
 /bin/rm -f testmpi.c testmpi testmpi.o
 
 
-echo "$as_me:$LINENO: checking if MPI library supports window objecst" >&5
-echo $ECHO_N "checking if MPI library supports window objecst... $ECHO_C" >&6
-cat >  TestWinCreate.c <<EOF
-#include <mpi.h>
-int main(int argc, char **argv)
-{
-    int sum;
-    MPI_Win sum_win;
-    MPI_Win_create(&sum, sizeof(sum), sizeof(sum), 0, MPI_COMM_WORLD, &sum_win);
-    return MPI_SUCCESS;
-}
-EOF
-
-$mpi_cc -Wall -o TestWinCreate TestWinCreate.c > /dev/null 2>&1
-if test ! -s TestWinCreate ; then
-    echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-else
-   echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-   MPI_WIN=1
-   cat >>confdefs.h <<\_ACEOF
-#define MPI_WIN 1
-_ACEOF
-
-fi
-/bin/rm -f TestWinCreate TestWinCreate.o TestWinCreate.c
-
 echo "$as_me:$LINENO: checking if MPI library supports sub-array datatype constructor" >&5
 echo $ECHO_N "checking if MPI library supports sub-array datatype constructor... $ECHO_C" >&6
 cat >  TestCreateSubarray.c <<EOF
@@ -3198,8 +3170,38 @@ _ACEOF
 fi
 /bin/rm -f TestCreateSubarray TestCreateSubarray.* TestCreateSubarray.c
 
-echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_fence-Put" >&5
-echo $ECHO_N "checking if MPI library supports MPI_Win_fence-Put... $ECHO_C" >&6
+
+echo "$as_me:$LINENO: checking if MPI library supports window objects" >&5
+echo $ECHO_N "checking if MPI library supports window objects... $ECHO_C" >&6
+cat >  TestWinCreate.c <<EOF
+#include <mpi.h>
+int main(int argc, char **argv)
+{
+    int sum;
+    MPI_Win sum_win;
+    MPI_Win_create(&sum, sizeof(sum), sizeof(sum), 0, MPI_COMM_WORLD, &sum_win);
+    return MPI_SUCCESS;
+}
+EOF
+
+$mpi_cc -Wall -o TestWinCreate TestWinCreate.c > /dev/null 2>&1
+if test ! -s TestWinCreate ; then
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+else
+   echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+   MPI_WIN=1
+   cat >>confdefs.h <<\_ACEOF
+#define MPI_WIN 1
+_ACEOF
+
+fi
+/bin/rm -f TestWinCreate TestWinCreate.o TestWinCreate.c
+
+if test "$MPI_WIN" = "1" ; then
+echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_fence with MPI_Put" >&5
+echo $ECHO_N "checking if MPI library supports MPI_Win_fence with MPI_Put... $ECHO_C" >&6
 cat >  TestFencePut.c <<EOF
 #include <mpi.h>
 int main()
@@ -3235,8 +3237,8 @@ _ACEOF
 
 fi
 /bin/rm -f TestFencePut TestFencePut.*
-echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_fence-Get" >&5
-echo $ECHO_N "checking if MPI library supports MPI_Win_fence-Get... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_fence with MPI_Get" >&5
+echo $ECHO_N "checking if MPI library supports MPI_Win_fence with MPI_Get... $ECHO_C" >&6
 cat >  TestFenceGet.c <<EOF
 
 #include <mpi.h>
@@ -3275,8 +3277,8 @@ fi
 
 
 
-echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_Post_start-put" >&5
-echo $ECHO_N "checking if MPI library supports MPI_Win_Post_start-put... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_post/start with MPI_Put" >&5
+echo $ECHO_N "checking if MPI library supports MPI_Win_post/start with MPI_Put... $ECHO_C" >&6
 cat >  TestPostPut.c <<EOF
 
 #include <mpi.h>
@@ -3317,8 +3319,8 @@ _ACEOF
 fi
 /bin/rm -f TestPostPut TestPostPut.*
 
-echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_Post_start-get" >&5
-echo $ECHO_N "checking if MPI library supports MPI_Win_Post_start-get... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking if MPI library supports MPI_Win_post/start with MPI_Get" >&5
+echo $ECHO_N "checking if MPI library supports MPI_Win_post/start with MPI_Get... $ECHO_C" >&6
 cat >  TestPostGet.c <<EOF
 #include <mpi.h>
 int main()
@@ -3350,13 +3352,17 @@ echo "${ECHO_T}no" >&6
 else
    echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-   TestPostGet=1
+   POSTSTART_GET=1
    cat >>confdefs.h <<\_ACEOF
-#define TestPostGet 1
+#define POSTSTART_GET 1
 _ACEOF
 
 fi
 /bin/rm -f TestPostGet TestPostGet.*
+fi
+
+
+
 
 # Check whether --enable-printf_tofile or --disable-printf_tofile was given.
 if test "${enable_printf_tofile+set}" = set; then
