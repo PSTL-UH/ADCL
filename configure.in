@@ -208,6 +208,19 @@ fi
 /bin/rm -f TestCreateSubarray TestCreateSubarray.* TestCreateSubarray.c
 dnl ==================================================
 
+AC_ARG_ENABLE(onesided,
+[  --enable-onesided       enable the usage of one-sided communication (default=no)],
+[test "$enableval" = yes && ADCL_ONESIDED=yes])
+test "$ADCL_ONESIDED" = yes || ADCL_ONESIDED=no
+
+AC_MSG_CHECKING([whether to enable the usage of one-sided communciation])
+AC_MSG_RESULT(${ADCL_ONESIDED})
+
+
+dnl ==================================================
+dnl only check for MPI_Win_create and friends if the user enabled the usage of one-sided operations */
+if test "$ADCL_ONESIDED" = "yes" ; then 
+
 dnl ==================================================
 dnl Test MPI_Win_create in MPI library
 
@@ -384,13 +397,14 @@ fi
 /bin/rm -f TestPostGet TestPostGet.*
 dnl ==================================================
 fi
-dnl ==================================================
-
+dnl MPI_WIN ==================================================
+fi 
+dnl ADCL_ONESIDED ==================================================
 
 
 
 AC_ARG_ENABLE(printf_tofile,
-[  --enable-printf-tofile      dump printf statements to a file (default=no)],
+[  --enable-printf-tofile  dump printf statements to a file (default=no)],
 [test "$enableval" = yes && ADCL_FILE_PER_PROC=yes])
 test "$ADCL_FILE_PER_PROC" = yes || ADCL_FILE_PER_PROC=no
 

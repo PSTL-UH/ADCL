@@ -820,7 +820,8 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-printf-tofile      dump printf statements to a file (default=no)
+  --enable-onesided       enable the usage of one-sided communication (default=no)
+  --enable-printf-tofile  dump printf statements to a file (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2778,7 +2779,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2781:" \
+echo "$as_me:2782:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3170,6 +3171,21 @@ _ACEOF
 fi
 /bin/rm -f TestCreateSubarray TestCreateSubarray.* TestCreateSubarray.c
 
+# Check whether --enable-onesided or --disable-onesided was given.
+if test "${enable_onesided+set}" = set; then
+  enableval="$enable_onesided"
+  test "$enableval" = yes && ADCL_ONESIDED=yes
+fi;
+test "$ADCL_ONESIDED" = yes || ADCL_ONESIDED=no
+
+echo "$as_me:$LINENO: checking whether to enable the usage of one-sided communciation" >&5
+echo $ECHO_N "checking whether to enable the usage of one-sided communciation... $ECHO_C" >&6
+echo "$as_me:$LINENO: result: ${ADCL_ONESIDED}" >&5
+echo "${ECHO_T}${ADCL_ONESIDED}" >&6
+
+
+if test "$ADCL_ONESIDED" = "yes" ; then
+
 
 echo "$as_me:$LINENO: checking if MPI library supports window objects" >&5
 echo $ECHO_N "checking if MPI library supports window objects... $ECHO_C" >&6
@@ -3360,7 +3376,7 @@ _ACEOF
 fi
 /bin/rm -f TestPostGet TestPostGet.*
 fi
-
+fi
 
 
 

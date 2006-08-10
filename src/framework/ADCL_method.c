@@ -24,8 +24,12 @@ int ADCL_method_init ( void )
        set right now! 
     */
 
+#ifdef MPI_WIN
     ADCL_method_total_num = 20; 
-/*    ADCL_method_total_num = 12; */
+#else
+    ADCL_method_total_num = 12;
+#endif
+
     ADCL_method_array=(ADCL_method_t*)calloc(1, ADCL_method_total_num
 					     * sizeof( ADCL_method_t));
     if ( NULL == ADCL_method_array ) {
