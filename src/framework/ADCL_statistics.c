@@ -18,12 +18,11 @@ int ADCL_statistic_method=ADCL_STATISTIC_VOTE;
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_statistics_filter_timings (ADCL_emethod_req_t *ermethod )
+int ADCL_statistics_filter_timings (ADCL_emethod_req_t *ermethod, int count )
 {
     int i, j, k;
     int numoutl, rank;
     TIME_TYPE min;
-    int count = ermethod->er_num_emethods;
     ADCL_emethod_t *emethods = ermethod->er_emethods;
 
     MPI_Comm_rank ( ermethod->er_comm, &rank );
@@ -71,12 +70,11 @@ int ADCL_statistics_filter_timings (ADCL_emethod_req_t *ermethod )
 /**********************************************************************/
 /**********************************************************************/
 /* Determine which method gets how many points */
-int ADCL_statistics_determine_votes ( ADCL_emethod_req_t *ermethod )
+int ADCL_statistics_determine_votes ( ADCL_emethod_req_t *ermethod, int count )
 {
     double sum, *sorted=NULL;
     int i, j, rank, pts;
     ADCL_emethod_t *emethods=ermethod->er_emethods;
-    int count=ermethod->er_num_emethods;
 
     if ( ADCL_STATISTIC_VOTE == ADCL_statistic_method ) {
 	MPI_Comm_rank ( ermethod->er_comm, &rank );
@@ -126,11 +124,10 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_req_t *ermethod )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_statistics_global_max ( ADCL_emethod_req_t *ermethod )
+int ADCL_statistics_global_max ( ADCL_emethod_req_t *ermethod, int count )
 {
     int i, winner=-1;
     double *lpts, *gpts;
-    int count = ermethod->er_num_emethods;
 
     lpts = (double *) malloc ( 2* count * sizeof(double));
     if ( NULL == lpts ) {

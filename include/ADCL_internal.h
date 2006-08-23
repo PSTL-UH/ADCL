@@ -40,8 +40,8 @@ int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);
 
 int ADCL_readenv( void );
-int ADCL_statistics_filter_timings  ( ADCL_emethod_req_t *ermethod );
-int ADCL_statistics_determine_votes ( ADCL_emethod_req_t *ermethod );
-int ADCL_statistics_global_max      ( ADCL_emethod_req_t *ermethod );
+int ADCL_statistics_filter_timings  ( ADCL_emethod_req_t *ermethod, int count );
+int ADCL_statistics_determine_votes ( ADCL_emethod_req_t *ermethod, int count );
+int ADCL_statistics_global_max      ( ADCL_emethod_req_t *ermethod, int count );
 
 #endif /* __ADCL_INTERNAL_H__ */

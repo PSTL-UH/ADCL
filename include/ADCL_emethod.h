@@ -38,6 +38,7 @@ struct ADCL_emethod_req_s {
     int                er_rfcnt;
     int                er_state; /* state of the object */
     int                 er_last; /* last element given out */
+    int         er_max_emethods; /* length of the er_emethod array */
     int         er_num_emethods; /* how many methods shall be evaluated */
     int              er_vhwidth;
     int                  er_vnc;
