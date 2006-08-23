@@ -42,6 +42,12 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_IsendIrecv;
     strncpy ( ADCL_method_array[count].m_name, "IsendIrecv_aao", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
     count++; 
 #endif /* ISEND_IRECV */
 
@@ -49,6 +55,12 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_SendIrecv;
     strncpy ( ADCL_method_array[count].m_name, "SendIrecv_aao", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
     count++; 
 #endif /* SEND_IRECV */
 
@@ -58,6 +70,12 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_win_fence_put;
     strncpy ( ADCL_method_array[count].m_name, "WinFencePut_aao", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FencePut;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
     count++;
 #endif /* WINFENCEPUT */
  
@@ -66,6 +84,12 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_win_fence_get;
     strncpy ( ADCL_method_array[count].m_name, "WinFenceGet_aao", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_FenceGet;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
     count++;
 #endif /* WINFENCEGET */
     
@@ -73,6 +97,12 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_post_start_put;
     strncpy ( ADCL_method_array[count].m_name, "PostStartPut_aao", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartPut;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
     count++;
 #endif /* POSTSTARTPUT */
                   
@@ -80,6 +110,12 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_post_start_get;
     strncpy ( ADCL_method_array[count].m_name, "PostStartGet_aao", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartGet;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
     count++;
 #endif /* POSTSTARTGET */
 #endif /* MPI_WIN */
@@ -91,18 +127,36 @@ int ADCL_method_init ( void )
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_IsendIrecv;
       strncpy ( ADCL_method_array[count].m_name, "IsendIrecv_pair", 32 );
+
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
       count++; 
 #  endif /* ISEND_IRECV */
 #  ifdef SEND_RECV
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendRecv;
       strncpy ( ADCL_method_array[count].m_name, "SendRecv_pair", 32 );
+
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendRecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
       count++; 
 #  endif /* SEND_RECV */
 #  ifdef SEND_IRECV
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendIrecv;
       strncpy ( ADCL_method_array[count].m_name, "SendIrecv_pair", 32 );
+
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
       count++; 
 #  endif /* SEND_IRECV */
 
@@ -110,6 +164,11 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_Sendrecv;
     strncpy ( ADCL_method_array[count].m_name, "Sendrecv_pair", 32 );
+
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_Sendrecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
     count++;
 #  endif /* SENDRECV */
 
@@ -119,6 +178,11 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_win_fence_put;
     strncpy ( ADCL_method_array[count].m_name, "WinFencePut_pair", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FencePut;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
     count++;
 #  endif /* WINFENCEPUT */
 
@@ -126,6 +190,11 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_win_fence_get;
     strncpy ( ADCL_method_array[count].m_name, "WinFenceGet_pair", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FenceGet;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
     count++;
 #  endif /* WINFENCEGET */
 
@@ -134,6 +203,12 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_post_start_put;
     strncpy ( ADCL_method_array[count].m_name, "PostStartPut_pair", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartPut;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
     count++;
 #  endif /* POSTSTARTPUT */
 
@@ -141,6 +216,12 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_post_start_get;
     strncpy ( ADCL_method_array[count].m_name, "PostStartGet_pair", 32 );
+
+    ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartGet;
+    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
     count++;
 #  endif /* POSTSTARTGET */
 
@@ -157,6 +238,12 @@ int ADCL_method_init ( void )
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_IsendIrecv_pack;
       strncpy ( ADCL_method_array[count].m_name, "IsendIrecv_aao_pack", 32 );
+      
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
       count++; 
 #  endif /* ISEND_IRECV */
 
@@ -164,6 +251,12 @@ int ADCL_method_init ( void )
        ADCL_method_array[count].m_id = ADCL_local_id_counter++;
        ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_SendIrecv_pack;
        strncpy( ADCL_method_array[count].m_name, "SendIrecv_aao_pack", 32 );
+
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
        count++;
 #endif      
       
@@ -174,6 +267,12 @@ int ADCL_method_init ( void )
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_IsendIrecv_pack;
       strncpy ( ADCL_method_array[count].m_name, "IsendIrecv_pair_pack", 32 );
+
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
       count++; 
 #  endif /* ISEND_IRECV */
 
@@ -181,6 +280,12 @@ int ADCL_method_init ( void )
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendRecv_pack;
       strncpy( ADCL_method_array[count].m_name, "SendRecv_pair_pack", 32 );
+
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendRecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
       count ++;
             
 # endif /* SEND_RECV_PACK */
@@ -189,6 +294,12 @@ int ADCL_method_init ( void )
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_SendIrecv_pack;
       strncpy( ADCL_method_array[count].m_name, "SendIrecv_pair_pack", 32 );
+
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
       count++;
 #endif /* SEND_IRECV_PACK */
 
@@ -197,11 +308,14 @@ int ADCL_method_init ( void )
       ADCL_method_array[count].m_id = ADCL_local_id_counter++;
       ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_pair_Sendrecv_pack;
       strncpy( ADCL_method_array[count].m_name, "Sendrecv_pair_pack", 32 );
+
+      ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_Sendrecv;
+      ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+
       count++;
 # endif /* SENDRECV_PACK */
-      
-      
-
 #endif /* CHANGE_PAIR  */
 
 #endif /* PACK_UNPACK */
@@ -223,32 +337,6 @@ int ADCL_method_finalize (void)
     return ADCL_SUCCESS;
 }
 
-int ADCL_method_get_num_attr ( ADCL_method_t *meth)
-{
-    return meth->m_nattr;
-}
-
-char* ADCL_method_get_attr_name ( ADCL_method_t *meth, int pos )
-{
-    char *attr;
-
-    if ( pos >= meth->m_nattr ) {
-	return NULL;
-    }
-    attr = strdup((const char *)(meth->m_attr[pos]) );
-    return attr;
-}
-
-char* ADCL_method_get_attr_val (ADCL_method_t *meth, int i)
-{
-    char *val;
-
-    if ( i >= meth->m_nattr ) {
-	return NULL;
-    }
-    val = strdup(meth->m_val[i]);
-    return val;
-}
 
 int ADCL_get_num_methods (void)
 {
