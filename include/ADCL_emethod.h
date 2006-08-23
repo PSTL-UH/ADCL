@@ -74,4 +74,8 @@ void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos,
 
 int ADCL_emethod_get_next_id (void);
 
+int ADCL_emethods_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, int attribute,
+				      int required_value );
+
+
 #endif /* __ADCL_EMETHOD_H__ */
