@@ -102,12 +102,8 @@ int ADCL_readenv()
 #ifdef	Debug	
 	    ADCL_printf("ADCL_STATISTIC_METHOD : %s\n", valstring);	
 #endif
-	    if ( strncmp(valstring,"ADCL_STATISTIC_VOTE", 
-			 strlen("ADCL_STATISTIC_VOTE"))==0) {
-		ADCL_statistic_method = ADCL_STATISTIC_VOTE;
-	    }
-	    else if ( strncmp(valstring,"ADCL_STATISTIC_MAX",
-			      strlen("ADCL_STATISTIC_MAX"))==0) {
+	    if ( strncmp(valstring,"ADCL_STATISTIC_MAX",
+			 strlen("ADCL_STATISTIC_MAX"))==0) {
 		ADCL_statistic_method = ADCL_STATISTIC_MAX;
 	    }
 	}
@@ -120,7 +116,7 @@ int ADCL_readenv()
 	    ADCL_printf("ADCL_MERGE_REQUESTS : %d\n", ADCL_merge_requests);	
 #endif
 	}
-
+	
 	/*  ADCL_EMETHOD_NUMTESTS  */
 	else if ( strncmp(keyword, "ADCL_EMETHOD_NUMTESTS", 
 			  strlen("ADCL_EMETHOD_NUMTESTS"))==0) {

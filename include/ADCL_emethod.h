@@ -27,6 +27,7 @@ struct ADCL_emethod_s {
     int             em_count; /* how often has this routine already been called */
     int          em_rescount; /* how often has this routine already reported back */
     TIME_TYPE       *em_time; /* measurements */
+    int          em_filtered; /* Has this data set already been filtered? */
     double           em_lpts; /* local no. of pts by this method */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
@@ -48,10 +49,9 @@ struct ADCL_emethod_req_s {
     int               *er_vdims;
     ADCL_emethod_t *er_emethods;
     ADCL_method_t   *er_wmethod; /* winner method used after the testing */
+    char              *er_cache;
 };
 typedef struct ADCL_emethod_req_s ADCL_emethod_req_t;
-
-
 
 
 int ADCL_emethod_req_init     ( void );
@@ -74,8 +74,6 @@ void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos,
 
 int ADCL_emethod_get_next_id (void);
 
-int ADCL_emethods_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, int attribute,
-				      int required_value );
 
 
 #endif /* __ADCL_EMETHOD_H__ */

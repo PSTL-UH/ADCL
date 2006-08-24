@@ -216,18 +216,24 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
     ** Filter the input data, i.e. remove outliers which 
     ** would falsify the results 
     */
-    ADCL_statistics_filter_timings ( ermethod, ermethod->er_num_emethods );
+    ADCL_statistics_filter_timings ( ermethod->er_emethods, 
+				     ermethod->er_num_emethods, 
+				     ermethod->er_comm );
 
     /* 
     ** Weight now the performance of each method 
     */
-    ADCL_statistics_determine_votes ( ermethod, ermethod->er_num_emethods );
+    ADCL_statistics_determine_votes ( ermethod->er_emethods, 
+				      ermethod->er_num_emethods, 
+				      ermethod->er_comm );
 
     /* 
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */
-    return ADCL_statistics_global_max ( ermethod, ermethod->er_num_emethods );
+    return ADCL_statistics_global_max ( ermethod->er_emethods, 
+					ermethod->er_num_emethods, 
+					ermethod->er_comm );
 }
 
 /**********************************************************************/
