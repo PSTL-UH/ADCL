@@ -7,6 +7,7 @@ static ADCL_array_t *ADCL_emethod_req_array=NULL;
 int ADCL_emethod_selection = -1;
 int ADCL_merge_requests=1;
 int ADCL_emethod_numtests=ADCL_EMETHOD_NUMTESTS;
+int ADCL_emethod_use_perfhypothesis=0; /* false */
 
 /**********************************************************************/
 /**********************************************************************/
