@@ -301,29 +301,3 @@ void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos, int flag,
 
     return;
 }
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-/* Shrink the emethods list based on an attribute and a required value; */
-int ADCL_emethods_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, int attribute,
-				      int required_value )
-{
-    int i, count=0;
-    ADCL_method_t *tmeth=NULL;
-    int org_count=ermethod->er_num_emethods;    
-    ADCL_emethod_t *emethods=ermethod->er_emethods;
-
-    for ( i=0; i < org_count; i++ ) {
-	tmeth = emethods[i].em_method;
-	if ( tmeth->m_attr[attribute] == required_value ) {
-	    if ( count != i ) {
-		/* move this emethod from pos i to pos count */
-		ermethod->er_emethods[count] = ermethod->er_emethods[i];
-	    }
-	    count++;
-	}
-    }
-    ermethod->er_num_emethods = count;
-
-    return ADCL_SUCCESS;
-}

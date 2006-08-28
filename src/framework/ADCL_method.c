@@ -8,6 +8,13 @@ ADCL_method_t* ADCL_method_array=NULL;
 extern int ADCL_emethod_use_perfhypothesis;
 int *ADCL_method_perfhyp_list=NULL;
 
+int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
+ADCL_attr_max[ADCL_ATTR_MAPPING]=ADCL_ATTR_MAPPING_MAX;
+ADCL_attr_max[ADCL_ATTR_NONCONT]=ADCL_ATTR_NONCONT_MAX;
+ADCL_attr_max[ADCL_ATTR_TRANSFER]=ADCL_ATTR_TRANSFER_MAX;
+/* ADCL_attr_max[ADCL_ATTR_NUMBLOCKS]=ADCL_ATTR_NUMBLOCKS_MAX; */
+
+
 #ifndef ADCL_NO_COMM_DEBUG
 int ADCL_method_init ( void )
 {

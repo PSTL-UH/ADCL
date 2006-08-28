@@ -10,6 +10,9 @@
 
 /* Total number of attributes */
 #define ADCL_ATTR_TOTAL_NUM 3 /* ignoring numblocks for right now */
+
+/* Store for each attribute the maximum number of possible values */
+extern int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
 /*=================================================================*/
 /* 
 ** The mapping step
@@ -17,10 +20,12 @@
 */
 
 #define ADCL_ATTR_MAPPING  0
+#define ADCL_ATTR_MAPPING_MAX 2 /* Ignore hierarch for now */
 
 const int ADCL_attr_mapping_aao=100;
 const int ADCL_attr_mapping_pair=101;
 const int ADCL_attr_mapping_hierarch=102;
+
 
 /*=================================================================*/
 /* 
@@ -28,6 +33,7 @@ const int ADCL_attr_mapping_hierarch=102;
 ** Possible values: derived datatypes, pack/unpack, individual
 */
 #define ADCL_ATTR_NONCONT  1
+#define ADCL_ATTR_NONCONT_MAX 2 /* Ignore individual for now */
 
 const int ADCL_attr_noncont_ddt=110;
 const int ADCL_attr_noncont_pack=111;
@@ -41,14 +47,23 @@ const int ADCL_attr_noncont_individual=112;
 */
 #define ADCL_ATTR_TRANSFER 2
 
+#ifdef MPI_WIN
+#define ADCL_ATTR_TRANSFER_MAX 4 
+#else
+#define ADCL_ATTR_TRANSFER_MAX 8
+#endif
+
 const int ADCL_attr_transfer_IsendIrecv=120;
 const int ADCL_attr_transfer_SendIrecv=121;
 const int ADCL_attr_transfer_SendRecv=122;
 const int ADCL_attr_transfer_Sendrecv=123;
+
+#ifdef MPI_WIN
 const int ADCL_attr_transfer_FenceGet=124;
 const int ADCL_attr_transfer_FencePut=125;
 const int ADCL_attr_transfer_StartPostGet=126;
 const int ADCL_attr_transfer_StartPostPut=127;
+#endif
 
 /*=================================================================*/
 
@@ -58,6 +73,7 @@ const int ADCL_attr_transfer_StartPostPut=127;
 ** Possible values: single, dual
 */
 #define ADCL_ATTR_NUMBLOCKS 4
+#define ADCL_ATTR_NUMBLOCKS_MAX 2
 
 const int ADCL_attr_numblocks_single=130;
 const int ADCL_attr_numblocks_dual=131;
