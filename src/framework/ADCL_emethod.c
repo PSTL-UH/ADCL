@@ -93,13 +93,21 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	return NULL;
     }
 
-    er->er_comm       = comm;
-    er->er_nneighbors = nneighbors;
-    er->er_vndims     = vndims;
-    er->er_rfcnt      = 1;
-    er->er_state      = ADCL_STATE_TESTING;
-    er->er_neighbors  = (int *) malloc ( nneighbors * sizeof(int));
-    er->er_vdims      = (int *) malloc ( vndims * sizeof(int));
+    er->er_comm           = comm;
+    er->er_nneighbors     = nneighbors;
+    er->er_vndims         = vndims;
+    er->er_rfcnt          = 1;
+    er->er_state          = ADCL_STATE_TESTING;
+    er->er_neighbors      = (int *) malloc ( nneighbors * sizeof(int));
+    er->er_vdims          = (int *) malloc ( vndims * sizeof(int));
+    
+    for(i=0; i<ADCL_ATTR_TOTAL_NUM; i++){
+      er->er_att_hypothesis[i]= ADCL_ATTR_NOT_SET;
+    }
+    
+    memset(er->er_att_confidence, 0, ADCL_ATTR_TOTAL_NUM * sizeof(int));
+    er->er_num_available_measurements = 0;
+
     if ( NULL == er->er_neighbors || NULL == er->er_vdims ) {
 	free ( er );
 	return NULL;
@@ -124,6 +132,7 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 							     sizeof(TIME_TYPE));
 	er->er_emethods[i].em_id     = ADCL_emethod_get_next_id ();
 	er->er_emethods[i].em_method = ADCL_get_method(i);
+        er->er_emethods[i].em_tested = FALSE;
     }
 
     ADCL_array_get_next_free_pos ( ADCL_emethod_req_array, &er->er_pos );
@@ -243,44 +252,116 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 {
     int i, next=ADCL_EVAL_DONE;
     int rflag = ADCL_FLAG_NOPERF;
+    int num_diff = 0;
+    int faster_method, slower_method;
+    int attr_list[ADCL_ATTR_MAX] = {0};
+    
     ADCL_emethod_t *emethod;
 
-    for ( i=er->er_last; i< er->er_num_emethods; i++ ) {
-	emethod = &(er->er_emethods[i]);
-	if ( emethod->em_count < ADCL_emethod_numtests ) {
-	    next = i;
-	    rflag = ADCL_FLAG_PERF;
-	    emethod->em_count++;
-	    break;
-	}
-    }
+    emethod = &(er->er_emethods[er->er_last]);
     
-    if ( next != ADCL_EVAL_DONE) {
-	er->er_last = next;
-    }
-    else { 
-	/* 
-	** At this point, all methods have been *initiated* the required number of 
-	** times. However, we need to check, whether we are really done with 
-	** evaluation, or whether we still have some performance data outstanding
-	*/
-	for ( i=er->er_last; i< er->er_num_emethods; i++ ) {
-	    emethod = &(er->er_emethods[i]);
-	    if ( emethod->em_rescount < ADCL_emethod_numtests ) {
-		/* 
-		** ok, some data is still outstanding. So we 
-		** do not switch yet to the evaluation mode, 
-		** we return the last method with the noperf flag 
-		** (= performance data not relevant for evaluation)
-		*/
-		next = er->er_last;
-		break;
-	    }
-	}
+    if ( emethod->em_count < ADCL_emethod_numtests ) {
+        *flag = ADCL_FLAG_PERF;
+        emethod->em_count++;
+        return er->er_last;
     }
 
-    *flag = rflag;
+    if ( !ADCL_emethod_use_perfhypothesis ) {
+        if ( (er->er_last + 1 ) < er->er_num_methods ) {
+            *flag = ADCL_FLAG_PERF;
+            er->er_last++;
+            er->er_emethods[er->er_last].em_count++;
+            return er->er_last;
+        }
+    }                
+     
+    emethod->em_tested = true;
+    er->er_num_available_measurements++;
+    if ( emethod->em_rescount < ADCL_emethod_numtests ) {
+        /* 
+        ** ok, some data is still outstanding. So we 
+        ** do not switch yet to the evaluation mode, 
+        ** we return the last method with the noperf flag 
+        ** (= performance data not relevant for evaluation)
+        */
+        *flag = ADCL_FLAG_NOPERF;
+        return er->er_last;
+    }
+
+    if ( ADCL_emethod_use_perfhypothesis ) {
+        
+        for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
+            for ( k=0; k< er -> er_num_available_measurements-1; k++ ){
+                
+              /* - check whether we only differ to method                    
+                   k in attribute attr[j] using function (1); */
+              /*num_diff is the different attribution number*/
+              /*attr_list[i] is 1 if attr[i] is different between k and
+              ** er->er_lst */
+              num_diff = ADCL_hypothesis_compare2methods_attr ( er->er_emethods, attr_list, k, er->er_last);
+                
+              
+              /*     - if attr[j] is the only difference 
+                   compare er->er_last and method k using 
+                   function (3)*/
+              if (num_diff == 1) {
+                
+                  faster_method = ADCL_hypothesis_compare2methods_perf( er->ermethods,k, er->er_last);
+                  slower_method = (faster_method==k)? er->er_last:k;
+              }
+              if ( er->er_hypothesis[j] == NOT_SET ) {
+                
+                   er->er_hypothesis[j] = ; /* the value for attribute[j] used
+                                                in the faster of both methods; */
+                   er->er_confidence[j]=1;
+              } 
+              else if ( faster_method == er->er_hypothesis[j] ) {
+                   er->er_confidence[j]++;
+              }
+              else if ( slower_method == er->er_hypothesis[j] ) {
+                   er->er_confidence[j]--;
+                   if ( er->er_confidence[j] == 0 ) {
+                        /* we don't have a performance hypthesis 
+                           for this attribute anymore */
+                      er->er_hypothesis = NOT_SET;
+                   }
+             }
+             else {
+                  ADCL_printf("Warning, we still wonder it!\n");
+                    /* Don't know yet, print a warning! */
+                    /* What we would have to do is to compare against
+                       the method which has the identical attributes as 
+                       method er_last, only differing in attr[j]. The problem
+                       is, that this approach breaks the k-loop *and* the
+                       method might not exist. This situation can only 
+                    */
+                }
+            }        
+        }
+        
+        for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
+            if ( er->er_confidence[j] >= ADCL_attr_max[j] ) {
+                /* remove all methods from the emethods list which
+                   have a different value for attribute attr[j] than 
+                   hypothesis[j] using function (2) */
+              ADCL_hypothesis_shrinklist_byattr ( er->ermethod, j , ADCL_attr_max[j])
+              
+            }
+        }
+        
+        
+        for ( er->er_num_available_measurements=0, i=0; i<er->er_num_methods; i++ ) {
+            /* increase er_num_available_measurements every time 
+               a method has the em_tested flag set to true; */
+            er->er_last = ; /* first method not having the em_tested flag
+                               set to true; */
+            next = er->er_last;
+        }
+    }
+    
+    *flag = ADCL_FLAG_PERF;
     return next;
+
 }
 
 /**********************************************************************/

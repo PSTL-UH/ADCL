@@ -26,6 +26,7 @@ int ADCL_method_init ( void )
     ADCL_method_total_num = 12;
 #endif
 
+    /*Array of method_t */
     ADCL_method_array=(ADCL_method_t*)calloc(1, ADCL_method_total_num
 					     * sizeof( ADCL_method_t));
     if ( NULL == ADCL_method_array ) {
@@ -34,6 +35,8 @@ int ADCL_method_init ( void )
 
     /* aao, ddt, IsendIrecv */
     ADCL_method_array[count].m_id = ADCL_local_id_counter++;
+
+    /*function pointer to ADCL_change_sb_aao_IsendIrecv */
     ADCL_method_array[count].m_ifunc = (ADCL_fnct_ptr*) ADCL_change_sb_aao_IsendIrecv;
     strncpy ( ADCL_method_array[count].m_name, "IsendIrecv_aao", 32 );
 
@@ -374,11 +377,11 @@ int ADCL_method_init ( void )
 
 
     ADCL_method_total_num = 5;
-    ADCL_method_array=(ADCL_method_t*)calloc(1, ADCL_method_total_num
-					     * sizeof( ADCL_method_t));
+    ADCL_method_array=(ADCL_method_t*)calloc(1, ADCL_method_total_num * sizeof( ADCL_method_t));
     if ( NULL == ADCL_method_array ) {
 	return ADCL_NO_MEMORY;
     }
+
     ADCL_method_array[0].m_ifunc = (ADCL_fnct_ptr*)singleblock_func0;
     ADCL_method_array[1].m_ifunc = (ADCL_fnct_ptr*)singleblock_func1;
     ADCL_method_array[2].m_ifunc = (ADCL_fnct_ptr*)singleblock_func2;
@@ -393,6 +396,7 @@ int ADCL_method_init ( void )
 
     return ADCL_SUCCESS;
 }
+
 int singleblock_func0 ( void *req ) 
 {
     int rank;
