@@ -1,7 +1,7 @@
 #include "ADCL_internal.h"
 
-int ADCL_hypothesis_compare2methods_attr ( ADCL_emethod_req_t *ermethods, 
-				       					   int *attr_list, int pos1, int pos2 )
+int ADCL_hypothesis_compare2methods_attr ( ADCL_emethod_req_t *ermethods,
+                                           int *attr_list, int pos1, int pos2 )
 {
     int num_diff=0;
     int last_diff=-1;
@@ -23,10 +23,6 @@ int ADCL_hypothesis_compare2methods_attr ( ADCL_emethod_req_t *ermethods,
     return num_diff;
 }
 
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-/* Shrink the emethods list based on an attribute and a required value; */
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, 
                                         int attribute, int required_value )
 {
@@ -51,7 +47,7 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod,
 }
 
 int ADCL_hypothesis_compare2methods_perf(ADCL_emethod_req_t *ermethods, 
-				         				 int pos1, int pos2 )
+				         int pos1, int pos2 )
 {
     ADCL_emethod_t *emeth1, *emeth2;
     int winner, realwinner=-1;
@@ -80,8 +76,4 @@ int ADCL_hypothesis_compare2methods_perf(ADCL_emethod_req_t *ermethods,
 
     return realwinner;
 }
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
 

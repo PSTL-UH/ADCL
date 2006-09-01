@@ -10,7 +10,8 @@
 
 /* Total number of attributes */
 #define ADCL_ATTR_TOTAL_NUM 3 /* ignoring numblocks for right now */
-
+#define ADCL_ATTR_NOT_SET  -1 /* attributes not set*/
+#define ADCL_ATTR_MAX 3
 /* Store for each attribute the maximum number of possible values */
 extern int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
 /*=================================================================*/
@@ -78,6 +79,7 @@ const int ADCL_attr_transfer_StartPostPut=127;
 const int ADCL_attr_numblocks_single=130;
 const int ADCL_attr_numblocks_dual=131;
 
+
 /*=================================================================*/
 
 
@@ -86,6 +88,7 @@ typedef int ADCL_fnct_ptr ( void* );
 
 #define ADCL_MAX_ATTRLEN 32
 #define ADCL_MAX_NAMELEN 32
+
 /* The structre describing a communication method */
 struct ADCL_method_s {
     int                        m_id; /* unique identifier */
@@ -95,10 +98,11 @@ struct ADCL_method_s {
 			              will be set for single-block*/
     ADCL_fnct_ptr*          m_wfunc; /* wait-function pointer */
     int                        m_db; /* true for dual block, false for sb */
+    
     int m_attr[ADCL_ATTR_TOTAL_NUM]; /* list of required attributes */
 };
-typedef struct ADCL_method_s  ADCL_method_t;
 
+typedef struct ADCL_method_s  ADCL_method_t;
 
 /* ADCL_method_init:
    Description: This routine initializes all communication methodologies.
@@ -106,6 +110,7 @@ typedef struct ADCL_method_s  ADCL_method_t;
    @ret ADCL_SUCCESS:   ok
    @ret ADCL_NO_MEMORY: memory could not be allocated
 */
+
 int ADCL_method_init ( void );
 
 /* ADCL_method_finalize

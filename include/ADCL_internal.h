@@ -34,7 +34,6 @@
 #define ADCL_STATISTIC_VOTE 0
 #define ADCL_STATISTIC_MAX  1
 
-
 int ADCL_printf_init     ( void );
 int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);

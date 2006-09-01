@@ -19,6 +19,7 @@ int main ( int argc, char ** argv )
     int dims[3]={DIM0+2*HWIDTH,DIM1+2*HWIDTH,DIM2+2*HWIDTH};
     int cdims[]={0,0,0};
     int periods[]={0,0,0};
+    
     ADCL_Vector vec;
     ADCL_Request request;
     
