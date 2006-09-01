@@ -1,6 +1,5 @@
 #include "ADCL_internal.h"
 
-static int adcl_compare ( const void*, const void* );
 
 /* An outlier defines as number of times larger 
    than the minimal value */
@@ -12,7 +11,6 @@ int ADCL_OUTLIER_FRACTION=20;
 
 /* what measure shall be used ? */
 int ADCL_statistic_method=ADCL_STATISTIC_MAX;
-
 
 
 /**********************************************************************/
@@ -33,8 +31,8 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t *emethods, int count,
 		if ( emethods[i].em_time[j] < min ) {
 		    min = emethods[i].em_time[j];
 		}
-	    }
-	    
+	    }	    
+
 	    /* Count how many values are N times larger than the min. */
 	    for ( numoutl=0, j=0; j<emethods[i].em_rescount; j++ ) {
 		if ( emethods[i].em_time[j] >= (ADCL_OUTLIER_FACTOR * min) ) {
@@ -64,7 +62,7 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t *emethods, int count,
 	    }
 	    emethods[i].em_filtered = 1; 
 	}
-
+    }
       
     return ADCL_SUCCESS;
 }
@@ -78,7 +76,7 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_t *emethods, int count,
 {
     double sum, *sorted=NULL;
     int i, j, rank, pts;
-
+    
     if (ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
 	for ( i=0; i < count; i++ ) {
 	    for ( sum=0, j=0; j< emethods[i].em_rescount; j++ ) {
@@ -129,34 +127,3 @@ int ADCL_statistics_global_max ( ADCL_emethod_t *emethods, int count,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static int adcl_compare ( const void *p, const void *q )
-{
-    double *a, *b;
-    
-    a = (double *) p;
-    b = (double *) q;
-
-    /* simple tests are those where the avg execution times 
-       are different */
-    if ( a[0] < b[0] ) {
-        return -1;
-    }
-    if ( a[0] > b[0] ) {
-        return 1;
-    }
-
-    /* ok, if the avg execution times are the same then we 
-       chose the one with the smaller id number. Since these
-       are however double values, this should hopefully not
-       really happen */
-    if ( a[0] == b[0] ) {
-        if ( a[1] < b[1] ) {
-            return (-1);
-        }
-        if ( a[1] > b[1] ) {
-            return (1);
-        }
-    }
-    return  0 ;
-}
-
