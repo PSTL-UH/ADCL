@@ -11,6 +11,7 @@
 /* Total number of attributes */
 #define ADCL_ATTR_TOTAL_NUM 3 /* ignoring numblocks for right now */
 #define ADCL_ATTR_NOT_SET  -1 /* attributes not set*/
+
 /* Store for each attribute the maximum number of possible values */
 extern int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
 /*=================================================================*/
@@ -22,9 +23,9 @@ extern int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
 #define ADCL_ATTR_MAPPING  0
 #define ADCL_ATTR_MAPPING_MAX 2 /* Ignore hierarch for now */
 
-const int ADCL_attr_mapping_aao=100;
-const int ADCL_attr_mapping_pair=101;
-const int ADCL_attr_mapping_hierarch=102;
+extern const int ADCL_attr_mapping_aao;
+extern const int ADCL_attr_mapping_pair;
+extern const int ADCL_attr_mapping_hierarch;
 
 
 /*=================================================================*/
@@ -35,9 +36,9 @@ const int ADCL_attr_mapping_hierarch=102;
 #define ADCL_ATTR_NONCONT  1
 #define ADCL_ATTR_NONCONT_MAX 2 /* Ignore individual for now */
 
-const int ADCL_attr_noncont_ddt=110;
-const int ADCL_attr_noncont_pack=111;
-const int ADCL_attr_noncont_individual=112;
+extern const int ADCL_attr_noncont_ddt;
+extern const int ADCL_attr_noncont_pack;
+extern const int ADCL_attr_noncont_individual;
 
 /*=================================================================*/
 /* 
@@ -53,16 +54,16 @@ const int ADCL_attr_noncont_individual=112;
 #define ADCL_ATTR_TRANSFER_MAX 8
 #endif
 
-const int ADCL_attr_transfer_IsendIrecv=120;
-const int ADCL_attr_transfer_SendIrecv=121;
-const int ADCL_attr_transfer_SendRecv=122;
-const int ADCL_attr_transfer_Sendrecv=123;
+extern const int ADCL_attr_transfer_IsendIrecv;
+extern const int ADCL_attr_transfer_SendIrecv;
+extern const int ADCL_attr_transfer_SendRecv;
+extern const int ADCL_attr_transfer_Sendrecv;
 
 #ifdef MPI_WIN
-const int ADCL_attr_transfer_FenceGet=124;
-const int ADCL_attr_transfer_FencePut=125;
-const int ADCL_attr_transfer_StartPostGet=126;
-const int ADCL_attr_transfer_StartPostPut=127;
+extern const int ADCL_attr_transfer_FenceGet;
+extern const int ADCL_attr_transfer_FencePut;
+extern const int ADCL_attr_transfer_StartPostGet;
+extern const int ADCL_attr_transfer_StartPostPut;
 #endif
 
 /*=================================================================*/
@@ -75,8 +76,8 @@ const int ADCL_attr_transfer_StartPostPut=127;
 #define ADCL_ATTR_NUMBLOCKS 4
 #define ADCL_ATTR_NUMBLOCKS_MAX 2
 
-const int ADCL_attr_numblocks_single=130;
-const int ADCL_attr_numblocks_dual=131;
+extern const int ADCL_attr_numblocks_single;
+extern const int ADCL_attr_numblocks_dual;
 
 
 /*=================================================================*/

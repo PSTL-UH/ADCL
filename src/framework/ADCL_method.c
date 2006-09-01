@@ -8,12 +8,32 @@ ADCL_method_t* ADCL_method_array=NULL;
 extern int ADCL_emethod_use_perfhypothesis;
 int *ADCL_method_perfhyp_list=NULL;
 
-int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
+int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM]={ADCL_ATTR_MAPPING_MAX,ADCL_ATTR_NONCONT_MAX,ADCL_ATTR_TRANSFER_MAX};
 
-/*ADCL_attr_max[ADCL_ATTR_MAPPING]=ADCL_ATTR_MAPPING_MAX;
-ADCL_attr_max[ADCL_ATTR_NONCONT]=ADCL_ATTR_NONCONT_MAX;
-ADCL_attr_max[ADCL_ATTR_TRANSFER]=ADCL_ATTR_TRANSFER_MAX; */
 /* ADCL_attr_max[ADCL_ATTR_NUMBLOCKS]=ADCL_ATTR_NUMBLOCKS_MAX; */
+
+const int ADCL_attr_mapping_aao=100;
+const int ADCL_attr_mapping_pair=101;
+const int ADCL_attr_mapping_hierarch=102;
+
+const int ADCL_attr_noncont_ddt=110;
+const int ADCL_attr_noncont_pack=111;
+const int ADCL_attr_noncont_individual=112;
+
+const int ADCL_attr_transfer_IsendIrecv=120;
+const int ADCL_attr_transfer_SendIrecv=121;
+const int ADCL_attr_transfer_SendRecv=122;
+const int ADCL_attr_transfer_Sendrecv=123;
+#ifdef MPI_WIN
+const int ADCL_attr_transfer_FenceGet=124;
+const int ADCL_attr_transfer_FencePut=125;
+const int ADCL_attr_transfer_StartPostGet=126;
+const int ADCL_attr_transfer_StartPostPut=127;
+#endif
+
+const int ADCL_attr_numblocks_single=130;
+const int ADCL_attr_numblocks_dual=131;
+
 
 
 #ifndef ADCL_NO_COMM_DEBUG
