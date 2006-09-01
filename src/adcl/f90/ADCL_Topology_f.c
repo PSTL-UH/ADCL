@@ -7,6 +7,10 @@
 #pragma weak adcl_topology_create__ = adcl_topology_create
 #pragma weak ADCL_TOPOLOGY_CREATE   = adcl_topology_create
 
+#pragma weak adcl_topology_create_bycomm_   = adcl_topology_create_bycomm
+#pragma weak adcl_topology_create_bycomm__  = adcl_topology_create_bycomm
+#pragma weak ADCL_TOPOLOGY_CREATE_BYCOMM    = adcl_topology_create_bycomm
+
 #pragma weak adcl_topology_free_  = adcl_topology_free
 #pragma weak adcl_topology_free__ = adcl_topology_free
 #pragma weak ADCL_TOPOLOGY_FREE   = adcl_topology_free
