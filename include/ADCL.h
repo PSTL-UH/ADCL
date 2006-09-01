@@ -22,14 +22,17 @@
 #define ADCL_INVALID_REQUEST 17
 #define ADCL_INVALID_NC      18
 #define ADCL_INVALID_TYPE    19
+#define ADCL_INVALID_TOPOLOGY 20
 
 #define ADCL_VECTOR_NULL  (void*)   -1
 #define ADCL_REQUEST_NULL (void*)   -2
-#define ADCL_NULL_FCTN_PTR (void* ) -3
+#define ADCL_TOPOLOGY_NULL (void*)  -3
+#define ADCL_NULL_FCTN_PTR (void* ) -4
 
 /* define the object types visible to the user */
 typedef struct ADCL_vector_s*   ADCL_Vector;
 typedef struct ADCL_request_s*  ADCL_Request;
+typedef struct ADCL_topology_s* ADCL_Topology;
 
 
 
@@ -39,15 +42,20 @@ int ADCL_Init (void );
 int ADCL_Finalize (void );
 
 int ADCL_Vector_allocate ( int ndims, int *dims, int nc, int hwidth, 
-			   MPI_Datatype dat, ADCL_Vector *vec );
+			   MPI_Datatype dat, void *data, ADCL_Vector *vec );
 int ADCL_Vector_free     ( ADCL_Vector *vec );
 int ADCL_Vector_register ( int ndims, int *dims, int nc, int hwidth, 
 			   MPI_Datatype dat, void *data, 
 			   ADCL_Vector *vec );
 int ADCL_Vector_deregister ( ADCL_Vector *vec );
-int ADCL_Vector_get_data_ptr ( ADCL_Vector vec, void *data );
 
-int ADCL_Request_create ( ADCL_Vector vec, MPI_Comm comm, ADCL_Request *req );
+
+int ADCL_Topology_create ( int ndims, int *lneighbors, int *rneighbors, 
+			   int *coords, MPI_Comm comm, ADCL_Topology *topo);
+int ADCL_Topology_create_bycomm ( MPI_Comm cart_comm, ADCL_Topology *topo);
+int ADCL_Topology_free ( ADCL_Topology *topo );
+
+int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo, ADCL_Request *req );
 int ADCL_Request_free   ( ADCL_Request *req );
 int ADCL_Request_start ( ADCL_Request req );
 int ADCL_Request_init ( ADCL_Request req );

@@ -28,10 +28,30 @@ void adcl_vector_deregister_  ( int *vec, int *ierror );
 void adcl_vector_deregister__ ( int *vec, int *ierror );
 void ADCL_VECTOR_DEREGISTER   ( int *vec, int *ierror );
 
-void adcl_request_create   ( int *vec, int *comm, int *req, int *ierror ); 
-void adcl_request_create_  ( int *vec, int *comm, int *req, int *ierror ); 
-void adcl_request_create__ ( int *vec, int *comm, int *req, int *ierror ); 
-void ADCL_REQUEST_CREATE   ( int *vec, int *comm, int *req, int *ierror ); 
+
+void adcl_topology_create   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+			      int *comm, int *topo, int *ierror );
+void adcl_topology_create_  ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+			      int *comm, int *topo, int *ierror );
+void adcl_topology_create__ ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+			      int *comm, int *topo, int *ierror );
+void ADCL_TOPOLOGY_CREATE   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+			      int *comm, int *topo, int *ierror );
+
+void adcl_topology_create_bycomm   ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create_bycomm_  ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create_bycomm__ ( int* cart_comm, int *topo, int *ierror );
+void ADCL_TOPOLOGY_CREATE_BYCOMM   ( int* cart_comm, int *topo, int *ierror );
+
+void adcl_topology_free   (int *topo, int *ierror);
+void adcl_topology_free_  (int *topo, int *ierror);
+void adcl_topology_free__ (int *topo, int *ierror);
+void ADCL_TOPOLOGY_FREE   (int *topo, int *ierror);
+
+void adcl_request_create   ( int *vec, int *topo, int *req, int *ierror ); 
+void adcl_request_create_  ( int *vec, int *topo, int *req, int *ierror ); 
+void adcl_request_create__ ( int *vec, int *topo, int *req, int *ierror ); 
+void ADCL_REQUEST_CREATE   ( int *vec, int *topo, int *req, int *ierror ); 
 
 void adcl_request_free   ( int *req, int *ierror );
 void adcl_request_free_  ( int *req, int *ierror );

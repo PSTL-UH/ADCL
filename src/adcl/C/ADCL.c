@@ -11,9 +11,10 @@ int ADCL_Init (void )
     ret = ADCL_readenv();
     ret = ADCL_emethod_req_init ();
 
-    /* Initialize the request and vector fortran pointer arrays */
+    /* Initialize the request, topology and vector fortran pointer arrays */
     ADCL_array_init ( &(ADCL_vector_farray), "ADCL_Vector",  32 );
-    ADCL_array_init ( &(ADCL_request_farray), "ADCL_Vector",  32 );
+    ADCL_array_init ( &(ADCL_request_farray), "ADCL_Request",  32 );
+    ADCL_array_init ( &(ADCL_topology_farray), "ADCL_Topology",  32 );
     return ret;
 }
 

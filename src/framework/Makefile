@@ -10,6 +10,8 @@ OBJ = 	ADCL_vector.o           \
 	ADCL_subarray.o         \
 	ADCL_packunpack.o       \
 	ADCL_readenv.o          \
+	ADCL_hypothesis.o       \
+	ADCL_topology.o         \
 	ADCL_printf.o
 
 .SUFFIXES: .o.c

@@ -27,35 +27,25 @@
 #pragma weak adcl_request_start_overlap__ = adcl_request_start_overlap
 #pragma weak ADCL_REQUEST_START_OVERLAP   = adcl_request_start_overlap
 
-void adcl_request_create ( int *vec, int *comm, int *req, int *ierror ) 
+void adcl_request_create ( int *vec, int *topo, int *req, int *ierror ) 
 {
     ADCL_vector_t *cvec;
     ADCL_request_t *creq;
-    MPI_Comm ccomm;
-    int topo_type;
+    ADCL_topology_t *ctopo;
     
     if ( ( NULL == vec )   || 
-	 ( NULL == comm )  ||
+	 ( NULL == topo )  ||
 	 ( NULL == req  )  ){
 	*ierror = ADCL_INVALID_ARG;
 	return;
     }
-
-    ccomm = MPI_Comm_f2c (*comm);
-    if ( ccomm == MPI_COMM_NULL ) {
-	*ierror = ADCL_INVALID_COMM;
-	return;
-    }
-    MPI_Topo_test ( ccomm, &topo_type );
-    if ( MPI_UNDEFINED==topo_type || MPI_GRAPH==topo_type ) {
-	*ierror = ADCL_INVALID_COMM;
-	return;
-    }
-
+    
+    ctopo = (ADCL_topology_t *) ADCL_array_get_ptr_by_pos ( ADCL_topology_farray,
+							    *topo );
     cvec = (ADCL_vector_t *) ADCL_array_get_ptr_by_pos ( ADCL_vector_farray, 
 							 *vec );
 
-    *ierror = ADCL_request_create ( cvec, ccomm, &creq, MPI_ORDER_FORTRAN );
+    *ierror = ADCL_request_create ( cvec, ctopo, &creq, MPI_ORDER_FORTRAN );
     if ( *ierror == ADCL_SUCCESS ) {
 	*req = creq->r_findex;
     }

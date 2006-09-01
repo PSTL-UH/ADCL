@@ -1,8 +1,6 @@
 #include "ADCL_internal.h"
 
 static int ADCL_local_id_counter=0;
-static int ADCL_request_set_topoinfo ( ADCL_request_t *newreq, 
-				       MPI_Comm cart_comm );
 static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req, int mode);
 
 ADCL_array_t *ADCL_request_farray;
@@ -11,11 +9,10 @@ ADCL_array_t *ADCL_request_farray;
 #define CHECK_COMM_STATE(state1,state2) if (state1!=state2) return ADCL_SUCCESS
 
  
-int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm, 
+int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo, 
 			  ADCL_request_t **req, int order )
 {
     int ret = ADCL_SUCCESS;
-    int i, tsize =-1, tcount=1; 
     ADCL_request_t *newreq;
     ADCL_vector_t *pvec = vec;
     
@@ -35,8 +32,25 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
 
     newreq->r_comm_state = ADCL_COMM_AVAIL;
     newreq->r_vec        = pvec;
-    newreq->r_comm       = cart_comm;    /* we might have to duplicate it! */
-    MPI_Comm_rank ( cart_comm, &(newreq->r_rank) );
+
+    /* 
+    ** Set the topology information
+    */ 
+    newreq->r_comm       = topo->t_comm;    /* we might have to duplicate it! */
+    MPI_Comm_rank ( topo->t_comm, &(newreq->r_rank) );
+    
+    newreq->r_nneighbors = 2 * topo->t_ndims;
+    newreq->r_neighbors = (int *) malloc ( newreq->r_nneighbors * sizeof(int));
+    newreq->r_coords = (int *) malloc ( topo->t_ndims * sizeof(int));
+    if ( NULL == newreq->r_neighbors || NULL == newreq->r_coords ) {
+	ret = ADCL_NO_MEMORY;
+	goto exit;
+    }
+    
+    memcpy ( newreq->r_neighbors, topo->t_neighbors, 
+	     sizeof(int)*newreq->r_nneighbors );
+    memcpy ( newreq->r_coords, topo->t_coords, sizeof(int) * topo->t_ndims );
+
 #ifdef MPI_WIN 
     MPI_Type_size (MPI_DOUBLE, &tsize);
     if ( pvec->v_nc > 0 ) {
@@ -45,20 +59,12 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
     for (i=0; i <pvec->v_ndims; i++){
         tcount *= pvec->v_dims[i];
     }
-    MPI_Win_create ( newreq->r_vec->v_data, tcount , tsize, MPI_INFO_NULL, cart_comm, &(newreq->r_win));
-    MPI_Comm_group ( cart_comm, &(newreq->r_group) );   
+    MPI_Win_create ( newreq->r_vec->v_data, tcount , tsize, MPI_INFO_NULL, topo->t_comm, &(newreq->r_win));
+    MPI_Comm_group ( topo->t_comm, &(newreq->r_group) );   
 #else
     newreq->r_win        = MPI_WIN_NULL; /* TBD: unused for right now! */
     newreq->r_group      = MPI_GROUP_NULL; /* TBD: unused for right now! */
 #endif
-    /* 
-    ** Determine how many neighboring processes I have and who they are. 
-    ** Needed later for the neighborhood communication 
-    */ 
-    ret = ADCL_request_set_topoinfo ( newreq, cart_comm );
-    if ( ADCL_SUCCESS != ret ) {
-	goto exit;
-    }
 
     /* 
     ** Generate the derived datatypes describing which parts of this
@@ -90,7 +96,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
     /* Initialize temporary data arrays for Pack/Unpack operations */
     ret = ADCL_packunpack_init ( newreq->r_nneighbors, 
 				 newreq->r_neighbors,
-				 cart_comm, 
+				 topo->t_comm, 
 				 &(newreq->r_sbuf), 
 				 newreq->r_sdats,
 				 &(newreq->r_spsize),
@@ -104,7 +110,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm cart_comm,
     /* Initialize the emethod data structures required for evaluating
        the different communication methods */
     newreq->r_cmethod  = NULL;
-    newreq->r_ermethod = ADCL_emethod_init ( cart_comm, 
+    newreq->r_ermethod = ADCL_emethod_init ( newreq->r_comm, 
 					     newreq->r_nneighbors,
 					     newreq->r_neighbors,
 					     pvec->v_ndims, 
@@ -307,30 +313,3 @@ static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-/**********************************************************************/
-static int ADCL_request_set_topoinfo (ADCL_request_t *newreq, MPI_Comm ccomm )
-{
-    int cartdim, i, rank;
-
-    MPI_Comm_rank ( ccomm, &rank );
-    
-    MPI_Cartdim_get ( ccomm, &cartdim );
-    newreq->r_coords = (int *)malloc ( cartdim * sizeof(int));
-    if ( NULL == newreq->r_coords ) {
-	return ADCL_NO_MEMORY;
-    }
-
-    MPI_Cart_coords ( ccomm, rank, cartdim, newreq->r_coords );
-
-    newreq->r_nneighbors = 2*cartdim;
-    newreq->r_neighbors  = (int *) malloc ( 2*cartdim *sizeof(int));
-    if ( NULL == newreq->r_neighbors ) {
-	return ADCL_NO_MEMORY;
-    }
-    for ( i=0; i< cartdim; i++ ) {
-	MPI_Cart_shift ( ccomm, i, 1, &(newreq->r_neighbors[2*i]), 
-			 &(newreq->r_neighbors[2*i+1]) );
-    }
-
-    return ADCL_SUCCESS;
-}

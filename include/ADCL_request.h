@@ -6,6 +6,7 @@
 #include "ADCL_vector.h"
 #include "ADCL_method.h"
 #include "ADCL_emethod.h"
+#include "ADCL_topology.h"
 
 #define ADCL_COMM_ACTIVE 1024
 #define ADCL_COMM_AVAIL  1025
@@ -48,7 +49,7 @@ typedef struct ADCL_request_s ADCL_request_t;
 
 extern ADCL_array_t * ADCL_request_farray;
 
-int ADCL_request_create ( ADCL_vector_t *vec, MPI_Comm comm, 
+int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo, 
 			  ADCL_request_t **req, int order );
 int ADCL_request_free ( ADCL_request_t **req );
 int ADCL_request_init ( ADCL_request_t *req, int *db );

@@ -1,18 +1,11 @@
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
-int ADCL_Request_create ( ADCL_Vector vec, MPI_Comm cart_comm, 
+int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
 			  ADCL_Request *req )
 {
-    int topo_type;
-    
-    /* Right now we can only handle cartesian topologies! */
-    MPI_Topo_test ( cart_comm, &topo_type );
-    if ( MPI_UNDEFINED==topo_type || MPI_GRAPH==topo_type ) {
-	return ADCL_INVALID_COMM;
-    }
-    
-    return ADCL_request_create (vec, cart_comm, req, MPI_ORDER_C );
+    /* TODO: check validaty of vec and of the topo objects */
+    return ADCL_request_create (vec, topo, req, MPI_ORDER_C );
 }
 
 int ADCL_Request_free ( ADCL_Request *req )
