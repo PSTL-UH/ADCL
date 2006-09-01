@@ -139,10 +139,10 @@ static int adcl_compare ( const void *p, const void *q )
     /* simple tests are those where the avg execution times 
        are different */
     if ( a[0] < b[0] ) {
-        return (-1);
+        return -1;
     }
     if ( a[0] > b[0] ) {
-        return (1);
+        return 1;
     }
 
     /* ok, if the avg execution times are the same then we 
@@ -157,5 +157,6 @@ static int adcl_compare ( const void *p, const void *q )
             return (1);
         }
     }
-    return ( 0 );
+    return  0 ;
 }
+

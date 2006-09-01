@@ -102,10 +102,10 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     er->er_vdims          = (int *) malloc ( vndims * sizeof(int));
     
     for(i=0; i<ADCL_ATTR_TOTAL_NUM; i++){
-      er->er_att_hypothesis[i]= ADCL_ATTR_NOT_SET;
+      er->er_attr_hypothesis[i]= ADCL_ATTR_NOT_SET;
     }
     
-    memset(er->er_att_confidence, 0, ADCL_ATTR_TOTAL_NUM * sizeof(int));
+    memset(er->er_attr_confidence, 0, ADCL_ATTR_TOTAL_NUM * sizeof(int));
     er->er_num_available_measurements = 0;
 
     if ( NULL == er->er_neighbors || NULL == er->er_vdims ) {
@@ -250,11 +250,11 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 /**********************************************************************/
 int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 {
-    int i, next=ADCL_EVAL_DONE;
+    int i, j, k, next=ADCL_EVAL_DONE;
     int rflag = ADCL_FLAG_NOPERF;
     int num_diff = 0;
     int faster_method, slower_method;
-    int attr_list[ADCL_ATTR_MAX] = {0};
+    int attr_list[ADCL_ATTR_TOTAL_NUM] = {0};
     
     ADCL_emethod_t *emethod;
 
@@ -267,7 +267,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     }
 
     if ( !ADCL_emethod_use_perfhypothesis ) {
-        if ( (er->er_last + 1 ) < er->er_num_methods ) {
+        if ( (er->er_last + 1 ) < er->er_num_emethods ) {
             *flag = ADCL_FLAG_PERF;
             er->er_last++;
             er->er_emethods[er->er_last].em_count++;
@@ -275,7 +275,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
         }
     }                
      
-    emethod->em_tested = true;
+    emethod->em_tested = TRUE;
     er->er_num_available_measurements++;
     if ( emethod->em_rescount < ADCL_emethod_numtests ) {
         /* 
@@ -306,24 +306,24 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
                    function (3)*/
               if (num_diff == 1) {
                 
-                  faster_method = ADCL_hypothesis_compare2methods_perf( er->ermethods,k, er->er_last);
+                  faster_method = ADCL_hypothesis_compare2methods_perf( er->er_emethods,k, er->er_last);
                   slower_method = (faster_method==k)? er->er_last:k;
               }
-              if ( er->er_hypothesis[j] == NOT_SET ) {
+              if ( er->er_attr_hypothesis[j] == ADCL_ATTR_NOT_SET ) {
                 
-                   er->er_hypothesis[j] = ; /* the value for attribute[j] used
+                   /* er->er_attr_hypothesis[j] = ;  the value for attribute[j] used
                                                 in the faster of both methods; */
-                   er->er_confidence[j]=1;
+                   er->er_attr_confidence[j]=1;
               } 
-              else if ( faster_method == er->er_hypothesis[j] ) {
-                   er->er_confidence[j]++;
+              else if ( faster_method == er->er_attr_hypothesis[j] ) {
+                   er->er_attr_confidence[j]++;
               }
-              else if ( slower_method == er->er_hypothesis[j] ) {
-                   er->er_confidence[j]--;
-                   if ( er->er_confidence[j] == 0 ) {
+              else if ( slower_method == er->er_attr_hypothesis[j] ) {
+                   er->er_attr_confidence[j]--;
+                   if ( er->er_attr_confidence[j] == 0 ) {
                         /* we don't have a performance hypthesis 
                            for this attribute anymore */
-                      er->er_hypothesis = NOT_SET;
+                      er->er_attr_hypothesis[j] = ADCL_ATTR_NOT_SET;
                    }
              }
              else {
@@ -340,22 +340,23 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
         }
         
         for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
-            if ( er->er_confidence[j] >= ADCL_attr_max[j] ) {
+            if ( er->er_attr_confidence[j] >= ADCL_attr_max[j] ) {
                 /* remove all methods from the emethods list which
                    have a different value for attribute attr[j] than 
                    hypothesis[j] using function (2) */
-              ADCL_hypothesis_shrinklist_byattr ( er->ermethod, j , ADCL_attr_max[j])
+              ADCL_hypothesis_shrinklist_byattr ( er, j , ADCL_attr_max[j]);
               
             }
         }
         
         
-        for ( er->er_num_available_measurements=0, i=0; i<er->er_num_methods; i++ ) {
+        for ( er->er_num_available_measurements=0, i=0; i<er->er_num_emethods; i++ ) {
             /* increase er_num_available_measurements every time 
                a method has the em_tested flag set to true; */
-            er->er_last = ; /* first method not having the em_tested flag
-                               set to true; */
-            next = er->er_last;
+            /* 
+           er->er_last =  first method not having the em_tested flag
+                               set to true; 
+           next = er->er_last; */
         }
     }
     

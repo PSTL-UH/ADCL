@@ -46,7 +46,7 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_t *emethods, int count,
 int ADCL_statistics_global_max      ( ADCL_emethod_t *emethods, int count, 
 				      MPI_Comm comm );
 
-int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, int attribute,
+int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethods, int attribute,
 					int required_value );
 
 
