@@ -34,6 +34,7 @@ int main ( int argc, char ** argv )
     int cdims[]={0,0};
     int periods[]={0,0};
     MPI_Comm cart_comm;
+    ADCL_Topology topo;
     ADCL_Request request;
 
 
@@ -49,10 +50,11 @@ int main ( int argc, char ** argv )
     /* Describe the neighborhood relations */
     MPI_Dims_create ( size, 2, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 2, cdims, periods, 0, &cart_comm);
+    ADCL_Topology_create_bycomm ( cart_comm, &topo );
 
     /* Match the data type description and the process topology 
        to each other */
-    ADCL_Request_create ( vec, cart_comm, &request );
+    ADCL_Request_create ( vec, topo, &request );
 
     /* Initiate matrix to zero including halo-cells */
     matrix_init ( dims, cdims, matrix, cart_comm );
@@ -66,6 +68,7 @@ int main ( int argc, char ** argv )
     matrix_dump ( matrix, cart_comm, "After the communication");
 
     ADCL_Request_free ( &request );
+    ADCL_Topology_free ( &topo );
     ADCL_Vector_deregister ( &vec );
     MPI_Comm_free ( &cart_comm );
     

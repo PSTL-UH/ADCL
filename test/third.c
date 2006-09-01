@@ -11,7 +11,8 @@ int main ( int argc, char ** argv )
     int dims[3]={66,34,34};
     int cdims[]={0,0,0};
     int periods[]={0,0,0};
-    ADCL_Vector vec1, vec2, vec3;
+    ADCL_Topology topo;
+    ADCL_Vector vec1, vec2, vec3;    
     ADCL_Request request1, request2, request3;
     
     MPI_Comm cart_comm;
@@ -27,10 +28,11 @@ int main ( int argc, char ** argv )
 
     MPI_Dims_create ( size, 3, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, &cart_comm);
+    ADCL_Topology_create_bycomm ( cart_comm, &topo );
 
-    ADCL_Request_create ( vec1, cart_comm, &request1 );
-    ADCL_Request_create ( vec2, cart_comm, &request2 );
-    ADCL_Request_create ( vec3, cart_comm, &request3 );
+    ADCL_Request_create ( vec1, topo, &request1 );
+    ADCL_Request_create ( vec2, topo, &request2 );
+    ADCL_Request_create ( vec3, topo, &request3 );
 
     for ( i=0; i<NIT; i++ ) {
 	ADCL_Request_start( request1 );
@@ -44,6 +46,7 @@ int main ( int argc, char ** argv )
     ADCL_Vector_free ( &vec1 );
     ADCL_Vector_free ( &vec2 );
     ADCL_Vector_free ( &vec3 );
+    ADCL_Topology_free ( &topo );
     MPI_Comm_free ( &cart_comm );
     
     ADCL_Finalize ();

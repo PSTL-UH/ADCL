@@ -4,8 +4,9 @@
         include 'ADCL.inc'
 
         integer i, rank, size, ierror, NIT, allocstat
-        integer dims(4), cdims(3), periods(3)
+        integer dims(4), cdims(3), periods(3)        
         integer vec;
+        integer topo;
         integer request;
         integer cart_comm;
         double precision, allocatable, dimension (:,:,:,:) :: data
@@ -41,19 +42,21 @@
         call MPI_Dims_create ( size, 3, cdims, ierror)
         call MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0,  &
                                cart_comm, ierror )
+        call ADCL_Topology_create_bycomm ( cart_comm, topo, ierror )
 
-        call ADCL_Request_create ( vec, cart_comm, request, ierror )
+        call ADCL_Request_create ( vec, topo, request, ierror )
 
         do i=0, NIT 
            call ADCL_Request_start( request, ierror )
         end do
 
-        call ADCL_Request_free ( request, ierror );
-        call ADCL_Vector_deregister ( vec, ierror );
-        call MPI_Comm_free ( cart_comm, ierror );
+        call ADCL_Request_free ( request, ierror )
+        call ADCL_Topology_free ( topo, ierror )
+        call ADCL_Vector_deregister ( vec, ierror )
+        call MPI_Comm_free ( cart_comm, ierror )
     
         deallocate ( data, stat=allocstat)
 
-        call ADCL_Finalize ( ierror );
-        call MPI_Finalize ( ierror );
+        call ADCL_Finalize ( ierror )
+        call MPI_Finalize ( ierror )
       end program first

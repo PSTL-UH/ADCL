@@ -6,6 +6,7 @@
         integer i, rank, size, ierror, NIT, allocstat
         integer dims(3), cdims(2), periods(2)
         integer vec;
+        integer topo;
         integer request;
         integer cart_comm;
         double precision , allocatable, dimension (:,:,:) :: data
@@ -41,8 +42,9 @@
         call MPI_Dims_create ( size, 2, cdims, ierror)
         call MPI_Cart_create ( MPI_COMM_WORLD, 2, cdims, periods, 0,  &
                                cart_comm, ierror )
+        call ADCL_Topology_create_bycomm ( cart_comm, topo, ierror )
 
-        call ADCL_Request_create ( vec, cart_comm, request, ierror )
+        call ADCL_Request_create ( vec, topo, request, ierror )
 
         call init_matrix ( dims, data, cdims, cart_comm )
 !        do i=0, NIT 
@@ -51,14 +53,15 @@
 
         call dump_matrix ( dims, data, "After the communication", cart_comm )
 
-        call ADCL_Request_free ( request, ierror );
-        call ADCL_Vector_deregister ( vec, ierror );
-        call MPI_Comm_free ( cart_comm, ierror );
+        call ADCL_Request_free ( request, ierror )
+        call ADCL_Topology_free ( topo, ierror )
+        call ADCL_Vector_deregister ( vec, ierror )
+        call MPI_Comm_free ( cart_comm, ierror )
     
         deallocate ( data, stat=allocstat)
 
-        call ADCL_Finalize ( ierror );
-        call MPI_Finalize ( ierror );
+        call ADCL_Finalize ( ierror )
+        call MPI_Finalize ( ierror )
       end program second
 
 
