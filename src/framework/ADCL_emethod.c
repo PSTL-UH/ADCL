@@ -293,55 +293,55 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
         for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
             for ( k=0; k< er -> er_num_available_measurements-1; k++ ){
                 
-              /* - check whether we only differ to method                    
+		/* - check whether we only differ to method                    
                    k in attribute attr[j] using function (1); */
-              /*num_diff is the different attribution number*/
-              /*attr_list[i] is 1 if attr[i] is different between k and
-              ** er->er_lst */	
-              num_diff = ADCL_hypothesis_compare2methods_attr ( er->er_emethods, attr_list, 
-								k, er->er_last);
+		/*num_diff is the different attribution number*/
+		/*attr_list[i] is 1 if attr[i] is different between k and
+		** er->er_lst */	
+		num_diff = ADCL_hypothesis_compare2methods_attr ( er->er_emethods, attr_list, 
+								  k, er->er_last);
                 
-              
-              /*     - if attr[j] is the only difference 
-                   compare er->er_last and method k using 
-                   function (3)*/
-              if (num_diff == 1) {
-		  faster_method = ADCL_hypothesis_compare2methods_perf( er->er_emethods,k, 
-									er->er_last);
-                  slower_method = (faster_method==k)? er->er_last:k;
-
-		  slower_attr = er->er_emethods[slower_metthod].em_attr[j];
-		  faster_attr = er->er_emethods[faster_metthod].em_attr[j];
-              
-		  if ( er->er_attr_hypothesis[j] == ADCL_ATTR_NOT_SET ) {
-		      /* er->er_attr_hypothesis[j] = faster_attr;  the value for attribute[j] used
-                                                in the faster of both methods; */
-		      er->er_attr_confidence[j]=1;
-		  } 
-		  else if ( faster_attr == er->er_attr_hypothesis[j] ) {
-		      er->er_attr_confidence[j]++;
-		  }
-		  else if ( slower_attr == er->er_attr_hypothesis[j] ) {
-		      er->er_attr_confidence[j]--;
-		      if ( er->er_attr_confidence[j] == 0 ) {
-			  /* we don't have a performance hypthesis 
-			     for this attribute anymore */
-			  er->er_attr_hypothesis[j] = ADCL_ATTR_NOT_SET;
-		      }
-		  }
-		  else {
-		      ADCL_printf("Warning, we still wonder it!\n");
-		      /* Don't know yet, print a warning! */
-		      /* What we would have to do is to compare against
-			 the method which has the identical attributes as 
-			 method er_last, only differing in attr[j]. The problem
-			 is, that this approach breaks the k-loop *and* the
-			 method might not exist. This situation can only 
-		      */
-		  }
-	      }        
+		
+		/*     - if attr[j] is the only difference 
+		       compare er->er_last and method k using 
+		       function (3)*/
+		if (num_diff == 1) {
+		    faster_method = ADCL_hypothesis_compare2methods_perf( er->er_emethods,k, 
+									  er->er_last);
+		    slower_method = (faster_method==k)? er->er_last:k;
+		    
+		    /*	Slower_attr = er->er_emethods[slower_metthod].em_attr[j];
+			faster_attr = er->er_emethods[faster_metthod].em_attr[j];
+		    */
+		    
+		    if ( er->er_attr_hypothesis[j] == ADCL_ATTR_NOT_SET ) {
+			/* er->er_attr_hypothesis[j] = faster_attr;  */
+			er->er_attr_confidence[j]=1;
+		    } 
+		    else if ( faster_method == er->er_attr_hypothesis[j] ) {
+			er->er_attr_confidence[j]++;
+		    }
+		    else if ( slower_method == er->er_attr_hypothesis[j] ) {
+			er->er_attr_confidence[j]--;
+			if ( er->er_attr_confidence[j] == 0 ) {
+			    /* we don't have a performance hypthesis 
+			       for this attribute anymore */
+			    er->er_attr_hypothesis[j] = ADCL_ATTR_NOT_SET;
+			}
+		    }
+		    else {
+			ADCL_printf("Warning, we still wonder it!\n");
+			/* Don't know yet, print a warning! */
+			/* What we would have to do is to compare against
+			   the method which has the identical attributes as 
+			   method er_last, only differing in attr[j]. The problem
+			   is, that this approach breaks the k-loop *and* the
+			   method might not exist. This situation can only 
+			*/
+		    }
+		}        
+	    }
         }
-        
         for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
             if ( er->er_attr_confidence[j] >= ADCL_attr_max[j] ) {
                 /* remove all methods from the emethods list which
@@ -366,7 +366,6 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     
     *flag = ADCL_FLAG_PERF;
     return next;
-
 }
 
 /**********************************************************************/
