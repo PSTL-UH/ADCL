@@ -251,9 +251,9 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 {
     int i, j, k, next=ADCL_EVAL_DONE;
-    int rflag = ADCL_FLAG_NOPERF;
     int num_diff = 0;
-    int faster_method, slower_method;
+    int fmethod, smethod;
+    int fattr, sattr;
     int attr_list[ADCL_ATTR_TOTAL_NUM];
     
     ADCL_emethod_t *emethod;
@@ -288,80 +288,83 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
         return er->er_last;
     }
 
-    if ( ADCL_emethod_use_perfhypothesis ) {
-        
-        for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
-            for ( k=0; k< er -> er_num_available_measurements-1; k++ ){
-                
-		/* - check whether we only differ to method                    
-                   k in attribute attr[j] using function (1); */
-		/*num_diff is the different attribution number*/
-		/*attr_list[i] is 1 if attr[i] is different between k and
-		** er->er_lst */	
-		num_diff = ADCL_hypothesis_compare2methods_attr ( er->er_emethods, attr_list, 
-								  k, er->er_last);
-                
+    if ( !ADCL_emethod_use_perfhypothesis ) {
+	return next;
+    }
+    
+    for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
+	for ( k=0; k< er->er_num_available_measurements-1; k++ ){
+	    /* check whether we only differ to method k in attribute attr[j] */
+	    memset ( attr_list, 0, sizeof(int)*ADCL_ATTR_TOTAL_NUM);
+	    num_diff = ADCL_hypothesis_c2m_attr ( er, attr_list, 
+						  k, er->er_last);
+                		
+	    /*  if attr[j] is the only difference compare er->er_last 
+		and method k */
+	    if (num_diff == 1 && attr_list[j] != 0 ) {
+		fmethod = ADCL_hypothesis_c2m_perf( er, k,er->er_last);
+		ADCL_printf("Comparing methods %d and %d for attr %d:"
+			    " winner is %d\n", k, er->er_last, j, fmethod );
+		smethod = (fmethod==k)? er->er_last:k;
 		
-		/*     - if attr[j] is the only difference 
-		       compare er->er_last and method k using 
-		       function (3)*/
-		if (num_diff == 1) {
-		    faster_method = ADCL_hypothesis_compare2methods_perf( er->er_emethods,k, 
-									  er->er_last);
-		    slower_method = (faster_method==k)? er->er_last:k;
-		    
-		    /*	Slower_attr = er->er_emethods[slower_metthod].em_attr[j];
-			faster_attr = er->er_emethods[faster_metthod].em_attr[j];
+		sattr = er->er_emethods[smethod].em_method->m_attr[j];
+		fattr = er->er_emethods[fmethod].em_method->m_attr[j];
+		
+		if ( er->er_attr_hypothesis[j] == ADCL_ATTR_NOT_SET ) {
+		    er->er_attr_hypothesis[j] = fattr;
+		    er->er_attr_confidence[j]=1;
+		    ADCL_printf("Hypothesis for attr %d set to %d, confidence"
+				" %d\n", j, fattr, er->er_attr_confidence[j]);
+		} 
+		else if ( fattr == er->er_attr_hypothesis[j] ) {
+		    er->er_attr_confidence[j]++;
+		    ADCL_printf("Hypothesis for attr %d is %d, confidence "
+				"incr to %d\n", j, fattr, 
+				er->er_attr_confidence[j]);
+		}
+		else if ( sattr == er->er_attr_hypothesis[j] ) {
+		    er->er_attr_confidence[j]--;
+		    ADCL_printf("Hypothesis for attr %d is %d, confidence "
+				"decr to %d\n", j, er->er_attr_hypothesis[j], 
+                                er->er_attr_confidence[j]);
+		    if ( er->er_attr_confidence[j] == 0 ) {
+			/* we don't have a performance hypthesis 
+			   for this attribute anymore */
+			er->er_attr_hypothesis[j] = ADCL_ATTR_NOT_SET;
+		    }
+		}
+		else {
+		    ADCL_printf("Unhandled case at this point!\n");
+		    /* What we would have to do is to compare against
+		    ** the method which has the identical attributes as 
+		    ** method er_last, only differing in attr[j]. The problem
+		    ** is, that this approach breaks the k-loop *and* the
+		    ** method might not exist. This situation can only 
 		    */
-		    
-		    if ( er->er_attr_hypothesis[j] == ADCL_ATTR_NOT_SET ) {
-			/* er->er_attr_hypothesis[j] = faster_attr;  */
-			er->er_attr_confidence[j]=1;
-		    } 
-		    else if ( faster_method == er->er_attr_hypothesis[j] ) {
-			er->er_attr_confidence[j]++;
-		    }
-		    else if ( slower_method == er->er_attr_hypothesis[j] ) {
-			er->er_attr_confidence[j]--;
-			if ( er->er_attr_confidence[j] == 0 ) {
-			    /* we don't have a performance hypthesis 
-			       for this attribute anymore */
-			    er->er_attr_hypothesis[j] = ADCL_ATTR_NOT_SET;
-			}
-		    }
-		    else {
-			ADCL_printf("Warning, we still wonder it!\n");
-			/* Don't know yet, print a warning! */
-			/* What we would have to do is to compare against
-			   the method which has the identical attributes as 
-			   method er_last, only differing in attr[j]. The problem
-			   is, that this approach breaks the k-loop *and* the
-			   method might not exist. This situation can only 
-			*/
-		    }
-		}        
-	    }
-        }
-        for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
-            if ( er->er_attr_confidence[j] >= ADCL_attr_max[j] ) {
-                /* remove all methods from the emethods list which
-                   have a different value for attribute attr[j] than 
-                   hypothesis[j] using function (2) */
-		ADCL_hypothesis_shrinklist_byattr ( er, j , er->er_attr_hypothesis[j] ); 
-            }
-        }
-        
-        
-        for ( er->er_num_available_measurements=0, i=0; i<er->er_num_emethods; i++ ) {
-            /* increase er_num_available_measurements every time 
-               a method has the em_tested flag set to true; */
-            
-	    if ( !er->er_emethods[i].em_tested ) {
-		next =  i;
-		break;
-	    }
-	    er->er_num_available_measurements++;
-        }
+		}
+	    }        
+	}
+    }
+    for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
+	if ( er->er_attr_confidence[j] >= ADCL_attr_max[j] ) {
+	    /* remove all methods from the emethods list which
+	       have a different value for attribute attr[j] than 
+	       hypothesis[j] using function (2) */
+	    ADCL_hypothesis_shrinklist_byattr ( er, j , 
+						er->er_attr_hypothesis[j] ); 
+	}
+    }
+    
+    
+    for ( er->er_num_available_measurements=0,i=0;i<er->er_num_emethods;i++){
+	/* increase er_num_available_measurements every time 
+	   a method has the em_tested flag set to true; */
+	if ( !er->er_emethods[i].em_tested ) {
+	    next =  i;
+	    er->er_last=next;
+	    break;
+	}
+	er->er_num_available_measurements++;
     }
     
     *flag = ADCL_FLAG_PERF;

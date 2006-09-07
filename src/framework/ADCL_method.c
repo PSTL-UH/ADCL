@@ -293,7 +293,7 @@ int ADCL_method_init ( void )
 #endif /* MPI_WIN */
 
 
-      if( count != ADCL_method_total_num+1){    
+      if( count != ADCL_method_total_num){    
 	  ADCL_printf("Total Number wrong\n");
 	  return ADCL_ERROR_INTERNAL; 
       }

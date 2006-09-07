@@ -52,7 +52,6 @@ struct ADCL_emethod_req_s {
     ADCL_emethod_t                *er_emethods;
     ADCL_method_t                  *er_wmethod; /* winner method used after the testing */
 
-    char                             *er_cache;
     int er_attr_hypothesis[ADCL_ATTR_TOTAL_NUM]; /* List of performance hypothesis*/
     int er_attr_confidence[ADCL_ATTR_TOTAL_NUM]; /* List of confidence*/
     int          er_num_available_measurements; /* Counter keeping track of how many methods have already been measured*/

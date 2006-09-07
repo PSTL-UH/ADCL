@@ -1,19 +1,15 @@
 #include "ADCL_internal.h"
 
-int ADCL_hypothesis_compare2methods_attr ( ADCL_emethod_req_t *ermethods,
-                                           int *attr_list, int pos1, int pos2 )
+int ADCL_hypothesis_c2m_attr ( ADCL_emethod_req_t *ermethods,
+			       int *attr_list, int pos1, int pos2 )
 {
     int i, num_diff=0;
-    int last_diff=-1;
-    
     ADCL_emethod_t *emeth1, *emeth2;
-    ADCL_emethod_t tmpmeth[2];
 
     emeth1 = &(ermethods->er_emethods[pos1]);
     emeth2 = &(ermethods->er_emethods[pos2]);
 
     /* determine in how many attributes the two methods differ */
-   
     for ( i=0; i < ADCL_ATTR_TOTAL_NUM; i++ ) {
 	if ( emeth1->em_method->m_attr[i] != emeth2->em_method->m_attr[i] ) {
 	    num_diff++;
@@ -46,8 +42,8 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod,
     return ADCL_SUCCESS;
 }
 
-int ADCL_hypothesis_compare2methods_perf(ADCL_emethod_req_t *ermethods, 
-				         int pos1, int pos2 )
+int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods, 
+			     int pos1, int pos2 )
 {
     ADCL_emethod_t *emeth1, *emeth2;
     int winner, realwinner=-1;
@@ -56,7 +52,6 @@ int ADCL_hypothesis_compare2methods_perf(ADCL_emethod_req_t *ermethods,
     emeth1 = &(ermethods->er_emethods[pos1]);
     emeth2 = &(ermethods->er_emethods[pos2]);
 
-    /* Only do the comparison, if really just a single attribute is different! */
     ADCL_statistics_filter_timings ( emeth1, 1, ermethods->er_comm);
     ADCL_statistics_filter_timings ( emeth2, 1, ermethods->er_comm);
     

@@ -12,6 +12,7 @@ extern int ADCL_merge_requests;
 extern int ADCL_emethod_selection;
 extern int ADCL_emethod_numtests;
 extern int ADCL_printf_silence;
+extern int ADCL_emethod_use_perfhypothesis;
 
 extern int ADCL_method_total_num;
 extern ADCL_method_t * ADCL_method_array;
@@ -149,6 +150,17 @@ int ADCL_readenv()
 	    ADCL_printf("ADCL_PRINTF_SILENCE: %d\n",ADCL_printf_silence);
 #endif
 	}
+
+
+	/*  ADCL_EMETHOD_USE_PERFHYPOTHESIS  */
+	else if ( strncmp(keyword, "ADCL_EMETHOD_USE_PERFHYPOTHESIS", 
+			  strlen("ADCL_EMETHOD_USE_PERFHYPOTHESIS"))==0) {
+	    sscanf(ptr,"%d ", &ADCL_emethod_use_perfhypothesis);
+#ifdef	Debug	
+	    ADCL_printf("ADCL_EMETHOD_USE_PERFHYPOTHESIS: %d\n",ADCL_emethod_use_perfhypothesis );
+#endif
+	}
+
 
     }
     

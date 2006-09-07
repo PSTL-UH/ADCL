@@ -74,8 +74,8 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t *emethods, int count,
 int ADCL_statistics_determine_votes ( ADCL_emethod_t *emethods, int count, 
 				      MPI_Comm comm )
 {
-    double sum, *sorted=NULL;
-    int i, j, rank, pts;
+    double sum;
+    int i, j;
     
     if (ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
 	for ( i=0; i < count; i++ ) {
