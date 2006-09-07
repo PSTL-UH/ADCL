@@ -368,6 +368,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 	if ( !er->er_emethods[i].em_tested ) {
 	    next =  i;
 	    er->er_last=next;
+	    er->er_emethods[next].em_count++;
 	    break;
 	}
 	er->er_num_available_measurements++;
