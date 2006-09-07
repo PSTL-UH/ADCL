@@ -27,17 +27,31 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod,
     int org_count=ermethod->er_num_emethods;
     ADCL_emethod_t *emethods=ermethod->er_emethods;
 
+    /* This following loop is only for debugging purposes and should be removed
+       from later production runs */
+    for ( i=0; i < org_count; i++ ) {
+        tmeth = emethods[i].em_method;
+	if ( tmeth->m_attr[attribute] != required_value ) {
+	    ADCL_printf("#Removing method %d for attr %d required %d is %d\n",
+			tmeth->m_id, attribute, required_value, 
+			tmeth->m_attr[attribute]);
+	}
+    }
+
     for ( i=0; i < org_count; i++ ) {
         tmeth = emethods[i].em_method;
 	if ( tmeth->m_attr[attribute] == required_value ) {
             if ( count != i ) {
-	    /* move this emethod from pos i to pos count */
-	    ermethod->er_emethods[count] = ermethod->er_emethods[i];
+		/* move this emethod from pos i to pos count */
+		ermethod->er_emethods[count] = ermethod->er_emethods[i];
 	    }
 	    count++;
 	}
     }
     ermethod->er_num_emethods = count;
+
+    ADCL_printf("#Emethod list has been shrinked from %d to %d entries\n", 
+		org_count, count );
 
     return ADCL_SUCCESS;
 }

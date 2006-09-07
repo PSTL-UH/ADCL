@@ -303,10 +303,15 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 		and method k */
 	    if (num_diff == 1 && attr_list[j] != 0 ) {
 		fmethod = ADCL_hypothesis_c2m_perf( er, k,er->er_last);
-		ADCL_printf("Comparing methods %d and %d for attr %d:"
-			    " winner is %d\n", k, er->er_last, j, fmethod );
-		smethod = (fmethod==k)? er->er_last:k;
-		
+		ADCL_printf("Attr: %d Comparing methods %d (%d) and %d (%d) "
+			    " winner is %d\n", j,
+			    er->er_emethods[k].em_method->m_id, 
+			    er->er_emethods[k].em_method->m_attr[j],
+			    er->er_emethods[er->er_last].em_method->m_id, 
+			    er->er_emethods[er->er_last].em_method->m_attr[j],
+			    er->er_emethods[fmethod].em_method->m_id );
+
+		smethod = (fmethod==k)? er->er_last:k;		
 		sattr = er->er_emethods[smethod].em_method->m_attr[j];
 		fattr = er->er_emethods[fmethod].em_method->m_attr[j];
 		
@@ -345,6 +350,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 	    }        
 	}
     }
+
     for ( j=0; j< ADCL_ATTR_TOTAL_NUM; j++ ) {
 	if ( er->er_attr_confidence[j] >= ADCL_attr_max[j] ) {
 	    /* remove all methods from the emethods list which
@@ -384,7 +390,8 @@ void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos, int flag,
     ADCL_EMETHOD_TIMEDIFF ( tstart, tend, exectime );
     if ( flag == ADCL_FLAG_PERF ) {
 	tmpem = &emethods[pos];
-	tmpem->em_time[tmpem->em_rescount++] = exectime;
+	tmpem->em_time[tmpem->em_rescount] = exectime;
+	tmpem->em_rescount++;
     }
 
     return;
