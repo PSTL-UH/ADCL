@@ -64,7 +64,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++; 
 
     /* aao, ddt, SendIrecv */
@@ -75,7 +75,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++; 
 
     /* pair, ddt, IsendIrecv */
@@ -86,7 +86,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++; 
 
     /* pair, ddt, SendRecv */
@@ -97,7 +97,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendRecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++; 
 
     /* pair, ddt, SendIrecv */
@@ -108,7 +108,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++; 
 
     /* pair, ddt, Sendrecv */
@@ -119,7 +119,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_Sendrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++;
 
     /* aao, pack, IsendIrecv */
@@ -130,7 +130,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++; 
     
     /* aao, pack, SendIrecv */
@@ -141,7 +141,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++;
 
     /* pair, pack, IsendIrecv */
@@ -152,7 +152,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++; 
     
     /* pair, pack, SendRecv */
@@ -163,7 +163,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendRecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count ++;
     
     /* pair, pack, SendIrecv */
@@ -174,7 +174,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++;
 
     /* pair, pack, Sendrecv */
@@ -185,7 +185,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_pack;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_Sendrecv;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
       count++;
 
 #ifdef MPI_WIN
@@ -198,7 +198,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FencePut;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++;
 #endif /* WINFENCEPUT */
  
@@ -211,7 +211,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_FenceGet;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++;
 #endif /* WINFENCEGET */
     
@@ -223,7 +223,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartPut;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++;
 #endif /* POSTSTARTPUT */
                   
@@ -235,7 +235,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartGet;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
 
     count++;
 #endif /* POSTSTARTGET */
@@ -248,7 +248,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FencePut;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++;
 #  endif /* WINFENCEPUT */
 
@@ -260,7 +260,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FenceGet;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     count++;
 #  endif /* WINFENCEGET */
 
@@ -273,7 +273,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartPut;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
 
     count++;
 #  endif /* POSTSTARTPUT */
@@ -286,7 +286,7 @@ int ADCL_method_init ( void )
     ADCL_method_array[count].m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     ADCL_method_array[count].m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
     ADCL_method_array[count].m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartGet;
-    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single;
+/*    ADCL_method_array[count].m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
 
     count++;
 #  endif /* POSTSTARTGET */

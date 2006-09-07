@@ -53,6 +53,7 @@ int ADCL_topology_create_bycomm ( MPI_Comm cart_comm, ADCL_topology_t **topo )
     MPI_Cartdim_get ( cart_comm, &cartdim );
 
     newtopo->t_comm  = cart_comm; 
+    newtopo->t_ndims = cartdim;
     newtopo->t_coords = (int *)malloc ( cartdim * sizeof(int));
     newtopo->t_neighbors = (int *) malloc ( 2*cartdim *sizeof(int));
     if ( NULL == newtopo->t_neighbors || NULL == newtopo->t_coords  ) {
@@ -66,6 +67,7 @@ int ADCL_topology_create_bycomm ( MPI_Comm cart_comm, ADCL_topology_t **topo )
 			 &(newtopo->t_neighbors[2*i+1]) );
     }
 
+    *topo = newtopo;
     return ADCL_SUCCESS;
 }
 
