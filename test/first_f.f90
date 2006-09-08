@@ -5,10 +5,10 @@
 
         integer i, rank, size, ierror, NIT, allocstat
         integer dims(4), cdims(3), periods(3)        
-        integer vec;
-        integer topo;
-        integer request;
-        integer cart_comm;
+        integer vec
+        integer topo
+        integer request
+        integer cart_comm
         double precision, allocatable, dimension (:,:,:,:) :: data
         
         NIT = 10
