@@ -29,6 +29,7 @@
         call MPI_Dims_create ( size, 3, dims, ierror);
         call MPI_Cart_create ( MPI_COMM_WORLD, 3, dims, periods,  &
              reorder, cart_comm, ierror )
+        call ADCL_Topology_create_bycomm ( cart_comm, adcl_topo, ierror)
         n1p = dims(1)
         n2p = dims(2)
         n3p = dims(3)
@@ -142,8 +143,8 @@
            loes, adcl_vec_loes, ierror )
 
 !...Generate now the ADCL-Request object for dq
-      call ADCL_Request_create (adcl_vec_dq, cart_comm, adcl_req_dq, ierror)
-      call ADCL_Request_create (adcl_vec_loes,cart_comm,adcl_req_loes,ierror)
+      call ADCL_Request_create (adcl_vec_dq, adcl_topo, adcl_req_dq, ierror)
+      call ADCL_Request_create (adcl_vec_loes,adcl_topo,adcl_req_loes,ierror)
 
 
 

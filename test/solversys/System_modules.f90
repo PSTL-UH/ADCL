@@ -30,6 +30,7 @@
 
 !...Topology communicator
           integer :: cart_comm
+          integer :: adcl_topo
           integer :: adcl_vec_dq, adcl_req_dq
           integer :: adcl_vec_loes, adcl_req_loes
 
