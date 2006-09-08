@@ -1,4 +1,4 @@
-le#include "ADCL_internal.h"
+#include "ADCL_internal.h"
 
 
 static int ADCL_local_id_counter=0;
@@ -306,7 +306,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 	
 	  fmethod = ADCL_hypothesis_c2m_perf( er, k,er->er_last);
 	  ADCL_printf("Attr: %d Comparing methods %d (%d) and %d (%d) "
-		      " winner is %d\n", j,
+		      " winner is %d\n", jj,
 		      er->er_emethods[k].em_method->m_id, 
 		      er->er_emethods[k].em_method->m_attr[jj],
 		      er->er_emethods[er->er_last].em_method->m_id, 
