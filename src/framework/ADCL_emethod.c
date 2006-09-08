@@ -1,4 +1,4 @@
-#include "ADCL_internal.h"
+le#include "ADCL_internal.h"
 
 
 static int ADCL_local_id_counter=0;
@@ -251,7 +251,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 /**********************************************************************/
 int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 {
-    int i, j, k, next=ADCL_EVAL_DONE;
+    int i, jj, k, next=ADCL_EVAL_DONE;
     int num_diff = 0;
     int fmethod, smethod;
     int fattr, sattr;
