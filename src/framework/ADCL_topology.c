@@ -16,6 +16,10 @@ int ADCL_topology_create ( int ndims, int *lneighbors, int *rneighbors,
 
     newtopo->t_id = ADCL_local_id_counter++;
     ADCL_array_get_next_free_pos ( ADCL_topology_farray, &(newtopo->t_findex));
+    ADCL_array_set_element ( ADCL_topology_farray, 
+			     newtopo->t_findex, 
+			     newtopo->t_id,
+			     newtopo );
     
     newtopo->t_ndims = ndims;
     newtopo->t_comm  = comm;
@@ -48,6 +52,10 @@ int ADCL_topology_create_bycomm ( MPI_Comm cart_comm, ADCL_topology_t **topo )
 
     newtopo->t_id = ADCL_local_id_counter++;
     ADCL_array_get_next_free_pos ( ADCL_topology_farray, &(newtopo->t_findex));
+    ADCL_array_set_element ( ADCL_topology_farray, 
+			     newtopo->t_findex, 
+			     newtopo->t_id,
+			     newtopo );
 
     MPI_Comm_rank ( cart_comm, &rank );
     MPI_Cartdim_get ( cart_comm, &cartdim );

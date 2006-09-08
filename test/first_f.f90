@@ -11,7 +11,7 @@
         integer cart_comm
         double precision, allocatable, dimension (:,:,:,:) :: data
         
-        NIT = 10
+        NIT = 200
 
         dims(1) = 18
         dims(2) = 34
