@@ -54,6 +54,6 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod,
                                         int attribute, int required_value );
 int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods, 
 			     int pos1, int pos2 );
-
+int ADCL_hypothesis_set ( ADCL_emethod_req_t *er, int attr, int attrval );
 
 #endif /* __ADCL_INTERNAL_H__ */

@@ -68,9 +68,9 @@ int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods,
 			     int pos1, int pos2 )
 {
     ADCL_emethod_t *emeth1, *emeth2;
-    int winner, realwinner=-1;
+    int winner, realwinner=-1, blength=2;
     ADCL_emethod_t tmpmeth[2];
-
+   
     emeth1 = &(ermethods->er_emethods[pos1]);
     emeth2 = &(ermethods->er_emethods[pos2]);
 
@@ -82,7 +82,7 @@ int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods,
 
     tmpmeth[0].em_lpts = emeth1->em_lpts;
     tmpmeth[1].em_lpts = emeth2->em_lpts;
-    winner = ADCL_statistics_global_max (tmpmeth, 2, ermethods->er_comm);
+    ADCL_statistics_global_max (tmpmeth, 2, ermethods->er_comm, 1, &blength, &winner);
 
     if ( winner == 0 ) {
         realwinner = pos1;
@@ -96,7 +96,7 @@ int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_hypothesis_set ( ADCL_ermethod *er, int attr, int attrval ) 
+int ADCL_hypothesis_set ( ADCL_emethod_req_t *er, int attr, int attrval ) 
 {
   
   if ( er->er_attr_hypothesis[attr] == ADCL_ATTR_NOT_SET ) {

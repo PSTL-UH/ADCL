@@ -25,7 +25,7 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t *emethods, int count,
 
     MPI_Comm_rank ( comm, &rank );
     for (i=0; i < count; i++ ) {
-      if ( ADCL_EM_IS_FILTERED  (emethods[i])) {
+      if ( ADCL_EM_IS_FILTERED  (&(emethods[i]))) {
 	/* Determine the min  value for method i*/
 	for ( min=999999, j=0; j<emethods[i].em_rescount; j++ ) {
 	  if ( emethods[i].em_time[j] < min ) {
@@ -60,7 +60,7 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t *emethods, int count,
 	  emethods[i].em_rescount -= numoutl;
 	  emethods[i].em_count -= numoutl;
 	}
-	ADCL_EM_SET_FILTERED (emethods[i]); 
+	ADCL_EM_SET_FILTERED (&(emethods[i])); 
       }
     }
     
@@ -79,12 +79,12 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_t *emethods, int count,
     
     if (ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
       for ( i=0; i < count; i++ ) {
-	if (!(ADCL_EM_IS_EVAL(emethods[i]))  ) {
+	if (!(ADCL_EM_IS_EVAL(&(emethods[i])))  ) {
 	  for ( sum=0, j=0; j< emethods[i].em_rescount; j++ ) {
 	    sum += emethods[i].em_time[j];
 	  }
 	  emethods[i].em_lpts = sum/emethods[i].em_rescount;
-	  ADCL_EM_SET_EVAL (emethods[i]);
+	  ADCL_EM_SET_EVAL (&(emethods[i]));
 	}
       }
     }
@@ -99,12 +99,12 @@ int ADCL_statistics_global_max ( ADCL_emethod_t *emethods, int count,
  				 MPI_Comm comm, int num_blocks, int *blength, 
 				 int *winners )
 {
-    int i, winner=-1;
+    int i, j, c;
     double *lpts, *gpts;
 
     lpts = (double *) malloc ( 2* count * sizeof(double));
     if ( NULL == lpts ) {
-	return winner;
+	return ADCL_NO_MEMORY;
     }
     gpts = &(lpts[count]);
 
@@ -121,15 +121,15 @@ int ADCL_statistics_global_max ( ADCL_emethod_t *emethods, int count,
 	for ( winners[j]=0, min=gpts[c], i = c; i < (c+blength[j]); i++ ) {
 	  if ( gpts[i] < min ) {
 	    min = gpts[i];
-	    winner[j] = i;
+	    winners[j] = i;
 	  }
 	}
 	c+=blength[j];
       }
-      
+    }
 
-      free ( lpts );
-      return ADCL_SUCCESS;
+    free ( lpts );
+    return ADCL_SUCCESS;
 }    
 
 /**********************************************************************/

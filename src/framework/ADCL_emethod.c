@@ -212,8 +212,8 @@ ADCL_method_t* ADCL_emethod_get_method ( ADCL_emethod_req_t *erm, int pos)
 ADCL_method_t* ADCL_emethod_get_method_by_attrs ( ADCL_emethod_req_t *erm, 
 						  int *attr)
 {
-  int i, found;
-  ADCL_method* tmp_method, *result=NULL;
+  int i, j, found;
+  ADCL_method_t* tmp_method, *result=NULL;
 
   for ( i=0; i<erm->er_num_emethods; i++ ) {
     tmp_method = erm->er_emethods[i].em_method;
@@ -249,6 +249,8 @@ int ADCL_emethod_monitor ( ADCL_emethod_req_t *ermethod, int pos,
 /**********************************************************************/
 int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 {
+    int winner;
+
     /* 
     ** Filter the input data, i.e. remove outliers which 
     ** would falsify the results 
@@ -274,7 +276,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 				 &(ermethod->er_num_emethods), 
 				 &winner);
     
-    return winner
+    return winner;
 }
 
 /**********************************************************************/
@@ -297,7 +299,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
         emethod->em_count++;
         return er->er_last;
     }
-
+    
     if ( !ADCL_emethod_use_perfhypothesis ) {
         if ( (er->er_last + 1 ) < er->er_num_emethods ) {
             *flag = ADCL_FLAG_PERF;
@@ -308,7 +310,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     }                
      
     ADCL_EM_SET_TESTED (emethod);
-      er->er_num_avail_meas++;
+    er->er_num_avail_meas++;
     if ( emethod->em_rescount < ADCL_emethod_numtests ) {
         /* 
         ** ok, some data is still outstanding. So we 
@@ -323,6 +325,8 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     if ( !ADCL_emethod_use_perfhypothesis ) {
 	return next;
     }
+
+
     
     for ( k=0; k< er->er_num_avail_meas-1; k++ ){
       /* check whether we only differ to method k in attribute attr[j] */
@@ -400,8 +404,8 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     for ( er->er_num_avail_meas=0,i=0;i<er->er_num_emethods;i++){
 	/* increase er_num_available_measurements every time 
 	   a method has the em_tested flag set to true; */
-	if ( ADCL_EM_IS_TESTED (er->er_emethods[i])  ) {
-	  next =  i;
+	if ( ADCL_EM_IS_TESTED (&(er->er_emethods[i]))  ) {
+	  next = i;
 	  er->er_last=next;
 	  er->er_emethods[next].em_count++;
 	  break;
