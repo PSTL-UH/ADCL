@@ -27,12 +27,23 @@ struct ADCL_emethod_s {
     short           em_count; /* how often has this routine already been called */
     short        em_rescount; /* how often has this routine already reported back */
     TIME_TYPE       *em_time; /* measurements */
-    short        em_filtered; /* Has this data set already been filtered? */
-    short          em_tested; /* flags that whether this method has been already tested*/
+    int             em_flags; /* Has this data set already been filtered? */
     double           em_lpts; /* local no. of pts by this method */
 };
-
 typedef struct ADCL_emethod_s ADCL_emethod_t;
+
+/* Possible values for em_flags */
+#define ADCL_EM_TESTED    0x00000001
+#define ADCL_EM_FILTERED  0x00000002
+#define ADCL_EM_EVAL  0x00000004
+
+#define ADCL_EM_IS_TESTED(em)   ((em)->em_flags & ADCL_EM_TESTED)
+#define ADCL_EM_IS_FILTERED(em) ((em)->em_flags & ADCL_EM_FILTERED)
+#define ADCL_EM_IS_EVAL(em)     ((em)->em_flags & ADCL_EM_EVAL)
+
+#define ADCL_EM_SET_TESTED(em)   ((em)->em_flags |= ADCL_EM_TESTED)
+#define ADCL_EM_SET_FILTERED(em) ((em)->em_flags |= ADCL_EM_FILTERED)
+#define ADCL_EM_SET_EVAL(em)     ((em)->em_flags |= ADCL_EM_EVAL)
 
 struct ADCL_emethod_req_s {
   MPI_Comm                           er_comm;
@@ -85,6 +96,7 @@ void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos,
 
 int ADCL_emethod_get_next_id (void);
 
+ADCL_method_t* ADCL_emethod_get_method_by_attrs ( ADCL_emethod_req_t *erm, int *attr);
 
 
 #endif /* __ADCL_EMETHOD_H__ */

@@ -129,11 +129,12 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     }
 
     for ( i=0; i< er->er_num_emethods; i++ ) {
-	er->er_emethods[i].em_time   = (TIME_TYPE *) calloc (1, ADCL_emethod_numtests * 
-							     sizeof(TIME_TYPE));
-	er->er_emethods[i].em_id     = ADCL_emethod_get_next_id ();
-	er->er_emethods[i].em_method = ADCL_get_method(i);
-        er->er_emethods[i].em_tested = FALSE;
+	er->er_emethods[i].em_time   = (TIME_TYPE *) calloc (1, 
+							     ADCL_emethod_numtests 
+							     * sizeof(TIME_TYPE));
+	  er->er_emethods[i].em_id     = ADCL_emethod_get_next_id ();
+	  er->er_emethods[i].em_method = ADCL_get_method(i);
+	  er->er_emethods[i].em_flags  = 0;
     }
 
     ADCL_array_get_next_free_pos ( ADCL_emethod_req_array, &er->er_pos );
@@ -205,6 +206,32 @@ ADCL_method_t* ADCL_emethod_get_method ( ADCL_emethod_req_t *erm, int pos)
 {
     return erm->er_emethods[pos].em_method;
 }
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+ADCL_method_t* ADCL_emethod_get_method_by_attrs ( ADCL_emethod_req_t *erm, 
+						  int *attr)
+{
+  int i, found;
+  ADCL_method* tmp_method, *result=NULL;
+
+  for ( i=0; i<erm->er_num_emethods; i++ ) {
+    tmp_method = erm->er_emethods[i].em_method;
+    for ( found=1, j=0; j<ADCL_ATTR_TOTAL_NUM; j++ ){
+      if ( tmp_method->m_attr[j] != attr[j] ) {
+	found = 0; /* false */
+	break;
+      }
+    }
+    if ( found ) {
+      result = tmp_method;
+      break;
+    }
+  }
+	 
+  
+  return result;
+}
 
     
 /**********************************************************************/
@@ -241,9 +268,13 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */
-    return ADCL_statistics_global_max ( ermethod->er_emethods, 
-					ermethod->er_num_emethods, 
-					ermethod->er_comm );
+    ADCL_statistics_global_max ( ermethod->er_emethods, 
+				 ermethod->er_num_emethods, 
+				 ermethod->er_comm, 1, 
+				 &(ermethod->er_num_emethods), 
+				 &winner);
+    
+    return winner
 }
 
 /**********************************************************************/
@@ -276,8 +307,8 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
         }
     }                
      
-    emethod->em_tested = TRUE;
-    er->er_num_avail_meas++;
+    ADCL_EM_SET_TESTED (emethod);
+      er->er_num_avail_meas++;
     if ( emethod->em_rescount < ADCL_emethod_numtests ) {
         /* 
         ** ok, some data is still outstanding. So we 
@@ -369,11 +400,11 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     for ( er->er_num_avail_meas=0,i=0;i<er->er_num_emethods;i++){
 	/* increase er_num_available_measurements every time 
 	   a method has the em_tested flag set to true; */
-	if ( !er->er_emethods[i].em_tested ) {
-	    next =  i;
-	    er->er_last=next;
-	    er->er_emethods[next].em_count++;
-	    break;
+	if ( ADCL_EM_IS_TESTED (er->er_emethods[i])  ) {
+	  next =  i;
+	  er->er_last=next;
+	  er->er_emethods[next].em_count++;
+	  break;
 	}
 	er->er_num_avail_meas++;
     }

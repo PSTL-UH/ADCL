@@ -15,10 +15,14 @@ int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM]={ADCL_ATTR_MAPPING_MAX,ADCL_ATTR_NONCONT_
 const int ADCL_attr_mapping_aao=100;
 const int ADCL_attr_mapping_pair=101;
 const int ADCL_attr_mapping_hierarch=102;
+int ADCL_attr_mapping[ADCL_ATTR_MAPPING_MAX]={ADCL_attr_mapping_aoo, 
+					      ADCL_attr_mapping_pair};
 
 const int ADCL_attr_noncont_ddt=110;
 const int ADCL_attr_noncont_pack=111;
 const int ADCL_attr_noncont_individual=112;
+int ADCL_attr_noncont[ADCL_ATTR_NONCONT_MAX]={ADCL_attr_noncont_ddt, 
+					      ADCL_attr_noncont_pack};
 
 const int ADCL_attr_transfer_IsendIrecv=120;
 const int ADCL_attr_transfer_SendIrecv=121;
@@ -29,6 +33,19 @@ const int ADCL_attr_transfer_FenceGet=124;
 const int ADCL_attr_transfer_FencePut=125;
 const int ADCL_attr_transfer_StartPostGet=126;
 const int ADCL_attr_transfer_StartPostPut=127;
+int ADCL_attr_transfer[ADCL_ATTR_TRANSFER_MAX]={ADCL_attr_transfer_IsendIrecv, 
+						ADCL_attr_transfer_SendIrecv,
+						ADCL_attr_transfer_SendRecv,
+						ADCL_attr_transfer_Sendrecv,
+						ADCL_attr_transfer_FenceGet,
+						ADCL_attr_transfer_FencePut,
+						ADCL_attr_transfer_StartPostGet,
+						ADCL_attr_transfer_StartPostPut};
+#else
+int ADCL_attr_transfer[ADCL_ATTR_TRANSFER_MAX]={ADCL_attr_transfer_IsendIrecv, 
+						ADCL_attr_transfer_SendIrecv,
+						ADCL_attr_transfer_SendRecv,
+						ADCL_attr_transfer_Sendrecv};
 #endif
 
 const int ADCL_attr_numblocks_single=130;

@@ -26,6 +26,7 @@ extern int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
 extern const int ADCL_attr_mapping_aao;
 extern const int ADCL_attr_mapping_pair;
 extern const int ADCL_attr_mapping_hierarch;
+extern int ADCL_attr_mapping[ADCL_ATTR_MAPPING_MAX];
 
 
 /*=================================================================*/
@@ -39,6 +40,7 @@ extern const int ADCL_attr_mapping_hierarch;
 extern const int ADCL_attr_noncont_ddt;
 extern const int ADCL_attr_noncont_pack;
 extern const int ADCL_attr_noncont_individual;
+extern int ADCL_attr_noncont[ADCL_ATTR_NONCONT_MAX];
 
 /*=================================================================*/
 /* 
@@ -65,6 +67,8 @@ extern const int ADCL_attr_transfer_FencePut;
 extern const int ADCL_attr_transfer_StartPostGet;
 extern const int ADCL_attr_transfer_StartPostPut;
 #endif
+
+extern int ADCL_attr_transfer[ADCL_ATTR_TRANSFER_MAX];
 
 /*=================================================================*/
 

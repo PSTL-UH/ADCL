@@ -19,6 +19,11 @@ int ADCL_hypothesis_c2m_attr ( ADCL_emethod_req_t *ermethods,
     return num_diff;
 }
 
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, 
                                         int attribute, int required_value )
 {
@@ -56,6 +61,9 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod,
     return ADCL_SUCCESS;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods, 
 			     int pos1, int pos2 )
 {
@@ -85,4 +93,33 @@ int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods,
 
     return realwinner;
 }
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+int ADCL_hypothesis_set ( ADCL_ermethod *er, int attr, int attrval ) 
+{
+  
+  if ( er->er_attr_hypothesis[attr] == ADCL_ATTR_NOT_SET ) {
+    er->er_attr_hypothesis[attr] = attrval;
+    er->er_attr_confidence[attr] = 1;
+    ADCL_printf("Hypothesis for attr %d set to %d, confidence"
+		" %d\n", attr, attrval, er->er_attr_confidence[attr]);
+  } 
+  else if ( attrval == er->er_attr_hypothesis[attr] ) {
+    er->er_attr_confidence[attr]++;
+    ADCL_printf("Hypothesis for attr %d is %d, confidence "
+		"incr to %d\n", attr, attrval, er->er_attr_confidence[attr]);
+  }
+  else {
+    er->er_attr_confidence[attr]--;
+    ADCL_printf("Hypothesis for attr %d is %d, confidence "
+		"decr to %d\n", attr, er->er_attr_hypothesis[attr], 
+		er->er_attr_confidence[attr]);
+    if ( er->er_attr_confidence[attr] == 0 ) {
+      /* we don't have a performance hypthesis for this attribute anymore */
+      er->er_attr_hypothesis[attr] = ADCL_ATTR_NOT_SET;
+    }
+  }
 
+  return ADCL_SUCCESS;
+}
