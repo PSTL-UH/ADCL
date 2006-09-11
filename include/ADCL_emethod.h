@@ -46,29 +46,30 @@ typedef struct ADCL_emethod_s ADCL_emethod_t;
 #define ADCL_EM_SET_EVAL(em)     ((em)->em_flags |= ADCL_EM_EVAL)
 
 struct ADCL_emethod_req_s {
-  MPI_Comm                           er_comm;
-  int                                 er_pos;
-  int                               er_rfcnt;
-  int                               er_state; /* state of the object */
-  int                                er_last; /* last element given out */
-  int                        er_max_emethods; /* length of the er_emethod array */
-  int                        er_num_emethods; /* how many methods shall be evaluated */
-  int                             er_vhwidth;
-  int                                 er_vnc;
-  int                              er_vndims;
-  int                          er_nneighbors;
-  int                          *er_neighbors;
-  int                              *er_vdims;
-  ADCL_emethod_t                *er_emethods;
-  ADCL_method_t                  *er_wmethod; /* winner method used after the testing */
-
-  short er_attr_hypothesis[ADCL_ATTR_TOTAL_NUM]; /* List of performance hypothesis*/
-  short er_attr_confidence[ADCL_ATTR_TOTAL_NUM]; /* List of confidence*/
-  short                     er_num_avail_meas;   /* Counter keeping track of how many 
-						    methods have already been tested*/
-  short    er_attr_handled[ADCL_ATTR_TOTAL_NUM]; /* list of which attrs have already
-						    been handled */
-
+    MPI_Comm                           er_comm;
+    int                                 er_pos;
+    int                               er_rfcnt;
+    int                               er_state; /* state of the object */
+    int                                er_last; /* last element given out */
+    int                        er_max_emethods; /* length of the er_emethod array */
+    int                        er_num_emethods; /* how many methods shall be evaluated */
+    int                             er_vhwidth;
+    int                                 er_vnc;
+    int                              er_vndims;
+    int                          er_nneighbors;
+    int                          *er_neighbors;
+    int                              *er_vdims;
+    ADCL_emethod_t                *er_emethods;
+    ADCL_method_t                  *er_wmethod; /* winner method used after the testing */
+    
+    short er_attr_hypothesis[ADCL_ATTR_TOTAL_NUM]; /* List of performance hypothesis*/
+    short er_attr_confidence[ADCL_ATTR_TOTAL_NUM]; /* List of confidence*/
+    short                     er_num_avail_meas;   /* Counter keeping track of how many 
+						      methods have already been tested*/
+    short    er_attr_handled[ADCL_ATTR_TOTAL_NUM]; /* list of which attrs have already
+						      been handled */
+    short                   er_num_active_attrs;  
+    short  er_active_attr_list[ADCL_ATTR_TOTAL_NUM];
 };
 
 typedef struct ADCL_emethod_req_s ADCL_emethod_req_t;
@@ -96,7 +97,7 @@ void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos,
 
 int ADCL_emethod_get_next_id (void);
 
-ADCL_method_t* ADCL_emethod_get_method_by_attrs ( ADCL_emethod_req_t *erm, int *attr);
+ADCL_emethod_t* ADCL_emethod_get_by_attrs ( ADCL_emethod_req_t *erm, int *attr);
 
 
 #endif /* __ADCL_EMETHOD_H__ */
