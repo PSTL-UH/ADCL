@@ -9,11 +9,14 @@
 */
 
 /* Total number of attributes */
-#define ADCL_ATTR_TOTAL_NUM 3 /* ignoring numblocks for right now */
-#define ADCL_ATTR_NOT_SET  -1 /* attributes not set*/
+#define ADCL_ATTR_TOTAL_NUM  3  /* ignoring numblocks for right now */
+#define ADCL_ATTR_NOT_SET   -1  /* attributes not set*/
+#define ADCL_ATTR_NEW_BLOCK -2  /* signal that we start a new block. 
+				   Used in the performance hypothesis v2 */
 
 /* Store for each attribute the maximum number of possible values */
 extern int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
+extern int ADCL_attr_base[ADCL_ATTR_TOTAL_NUM];
 /*=================================================================*/
 /* 
 ** The mapping step

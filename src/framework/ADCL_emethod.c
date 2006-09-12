@@ -137,6 +137,10 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	  er->er_emethods[i].em_flags  = 0;
     }
 
+    er->er_num_active_attrs=2;
+    er->er_active_attr_list[0]=ADCL_ATTR_MAPPING;
+    er->er_active_attr_list[1]=ADCL_ATTR_NONCONT;
+
     ADCL_array_get_next_free_pos ( ADCL_emethod_req_array, &er->er_pos );
     ADCL_array_set_element ( ADCL_emethod_req_array, 
 			     er->er_pos, 
@@ -255,14 +259,14 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
     ** Filter the input data, i.e. remove outliers which 
     ** would falsify the results 
     */
-    ADCL_statistics_filter_timings ( ermethod->er_emethods, 
+    ADCL_statistics_filter_timings ( &(ermethod->er_emethods), 
 				     ermethod->er_num_emethods, 
 				     ermethod->er_comm );
 
     /* 
     ** Weight now the performance of each method 
     */
-    ADCL_statistics_determine_votes ( ermethod->er_emethods, 
+    ADCL_statistics_determine_votes ( &(ermethod->er_emethods), 
 				      ermethod->er_num_emethods, 
 				      ermethod->er_comm );
 
@@ -270,7 +274,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */
-    ADCL_statistics_global_max ( ermethod->er_emethods, 
+    ADCL_statistics_global_max ( &(ermethod->er_emethods), 
 				 ermethod->er_num_emethods, 
 				 ermethod->er_comm, 1, 
 				 &(ermethod->er_num_emethods), 
@@ -294,15 +298,6 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
         return er->er_last;
     }
     
-    if ( !ADCL_emethod_use_perfhypothesis ) {
-        if ( (er->er_last + 1 ) < er->er_num_emethods ) {
-            *flag = ADCL_FLAG_PERF;
-            er->er_last++;
-            er->er_emethods[er->er_last].em_count++;
-            return er->er_last;
-        }
-    }                
-     
     ADCL_EM_SET_TESTED (emethod);
     er->er_num_avail_meas++;
     if ( emethod->em_rescount < ADCL_emethod_numtests ) {
@@ -316,21 +311,22 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
         return er->er_last;
     }
 
-    if ( !ADCL_emethod_use_perfhypothesis ) {
-	return next;
+    if ( ADCL_emethod_use_perfhypothesis ) {
+#ifdef V2
+	ADCL_hypothesis_eval_v2 ( er );
+#else
+	ADCL_hypothesis_eval_v1 ( er );
+#endif
     }
-
-    
-    ADCL_hypothesis_eval_v1 ( er );
     
     for ( er->er_num_avail_meas=0,i=0;i<er->er_num_emethods;i++){
 	/* increase er_num_available_measurements every time 
 	   a method has the em_tested flag set to true; */
 	if ( ADCL_EM_IS_TESTED (&(er->er_emethods[i]))  ) {
-	  next = i;
-	  er->er_last=next;
-	  er->er_emethods[next].em_count++;
-	  break;
+	    next = i;
+	    er->er_last=next;
+	    er->er_emethods[next].em_count++;
+	    break;
 	}
 	er->er_num_avail_meas++;
     }

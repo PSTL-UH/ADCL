@@ -8,6 +8,7 @@ ADCL_method_t* ADCL_method_array=NULL;
 extern int ADCL_emethod_use_perfhypothesis;
 int *ADCL_method_perfhyp_list=NULL;
 
+int ADCL_attr_base[ADCL_ATTR_TOTAL_NUM];
 int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM]={ADCL_ATTR_MAPPING_MAX,ADCL_ATTR_NONCONT_MAX,ADCL_ATTR_TRANSFER_MAX};
 
 /* ADCL_attr_max[ADCL_ATTR_NUMBLOCKS]=ADCL_ATTR_NUMBLOCKS_MAX; */
@@ -40,6 +41,7 @@ const int ADCL_attr_numblocks_dual=131;
 int ADCL_method_init ( void )
 {
     int count=0;
+    
 
     ADCL_attr_mapping[0] = ADCL_attr_mapping_aao;
     ADCL_attr_mapping[1] = ADCL_attr_mapping_pair;
@@ -57,6 +59,12 @@ int ADCL_method_init ( void )
     ADCL_attr_transfer[6] = ADCL_attr_transfer_StartPostGet;
     ADCL_attr_transfer[7] = ADCL_attr_transfer_StartPostPut;
 #endif
+
+
+    ADCL_attr_base[0] = ADCL_attr_mapping[0];
+    ADCL_attr_base[1] = ADCL_attr_noncont[0];
+    ADCL_attr_base[2] = ADCL_attr_transfer[0];
+
 
     
 #ifdef MPI_WIN
