@@ -55,7 +55,7 @@ int ADCL_readenv()
     }
 
 #ifdef Debug
-    ADCL_printf("Outputting contents of %s:\n\n", FilePath);
+    ADCL_printf("#Outputting contents of %s:\n", FilePath);
 #endif 
 
     /*Read lines from configure file*/
@@ -75,7 +75,7 @@ int ADCL_readenv()
 	strncpy ( keyword, buffer, i);
 	ptr = &(buffer[++i]);
 #ifdef Debug
-	ADCL_printf("Keyword is %s\n",keyword);
+	ADCL_printf("#Keyword is %s\n",keyword);
 #endif
 	
 	/*  ADCL_OUTLIER_FACTOR; */
@@ -83,7 +83,7 @@ int ADCL_readenv()
 		   strlen("ADCL_OUTLIER_FACTOR")) == 0){
 	    sscanf(ptr, "%d", &ADCL_OUTLIER_FACTOR);
 #ifdef	Debug	
-	    ADCL_printf("ADCL_OUTLIER_FACTOR : %d\n", ADCL_OUTLIER_FACTOR);	
+	    ADCL_printf("#ADCL_OUTLIER_FACTOR : %d\n", ADCL_OUTLIER_FACTOR);	
 #endif
 	}
 		
@@ -92,7 +92,7 @@ int ADCL_readenv()
 			strlen("ADCL_OUTLIER_FRACTION"))==0){
 	    sscanf(ptr, "%d", &ADCL_OUTLIER_FRACTION);
 #ifdef	Debug	
-	    ADCL_printf("ADCL_OUTLIER_FRACTION : %d\n", ADCL_OUTLIER_FRACTION);	
+	    ADCL_printf("#ADCL_OUTLIER_FRACTION : %d\n", ADCL_OUTLIER_FRACTION);	
 #endif
 	}
 
@@ -101,7 +101,7 @@ int ADCL_readenv()
 			  strlen("ADCL_STATISTIC_METHOD"))==0){
 	    sscanf(ptr,"%s", valstring);
 #ifdef	Debug	
-	    ADCL_printf("ADCL_STATISTIC_METHOD : %s\n", valstring);	
+	    ADCL_printf("#ADCL_STATISTIC_METHOD : %s\n", valstring);	
 #endif
 	    if ( strncmp(valstring,"ADCL_STATISTIC_MAX",
 			 strlen("ADCL_STATISTIC_MAX"))==0) {
@@ -114,7 +114,7 @@ int ADCL_readenv()
 			  strlen("ADCL_MERGE_REQUESTS"))==0) {
 	    sscanf(ptr,"%d", &ADCL_merge_requests);
 #ifdef	Debug	
-	    ADCL_printf("ADCL_MERGE_REQUESTS : %d\n", ADCL_merge_requests);	
+	    ADCL_printf("#ADCL_MERGE_REQUESTS : %d\n", ADCL_merge_requests);	
 #endif
 	}
 	
@@ -123,7 +123,7 @@ int ADCL_readenv()
 			  strlen("ADCL_EMETHOD_NUMTESTS"))==0) {
 	    sscanf(ptr,"%d", &ADCL_emethod_numtests);
 #ifdef	Debug	
-	    ADCL_printf("ADCL_EMETHOD_NUMTESTS: %d\n",ADCL_emethod_numtests);
+	    ADCL_printf("#ADCL_EMETHOD_NUMTESTS: %d\n",ADCL_emethod_numtests);
 #endif
 	}
 	
@@ -132,7 +132,7 @@ int ADCL_readenv()
 			 strlen("ADCL_EMETHOD_SELECTION"))==0) {
 	    sscanf(ptr,"%s", valstring);
 #ifdef	Debug	
-	    ADCL_printf("ADCL_EMETHOD_SELECTION : %s\n", valstring);	
+	    ADCL_printf("#ADCL_EMETHOD_SELECTION : %s\n", valstring);	
 #endif
 	    for ( i=0; i< ADCL_method_total_num; i++ ) {			
 		if ( strcmp(valstring, ADCL_method_array[i].m_name) == 0) {
@@ -147,7 +147,7 @@ int ADCL_readenv()
 			  strlen("ADCL_PRINTF_SILENCE"))==0) {
 	    sscanf(ptr,"%d", &ADCL_printf_silence);
 #ifdef	Debug	
-	    ADCL_printf("ADCL_PRINTF_SILENCE: %d\n",ADCL_printf_silence);
+	    ADCL_printf("#ADCL_PRINTF_SILENCE: %d\n",ADCL_printf_silence);
 #endif
 	}
 
@@ -157,7 +157,7 @@ int ADCL_readenv()
 			  strlen("ADCL_EMETHOD_USE_PERFHYPOTHESIS"))==0) {
 	    sscanf(ptr,"%d ", &ADCL_emethod_use_perfhypothesis);
 #ifdef	Debug	
-	    ADCL_printf("ADCL_EMETHOD_USE_PERFHYPOTHESIS: %d\n",ADCL_emethod_use_perfhypothesis );
+	    ADCL_printf("#ADCL_EMETHOD_USE_PERFHYPOTHESIS: %d\n",ADCL_emethod_use_perfhypothesis );
 #endif
 	}
 
