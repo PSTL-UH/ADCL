@@ -13,14 +13,17 @@ int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM]={ADCL_ATTR_MAPPING_MAX,ADCL_ATTR_NONCONT_
 
 /* ADCL_attr_max[ADCL_ATTR_NUMBLOCKS]=ADCL_ATTR_NUMBLOCKS_MAX; */
 
+int ADCL_attr_mapping[ADCL_ATTR_MAPPING_MAX];
 const int ADCL_attr_mapping_aao=100;
 const int ADCL_attr_mapping_pair=101;
 const int ADCL_attr_mapping_hierarch=102;
 
+int ADCL_attr_noncont[ADCL_ATTR_NONCONT_MAX];
 const int ADCL_attr_noncont_ddt=110;
 const int ADCL_attr_noncont_pack=111;
 const int ADCL_attr_noncont_individual=112;
 
+int ADCL_attr_transfer[ADCL_ATTR_TRANSFER_MAX];
 const int ADCL_attr_transfer_IsendIrecv=120;
 const int ADCL_attr_transfer_SendIrecv=121;
 const int ADCL_attr_transfer_SendRecv=122;

@@ -74,7 +74,7 @@ int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods,
 {
     ADCL_emethod_t *emeth1, *emeth2;
     int winner, realwinner=-1, blength=2;
-    ADCL_emethod_t tmpmeth[2], *t=NULL;
+    ADCL_emethod_t tmpmeth[2], *t;
    
     emeth1 = &(ermethods->er_emethods[pos1]);
     emeth2 = &(ermethods->er_emethods[pos2]);
@@ -370,7 +370,7 @@ static int next_attr_combination ( int cnt, int *attr_list, int *attr_val_list )
 	    attr_val_list[thisattr]++;
 	    return ret;
 	}
-	else if ( thisval ==  (ADCL_attr_base[thisattr] + ADCL_attr_max[thisattr]) ) {
+	else if ( thisval == (ADCL_attr_base[thisattr] + ADCL_attr_max[thisattr]) ) {
 	    attr_val_list[thisattr] = ADCL_attr_base[thisattr];
 	    ret = ADCL_ATTR_NEW_BLOCK;
 	}

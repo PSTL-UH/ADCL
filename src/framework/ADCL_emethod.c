@@ -253,20 +253,30 @@ int ADCL_emethod_monitor ( ADCL_emethod_req_t *ermethod, int pos,
 /**********************************************************************/
 int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 {
-    int winner;
+    int i, winner;
+    ADCL_emethod_t **er=NULL;
+    
+    er = (ADCL_emethod_t **) malloc ( ermethod->er_num_emethods * 
+				      sizeof(ADCL_emethod_t *));
+    if ( NULL == er ) {
+	return ADCL_NO_MEMORY;
+    }
+    for ( i=0; i<ermethod->er_num_emethods; i++ ) {
+	er[i] = &(ermethod->er_emethods[i]);
+    }
 
     /* 
     ** Filter the input data, i.e. remove outliers which 
     ** would falsify the results 
     */
-    ADCL_statistics_filter_timings ( &(ermethod->er_emethods), 
+    ADCL_statistics_filter_timings ( er,
 				     ermethod->er_num_emethods, 
 				     ermethod->er_comm );
 
     /* 
     ** Weight now the performance of each method 
     */
-    ADCL_statistics_determine_votes ( &(ermethod->er_emethods), 
+    ADCL_statistics_determine_votes ( er,
 				      ermethod->er_num_emethods, 
 				      ermethod->er_comm );
 
@@ -274,12 +284,13 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */
-    ADCL_statistics_global_max ( &(ermethod->er_emethods), 
+    ADCL_statistics_global_max ( er,
 				 ermethod->er_num_emethods, 
 				 ermethod->er_comm, 1, 
 				 &(ermethod->er_num_emethods), 
 				 &winner);
-    
+
+    free ( er );
     return winner;
 }
 
@@ -322,7 +333,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     for ( er->er_num_avail_meas=0,i=0;i<er->er_num_emethods;i++){
 	/* increase er_num_available_measurements every time 
 	   a method has the em_tested flag set to true; */
-	if ( ADCL_EM_IS_TESTED (&(er->er_emethods[i]))  ) {
+	if ( !(ADCL_EM_IS_TESTED (&(er->er_emethods[i])))  ) {
 	    next = i;
 	    er->er_last=next;
 	    er->er_emethods[next].em_count++;
