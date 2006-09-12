@@ -51,17 +51,17 @@ int ADCL_hypothesis_set ( ADCL_emethod_req_t *er, int attr, int attrval )
   if ( er->er_attr_hypothesis[attr] == ADCL_ATTR_NOT_SET ) {
     er->er_attr_hypothesis[attr] = attrval;
     er->er_attr_confidence[attr] = 1;
-    ADCL_printf("Hypothesis for attr %d set to %d, confidence"
+    ADCL_printf("#Hypothesis for attr %d set to %d, confidence"
 		" %d\n", attr, attrval, er->er_attr_confidence[attr]);
   } 
   else if ( attrval == er->er_attr_hypothesis[attr] ) {
     er->er_attr_confidence[attr]++;
-    ADCL_printf("Hypothesis for attr %d is %d, confidence "
+    ADCL_printf("#Hypothesis for attr %d is %d, confidence "
 		"incr to %d\n", attr, attrval, er->er_attr_confidence[attr]);
   }
   else {
     er->er_attr_confidence[attr]--;
-    ADCL_printf("Hypothesis for attr %d is %d, confidence "
+    ADCL_printf("#Hypothesis for attr %d is %d, confidence "
 		"decr to %d\n", attr, er->er_attr_hypothesis[attr], 
 		er->er_attr_confidence[attr]);
     if ( er->er_attr_confidence[attr] == 0 ) {
@@ -189,7 +189,7 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_req_t *er )
 						  er->er_attr_hypothesis[pattrs[i]]);
 		/* TBD: we will have to adapt here the number of attributes for pattrs[i]
 		 *      as well as the attr_base value!!! This has to  be done on a 
-		 *      per eemethods_req basis 
+		 *      per emethods_req basis 
 		 */
 	    }
 	}
