@@ -25,7 +25,7 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count,
 
     MPI_Comm_rank ( comm, &rank );
     for (i=0; i < count; i++ ) {
-      if ( ADCL_EM_IS_FILTERED(emethods[i])) {
+      if ( !(ADCL_EM_IS_FILTERED(emethods[i]))) {
 	/* Determine the min  value for method i*/
 	for ( min=999999, j=0; j<emethods[i]->em_rescount; j++ ) {
 	  if ( emethods[i]->em_time[j] < min ) {
