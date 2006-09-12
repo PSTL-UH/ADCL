@@ -5,30 +5,6 @@ static int get_num_methods_and_blocks ( ADCL_emethod_req_t *er, int *nummethods,
 					int *numblocks);
 
 
-int ADCL_hypothesis_c2m_attr ( ADCL_emethod_req_t *ermethods,
-			       int *attr_list, int pos1, int pos2 )
-{
-    int i, num_diff=0;
-    ADCL_emethod_t *emeth1, *emeth2;
-
-    emeth1 = &(ermethods->er_emethods[pos1]);
-    emeth2 = &(ermethods->er_emethods[pos2]);
-
-    /* determine in how many attributes the two methods differ */
-    for ( i=0; i < ADCL_ATTR_TOTAL_NUM; i++ ) {
-	if ( emeth1->em_method->m_attr[i] != emeth2->em_method->m_attr[i] ) {
-	    num_diff++;
-	    attr_list[i]=1;
-	}
-    }
-    return num_diff;
-}
-
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, 
                                         int attribute, int required_value )
 {
@@ -59,46 +35,13 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod,
 	}
     }
     ermethod->er_num_emethods = count;
-
+    ermethod->er_attr_confidence[attribute]=0;
     ADCL_printf("#Emethod list has been shrinked from %d to %d entries\n", 
 		org_count, count );
 
     return ADCL_SUCCESS;
 }
 
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods, 
-			     int pos1, int pos2 )
-{
-    ADCL_emethod_t *emeth1, *emeth2;
-    int winner, realwinner=-1, blength=2;
-    ADCL_emethod_t tmpmeth[2], *t;
-   
-    emeth1 = &(ermethods->er_emethods[pos1]);
-    emeth2 = &(ermethods->er_emethods[pos2]);
-
-    ADCL_statistics_filter_timings ( &emeth1, 1, ermethods->er_comm);
-    ADCL_statistics_filter_timings ( &emeth2, 1, ermethods->er_comm);
-    
-    ADCL_statistics_determine_votes ( &emeth1, 1, ermethods->er_comm );
-    ADCL_statistics_determine_votes ( &emeth2, 1, ermethods->er_comm );
-
-    tmpmeth[0].em_lpts = emeth1->em_lpts;
-    tmpmeth[1].em_lpts = emeth2->em_lpts;
-    t = tmpmeth;
-    ADCL_statistics_global_max (&t, 2, ermethods->er_comm, 1, &blength, &winner);
-
-    if ( winner == 0 ) {
-        realwinner = pos1;
-    }
-    else if ( winner == 1 ) {
-	realwinner = pos2;
-    }
-
-    return realwinner;
-}
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -130,91 +73,6 @@ int ADCL_hypothesis_set ( ADCL_emethod_req_t *er, int attr, int attrval )
   return ADCL_SUCCESS;
 }
 
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-int ADCL_hypothesis_eval_v1 ( ADCL_emethod_req_t *er )
-{
-    int k, jj;
-    int num_diff = 0;
-    int fmethod, smethod;
-    int fattr, sattr;
-    int attr_list[ADCL_ATTR_TOTAL_NUM];
-
-    for ( k=0; k< er->er_num_avail_meas-1; k++ ){
-      /* check whether we only differ to method k in attribute attr[j] */
-      memset ( attr_list, 0, sizeof(int)*ADCL_ATTR_TOTAL_NUM);
-      num_diff = ADCL_hypothesis_c2m_attr ( er, attr_list, 
-					    k, er->er_last);
-      
-      /*  if only one attribute is different, we can extract useful
-	  data */
-      if ( num_diff == 1 ) {
-	for ( jj=0; attr_list[jj] == 0 && jj < ADCL_ATTR_TOTAL_NUM; jj++);
-	
-	  fmethod = ADCL_hypothesis_c2m_perf( er, k,er->er_last);
-	  ADCL_printf("Attr: %d Comparing methods %d (%d) and %d (%d) "
-		      " winner is %d\n", jj,
-		      er->er_emethods[k].em_method->m_id, 
-		      er->er_emethods[k].em_method->m_attr[jj],
-		      er->er_emethods[er->er_last].em_method->m_id, 
-		      er->er_emethods[er->er_last].em_method->m_attr[jj],
-		      er->er_emethods[fmethod].em_method->m_id );
-
-	  smethod = (fmethod==k)? er->er_last:k;		
-	  sattr = er->er_emethods[smethod].em_method->m_attr[jj];
-	  fattr = er->er_emethods[fmethod].em_method->m_attr[jj];
-		
-	  if ( er->er_attr_hypothesis[jj] == ADCL_ATTR_NOT_SET ) {
-	    er->er_attr_hypothesis[jj] = fattr;
-	    er->er_attr_confidence[jj] = 1;
-	    ADCL_printf("Hypothesis for attr %d set to %d, confidence"
-			" %d\n", jj, fattr, 
-			er->er_attr_confidence[jj]);
-	  } 
-	  else if ( fattr == er->er_attr_hypothesis[jj] ) {
-	    er->er_attr_confidence[jj]++;
-	    ADCL_printf("Hypothesis for attr %d is %d, confidence "
-			"incr to %d\n", jj, fattr, 
-			er->er_attr_confidence[jj]);
-	  }
-	  else if ( sattr == er->er_attr_hypothesis[jj] ) {
-	    er->er_attr_confidence[jj]--;
-	    ADCL_printf("Hypothesis for attr %d is %d, confidence "
-			"decr to %d\n", jj, er->er_attr_hypothesis[jj], 
-			er->er_attr_confidence[jj]);
-	    if ( er->er_attr_confidence[jj] == 0 ) {
-	      /* we don't have a performance hypthesis 
-		 for this attribute anymore */
-	      er->er_attr_hypothesis[jj] = ADCL_ATTR_NOT_SET;
-	    }
-	  }
-	  else {
-	    ADCL_printf("Unhandled case at this point!\n");
-	    /* What we would have to do is to compare against
-	    ** the method which has the identical attributes as 
-	    ** method er_last, only differing in attr[j]. The problem
-	    ** is, that this approach breaks the k-loop *and* the
-	    ** method might not exist. This situation can only 
-	    */
-	  }
-	}        
-    }
-      
-    for ( jj=0; jj< ADCL_ATTR_TOTAL_NUM; jj++ ) {
-	if ( er->er_attr_confidence[jj] >= ADCL_attr_max[jj] && 
-	     !er->er_attr_handled[jj] ) {
-	    /* remove all methods from the emethods list which
-	       have a different value for attribute attr[j] than 
-	       hypothesis[j] using function (2) */
-	    ADCL_hypothesis_shrinklist_byattr ( er, jj , 
-						er->er_attr_hypothesis[jj] ); 
-	    er->er_attr_handled[jj] = 1;
-	}
-    }
-    
-    return ADCL_SUCCESS;
-}
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -305,8 +163,8 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_req_t *er )
 					    tmp_active_attr_list, 
 					    attr_list);
 		if ( ret != ADCL_SUCCESS ) {
-		    pattrs[bcnt]    = er->er_active_attr_list[loop];
 		    blength[bcnt++] = blencnt;
+		    pattrs[bcnt]    = er->er_active_attr_list[loop];
 		    blencnt         = 0;
 		}
 	    }
@@ -325,7 +183,7 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_req_t *er )
 	}
 	
 	/* Now the shrink the emethods list if we reached a threshold */
-	for ( i=0; i< er->er_num_active_attrs; i++ ){
+	for ( i=0; i< numblocks; i++ ){
 	    if ( er->er_attr_confidence[pattrs[i]] >= ADCL_attr_max[pattrs[i]] ) {
 		ADCL_hypothesis_shrinklist_byattr(er, pattrs[i], 
 						  er->er_attr_hypothesis[pattrs[i]]);
@@ -366,11 +224,11 @@ static int next_attr_combination ( int cnt, int *attr_list, int *attr_val_list )
 	thisattr = attr_list[i];
 	thisval = attr_val_list[thisattr];
 	
-	if ( thisval < (ADCL_attr_base[thisattr] + ADCL_attr_max[thisattr]) ) {
+	if ( thisval < (ADCL_attr_base[thisattr] + ADCL_attr_max[thisattr] - 1) ) {
 	    attr_val_list[thisattr]++;
 	    return ret;
 	}
-	else if ( thisval == (ADCL_attr_base[thisattr] + ADCL_attr_max[thisattr]) ) {
+	else if ( thisval == (ADCL_attr_base[thisattr] + ADCL_attr_max[thisattr]-1)){
 	    attr_val_list[thisattr] = ADCL_attr_base[thisattr];
 	    ret = ADCL_ATTR_NEW_BLOCK;
 	}
@@ -389,7 +247,7 @@ static int get_num_methods_and_blocks ( ADCL_emethod_req_t *er, int *nummethods,
 					int *numblocks)
 {
     int tmpnblocks, i, j;
-    int nm, nb;
+    int nm, nb=0;
 
     for ( nm=er->er_num_active_attrs, i=0; i<er->er_num_active_attrs; i++) {
 	for ( tmpnblocks=1, j=0; j < er->er_num_active_attrs; j++ ) {

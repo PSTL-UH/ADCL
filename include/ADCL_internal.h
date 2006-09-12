@@ -48,14 +48,9 @@ int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
  				 MPI_Comm comm, int num_blocks, int *blength, 
 				 int *winners );
 
-int ADCL_hypothesis_c2m_attr ( ADCL_emethod_req_t *ermethods,
-			       int *attr_list, int pos1, int pos2 );
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, 
                                         int attribute, int required_value );
-int ADCL_hypothesis_c2m_perf(ADCL_emethod_req_t *ermethods, 
-			     int pos1, int pos2 );
-int ADCL_hypothesis_set ( ADCL_emethod_req_t *er, int attr, int attrval );
-int ADCL_hypothesis_eval_v1 ( ADCL_emethod_req_t *er );
+int ADCL_hypothesis_set     ( ADCL_emethod_req_t *er, int attr, int attrval );
 int ADCL_hypothesis_eval_v2 ( ADCL_emethod_req_t *er );
 
 

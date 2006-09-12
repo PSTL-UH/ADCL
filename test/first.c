@@ -3,7 +3,7 @@
 #include "ADCL.h"
 #include "mpi.h"
 
-#define NIT 200
+#define NIT 130
 
 #define DIM0  32
 #define DIM1  32

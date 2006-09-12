@@ -106,7 +106,6 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
     }
     
     memset(er->er_attr_confidence, 0, ADCL_ATTR_TOTAL_NUM * sizeof(short));
-    memset(er->er_attr_handled, 0, ADCL_ATTR_TOTAL_NUM * sizeof(short));
     er->er_num_avail_meas = 0;
 
     if ( NULL == er->er_neighbors || NULL == er->er_vdims ) {
@@ -323,11 +322,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     }
 
     if ( ADCL_emethod_use_perfhypothesis ) {
-#ifdef V2
 	ADCL_hypothesis_eval_v2 ( er );
-#else
-	ADCL_hypothesis_eval_v1 ( er );
-#endif
     }
     
     for ( er->er_num_avail_meas=0,i=0;i<er->er_num_emethods;i++){
