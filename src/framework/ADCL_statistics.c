@@ -37,12 +37,13 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count,
 	for ( numoutl=0, j=0; j<emethods[i]->em_rescount; j++ ) {
 	  if ( emethods[i]->em_time[j] >= (ADCL_OUTLIER_FACTOR * min) ) {
 	    ADCL_printf("#%d: method %d meas. %d is outlier %lf min %lf\n",
-			rank, i, j, emethods[i]->em_time[j], min );
+			rank, emethods[i]->em_method->m_id, j, 
+			emethods[i]->em_time[j], min );
 	    numoutl++;
 	  }
 	}
 	ADCL_printf("#%d: method %d num. of outliers %d min %lf\n",
-		    rank, i, numoutl, min );
+		    rank, emethods[i]->em_method->m_id, numoutl, min );
 	
 	/* 
 	** If the percentage of outliers is below a defined maximum,
@@ -75,8 +76,10 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_t **emethods, int count,
 				      MPI_Comm comm )
 {
     double sum;
-    int i, j;
+    int i, j, rank;
     
+    MPI_Comm_rank ( comm, &rank );
+
     if (ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
       for ( i=0; i < count; i++ ) {
 	if (!(ADCL_EM_IS_EVAL(emethods[i]))  ) {
@@ -85,6 +88,10 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_t **emethods, int count,
 	  }
 	  emethods[i]->em_lpts = sum/emethods[i]->em_rescount;
 	  ADCL_EM_SET_EVAL (emethods[i]);
+	  ADCL_printf("#%d: method %d lpts %lf\n",
+		      rank, emethods[i]->em_method->m_id, 
+		      emethods[i]->em_lpts);
+	  
 	}
       }
     }
@@ -99,9 +106,10 @@ int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
  				 MPI_Comm comm, int num_blocks, int *blength, 
 				 int *winners )
 {
-    int i, j, c;
+    int i, j, c, rank;
     double *lpts, *gpts;
 
+    MPI_Comm_rank ( comm, &rank );
     lpts = (double *) malloc ( 2* count * sizeof(double));
     if ( NULL == lpts ) {
 	return ADCL_NO_MEMORY;
@@ -117,12 +125,15 @@ int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
       
       MPI_Allreduce ( lpts, gpts, count, MPI_DOUBLE, MPI_MAX, comm);
       
+      ADCL_printf("#%d: number of blocks %d \n", rank, num_blocks );
       for ( c=0, j = 0; j < num_blocks; j++) {
 	for ( winners[j]=0, min=gpts[c], i = c; i < (c+blength[j]); i++ ) {
 	  if ( gpts[i] < min ) {
 	    min = gpts[i];
 	    winners[j] = i;
 	  }
+	  ADCL_printf("#%d: block %d entry %d [%lf] current min: %d %d \n", 
+		      rank, j, i, gpts[i], min, winners[j]);
 	}
 	c+=blength[j];
       }

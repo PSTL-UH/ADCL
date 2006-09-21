@@ -59,7 +59,8 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
     for (i=0; i <pvec->v_ndims; i++){
         tcount *= pvec->v_dims[i];
     }
-    MPI_Win_create ( newreq->r_vec->v_data, tcount , tsize, MPI_INFO_NULL, topo->t_comm, &(newreq->r_win));
+    MPI_Win_create ( newreq->r_vec->v_data, tcount , tsize, MPI_INFO_NULL, 
+		     topo->t_comm, &(newreq->r_win));
     MPI_Comm_group ( topo->t_comm, &(newreq->r_group) );   
 #else
     newreq->r_win        = MPI_WIN_NULL; /* TBD: unused for right now! */
@@ -117,7 +118,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
 					     pvec->v_dims, 
 					     pvec->v_nc,
 					     pvec->v_hwidth );
-    
+
  exit:
     if ( ret != ADCL_SUCCESS ) {
 	if ( NULL != newreq->r_sreqs ) {
