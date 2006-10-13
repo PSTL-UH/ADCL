@@ -1,6 +1,5 @@
 #include "ADCL_internal.h"
 
-
 static int ADCL_local_id_counter=0;
 static ADCL_array_t *ADCL_emethod_req_array=NULL;
 
