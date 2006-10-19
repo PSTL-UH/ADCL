@@ -34,29 +34,37 @@ int ADCL_readenv()
 
     FILE* fp;
 
-    HomeDir = getenv("HOME");
+    /* New strategy; check first for a configuration
+    ** file in the current working directory. If it is not
+    ** found there, checkl ${HOME}/.adcl/ 
+    */
 
-    if (HomeDir == NULL) {
-	ADCL_printf("Environment variable HOME not found\n");
-	return ADCL_NOT_FOUND;
-    }
+    fp = fopen ("config.adcl", "r");
+    if ( NULL == fp ) {
+	HomeDir = getenv("HOME");
+	if (HomeDir == NULL) {
+	    ADCL_printf("Environment variable HOME not found\n");
+	    return ADCL_NOT_FOUND;
+	}
 
-    memset ( FilePath, 0, PATH_MAX );
-    result = snprintf(FilePath, PATH_MAX, "%s/.adcl/config.adcl", HomeDir);
-    
-    if (result >= PATH_MAX) {
-	ADCL_printf("Warning: path \"%s\" too long. Truncated.\n", FilePath);
-    }
-
-    fp = fopen(FilePath, "r");
-    if (fp == NULL) {
-	ADCL_printf("Could not open %s\n", FilePath);
-	return ADCL_NOT_FOUND;
-    }
+	memset ( FilePath, 0, PATH_MAX );
+	result = snprintf(FilePath, PATH_MAX, "%s/.adcl/config.adcl", HomeDir);
+	
+	if (result >= PATH_MAX) {
+	    ADCL_printf("Warning: path \"%s\" too long. Truncated.\n", FilePath);
+	}
+	
+	fp = fopen(FilePath, "r");
+	if (fp == NULL) {
+	    ADCL_printf("Could not open %s\n", FilePath);
+	    return ADCL_NOT_FOUND;
+	}
 
 #ifdef Debug
     ADCL_printf("#Outputting contents of %s:\n", FilePath);
 #endif 
+    }
+	
 
     /*Read lines from configure file*/
     while (fgets(buffer, MAXLINE, fp) != NULL) {
