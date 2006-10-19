@@ -42,7 +42,7 @@
         call MPI_Dims_create ( size, 3, cdims, ierror)
         call MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0,  &
                                cart_comm, ierror )
-        call ADCL_Topology_create_bycomm ( cart_comm, topo, ierror )
+        call ADCL_Topology_create ( cart_comm, topo, ierror )
 
         call ADCL_Request_create ( vec, topo, request, ierror )
 

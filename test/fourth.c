@@ -48,7 +48,7 @@ int main ( int argc, char ** argv )
     /* Describe the neighborhood relations */
     MPI_Dims_create ( size, 2, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 2, cdims, periods, 0, &cart_comm);
-    ADCL_Topology_create_bycomm ( cart_comm, &topo );
+    ADCL_Topology_create ( cart_comm, &topo );
 
     /* Match the data type description and the process topology 
        to each other */
