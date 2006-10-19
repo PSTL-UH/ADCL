@@ -1,8 +1,9 @@
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
-int ADCL_Topology_create ( int ndims, int *lneighbors, int *rneighbors, 
-			   int *coords, MPI_Comm comm, ADCL_Topology *topo)
+int ADCL_Topology_create_generic ( int ndims, int *lneighbors, int *rneighbors,
+				   int *coords, MPI_Comm comm, 
+				   ADCL_Topology *topo)
 {
     if ( 0 == ndims ) {
 	return ADCL_INVALID_NDIMS;
@@ -17,11 +18,11 @@ int ADCL_Topology_create ( int ndims, int *lneighbors, int *rneighbors,
 	return ADCL_INVALID_TOPOLOGY;
     }
 
-    return ADCL_topology_create ( ndims, lneighbors, rneighbors, 
-				  coords, comm, topo );
+    return ADCL_topology_create_generic ( ndims, lneighbors, rneighbors, 
+					  coords, comm, topo );
 }
 
-int ADCL_Topology_create_bycomm ( MPI_Comm cart_comm, ADCL_Topology *topo)
+int ADCL_Topology_create ( MPI_Comm cart_comm, ADCL_Topology *topo)
 {
     int topo_type;
     
@@ -35,7 +36,7 @@ int ADCL_Topology_create_bycomm ( MPI_Comm cart_comm, ADCL_Topology *topo)
 	return ADCL_INVALID_TOPOLOGY;
     }
 
-    return ADCL_topology_create_bycomm ( cart_comm, topo );
+    return ADCL_topology_create ( cart_comm, topo );
 }
 
 

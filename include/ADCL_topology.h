@@ -16,9 +16,9 @@ struct ADCL_topology_s{
 typedef struct ADCL_topology_s ADCL_topology_t;
 extern ADCL_array_t *ADCL_topology_farray;
 
-int ADCL_topology_create ( int ndims, int *lneighbors, int *rneighbors, 
-			   int *coords, MPI_Comm comm, ADCL_topology_t **topo);
-int ADCL_topology_create_bycomm ( MPI_Comm cart_comm, ADCL_topology_t **topo );
-int ADCL_topology_free ( ADCL_topology_t **topo);
+int ADCL_topology_create ( MPI_Comm cart_comm, ADCL_topology_t **topo );
+int ADCL_topology_free   ( ADCL_topology_t **topo);
+int ADCL_topology_create_generic ( int ndims, int *lneighbors, int *rneighbors, 
+				   int *coords, MPI_Comm comm, ADCL_topology_t **topo);
 
 #endif

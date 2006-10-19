@@ -29,19 +29,19 @@ void adcl_vector_deregister__ ( int *vec, int *ierror );
 void ADCL_VECTOR_DEREGISTER   ( int *vec, int *ierror );
 
 
-void adcl_topology_create   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-			      int *comm, int *topo, int *ierror );
-void adcl_topology_create_  ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-			      int *comm, int *topo, int *ierror );
-void adcl_topology_create__ ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-			      int *comm, int *topo, int *ierror );
-void ADCL_TOPOLOGY_CREATE   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-			      int *comm, int *topo, int *ierror );
+void adcl_topology_create_generic   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+				      int *comm, int *topo, int *ierror );
+void adcl_topology_create_generic_  ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+				      int *comm, int *topo, int *ierror );
+void adcl_topology_create_generic__ ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+				      int *comm, int *topo, int *ierror );
+void ADCL_TOPOLOGY_CREATE_GENERIC   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+				      int *comm, int *topo, int *ierror );
 
-void adcl_topology_create_bycomm   ( int* cart_comm, int *topo, int *ierror );
-void adcl_topology_create_bycomm_  ( int* cart_comm, int *topo, int *ierror );
-void adcl_topology_create_bycomm__ ( int* cart_comm, int *topo, int *ierror );
-void ADCL_TOPOLOGY_CREATE_BYCOMM   ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create   ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create_  ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create__ ( int* cart_comm, int *topo, int *ierror );
+void ADCL_TOPOLOGY_CREATE   ( int* cart_comm, int *topo, int *ierror );
 
 void adcl_topology_free   (int *topo, int *ierror);
 void adcl_topology_free_  (int *topo, int *ierror);

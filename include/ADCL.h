@@ -50,10 +50,10 @@ int ADCL_Vector_register ( int ndims, int *dims, int nc, int hwidth,
 int ADCL_Vector_deregister ( ADCL_Vector *vec );
 
 
-int ADCL_Topology_create ( int ndims, int *lneighbors, int *rneighbors, 
-			   int *coords, MPI_Comm comm, ADCL_Topology *topo);
-int ADCL_Topology_create_bycomm ( MPI_Comm cart_comm, ADCL_Topology *topo);
-int ADCL_Topology_free ( ADCL_Topology *topo );
+int ADCL_Topology_create  ( MPI_Comm cart_comm, ADCL_Topology *topo);
+int ADCL_Topology_free    ( ADCL_Topology *topo );
+int ADCL_Topology_create_generic ( int ndims, int *lneighbors, int *rneighbors, 
+				   int *coords, MPI_Comm comm, ADCL_Topology *topo);
 
 int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo, ADCL_Request *req );
 int ADCL_Request_free   ( ADCL_Request *req );

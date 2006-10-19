@@ -3,8 +3,9 @@
 ADCL_array_t *ADCL_topology_farray;
 static int ADCL_local_id_counter=0;
 
-int ADCL_topology_create ( int ndims, int *lneighbors, int *rneighbors, 
-			   int *coords, MPI_Comm comm, ADCL_topology_t **topo)
+int ADCL_topology_create_generic ( int ndims, int *lneighbors, int *rneighbors,
+				   int *coords, MPI_Comm comm, 
+				   ADCL_topology_t **topo)
 {
     ADCL_topology_t *newtopo=NULL;
     int i, j;
@@ -40,7 +41,7 @@ int ADCL_topology_create ( int ndims, int *lneighbors, int *rneighbors,
     return ADCL_SUCCESS;
 }
 
-int ADCL_topology_create_bycomm ( MPI_Comm cart_comm, ADCL_topology_t **topo )
+int ADCL_topology_create ( MPI_Comm cart_comm, ADCL_topology_t **topo )
 {
     ADCL_topology_t *newtopo=NULL;
     int cartdim, i, rank;

@@ -7,17 +7,17 @@
 #pragma weak adcl_topology_create__ = adcl_topology_create
 #pragma weak ADCL_TOPOLOGY_CREATE   = adcl_topology_create
 
-#pragma weak adcl_topology_create_bycomm_   = adcl_topology_create_bycomm
-#pragma weak adcl_topology_create_bycomm__  = adcl_topology_create_bycomm
-#pragma weak ADCL_TOPOLOGY_CREATE_BYCOMM    = adcl_topology_create_bycomm
+#pragma weak adcl_topology_create_generic_   = adcl_topology_create_generic
+#pragma weak adcl_topology_create_generic__  = adcl_topology_create_generic
+#pragma weak ADCL_TOPOLOGY_CREATE_GENERIC    = adcl_topology_create_generic
 
 #pragma weak adcl_topology_free_  = adcl_topology_free
 #pragma weak adcl_topology_free__ = adcl_topology_free
 #pragma weak ADCL_TOPOLOGY_FREE   = adcl_topology_free
 
 
-void adcl_topology_create ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-			   int *comm, int *topo, int *ierror )
+void adcl_topology_create_generic ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+				    int *comm, int *topo, int *ierror )
 {
     ADCL_topology_t *ctopo;
     MPI_Comm ccomm;
@@ -38,8 +38,9 @@ void adcl_topology_create ( int *ndims, int *lneighb, int *rneighb, int *coords,
 	return;
     }
     
-    *ierror = ADCL_topology_create ( *ndims, lneighb, rneighb, coords, ccomm, 
-				     &ctopo );
+    *ierror = ADCL_topology_create_generic ( *ndims, lneighb, rneighb, 
+					     coords, ccomm, 
+					     &ctopo );
     if ( *ierror == ADCL_SUCCESS ) {
 	*topo = ctopo->t_findex;
     }
@@ -47,7 +48,7 @@ void adcl_topology_create ( int *ndims, int *lneighb, int *rneighb, int *coords,
     return;
 }
 
-void adcl_topology_create_bycomm   ( int* cart_comm, int *topo, int *ierror )
+void adcl_topology_create   ( int* cart_comm, int *topo, int *ierror )
 {
     int topo_type;
     ADCL_topology_t *ctopo;
@@ -70,7 +71,7 @@ void adcl_topology_create_bycomm   ( int* cart_comm, int *topo, int *ierror )
         return;
     }
 
-    *ierror = ADCL_topology_create_bycomm ( ccomm, &ctopo );
+    *ierror = ADCL_topology_create ( ccomm, &ctopo );
     if ( *ierror == ADCL_SUCCESS ) {
 	*topo = ctopo->t_findex;
     } 
