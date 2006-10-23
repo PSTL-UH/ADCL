@@ -141,7 +141,8 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_req_t *er )
 	     * of the list for the next_attr_combination function.  Thus
 	     * generate for every 'loop' loop iterations a new list of
 	     * attributes moving the according element to the top of the list 
-	     */
+	    */
+
 	    for ( i=0; i< er->er_num_active_attrs; i++ ) {
 		tmp_active_attr_list[i] = er->er_active_attr_list[(i+loop)%er->er_num_active_attrs];
 	    }
@@ -239,10 +240,10 @@ static int next_attr_combination ( int cnt, int *attr_list, int *attr_val_list )
     
     return ADCL_EVAL_DONE;
 }
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 static int get_num_methods_and_blocks ( ADCL_emethod_req_t *er, int *nummethods, 
 					int *numblocks)
 {
@@ -262,5 +263,7 @@ static int get_num_methods_and_blocks ( ADCL_emethod_req_t *er, int *nummethods,
 
     *nummethods = nm;
     *numblocks  = nb;
+    
     return ADCL_SUCCESS;
 }
+

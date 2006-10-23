@@ -36,6 +36,8 @@ int main ( int argc, char ** argv )
 
     MPI_Dims_create ( size, 3, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, &cart_comm);
+
+    //ADCL_Topology_create (cart_comm, &topology);
     ADCL_Topology_create ( cart_comm, &topo );
 
     ADCL_Request_create ( vec, topo, &request );

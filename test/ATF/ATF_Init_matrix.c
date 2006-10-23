@@ -76,6 +76,11 @@ ADCL_Vector adcl_Vec_dq;
 ADCL_Vector adcl_Vec_loes;
 ADCL_Vector adcl_Vec_rhs;
 
+/*New added objects, ADCL_Topology*/
+ADCL_Topology adcl_Topo_dq;
+ADCL_Topology adcl_Topo_loes;
+ADCL_Topology adcl_Topo_rhs;
+
 ADCL_Request adcl_Req_dq;
 ADCL_Request adcl_Req_loes;
 ADCL_Request adcl_Req_rhs;
@@ -91,6 +96,7 @@ int ATF_Init_matrix(int px, int py, int pz)
     
     int rank,size;
     int nc;
+
 
     /*New added*/
     
@@ -152,14 +158,15 @@ int ATF_Init_matrix(int px, int py, int pz)
     MPI_Dims_create( size, 3, cdims );
     MPI_Cart_create( MPI_COMM_WORLD, 3, cdims, periods, 0, &ADCL_Cart_comm );
     
+    ADCL_Topology_create( ADCL_Cart_comm, &adcl_Topo_dq );
+    ADCL_Topology_create( ADCL_Cart_comm, &adcl_Topo_loes);
+    ADCL_Topology_create (ADCL_Cart_comm, &adcl_Topo_rhs);
+    
     /*Generate now the ADC_Request object for dq*/
-    /*I thinks it should be later!*/
-    ADCL_Request_create( adcl_Vec_dq, ADCL_Cart_comm, &adcl_Req_dq );
-    ADCL_Request_create( adcl_Vec_loes, ADCL_Cart_comm, &adcl_Req_loes );
-    ADCL_Request_create( adcl_Vec_rhs, ADCL_Cart_comm, &adcl_Req_rhs );
+    ADCL_Request_create( adcl_Vec_dq, adcl_Topo_dq, &adcl_Req_dq );
+    ADCL_Request_create( adcl_Vec_loes, adcl_Topo_loes, &adcl_Req_loes );
+    ADCL_Request_create( adcl_Vec_rhs, adcl_Topo_rhs, &adcl_Req_rhs );
       
-    
-    
     /* Initiate timing variables */
     ATF_solv_ende   = 0.0 ;
     ATF_solv_anfang = 0.0;
