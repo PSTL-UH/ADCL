@@ -17,13 +17,12 @@ int ADCL_statistic_method=ADCL_STATISTIC_MAX;
 /**********************************************************************/
 /**********************************************************************/
 int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count, 
-				    MPI_Comm comm )
+				    int rank )
 {
     int i, j, k;
-    int numoutl, rank;
+    int numoutl;
     TIME_TYPE min;
 
-    MPI_Comm_rank ( comm, &rank );
     for (i=0; i < count; i++ ) {
       if ( !(ADCL_EM_IS_FILTERED(emethods[i]))) {
 	/* Determine the min  value for method i*/
@@ -73,13 +72,11 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count,
 /**********************************************************************/
 /* Determine which method gets how many points */
 int ADCL_statistics_determine_votes ( ADCL_emethod_t **emethods, int count, 
-				      MPI_Comm comm )
+				      int rank )
 {
     double sum;
-    int i, j, rank;
+    int i, j;
     
-    MPI_Comm_rank ( comm, &rank );
-
     if (ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
       for ( i=0; i < count; i++ ) {
 	if (!(ADCL_EM_IS_EVAL(emethods[i]))  ) {
@@ -104,12 +101,11 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_t **emethods, int count,
 /**********************************************************************/
 int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
  				 MPI_Comm comm, int num_blocks, int *blength, 
-				 int *winners )
+				 int *winners, int rank )
 {
-    int i, j, c, rank;
+    int i, j, c;
     double *lpts, *gpts;
 
-    MPI_Comm_rank ( comm, &rank );
     lpts = (double *) malloc ( 2* count * sizeof(double));
     if ( NULL == lpts ) {
 	return ADCL_NO_MEMORY;

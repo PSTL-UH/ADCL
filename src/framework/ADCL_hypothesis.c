@@ -112,6 +112,7 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_req_t *er )
     int *winners=NULL, *blength=NULL, *pattrs=NULL;
     int i, tval, loop, ret = ADCL_SUCCESS;
     int attr_list[ADCL_ATTR_TOTAL_NUM], tmp_active_attr_list[ADCL_ATTR_TOTAL_NUM];
+    int rank;
 
     if ( er->er_num_active_attrs == 2 && 
 	 er->er_num_avail_meas == 4 ) {
@@ -171,11 +172,13 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_req_t *er )
 	    }
 	}
 	
+	MPI_Comm_rank ( er->er_comm, &rank );
+	
 	/* Determine now the winners across all provided measurement lists */
-	ADCL_statistics_filter_timings  ( tmp_emethods, nummethods, er->er_comm);
-	ADCL_statistics_determine_votes ( tmp_emethods, nummethods, er->er_comm);
+	ADCL_statistics_filter_timings  ( tmp_emethods, nummethods, rank);
+	ADCL_statistics_determine_votes ( tmp_emethods, nummethods, rank);
 	ADCL_statistics_global_max ( tmp_emethods, nummethods, er->er_comm, 
-				     numblocks, blength, winners);
+				     numblocks, blength, winners, rank);
 	
 	/* Set the according performance hypothesis */
 	for (i=0; i< numblocks; i++ ) {

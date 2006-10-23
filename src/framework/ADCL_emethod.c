@@ -251,7 +251,7 @@ int ADCL_emethod_monitor ( ADCL_emethod_req_t *ermethod, int pos,
 /**********************************************************************/
 int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 {
-    int i, winner;
+    int i, winner, rank;
     ADCL_emethod_t **er=NULL;
     
     er = (ADCL_emethod_t **) malloc ( ermethod->er_num_emethods * 
@@ -263,20 +263,22 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 	er[i] = &(ermethod->er_emethods[i]);
     }
 
+    MPI_Comm_rank ( ermethod->er_comm, &rank );
+
     /* 
     ** Filter the input data, i.e. remove outliers which 
     ** would falsify the results 
     */
     ADCL_statistics_filter_timings ( er,
 				     ermethod->er_num_emethods, 
-				     ermethod->er_comm );
+				     rank );
 
     /* 
     ** Weight now the performance of each method 
     */
     ADCL_statistics_determine_votes ( er,
 				      ermethod->er_num_emethods, 
-				      ermethod->er_comm );
+				      rank );
 
     /* 
     ** Determine now how many point each method achieved globally. The
@@ -286,7 +288,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 				 ermethod->er_num_emethods, 
 				 ermethod->er_comm, 1, 
 				 &(ermethod->er_num_emethods), 
-				 &winner);
+				 &winner, rank);
 
     free ( er );
     return winner;
