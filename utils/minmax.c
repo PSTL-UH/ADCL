@@ -151,6 +151,12 @@ int main (int argc, char **argv )
     }
 
     for ( i=0; i< numprocs; i++ ) {
+	printf("Proc %d : num of min. %d num of max %d \n", i, 
+	       tproc[i].nummin, tproc[i].nummax );
+    }
+    
+
+    for ( i=0; i< numprocs; i++ ) {
 	fclose ( infd[i]);
     }
     fclose ( outfd );
