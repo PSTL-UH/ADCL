@@ -7,9 +7,7 @@ extern ADCL_Vector adcl_Vec_dq;
 extern ADCL_Vector adcl_Vec_loes;
 extern ADCL_Vector adcl_Vec_rhs;
 
-extern ADCL_Topology adcl_Topo_dq;
-extern ADCL_Topology adcl_Topo_loes;
-extern ADCL_Topology adcl_Topo_rhs;
+extern ADCL_Topology ADCL_topo;
 
 extern ADCL_Request adcl_Req_dq;
 extern ADCL_Request adcl_Req_loes;

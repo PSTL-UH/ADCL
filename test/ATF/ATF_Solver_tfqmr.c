@@ -42,7 +42,6 @@ int ATF_Solver_tfqmr( int nreal)
       
     /*Define ADCL objects*/
     ADCL_Vector  adcl_Vec_tfqmr_y, adcl_Vec_tfqmr_y_old, adcl_Vec_tfqmr_y_old_1;
-    ADCL_Topology adcl_Topo_tfqmr_y, adcl_Topo_tfqmr_y_old, adcl_Topo_tfqmr_y_old_1;
     ADCL_Request adcl_Req_tfqmr_y, adcl_Req_tfqmr_y_old, adcl_Req_tfqmr_y_old_1;
     
     dim[0] = ATF_dim[0]+2;
@@ -73,16 +72,13 @@ int ATF_Solver_tfqmr( int nreal)
 
     /*For adcl library*/
     ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(tfqmr_y[0][0][0][0]), &adcl_Vec_tfqmr_y );
-    ADCL_Topology_create( ADCL_Cart_comm, &adcl_Topo_tfqmr_y);
-    ADCL_Request_create( adcl_Vec_tfqmr_y, adcl_Topo_tfqmr_y, &adcl_Req_tfqmr_y );
+    ADCL_Request_create( adcl_Vec_tfqmr_y, ADCL_topo, &adcl_Req_tfqmr_y );
 
     ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(tfqmr_y_old[0][0][0][0]), &adcl_Vec_tfqmr_y_old );
-    ADCL_Topology_create( ADCL_Cart_comm, &adcl_Topo_tfqmr_y_old);
-    ADCL_Request_create( adcl_Vec_tfqmr_y_old, adcl_Topo_tfqmr_y_old, &adcl_Req_tfqmr_y_old );
+    ADCL_Request_create( adcl_Vec_tfqmr_y_old, ADCL_topo, &adcl_Req_tfqmr_y_old );
 
     ADCL_Vector_register( 3, dim3, nc, 1, MPI_DOUBLE, &(tfqmr_y_old_1[0][0][0][0]), &adcl_Vec_tfqmr_y_old_1 );
-    ADCL_Topology_create( ADCL_Cart_comm, &adcl_Topo_tfqmr_y_old_1);
-    ADCL_Request_create( adcl_Vec_tfqmr_y_old_1, adcl_Topo_tfqmr_y_old_1, &adcl_Req_tfqmr_y_old_1 );
+    ADCL_Request_create( adcl_Vec_tfqmr_y_old_1, ADCL_topo, &adcl_Req_tfqmr_y_old_1 );
 
     tfqmr_limit = 1.0e-09;
 
@@ -245,7 +241,7 @@ int ATF_Solver_tfqmr( int nreal)
 	
 	if ( ATF_verbose == 1 ){
 	    if ( rank == 0 ){
-		printf("nreal is %d, skalar_3 is %16.14E\n",nreal, skalar_3);
+		printf("%d, %16.14E\n",nreal, skalar_3);
 	    }
 	}
 	
@@ -307,9 +303,6 @@ int ATF_Solver_tfqmr( int nreal)
     ADCL_Vector_deregister( &adcl_Vec_tfqmr_y_old);
     ADCL_Vector_deregister( &adcl_Vec_tfqmr_y_old_1);
 
-    ADCL_Topology_free(&adcl_Topo_tfqmr_y);
-    ADCL_Topology_free(&adcl_Topo_tfqmr_y_old);
-    ADCL_Topology_free(&adcl_Topo_tfqmr_y_old_1);
     
     return ATF_SUCCESS;
 }

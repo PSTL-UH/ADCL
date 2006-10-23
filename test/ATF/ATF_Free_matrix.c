@@ -26,9 +26,8 @@ int ATF_Free_matrix()
   ADCL_Vector_deregister( &adcl_Vec_loes);
   ADCL_Vector_deregister( &adcl_Vec_rhs);
 
-  ADCL_Topology_free(&adcl_Topo_dq);
-  ADCL_Topology_free(&adcl_Topo_loes);
-  ADCL_Topology_free(&adcl_Topo_rhs);
+  ADCL_Topology_free(&ADCL_topo);
+  
 
   return ATF_SUCCESS;  
 }
