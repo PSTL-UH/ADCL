@@ -23,6 +23,8 @@ struct emethod{
     int     em_count;
     int     em_rescount;
     double  *em_time;
+    int     *em_poison;
+    int     em_num_outliers;
 };
 
 int numprocs=-1, numrequests=-1, nummethods=-1, nummeas=-1;
@@ -33,20 +35,20 @@ int filter=0;
 #define TLINE_INIT(_t) {_t.req=-1; _t.min=9999999999.99; _t.max=0.0; _t.minloc=-1;\
                         _t.maxloc=-1;}
 #define TLINE_MIN(_t, _time, _i){ \
-           if ( _time < _t.min && _time > 0 ) { \
+           if ( _time < _t.min ) { \
 	       _t.min    = _time;  \
 	       _t.minloc = _i;}}
 #define TLINE_MAX(_t, _time, _i) { \
-	    if ( _time > _t.max && _time > 0) { \
+	    if ( _time > _t.max ) { \
 		_t.max = _time;     \
 		_t.maxloc =_i;}}
              
 
 void minmax_init (int argc, char ** argv, struct procinf **proc );
 void emethods_init ( struct emethod ***emethods);
-void filter_timings ( struct emethod **emethods, int outlier_factor,
-		      int outlier_fraction );
-void minmax_filtered ( struct emethod **em);
+void filter_timings ( struct emethod **emethods, int outlier_factor, int outlier_fraction );
+void minmax_filtered ( struct emethod **em );
+void clear_poison_field ( struct emethod **em);
 
 int main (int argc, char **argv )
 {
@@ -159,7 +161,7 @@ int main (int argc, char **argv )
     /* Second step: filter the data as required */
     if ( filter ) {
 	filter_timings (emethods, outlier_factor, outlier_fraction);
-	minmax_filtered (emethods);
+	minmax_filtered (emethods );
     }
 
     /*   emethods_finalize (&emethods); */
@@ -267,6 +269,10 @@ void emethods_init (  struct emethod *** emethods )
 	    if ( NULL == em[i][j].em_time ) {
 		exit (-1);
 	    }
+	    em[i][j].em_poison = (int *) calloc (1, nummeas * sizeof(int));
+	    if ( NULL == em[i][j].em_poison ) {
+		exit (-1);
+	    }
 	    em[i][j].em_count    = nummeas;
 	}
     }
@@ -307,7 +313,7 @@ void filter_timings ( struct emethod **emethods, int outlier_factor,
 	    if ((100*numoutl/emethods[i][j].em_rescount) < outlier_fraction ) {
 		for ( k=0; k<emethods[i][j].em_rescount; k++ ) {
 		    if ( emethods[i][j].em_time[k] >= (outlier_factor * min) ) {
-			emethods[i][j].em_time[k] = -1;
+			emethods[i][j].em_poison[k] = 1;
 		    }
 		}
 	    }
@@ -317,7 +323,7 @@ void filter_timings ( struct emethod **emethods, int outlier_factor,
     return;
 }
 
-void minmax_filtered ( struct emethod **em)
+void minmax_filtered ( struct emethod **em )
 {
     int i, j, k;
     FILE *outf;
@@ -332,14 +338,53 @@ void minmax_filtered ( struct emethod **em)
 	for ( k=0; k<nummeas; k++ ) {
 	    TLINE_INIT(tline);
 	    for (i=0; i< numprocs; i++ ) {
-		TLINE_MIN(tline, em[i][j].em_time[k], i);
-		TLINE_MAX(tline, em[i][j].em_time[k], i);
+		if ( !em[i][j].em_poison[k] ) {
+		    TLINE_MIN(tline, em[i][j].em_time[k], i);
+		    TLINE_MAX(tline, em[i][j].em_time[k], i);
+		}
+		else {
+		    em[i][j].em_num_outliers++;
+		}
 	    }
 	    fprintf (outf, "%3d %8.4lf %3d %8.4lf %3d\n", 
 		     j, tline.min, tline.minloc, tline.max, 
 		     tline.maxloc );
+	    
 	}
+    }
+    fclose (outf);
+
+    /* Dump the outlier information per method */    
+
+    outf = fopen ("procinfo-filtered.out", "w");
+    if ( NULL == outf ) {
+	exit (-1);
+    }
+
+    for ( i=0; i< numprocs; i++ ) {
+	fprintf(outf, "%d: ", i);
+	for ( j=0; j< nummethods; j++ ) {
+	    fprintf(outf, " %d ", em[i][j].em_num_outliers);
+	}
+	fprintf(outf, "\n");
     }
 
     fclose (outf);
+    return;
 }
+
+void clear_poison_field ( struct emethod **em)
+{
+    int i, j, k;
+
+    for ( i=0; i<numprocs; i++ ) {
+	for (j=0; j< nummethods; j++ ) {
+	    for ( k=0; k<nummeas; k++ ) {
+		em[i][j].em_poison[k] = 0;
+	    }
+	}
+    }
+
+    return;
+}
+
