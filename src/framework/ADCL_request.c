@@ -287,8 +287,10 @@ static ADCL_method_t*  ADCL_request_get_method ( ADCL_request_t *req,
 	    /* no break; statement here on purpose! */
 	case ADCL_STATE_DECISION:
 	    MPI_Comm_rank ( req->r_comm, &rank );
+#if 0
 	    ADCL_printf("#%d: Initiating decision procedure for req %d\n", 
 			rank, req->r_id);
+#endif
 	    tmp = ADCL_emethods_get_winner ( req->r_ermethod, req->r_comm);
 	    req->r_ermethod->er_last    = tmp;
 	    req->r_ermethod->er_wmethod = ADCL_emethod_get_method(req->r_ermethod, tmp);

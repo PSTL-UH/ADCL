@@ -35,15 +35,19 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count,
 	/* Count how many values are N times larger than the min. */
 	for ( numoutl=0, j=0; j<emethods[i]->em_rescount; j++ ) {
 	  if ( emethods[i]->em_time[j] >= (ADCL_OUTLIER_FACTOR * min) ) {
+#if 0 
 	    ADCL_printf("#%d: method %d meas. %d is outlier %lf min %lf\n",
 			rank, emethods[i]->em_method->m_id, j, 
 			emethods[i]->em_time[j], min );
+#endif
 	    numoutl++;
 	  }
 	}
+#if 0
 	ADCL_printf("#%d: method %d num. of outliers %d min %lf\n",
 		    rank, emethods[i]->em_method->m_id, numoutl, min );
-	
+#endif
+
 	/* 
 	** If the percentage of outliers is below a defined maximum,
 	** we simply remove them from the list and adapt all counters.
@@ -85,10 +89,11 @@ int ADCL_statistics_determine_votes ( ADCL_emethod_t **emethods, int count,
 	  }
 	  emethods[i]->em_lpts = sum/emethods[i]->em_rescount;
 	  ADCL_EM_SET_EVAL (emethods[i]);
+#if 0 
 	  ADCL_printf("#%d: method %d lpts %lf\n",
 		      rank, emethods[i]->em_method->m_id, 
 		      emethods[i]->em_lpts);
-	  
+#endif
 	}
       }
     }
@@ -120,16 +125,20 @@ int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
       int min;
       
       MPI_Allreduce ( lpts, gpts, count, MPI_DOUBLE, MPI_MAX, comm);
-      
+
+#if 0      
       ADCL_printf("#%d: number of blocks %d \n", rank, num_blocks );
+#endif
       for ( c=0, j = 0; j < num_blocks; j++) {
 	for ( winners[j]=0, min=gpts[c], i = c; i < (c+blength[j]); i++ ) {
 	  if ( gpts[i] < min ) {
 	    min = gpts[i];
 	    winners[j] = i;
 	  }
-	  ADCL_printf("#%d: block %d entry %d [%lf] current min: %d %d \n", 
-		      rank, j, i, gpts[i], min, winners[j]);
+	  if ( rank == 0 ) {
+	      ADCL_printf("#%d: block %d entry %d [%lf] current min: %d %d \n", 
+			  rank, j, i, gpts[i], min, winners[j]);
+	  }
 	}
 	c+=blength[j];
       }

@@ -50,6 +50,19 @@
         integer :: adcl_vec_tfqmr_y, adcl_vec_tfqmr_y_old, adcl_vec_tfqmr_y_old_1
         integer :: adcl_tfqmr_y, adcl_tfqmr_y_old, adcl_tfqmr_y_old_1
 
+        character *80 name;
+        double precision tbegin, tend
+        double precision, allocatable, dimension (:) :: allred, iter
+        integer acount, itercount, status
+
+        allocate (allred ( 6*nit ), iter ( nit ), stat=status )
+        if (status.gt.0 ) then 
+           write (*,*) rank, ' : Error allocating memory'
+        end if
+        
+        acount = 1
+        itercount = 1
+
         dims(1) = n1+2
         dims(2) = n2+2
         dims(3) = n3+2
@@ -151,11 +164,17 @@
         tfqmr_rho = all_erg(2)
         tfqmr_rho_old = tfqmr_rho
 
+        write ( name, 99) rank, '_app.out'
+99      format ( I2,a8)
+        open  ( unit=10, file=name)
+
 !========================================================================
 !...Beginn der Hauptiterationsschleife
         do 1000 nreal = 1, nit
 !========================================================================
 !...tfqmr_sigma = tfqmr_r_tilde^T * tfqmr_v
+
+           tbegin=MPI_WTIME()
 
            skalar_1 = 0.0
            do l = 1, nc
@@ -173,7 +192,8 @@
            call MPI_Allreduce ( skalar_1, tfqmr_sigma, 1, MPI_DOUBLE_PRECISION,  &
                MPI_SUM, MPI_COMM_WORLD, ierror )
            comm_ende = MPI_WTIME()
-           commtime = commtime + (comm_ende - comm_anfang) 
+           allred(acount) = comm_ende - comm_anfang
+           acount = acount + 1
 
 !           if ( tfqmr_sigma.lt.tfqmr_limit ) then
 !              write (*,*) rank, ' : Breakdown in TFQMR '
@@ -231,7 +251,9 @@
               call MPI_Allreduce ( skalar_1, skalar_2, 1, MPI_DOUBLE_PRECISION,  &
                    MPI_SUM, MPI_COMM_WORLD, ierror )
               comm_ende = MPI_WTIME()
-              commtime = commtime + (comm_ende - comm_anfang) 
+              allred(acount) = comm_ende - comm_anfang
+              acount = acount + 1
+
 
               skalar_3 = SQRT ( skalar_2 )
               
@@ -335,7 +357,8 @@
               call MPI_Allreduce ( skalar_1, skalar_2, 1, MPI_DOUBLE_PRECISION,  &
                   MPI_SUM, MPI_COMM_WORLD, ierror )
               comm_ende = MPI_WTIME()
-              commtime = commtime + (comm_ende - comm_anfang) 
+              allred(acount) = comm_ende - comm_anfang
+              acount = acount + 1
 
               skalar_3 = SQRT ( skalar_2 )
 
@@ -375,7 +398,8 @@
            call MPI_Allreduce ( skalar_1, tfqmr_rho, 1, MPI_DOUBLE_PRECISION,  &
                MPI_SUM, MPI_COMM_WORLD, ierror )
            comm_ende = MPI_WTIME()
-           commtime = commtime + (comm_ende - comm_anfang) 
+           allred(acount) = comm_ende - comm_anfang
+           acount = acount + 1
 
            beta = tfqmr_rho / tfqmr_rho_old
 
@@ -432,6 +456,9 @@
               end do
            end do
 
+           tend = MPI_WTIME()
+           iter(itercount) = tend-tbegin
+           itercount = itercount + 1
 !============================================================================
 !...Ende der Hauptiterationsschleife
  1000   continue
@@ -439,6 +466,14 @@
 
 !...Marke zum Ausstieg bei einem Breakdown
  1001   continue
+
+           do i = 1, nit
+              write (10,*) i, iter(i)
+              do j = 1, 6
+                 write (10,98) allred(6*i+j)
+              end do
+           end do
+98         format (5x, f12.5)
 
 !...Free the ADCL objects
         call ADCL_Request_free ( adcl_tfqmr_y, ierror )
@@ -448,6 +483,10 @@
         call ADCL_Vector_deregister ( adcl_vec_tfqmr_y, ierror )
         call ADCL_Vector_deregister ( adcl_vec_tfqmr_y_old, ierror )
         call ADCL_Vector_deregister ( adcl_vec_tfqmr_y_old_1, ierror )
+
+        close (10)
+
+        deallocate ( iter, allred, stat=status )
 
         r_nit = nreal
 

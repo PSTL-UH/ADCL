@@ -5,6 +5,9 @@
 static FILE *fd=NULL;
 int ADCL_printf_silence=0;
 
+static char buffer[1024][128];
+static int bufcnt=0;
+
 int ADCL_printf_init ( void )
 {
 #ifdef ADCL_FILE_PER_PROC
@@ -23,6 +26,14 @@ int ADCL_printf_init ( void )
 int ADCL_printf_finalize ( void )
 {
 #ifdef ADCL_FILE_PER_PROC
+    int i;
+
+    if ( bufcnt > 0 ) {
+	for (i=0; i< bufcnt; i++ ) {
+	    fprintf(fd, "%s\n", buffer[i] );
+	}
+    }
+
     fclose ( fd );
 #endif
     return ADCL_SUCCESS;
@@ -36,7 +47,22 @@ int ADCL_printf ( const char* format, ... )
     if ( !ADCL_printf_silence ) {
 	va_start ( ap, format );
 #ifdef ADCL_FILE_PER_PROC 
-	vfprintf(fd, format, ap );
+/*	vfprintf(fd, format, ap ); */
+
+	vsprintf(buffer[bufcnt], format, ap);
+	bufcnt++;
+	if ( bufcnt == 1024 ) {
+	    /*
+	     * dump everything to the file and reset
+	     * the counter 
+	    */
+	    int i;
+
+	    for (i=0; i< 1024; i++ ) {
+		fprintf(fd, "%s\n", buffer[i] );
+	    }
+	    bufcnt = 0;
+	}
 #else
 	vprintf( format, ap );
 #endif

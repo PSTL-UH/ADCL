@@ -310,6 +310,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
     }
     
     ADCL_EM_SET_TESTED (emethod);
+    MPI_Barrier ( er->er_comm );
     er->er_num_avail_meas++;
     if ( emethod->em_rescount < ADCL_emethod_numtests ) {
         /* 
