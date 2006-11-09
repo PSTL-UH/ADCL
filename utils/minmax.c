@@ -36,9 +36,16 @@ int main (int argc, char **argv )
     minmax_calc_per_iteration ( emethods, "minmax.out" );
 
     if ( filter ) {
-	minmax_filter_timings     ( emethods, outlier_factor, outlier_fraction);
-	minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
-	minmax_calc_statistics    ( emethods, "minmax-median.out");
+	int i, fraction[6]={10,20,40,60,80,100};
+	char filename[48];
+
+	for (i=0; i< 6; i++ ) {
+	    minmax_clear_poison_field ( emethods );
+	    minmax_filter_timings     ( emethods, outlier_factor, fraction[i]);
+//	    minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
+	    snprintf (filename, 48, "minmax-median-%d.out", fraction[i]);
+	    minmax_calc_statistics    ( emethods, filename);
+	}
     }
 
     /* Free the aquired memory */
@@ -189,18 +196,20 @@ void minmax_filter_timings ( struct emethod **em, int outlier_factor,
 		    if ( em[i][j].em_time[k] >= (outlier_factor * min) ) {
 			em[i][j].em_poison[k] = 1;
 		    }
-		    else {
-			em[i][j].em_sum_filtered += em[i][j].em_time[k];
-			em[i][j].em_cnt_filtered ++;
-		    }
-		}
-
-		if ( em[i][j].em_cnt_filtered > 0 ) {
-		    em[i][j].em_avg_filtered = em[i][j].em_sum_filtered/em[i][j].em_cnt_filtered;
 		}
 	    }
+	    
+	    for ( k=0; k<em[i][j].em_rescount; k++ ) {
+		if ( !em[i][j].em_poison[k] ) {
+		    em[i][j].em_sum_filtered += em[i][j].em_time[k];
+		    em[i][j].em_cnt_filtered ++;
+		}
+	    }
+	    em[i][j].em_avg_filtered = em[i][j].em_sum_filtered/em[i][j].em_cnt_filtered;
+	
 	}
     }
+
 
     return;
 }
@@ -244,6 +253,69 @@ void minmax_calc_per_iteration ( struct emethod **em, char *filename )
             fprintf(outf, " %d ", em[i][j].em_num_outliers);
         }
         fprintf(outf, "\n");
+    }
+
+    fclose (outf);
+    return;
+}
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+static int tcompare ( const void *p, const void* q )
+{
+    double *a, *b;
+    a = (double *) p;
+    b = (double *) q;
+
+    if ( *a < *b ) {
+	return -1;
+    }
+    if ( *a == *b ) {
+	return 0;
+    }
+
+    return 1;
+}
+
+
+void minmax_calc_statistics ( struct emethod **em, char *filename ) 
+{
+    FILE *outf=NULL;
+    struct lininf tline, tline2, tline3;
+    int i, j;
+
+    outf = fopen(filename, "w");
+    if ( NULL == outf ) {
+	printf("calc_statistics: could not open %s for writing\n", filename );
+	exit (-1);
+    }
+    
+    /* Calculate the median of all measurement series */
+    for (i=0; i < numprocs; i++ ) {
+	for ( j=0; j< nummethods; j++ ) {
+	    qsort ( em[i][j].em_time, em[i][j].em_rescount, sizeof(double), 
+		    tcompare );
+	    em[i][j].em_median = em[i][j].em_time[ (em[i][j].em_rescount/2)];
+	}	
+    }
+    
+    for (j=0; j< nummethods; j++ ) {
+	TLINE_INIT(tline);
+	TLINE_INIT(tline2);
+	TLINE_INIT(tline3);
+	for (i=0; i< numprocs; i++ ) {
+	    TLINE_MIN(tline, em[i][j].em_median, i);
+	    TLINE_MAX(tline, em[i][j].em_median, i);
+	    TLINE_MIN(tline2, em[i][j].em_avg, i);
+	    TLINE_MAX(tline2, em[i][j].em_avg, i);
+	    TLINE_MIN(tline3, em[i][j].em_avg_filtered, i);
+	    TLINE_MAX(tline3, em[i][j].em_avg_filtered, i);
+	}
+	fprintf (outf, "%3d %8.4lf %3d %8.4lf %3d %8.4lf %3d %8.4lf %3d "
+		 " %8.4lf %3d %8.4lf %3d \n", 
+		 j, tline.min, tline.minloc, tline.max, tline.maxloc,
+		 tline2.min, tline2.minloc, tline2.max, tline2.maxloc,
+		 tline3.min, tline3.minloc, tline3.max, tline3.maxloc );
     }
 
     fclose (outf);
@@ -328,72 +400,6 @@ void minmax_init (int argc, char ** argv, struct emethod ***emethods)
     return;
 }
 
-
-
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-static int tcompare ( const void *p, const void* q )
-{
-    double *a, *b;
-    a = (double *) p;
-    b = (double *) q;
-
-    if ( *a < *b ) {
-	return -1;
-    }
-    if ( *a == *b ) {
-	return 0;
-    }
-
-    return 1;
-}
-
-
-void minmax_calc_statistics ( struct emethod **em, char *filename ) 
-{
-    FILE *outf=NULL;
-    struct lininf tline, tline2, tline3;
-    int i, j;
-
-    outf = fopen(filename, "w");
-    if ( NULL == outf ) {
-	printf("calc_statistics: could not open %s for writing\n", filename );
-	exit (-1);
-    }
-    
-    /* Calculate the median of all measurement series */
-    for (i=0; i < numprocs; i++ ) {
-	for ( j=0; j< nummethods; j++ ) {
-	    qsort ( em[i][j].em_time, em[i][j].em_rescount, sizeof(double), 
-		    tcompare );
-	    em[i][j].em_median = em[i][j].em_time[ (em[i][j].em_rescount/2)];
-	}	
-    }
-    
-    for (j=0; j< nummethods; j++ ) {
-	TLINE_INIT(tline);
-	TLINE_INIT(tline2);
-	TLINE_INIT(tline3);
-	for (i=0; i< numprocs; i++ ) {
-	    TLINE_MIN(tline, em[i][j].em_median, i);
-	    TLINE_MAX(tline, em[i][j].em_median, i);
-	    TLINE_MIN(tline2, em[i][j].em_avg, i);
-	    TLINE_MAX(tline2, em[i][j].em_avg, i);
-	    TLINE_MIN(tline3, em[i][j].em_avg_filtered, i);
-	    TLINE_MAX(tline3, em[i][j].em_avg_filtered, i);
-	}
-	fprintf (outf, "%3d %8.4lf %3d %8.4lf %3d %8.4lf %3d %8.4lf %3d "
-		 " %8.4lf %3d %8.4lf %3d \n", 
-		 j, tline.min, tline.minloc, tline.max, tline.maxloc,
-		 tline2.min, tline2.minloc, tline2.max, tline2.maxloc,
-		 tline3.min, tline3.minloc, tline3.max, tline3.maxloc );
-    }
-
-    fclose (outf);
-    return;
-}
 /********************************************************************************/
 /********************************************************************************/
 /********************************************************************************/
