@@ -3,39 +3,10 @@
 #include <string.h>
 #include <math.h>
 
-#define MAXLINE 120
-struct procinf {
-    int nummin;
-    int nummax;
-    int numoutliers;
-};
-
-struct lininf {
-    int    req;
-    int    method;
-    double min;
-    double max;
-    int    minloc;
-    int    maxloc;
-};
-
+#include "minmax.h"
 
 int numprocs=-1, numrequests=-1, nummethods=-1, nummeas=-1;
 FILE **infd=NULL,  *outfd=NULL, *allredfd=NULL;
-
-#define TLINE_INIT(_t) {_t.req=-1; _t.min=9999999999.99; _t.max=0.0; _t.minloc=-1;\
-                        _t.maxloc=-1;}
-#define TLINE_MIN(_t, _time, _i){ \
-           if ( _time < _t.min ) { \
-	       _t.min    = _time;  \
-	       _t.minloc = _i;}}
-#define TLINE_MAX(_t, _time, _i) { \
-	    if ( _time > _t.max ) { \
-		_t.max = _time;     \
-		_t.maxloc =_i;}}
-             
-
-void minmax_init (int argc, char ** argv, struct procinf **proc );
 
 int main (int argc, char **argv )
 {
@@ -47,7 +18,7 @@ int main (int argc, char **argv )
     struct procinf *tproc;
 
 
-    minmax_init ( argc, argv, &tproc );
+    minmax_init ( argc, argv, NULL );
 
     /* Read infile and store the values in the according list */
     TLINE_INIT(tline);

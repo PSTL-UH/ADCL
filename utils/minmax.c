@@ -296,32 +296,35 @@ void minmax_init (int argc, char ** argv, struct emethod ***emethods)
 	}
     }
 
-    /* Allocate the required emethods array to hold the overall data */
-    em = ( struct emethod **) malloc ( numprocs * sizeof ( struct emethod *));
-    if ( NULL == em ) {
-	exit (-1);
-    }
-
-    for ( i=0; i< numprocs; i++ ) {
-	em[i] = ( struct emethod *) calloc ( 1, nummethods * sizeof(struct emethod));
-	if  ( NULL == em[i] ) {
+    if ( NULL != emethods ) {
+	/* Allocate the required emethods array to hold the overall data */
+	em = ( struct emethod **) malloc ( numprocs * sizeof ( struct emethod *));
+	if ( NULL == em ) {
 	    exit (-1);
 	}
 	
-	for (j=0; j< nummethods; j++ ) {
-	    em[i][j].em_time = (double *) calloc (1, nummeas * sizeof(double));
-	    if ( NULL == em[i][j].em_time ) {
+	for ( i=0; i< numprocs; i++ ) {
+	    em[i] = ( struct emethod *) calloc ( 1, nummethods * sizeof(struct emethod));
+	    if  ( NULL == em[i] ) {
 		exit (-1);
 	    }
-	    em[i][j].em_poison = (int *) calloc (1, nummeas * sizeof(int));
-	    if ( NULL == em[i][j].em_poison ) {
-		exit (-1);
+	    
+	    for (j=0; j< nummethods; j++ ) {
+		em[i][j].em_time = (double *) calloc (1, nummeas * sizeof(double));
+		if ( NULL == em[i][j].em_time ) {
+		    exit (-1);
+		}
+		em[i][j].em_poison = (int *) calloc (1, nummeas * sizeof(int));
+		if ( NULL == em[i][j].em_poison ) {
+		    exit (-1);
+		}
+		em[i][j].em_count    = nummeas;
 	    }
-	    em[i][j].em_count    = nummeas;
 	}
+	
+	*emethods = em;
     }
 
-    *emethods = em;
     return;
 }
 
