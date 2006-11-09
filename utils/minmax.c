@@ -3,73 +3,81 @@
 #include <string.h>
 #include <math.h>
 
-#define MAXLINE 120
-struct procinf {
-    int nummin;
-    int nummax;
-    int numoutliers;
-};
+#include "minmax.h"
 
-struct lininf {
-    int    req;
-    int    method;
-    double min;
-    double max;
-    int    minloc;
-    int    maxloc;
-};
-
-struct emethod{
-    int     em_count;
-    int     em_rescount;
-    double  *em_time;
-    int     *em_poison;
-    int     em_num_outliers;
-};
-
-int numprocs=-1, numrequests=-1, nummethods=-1, nummeas=-1;
-FILE **infd=NULL,  *outfd=NULL;
+/* Parameters of the application */
+int numprocs=-1, nummethods=-1, nummeas=-1;
 int deconly=0;
-int filter=0;
+int filter=0;             
 
-#define TLINE_INIT(_t) {_t.req=-1; _t.min=9999999999.99; _t.max=0.0; _t.minloc=-1;\
-                        _t.maxloc=-1;}
-#define TLINE_MIN(_t, _time, _i){ \
-           if ( _time < _t.min ) { \
-	       _t.min    = _time;  \
-	       _t.minloc = _i;}}
-#define TLINE_MAX(_t, _time, _i) { \
-	    if ( _time > _t.max ) { \
-		_t.max = _time;     \
-		_t.maxloc =_i;}}
-             
+/* Prototypes */
+void minmax_init     (int argc, char ** argv, struct emethod ***em );
+void minmax_read_input ( struct emethod **em );
+void minmax_finalize ( struct emethod ***em ); 
 
-void minmax_init (int argc, char ** argv, struct procinf **proc );
-void emethods_init ( struct emethod ***emethods);
-void filter_timings ( struct emethod **emethods, int outlier_factor, int outlier_fraction );
-void minmax_filtered ( struct emethod **em );
-void clear_poison_field ( struct emethod **em);
+void minmax_filter_timings     ( struct emethod **emethods, int ofactor, int ofraction );
+void minmax_calc_per_iteration ( struct emethod **em, char *filename );
+void minmax_calc_statistics    ( struct emethod **em, char *filename );
+void minmax_clear_poison_field ( struct emethod **em);
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int main (int argc, char **argv )
 {
-    int i, ret, all_done, no_line, req, method, pos;
-    char line[MAXLINE], *basestr, reqstr[50];
-    double time;
-    struct lininf tline;
-    struct procinf *tproc;
+    int outlier_factor=3, outlier_fraction=100;
     struct emethod **emethods;
 
-    int outlier_factor=3, outlier_fraction=100;
+    /* Aquire the required memory and read input files */
+    minmax_init ( argc, argv, &emethods );
+    minmax_read_input ( emethods );
 
-    minmax_init ( argc, argv, &tproc );
+    /* Second step: calculate statistics, filter data etc. */
+    minmax_calc_per_iteration ( emethods, "minmax.out" );
+
     if ( filter ) {
-	emethods_init ( &emethods);
+	minmax_filter_timings     ( emethods, outlier_factor, outlier_fraction);
+	minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
+	minmax_calc_statistics    ( emethods, "minmax-median.out");
     }
 
-    /* Read infile and store the values in the according list */
-    TLINE_INIT(tline);
-    all_done = 0;
+    /* Free the aquired memory */
+    minmax_finalize (&emethods); 
+    return ( 0 );
+}
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+void minmax_read_input ( struct emethod **emethods ) 
+{
+    char line[MAXLINE], *basestr;
+    char inname[64],  reqstr[64];
+    struct lininf tline;
+    int ret, req, i, no_line, all_done=0;
+    int method, pos, count;
+    double time;
+    FILE **infd=NULL;
+
+    /* Open the input files */
+    infd = (FILE **) malloc ( numprocs * sizeof(FILE *) );
+    if ( NULL == infd ) {
+	exit (-1);
+    }
+
+    for ( i = 0; i < numprocs; i++ ) {
+	sprintf( inname, "%d.out", i);
+	infd[i] = fopen ( inname, "r" );
+	if (NULL == infd[i] ) {
+	    printf("Could not open input file %s for reading\n", inname );
+	    exit (-1);
+	}
+    }	
+
+
+    /* Read infile and store the values in the according emethod structures */
     while ( all_done < numprocs ) {
+	TLINE_INIT(tline);
+	
 	for ( i=0; i< numprocs; i++ ) {
 	    no_line = 0;
 	    while ( !no_line ) {
@@ -118,69 +126,139 @@ int main (int argc, char **argv )
 		sscanf ( basestr, "%1s %lf\n", reqstr, &time );
 	    }		
 	    
-	    if ( filter ) {
-		pos = emethods[i][tline.method].em_rescount;
-		emethods[i][tline.method].em_time[pos] = time;
-		emethods[i][tline.method].em_rescount++;
+	    pos = emethods[i][tline.method].em_rescount;
+	    count = emethods[i][tline.method].em_count;
+	    if ( pos >= count ) {
+		goto exit;
 	    }
-
-	    TLINE_MIN(tline,time,i);
-	    TLINE_MAX(tline,time,i);
-
+	    emethods[i][tline.method].em_time[pos] = time;
+	    emethods[i][tline.method].em_rescount++;
+	    emethods[i][tline.method].em_avg += time/count;
 	}
-	fprintf (outfd, 
-		 "%3d %3d %8.4lf %3d %8.4lf %3d\n", 
-		 tline.req, 
-		 tline.method, 
-		 tline.min, 
-		 tline.minloc,
-		 tline.max, 
-		 tline.maxloc );
-
-	tproc[tline.minloc].nummin++;
-	tproc[tline.maxloc].nummax++;
-
-	/* Reset the lininf structure */
-	TLINE_INIT(tline);
     }
 
  exit:
-    for ( i=0; i< numprocs; i++ ) {
-	fprintf(outfd, "Proc %d : num of min. %d num of max %d num of outliers %d\n", i, 
-		tproc[i].nummin, tproc[i].nummax, tproc[i].numoutliers );
-    }
-    
 
     for ( i=0; i< numprocs; i++ ) {
 	fclose ( infd[i]);
     }
-    fclose ( outfd );
-    free ( tproc );
+
     free ( infd );
 
-    /* Second step: filter the data as required */
-    if ( filter ) {
-	filter_timings (emethods, outlier_factor, outlier_fraction);
-	minmax_filtered (emethods );
+    return;
+}
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+void minmax_filter_timings ( struct emethod **em, int outlier_factor,
+			     int outlier_fraction )
+{
+    int i, j, k;
+    int numoutl;
+    double min;
+
+    for (i=0; i < numprocs; i++ ) {
+	for ( j=0; j< nummethods; j++ ) {
+	    em[i][j].em_sum_filtered = 0.0;
+	    em[i][j].em_cnt_filtered = 0;
+	    em[i][j].em_avg_filtered = 0.0;
+
+	    /* Determine the min  value for method [i][j]*/
+	    for ( min=999999, k=0; k<em[i][j].em_rescount; k++ ) {
+		if ( em[i][j].em_time[k] < min ) {
+		    min = em[i][j].em_time[k];
+		}
+	    }
+
+	    /* Count how many values are N times larger than the min. */
+	    for ( numoutl=0, k=0; k<em[i][j].em_rescount; k++ ) {
+		if ( em[i][j].em_time[k] >= (outlier_factor * min) ) {
+#ifdef DEBUG
+		    printf("#%d: method %d meas. %d is outlier %lf min %lf\n",
+			   i, j, k,  em[i][j].em_time[j], min );
+#endif
+		    numoutl++;
+		}
+	    }
+#ifdef DEBUG
+	    printf("#%d: method %d num. of outliers %d min %lf\n",
+		   i, j, numoutl, min );
+#endif
+	    if ((100*numoutl/em[i][j].em_rescount) < outlier_fraction ) {
+		for ( k=0; k<em[i][j].em_rescount; k++ ) {
+		    if ( em[i][j].em_time[k] >= (outlier_factor * min) ) {
+			em[i][j].em_poison[k] = 1;
+		    }
+		    else {
+			em[i][j].em_sum_filtered += em[i][j].em_time[k];
+			em[i][j].em_cnt_filtered ++;
+		    }
+		}
+
+		if ( em[i][j].em_cnt_filtered > 0 ) {
+		    em[i][j].em_avg_filtered = em[i][j].em_sum_filtered/em[i][j].em_cnt_filtered;
+		}
+	    }
+	}
     }
 
-    /*   emethods_finalize (&emethods); */
+    return;
+}
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+void minmax_calc_per_iteration ( struct emethod **em, char *filename )
+{
+    int i, j, k;
+    FILE *outf;
+    struct lininf tline;
 
-    return ( 0 );
+    outf = fopen(filename, "w");
+    if ( NULL == outf ) {
+	printf("calc_perit_filtered: could not open %s for writing\n", filename);
+	exit (-1);
+    }
+
+    for (j=0; j< nummethods; j++ ) {
+	for ( k=0; k<nummeas; k++ ) {
+	    TLINE_INIT(tline);
+	    for (i=0; i< numprocs; i++ ) {
+		if ( !em[i][j].em_poison[k] ) {
+		    TLINE_MIN(tline, em[i][j].em_time[k], i);
+		    TLINE_MAX(tline, em[i][j].em_time[k], i);
+		}
+		else {
+		    em[i][j].em_num_outliers++;
+		}
+	    }
+	    fprintf (outf, "%3d %8.4lf %3d %8.4lf %3d\n", 
+		     j, tline.min, tline.minloc, tline.max, 
+		     tline.maxloc );
+	}
+    }
+
+
+   for ( i=0; i< numprocs; i++ ) {
+        fprintf(outf, "# %d: ", i);
+        for ( j=0; j< nummethods; j++ ) {
+            fprintf(outf, " %d ", em[i][j].em_num_outliers);
+        }
+        fprintf(outf, "\n");
+    }
+
+    fclose (outf);
+    return;
 }
 
-
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-void minmax_init (int argc, char ** argv, struct procinf **proc) 
+void minmax_init (int argc, char ** argv, struct emethod ***emethods) 
 {
-    struct procinf *tproc;
-    char inname[50];
-    int i;
+    struct emethod **em;
+    int i, j;
 
-
-    if (argc < 5 )
+    if (argc < 4 )
     {
 	printf(" Usage : minmax <numprocs> <numrequests> <nummethods> <nummeas>"
 	       " <options>\n\n");
@@ -189,7 +267,6 @@ void minmax_init (int argc, char ** argv, struct procinf **proc)
 	printf("   maximual value across all processes and the according locations\n");
 	printf(" Options: \n");
 	printf("   <numprocs>   : number of processes \n");
-	printf("   <numrequests>: number of requests \n");
 	printf("   <nummethods> : number of evaluated implementations \n");
 	printf("   <nummeas>    : number of measurements per implementation \n");
 	printf("   -deconly     : stop after the decision procedure\n");
@@ -198,61 +275,28 @@ void minmax_init (int argc, char ** argv, struct procinf **proc)
     }
     
     numprocs    = atoi( argv[1] );
-    numrequests = atoi ( argv[2] );
-    nummethods  = atoi (argv[3] );
-    nummeas     = atoi ( argv[4]);
+    nummethods  = atoi (argv[2] );
+    nummeas     = atoi ( argv[3]);
     
-    if ( argc == 6) {
-	if (strncmp(argv[5], "-deconly", strlen("-deconly") )== 0 ) {
+    if ( argc == 5) {
+	if (strncmp(argv[4], "-deconly", strlen("-deconly") )== 0 ) {
 	    deconly = 1;
 	}
-	if (strncmp(argv[5], "-filter", strlen("-filter") )== 0 ) {
+	if (strncmp(argv[4], "-filter", strlen("-filter") )== 0 ) {
 	    deconly=1;
 	    filter = 1;
 	}
 
     }
 
-    if ( argc == 7) {
+    if ( argc == 6) {
 	if (strncmp(argv[5], "-filter", strlen("-filter") )== 0 ) {
 	    deconly=1;
 	    filter = 1;
 	}
     }
 
-
-
-    tproc = (struct procinf *) calloc (1, numprocs * sizeof(struct procinf));
-    if ( NULL == tproc ) {
-	exit ( -1 );
-    }
-    *proc = tproc;
-
-    infd = (FILE **) malloc ( numprocs * sizeof(FILE *) );
-    if ( NULL == infd ) {
-	exit (-1);
-    }
-
-    outfd = fopen ("minmax.out", "w");
-    if ( NULL == outfd ) {
-	exit ( -1 );
-    }
-
-    for ( i = 0; i < numprocs; i++ ) {
-	sprintf( inname, "%d.out", i);
-	infd[i] = fopen ( inname, "r" );
-    }	
-
-    return;
-}
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-void emethods_init (  struct emethod *** emethods )
-{
-     struct emethod **em=NULL;
-    int i, j;
-    
+    /* Allocate the required emethods array to hold the overall data */
     em = ( struct emethod **) malloc ( numprocs * sizeof ( struct emethod *));
     if ( NULL == em ) {
 	exit (-1);
@@ -280,111 +324,118 @@ void emethods_init (  struct emethod *** emethods )
     *emethods = em;
     return;
 }
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-void filter_timings ( struct emethod **emethods, int outlier_factor,
-		     int outlier_fraction )
-{
-    int i, j, k;
-    int numoutl;
-    double min;
 
+
+
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+static int tcompare ( const void *p, const void* q )
+{
+    double *a, *b;
+    a = (double *) p;
+    b = (double *) q;
+
+    if ( *a < *b ) {
+	return -1;
+    }
+    if ( *a == *b ) {
+	return 0;
+    }
+
+    return 1;
+}
+
+
+void minmax_calc_statistics ( struct emethod **em, char *filename ) 
+{
+    FILE *outf=NULL;
+    struct lininf tline, tline2, tline3;
+    int i, j;
+
+    outf = fopen(filename, "w");
+    if ( NULL == outf ) {
+	printf("calc_statistics: could not open %s for writing\n", filename );
+	exit (-1);
+    }
+    
+    /* Calculate the median of all measurement series */
     for (i=0; i < numprocs; i++ ) {
 	for ( j=0; j< nummethods; j++ ) {
-	    /* Determine the min  value for method [i][j]*/
-	    for ( min=999999, k=0; k<emethods[i][j].em_rescount; k++ ) {
-		if ( emethods[i][j].em_time[k] < min ) {
-		    min = emethods[i][j].em_time[k];
-		}
-	    }
-
-	    /* Count how many values are N times larger than the min. */
-	    for ( numoutl=0, k=0; k<emethods[i][j].em_rescount; k++ ) {
-		if ( emethods[i][j].em_time[k] >= (outlier_factor * min) ) {
-		    printf("#%d: method %d meas. %d is outlier %lf min %lf\n",
-			   i, j, k,  emethods[i][j].em_time[j], min );
-		    numoutl++;
-		}
-	    }
-	    printf("#%d: method %d num. of outliers %d min %lf\n",
-		   i, j, numoutl, min );
-
-	    if ((100*numoutl/emethods[i][j].em_rescount) < outlier_fraction ) {
-		for ( k=0; k<emethods[i][j].em_rescount; k++ ) {
-		    if ( emethods[i][j].em_time[k] >= (outlier_factor * min) ) {
-			emethods[i][j].em_poison[k] = 1;
-		    }
-		}
-	    }
-	}
+	    qsort ( em[i][j].em_time, em[i][j].em_rescount, sizeof(double), 
+		    tcompare );
+	    em[i][j].em_median = em[i][j].em_time[ (em[i][j].em_rescount/2)];
+	}	
     }
-
-    return;
-}
-
-void minmax_filtered ( struct emethod **em )
-{
-    int i, j, k;
-    FILE *outf;
-    struct lininf tline;
-
-    outf = fopen("minmax-filtered.out", "w");
-    if ( NULL == outf ) {
-	exit (-1);
-    }
-
+    
     for (j=0; j< nummethods; j++ ) {
-	for ( k=0; k<nummeas; k++ ) {
-	    TLINE_INIT(tline);
-	    for (i=0; i< numprocs; i++ ) {
-		if ( !em[i][j].em_poison[k] ) {
-		    TLINE_MIN(tline, em[i][j].em_time[k], i);
-		    TLINE_MAX(tline, em[i][j].em_time[k], i);
-		}
-		else {
-		    em[i][j].em_num_outliers++;
-		}
-	    }
-	    fprintf (outf, "%3d %8.4lf %3d %8.4lf %3d\n", 
-		     j, tline.min, tline.minloc, tline.max, 
-		     tline.maxloc );
-	    
+	TLINE_INIT(tline);
+	TLINE_INIT(tline2);
+	TLINE_INIT(tline3);
+	for (i=0; i< numprocs; i++ ) {
+	    TLINE_MIN(tline, em[i][j].em_median, i);
+	    TLINE_MAX(tline, em[i][j].em_median, i);
+	    TLINE_MIN(tline2, em[i][j].em_avg, i);
+	    TLINE_MAX(tline2, em[i][j].em_avg, i);
+	    TLINE_MIN(tline3, em[i][j].em_avg_filtered, i);
+	    TLINE_MAX(tline3, em[i][j].em_avg_filtered, i);
 	}
-    }
-    fclose (outf);
-
-    /* Dump the outlier information per method */    
-
-    outf = fopen ("procinfo-filtered.out", "w");
-    if ( NULL == outf ) {
-	exit (-1);
-    }
-
-    for ( i=0; i< numprocs; i++ ) {
-	fprintf(outf, "%d: ", i);
-	for ( j=0; j< nummethods; j++ ) {
-	    fprintf(outf, " %d ", em[i][j].em_num_outliers);
-	}
-	fprintf(outf, "\n");
+	fprintf (outf, "%3d %8.4lf %3d %8.4lf %3d %8.4lf %3d %8.4lf %3d "
+		 " %8.4lf %3d %8.4lf %3d \n", 
+		 j, tline.min, tline.minloc, tline.max, tline.maxloc,
+		 tline2.min, tline2.minloc, tline2.max, tline2.maxloc,
+		 tline3.min, tline3.minloc, tline3.max, tline3.maxloc );
     }
 
     fclose (outf);
     return;
 }
-
-void clear_poison_field ( struct emethod **em)
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+void minmax_clear_poison_field ( struct emethod **em)
 {
     int i, j, k;
 
     for ( i=0; i<numprocs; i++ ) {
-	for (j=0; j< nummethods; j++ ) {
-	    for ( k=0; k<nummeas; k++ ) {
-		em[i][j].em_poison[k] = 0;
-	    }
-	}
+        for (j=0; j< nummethods; j++ ) {
+            for ( k=0; k<nummeas; k++ ) {
+                em[i][j].em_poison[k] = 0;
+            }
+        }
     }
 
     return;
 }
 
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+void minmax_finalize ( struct emethod ***emethods )
+{
+    int i, j;
+    struct emethod **em = *emethods;
+
+    for ( i=0; i< numprocs; i++ ) {
+	for (j=0; j< nummethods; j++ ) {
+	    if ( NULL != em[i][j].em_time ) {
+		free ( em[i][j].em_time );
+	    }
+	    
+	    if ( NULL != em[i][j].em_poison ) {
+		free ( em[i][j].em_poison );
+	    }
+	}
+	if ( NULL != em[i] ) {
+	    free ( em[i] );
+	}
+    }
+
+    if ( NULL != em ) {
+	free ( em );
+    }
+
+    *emethods = NULL;
+    return;
+}
