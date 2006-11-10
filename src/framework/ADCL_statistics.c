@@ -135,10 +135,8 @@ int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
 	    min = gpts[i];
 	    winners[j] = i;
 	  }
-	  if ( rank == 0 ) {
-	      ADCL_printf("#%d: block %d entry %d [%lf] current min: %d %d \n", 
-			  rank, j, i, gpts[i], min, winners[j]);
-	  }
+	  ADCL_printf("#%d: block %d entry %d [%lf] current min: %d %d \n", 
+		      rank, j, i, gpts[i], min, winners[j]);
 	}
 	c+=blength[j];
       }

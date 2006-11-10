@@ -5,7 +5,9 @@
 static FILE *fd=NULL;
 int ADCL_printf_silence=0;
 
-static char buffer[1024][128];
+
+#define MAXLINE 2048
+static char buffer[MAXLINE][128];
 static int bufcnt=0;
 
 int ADCL_printf_init ( void )
@@ -30,7 +32,7 @@ int ADCL_printf_finalize ( void )
 
     if ( bufcnt > 0 ) {
 	for (i=0; i< bufcnt; i++ ) {
-	    fprintf(fd, "%s\n", buffer[i] );
+	    fprintf(fd, "%s", buffer[i] );
 	}
     }
 
@@ -51,7 +53,7 @@ int ADCL_printf ( const char* format, ... )
 
 	vsprintf(buffer[bufcnt], format, ap);
 	bufcnt++;
-	if ( bufcnt == 1024 ) {
+	if ( bufcnt == MAXLINE ) {
 	    /*
 	     * dump everything to the file and reset
 	     * the counter 
@@ -59,7 +61,7 @@ int ADCL_printf ( const char* format, ... )
 	    int i;
 
 	    for (i=0; i< 1024; i++ ) {
-		fprintf(fd, "%s\n", buffer[i] );
+		fprintf(fd, "%s", buffer[i] );
 	    }
 	    bufcnt = 0;
 	}

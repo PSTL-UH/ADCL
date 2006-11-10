@@ -15,7 +15,7 @@ void minmax_init     (int argc, char ** argv, struct emethod ***em );
 void minmax_read_input ( struct emethod **em );
 void minmax_finalize ( struct emethod ***em ); 
 
-void minmax_filter_timings     ( struct emethod **emethods, int ofactor, int ofraction );
+void minmax_filter_timings     ( struct emethod **em, int ofac, int ofrac );
 void minmax_calc_per_iteration ( struct emethod **em, char *filename );
 void minmax_calc_statistics    ( struct emethod **em, char *filename );
 void minmax_clear_poison_field ( struct emethod **em);
