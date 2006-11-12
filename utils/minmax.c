@@ -15,17 +15,18 @@ void minmax_init     (int argc, char ** argv, struct emethod ***em );
 void minmax_read_input ( struct emethod **em );
 void minmax_finalize ( struct emethod ***em ); 
 
-void minmax_filter_timings     ( struct emethod **em, int ofac, int ofrac );
+void minmax_filter_timings     ( struct emethod **em, int ofac );
 void minmax_calc_per_iteration ( struct emethod **em, char *filename );
 void minmax_calc_statistics    ( struct emethod **em, char *filename );
 void minmax_clear_poison_field ( struct emethod **em);
+void minmax_calc_decision      ( struct emethod **em, int outlier_fraction ); 
 
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
 int main (int argc, char **argv )
 {
-    int outlier_factor=3, outlier_fraction=100;
+    int outlier_factor=3, outlier_fraction=50;
     struct emethod **emethods;
 
     /* Aquire the required memory and read input files */
@@ -33,19 +34,20 @@ int main (int argc, char **argv )
     minmax_read_input ( emethods );
 
     /* Second step: calculate statistics, filter data etc. */
-    minmax_calc_per_iteration ( emethods, "minmax.out" );
+//    minmax_calc_per_iteration ( emethods, "minmax.out" );
 
     if ( filter ) {
-	int i, fraction[6]={10,20,40,60,80,100};
-	char filename[48];
+//	int i, fraction[6]={10,20,40,60,80,100};
+//	char filename[48];
 
-	for (i=0; i< 6; i++ ) {
-	    minmax_clear_poison_field ( emethods );
-	    minmax_filter_timings     ( emethods, outlier_factor, fraction[i]);
+//	for (i=0; i< 6; i++ ) {
+//	    minmax_clear_poison_field ( emethods );
+	    minmax_filter_timings     ( emethods, outlier_factor);
 //	    minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
-	    snprintf (filename, 48, "minmax-median-%d.out", fraction[i]);
-	    minmax_calc_statistics    ( emethods, filename);
-	}
+//	    snprintf (filename, 48, "minmax-median-%d.out", fraction[i]);
+//	    minmax_calc_statistics    ( emethods, "minmax-median.out");
+	    minmax_calc_decision      ( emethods, outlier_fraction );
+//	}
     }
 
     /* Free the aquired memory */
@@ -157,15 +159,14 @@ void minmax_read_input ( struct emethod **emethods )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-void minmax_filter_timings ( struct emethod **em, int outlier_factor,
-			     int outlier_fraction )
+void minmax_filter_timings ( struct emethod **em, int outlier_factor )
 {
     int i, j, k;
-    int numoutl;
     double min;
 
     for (i=0; i < numprocs; i++ ) {
 	for ( j=0; j< nummethods; j++ ) {
+
 	    em[i][j].em_sum_filtered = 0.0;
 	    em[i][j].em_cnt_filtered = 0;
 	    em[i][j].em_avg_filtered = 0.0;
@@ -178,35 +179,25 @@ void minmax_filter_timings ( struct emethod **em, int outlier_factor,
 	    }
 
 	    /* Count how many values are N times larger than the min. */
-	    for ( numoutl=0, k=0; k<em[i][j].em_rescount; k++ ) {
+	    for ( k=0; k<em[i][j].em_rescount; k++ ) {
 		if ( em[i][j].em_time[k] >= (outlier_factor * min) ) {
+		    em[i][j].em_poison[k] = 1;
+		    em[i][j].em_cnt_filtered ++;
 #ifdef DEBUG
 		    printf("#%d: method %d meas. %d is outlier %lf min %lf\n",
 			   i, j, k,  em[i][j].em_time[j], min );
 #endif
-		    numoutl++;
 		}
-	    }
-#ifdef DEBUG
-	    printf("#%d: method %d num. of outliers %d min %lf\n",
-		   i, j, numoutl, min );
-#endif
-	    if ((100*numoutl/em[i][j].em_rescount) < outlier_fraction ) {
-		for ( k=0; k<em[i][j].em_rescount; k++ ) {
-		    if ( em[i][j].em_time[k] >= (outlier_factor * min) ) {
-			em[i][j].em_poison[k] = 1;
-		    }
-		}
-	    }
-	    
-	    for ( k=0; k<em[i][j].em_rescount; k++ ) {
-		if ( !em[i][j].em_poison[k] ) {
+		else {
 		    em[i][j].em_sum_filtered += em[i][j].em_time[k];
-		    em[i][j].em_cnt_filtered ++;
 		}
 	    }
-	    em[i][j].em_avg_filtered = em[i][j].em_sum_filtered/em[i][j].em_cnt_filtered;
-	
+	    if ( em[i][j].em_cnt_filtered < em[i][j].em_rescount ) {
+		em[i][j].em_avg_filtered  = em[i][j].em_sum_filtered/
+		    (em[i][j].em_rescount - em[i][j].em_cnt_filtered);
+		em[i][j].em_perc_filtered = 100 * em[i][j].em_cnt_filtered/em[i][j].em_rescount;
+	    }
+
 	}
     }
 
@@ -284,11 +275,12 @@ void minmax_calc_statistics ( struct emethod **em, char *filename )
     struct lininf tline, tline2, tline3;
     int i, j;
 
-    outf = fopen(filename, "w");
+    outf = fopen(filename, "a");
     if ( NULL == outf ) {
 	printf("calc_statistics: could not open %s for writing\n", filename );
 	exit (-1);
     }
+    fprintf(outf, "\n");
     
     /* Calculate the median of all measurement series */
     for (i=0; i < numprocs; i++ ) {
@@ -311,14 +303,71 @@ void minmax_calc_statistics ( struct emethod **em, char *filename )
 	    TLINE_MIN(tline3, em[i][j].em_avg_filtered, i);
 	    TLINE_MAX(tline3, em[i][j].em_avg_filtered, i);
 	}
-	fprintf (outf, "%3d %8.4lf %3d %8.4lf %3d %8.4lf %3d %8.4lf %3d "
-		 " %8.4lf %3d %8.4lf %3d \n", 
+	fprintf (outf, "%3d %12.3lf %3d %12.3lf %3d %12.3lf %3d %12.3lf %3d "
+		 " %12.3lf %3d %12.3lf %3d \n", 
 		 j, tline.min, tline.minloc, tline.max, tline.maxloc,
 		 tline2.min, tline2.minloc, tline2.max, tline2.maxloc,
 		 tline3.min, tline3.minloc, tline3.max, tline3.maxloc );
     }
 
     fclose (outf);
+    return;
+}
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+void minmax_calc_decision ( struct emethod **em, int outlier_fraction ) 
+{
+    struct lininf *tline_perc, *tline_unf, *tline_filt;
+    struct lininf tline_avg, tline_filtered_avg;
+    int i, j, num_above=0;
+
+    tline_perc  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
+    tline_unf   = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
+    tline_filt  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
+    if ( NULL == tline_perc || NULL == tline_unf || NULL == tline_filt ) {
+	printf("minmax_calc_decision: could not allocate memory\n");
+	exit (-1);
+    }
+
+    for (j=0; j< nummethods; j++ ) {
+	TLINE_INIT(tline_perc[j]);
+	TLINE_INIT(tline_unf[j]);
+	TLINE_INIT(tline_filt[j]);
+	for (i=0; i< numprocs; i++ ) {
+	    TLINE_MAX(tline_unf[j], em[i][j].em_avg, i);
+	    TLINE_MAX(tline_filt[j], em[i][j].em_avg_filtered, i);
+	    TLINE_MAX(tline_perc[j], em[i][j].em_perc_filtered, i);
+	}
+	if ( tline_perc[j].max > outlier_fraction ) {
+	    num_above++;
+	}
+    }
+
+    /* The final decision and output */
+    TLINE_INIT (tline_avg);
+    TLINE_INIT (tline_filtered_avg);
+    for ( j=0; j<nummethods; j++  ) {
+	printf("%d: unfiltered: %lf filtered: %lf perc: %lf\n", 
+	       j, tline_unf[j].max, tline_filt[j].max, tline_perc[j].max);
+	TLINE_MIN (tline_avg, tline_unf[j].max, j);
+	TLINE_MIN (tline_filtered_avg, tline_filt[j].max, j);
+    }
+
+//    printf ("Winner using unfiltered avg. : %d \n", tline_avg.minloc );
+//    printf ("Winner using filtered avg. : %d \n", tline_filtered_avg.minloc );
+
+//    printf ("Number of methods above %d of outliers: %d\n", outlier_fraction, num_above);
+    if ( tline_perc[tline_avg.minloc].max < outlier_fraction ) 
+	printf ("Winner is %d (filtered)\n",  tline_filtered_avg.minloc );
+    else
+	printf ("Winner is %d (unfiltered)\n",  tline_avg.minloc );
+	
+
+    free ( tline_perc );
+    free ( tline_unf);
+    free ( tline_filt);
+
     return;
 }
 

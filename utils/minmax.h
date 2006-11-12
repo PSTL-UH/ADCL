@@ -23,6 +23,7 @@ struct emethod{
     double  em_sum_filtered;
     int     em_cnt_filtered;
     double  em_avg_filtered;
+    double  em_perc_filtered;
 };
 
 #define TLINE_INIT(_t) {_t.req=-1; _t.min=9999999999.99; _t.max=0.0; \
