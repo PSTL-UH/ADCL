@@ -274,13 +274,6 @@ int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
 				     rank );
 
     /* 
-    ** Weight now the performance of each method 
-    */
-    ADCL_statistics_determine_votes ( er,
-				      ermethod->er_num_emethods, 
-				      rank );
-
-    /* 
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */

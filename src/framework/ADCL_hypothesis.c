@@ -176,7 +176,6 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_req_t *er )
 	
 	/* Determine now the winners across all provided measurement lists */
 	ADCL_statistics_filter_timings  ( tmp_emethods, nummethods, rank);
-	ADCL_statistics_determine_votes ( tmp_emethods, nummethods, rank);
 	ADCL_statistics_global_max ( tmp_emethods, nummethods, er->er_comm, 
 				     numblocks, blength, winners, rank);
 	

@@ -28,7 +28,7 @@ struct ADCL_emethod_s {
     short        em_rescount; /* how often has this routine already reported back */
     TIME_TYPE       *em_time; /* measurements */
     int             em_flags; /* Has this data set already been filtered? */
-    double           em_lpts; /* local no. of pts by this method */
+    double        em_lpts[3]; /* local no. of pts by this method */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 
@@ -66,7 +66,7 @@ struct ADCL_emethod_req_s {
     short er_attr_confidence[ADCL_ATTR_TOTAL_NUM]; /* List of confidence*/
     short                     er_num_avail_meas;   /* Counter keeping track of how many 
 						      methods have already been tested*/
-    short                       er_num_active_attrs;  
+    short                   er_num_active_attrs;  
     short  er_active_attr_list[ADCL_ATTR_TOTAL_NUM];
 };
 

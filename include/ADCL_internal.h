@@ -42,8 +42,6 @@ int ADCL_printf          ( const char *format, ...);
 int ADCL_readenv( void );
 int ADCL_statistics_filter_timings  ( ADCL_emethod_t **emethods, int count, 
 				      int rank );
-int ADCL_statistics_determine_votes ( ADCL_emethod_t **emethods, int count, 
-				      int rank );
 int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
  				 MPI_Comm comm, int num_blocks, int *blength, 
 				 int *winners, int rank );
