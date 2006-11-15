@@ -34,20 +34,13 @@ int main (int argc, char **argv )
     minmax_read_input ( emethods );
 
     /* Second step: calculate statistics, filter data etc. */
-//    minmax_calc_per_iteration ( emethods, "minmax.out" );
+    minmax_calc_per_iteration ( emethods, "minmax.out" );
 
     if ( filter ) {
-//	int i, fraction[6]={10,20,40,60,80,100};
-//	char filename[48];
-
-//	for (i=0; i< 6; i++ ) {
-//	    minmax_clear_poison_field ( emethods );
-	    minmax_filter_timings     ( emethods, outlier_factor);
-//	    minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
-//	    snprintf (filename, 48, "minmax-median-%d.out", fraction[i]);
-//	    minmax_calc_statistics    ( emethods, "minmax-median.out");
-	    minmax_calc_decision      ( emethods, outlier_fraction );
-//	}
+	minmax_filter_timings     ( emethods, outlier_factor);
+	minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
+	minmax_calc_statistics    ( emethods, "minmax-median.out");
+	minmax_calc_decision      ( emethods, outlier_fraction );
     }
 
     /* Free the aquired memory */
