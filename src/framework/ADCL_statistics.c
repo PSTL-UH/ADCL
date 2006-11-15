@@ -58,9 +58,9 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count,
 		sum += emethods[i]->em_time[j];
 		if ( emethods[i]->em_time[j] >= (ADCL_OUTLIER_FACTOR * min) ) {
 #if 0 
-		    ADCL_printf("#%d: method %d meas. %d is outlier %lf min %lf\n",
-				rank, emethods[i]->em_method->m_id, j, 
-				emethods[i]->em_time[j], min );
+		    ADCL_printf("#%d: method %d meas. %d is outlier %lf min "
+				"%lf\n", rank, emethods[i]->em_method->m_id, 
+				j, emethods[i]->em_time[j], min );
 #endif
 		    numoutl++;
 		}
@@ -79,9 +79,11 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count,
 	    emethods[i]->em_lpts[2] = 100*numoutl/emethods[i]->em_rescount; 
 
 #if 0
-	    ADCL_printf("#%d: method %d num. of outliers %d min %lf avg. %lf filtered avg. "
-			"%lf perc. %lf \n", rank, emethods[i]->em_method->m_id, numoutl, min,
-			emethods[i]->em_lpts[0], emethods[i]->em_lpts[1], emethods[i]->em_lpts[2]);
+	    ADCL_printf("#%d: method %d num. of outliers %d min %lf avg. %lf "
+			"filtered avg. %lf perc. %lf \n", rank, 
+			emethods[i]->em_method->m_id, numoutl, min,
+			emethods[i]->em_lpts[0], emethods[i]->em_lpts[1], 
+			emethods[i]->em_lpts[2]);
 #endif
 
 	    ADCL_EM_SET_FILTERED (emethods[i]); 
@@ -109,10 +111,10 @@ int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
     }
     gpts = &(lpts[3 * count]);    
 
-    for ( i = 0; i < count; i+=3 ) {
-	lpts[i]   = emethods[i]->em_lpts[0];
-	lpts[i+1] = emethods[i]->em_lpts[1];
-	lpts[i+2] = emethods[i]->em_lpts[2];
+    for ( i = 0; i < count; i++ ) {
+	lpts[3*i]   = emethods[i]->em_lpts[0];
+	lpts[3*i+1] = emethods[i]->em_lpts[1];
+	lpts[3*i+2] = emethods[i]->em_lpts[2];
     }
 
     if  ( ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
@@ -126,10 +128,16 @@ int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
 	    TLINE_INIT ( tline_unfiltered );
 	    TLINE_INIT ( tline_filtered );
 	    for ( i = c; i < (c+blength[j]); i++ ) {
+#if 0
+		if ( rank == 0 ) {
+		    ADCL_printf("#%d: %lf %lf %lf\n", i, gpts[3*i], 
+				gpts[3*i+1], gpts[3*i+2]);
+		}
+#endif
 		TLINE_MIN ( tline_unfiltered, gpts[3*i],  i );
 		TLINE_MIN ( tline_filtered, gpts[3*i+1],  i );
 	    }
-	    if ( gpts[ 3 * tline_filtered.minloc + 2] < ADCL_OUTLIER_FRACTION ) {
+	    if ( gpts[ 3 * tline_filtered.minloc + 2]<ADCL_OUTLIER_FRACTION){
 		winners[j] = tline_filtered.minloc;
 		ADCL_printf("#%d: block %d winner is %d (filtered) \n", 
 			    rank, j, winners[j]);
