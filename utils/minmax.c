@@ -6,6 +6,8 @@
 #include "minmax.h"
 
 /* Parameters of the application */
+int outlier_factor=3, outlier_fraction=50;
+int output_files=0; /* false */
 int numprocs=-1, nummethods=-1, nummeas=-1;
 int deconly=0;
 int filter=0;             
@@ -26,7 +28,6 @@ void minmax_calc_decision      ( struct emethod **em, int outlier_fraction );
 /**********************************************************************/
 int main (int argc, char **argv )
 {
-    int outlier_factor=3, outlier_fraction=50;
     struct emethod **emethods;
 
     /* Aquire the required memory and read input files */
@@ -34,14 +35,17 @@ int main (int argc, char **argv )
     minmax_read_input ( emethods );
 
     /* Second step: calculate statistics, filter data etc. */
-    minmax_calc_per_iteration ( emethods, "minmax.out" );
+    if ( output_files ) {
+	minmax_calc_per_iteration ( emethods, "minmax.out" );
+    }
 
-    if ( filter ) {
-	minmax_filter_timings     ( emethods, outlier_factor);
+    minmax_filter_timings     ( emethods, outlier_factor);
+    minmax_calc_decision      ( emethods, outlier_fraction );
+    if ( output_files ) {
 	minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
 	minmax_calc_statistics    ( emethods, "minmax-median.out");
-	minmax_calc_decision      ( emethods, outlier_fraction );
     }
+
 
     /* Free the aquired memory */
     minmax_finalize (&emethods); 
@@ -347,11 +351,7 @@ void minmax_calc_decision ( struct emethod **em, int outlier_fraction )
 	TLINE_MIN (tline_filtered_avg, tline_filt[j].max, j);
     }
 
-//    printf ("Winner using unfiltered avg. : %d \n", tline_avg.minloc );
-//    printf ("Winner using filtered avg. : %d \n", tline_filtered_avg.minloc );
-
-//    printf ("Number of methods above %d of outliers: %d\n", outlier_fraction, num_above);
-    if ( tline_perc[tline_avg.minloc].max < outlier_fraction ) 
+    if ( tline_perc[tline_filtered_avg.minloc].max < outlier_fraction ) 
 	printf ("Winner is %d (filtered)\n",  tline_filtered_avg.minloc );
     else
 	printf ("Winner is %d (unfiltered)\n",  tline_avg.minloc );
@@ -370,7 +370,7 @@ void minmax_calc_decision ( struct emethod **em, int outlier_fraction )
 void minmax_init (int argc, char ** argv, struct emethod ***emethods) 
 {
     struct emethod **em;
-    int i, j;
+    int i, j, tmpargc=4;
 
     if (argc < 4 )
     {
@@ -384,7 +384,10 @@ void minmax_init (int argc, char ** argv, struct emethod ***emethods)
 	printf("   <nummethods> : number of evaluated implementations \n");
 	printf("   <nummeas>    : number of measurements per implementation \n");
 	printf("   -deconly     : stop after the decision procedure\n");
-	printf("   -filter      : apply the ADCL style filtering \n");
+	printf("   -ofiles      : write output files \n");
+	printf("   -ofraction   : outlier fraction to be used \n");
+	printf("   -ofactor     : outlier factor to be used \n");
+
 	exit ( 1 ) ;
     }
     
@@ -392,23 +395,25 @@ void minmax_init (int argc, char ** argv, struct emethod ***emethods)
     nummethods  = atoi (argv[2] );
     nummeas     = atoi ( argv[3]);
     
-    if ( argc == 5) {
-	if (strncmp(argv[4], "-deconly", strlen("-deconly") )== 0 ) {
+    while ( tmpargc < argc ) {
+	if ( strncmp ( argv[tmpargc], "-deconly", strlen("-deconly") )== 0 ) {
 	    deconly = 1;
 	}
-	if (strncmp(argv[4], "-filter", strlen("-filter") )== 0 ) {
+	else if ( strncmp(argv[tmpargc], "-ofiles", strlen("-ofiles") )== 0 ) {
 	    deconly=1;
-	    filter = 1;
+	    output_files = 1;
+	}
+	else if ( strncmp(argv[tmpargc], "-ofactor", strlen("-ofactor") )== 0 ) {
+	    tmpargc++;
+	    outlier_factor = atoi ( argv[tmpargc] );
+	}
+	else if ( strncmp(argv[tmpargc], "-ofraction", strlen("-ofraction") )== 0 ) {
+	    tmpargc++;
+	    outlier_fraction = atoi ( argv[tmpargc] );
 	}
 
-    }
-
-    if ( argc == 6) {
-	if (strncmp(argv[5], "-filter", strlen("-filter") )== 0 ) {
-	    deconly=1;
-	    filter = 1;
-	}
-    }
+	tmpargc++;
+    } 
 
     if ( NULL != emethods ) {
 	/* Allocate the required emethods array to hold the overall data */
@@ -418,7 +423,7 @@ void minmax_init (int argc, char ** argv, struct emethod ***emethods)
 	}
 	
 	for ( i=0; i< numprocs; i++ ) {
-	    em[i] = ( struct emethod *) calloc ( 1, nummethods * sizeof(struct emethod));
+	    em[i] = (struct emethod *) calloc (1, nummethods*sizeof(struct emethod));
 	    if  ( NULL == em[i] ) {
 		exit (-1);
 	    }
