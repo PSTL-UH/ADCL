@@ -1,7 +1,7 @@
 #include "ADCL_internal.h"
 
-int ADCL_subarray_init ( int topodims, int *neighbors, int vecndims, 
-			 int *vecdims, int hwidth, int nc, int order,  
+int ADCL_subarray_init ( int topodims, int vecndims, int *vecdims, 
+			 int hwidth, int nc, int order,  
 			 MPI_Datatype **senddats, MPI_Datatype **recvdats)
 {
     int i, j, k;

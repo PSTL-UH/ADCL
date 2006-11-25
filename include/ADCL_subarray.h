@@ -40,9 +40,18 @@
 
 */
 
-int  ADCL_subarray_init ( int topodims, int *neighbors, int vecndims, int *vecdims, 
+int  ADCL_subarray_init ( int topodims, int vecndims, int *vecdims, 
 			  int hwidth, int nc, int order, 
 			  MPI_Datatype **sdats, MPI_Datatype **rdats);
+int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order,  
+			   MPI_Datatype **senddats, MPI_Datatype **recvdats);
+
+int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order,  
+			   MPI_Datatype **senddats, MPI_Datatype **recvdats);
+
+int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,  
+			   MPI_Datatype **senddats, MPI_Datatype **recvdats);
+
 void ADCL_subarray_free ( int num, MPI_Datatype **sdats, MPI_Datatype **rdats );
 
 

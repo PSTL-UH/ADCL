@@ -72,7 +72,6 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
     ** vector are going to be sent/received from which process
     */
     ret = ADCL_subarray_init ( newreq->r_nneighbors/2, 
-			       newreq->r_neighbors, 
 			       vec->v_ndims, 
 			       vec->v_dims, 
 			       vec->v_hwidth, 
