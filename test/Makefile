@@ -1,6 +1,6 @@
 include ../Makefile.defs
 
-all: first second third fourth first_f second_f
+all: first second third fourth one-dim first_f second_f
 
 first: 	first.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/first first.c $(LDFLAGS) 
@@ -13,6 +13,9 @@ third:	third.c
 
 fourth:	fourth.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/fourth fourth.c $(LDFLAGS)
+
+one-dim: one-dim.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/one-dim one-dim.c $(LDFLAGS)
 
 first_f: first_f.f90
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/first_f first_f.f90 $(FLDFLAGS)

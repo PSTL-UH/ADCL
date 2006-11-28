@@ -18,7 +18,7 @@ static void matrix_dump ( double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH],
 			  MPI_Comm cart_comm, char *msg);
 
 
-#define NIT 100
+#define NIT 500
 
 int main ( int argc, char ** argv ) 
 {
