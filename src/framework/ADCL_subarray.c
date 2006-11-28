@@ -52,8 +52,8 @@ int ADCL_subarray_init ( int topodims, int vecndims, int *vecdims,
 	    if  ( nc > 0 ) {
 		for ( k=0; k < vecndims-1; k++ ) {
 		    if ( k == i ) {
-			subdims[k] = 1;
-			sstarts[k] = (j == 2*i) ? 1 : (vecdims[k]-2*hwidth);
+			subdims[k] = hwidth;
+			sstarts[k] = (j == 2*i) ? hwidth : (vecdims[k]-2*hwidth);
 			rstarts[k] = (j == 2*i) ? 0 : (vecdims[k]-hwidth);
 		    }
 		    else {
@@ -69,8 +69,8 @@ int ADCL_subarray_init ( int topodims, int vecndims, int *vecdims,
 	    else {
 		for ( k=0; k < vecndims; k++ ) {
 		    if ( k == i ) {
-			subdims[k] = 1;
-			sstarts[k] = (j == 2*i) ? 1 : (vecdims[k]-2*hwidth);
+			subdims[k] = hwidth;
+			sstarts[k] = (j == 2*i) ? hwidth : (vecdims[k]-2*hwidth);
 			rstarts[k] = (j == 2*i) ? 0 : (vecdims[k]-hwidth);
 		    }
 		    else {
