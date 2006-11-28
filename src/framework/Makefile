@@ -8,6 +8,7 @@ OBJ = 	ADCL_vector.o           \
 	ADCL_request.o 		\
 	ADCL_statistics.o       \
 	ADCL_subarray.o         \
+	ADCL_indexed.o         \
 	ADCL_packunpack.o       \
 	ADCL_readenv.o          \
 	ADCL_hypothesis.o       \

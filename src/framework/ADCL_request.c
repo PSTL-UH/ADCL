@@ -71,14 +71,24 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
     ** Generate the derived datatypes describing which parts of this
     ** vector are going to be sent/received from which process
     */
-    ret = ADCL_subarray_init ( newreq->r_nneighbors/2, 
-			       vec->v_ndims, 
-			       vec->v_dims, 
-			       vec->v_hwidth, 
-			       vec->v_nc,
-			       order, 
-			       &(newreq->r_sdats), 
-			       &(newreq->r_rdats ) );
+    if ( vec->v_ndims == 1 ) {
+	ret = ADCL_indexed_1D_init ( vec->v_dims[0],
+				     vec->v_hwidth,
+				     vec->v_nc, 
+				     order, 
+				     &(newreq->r_sdats), 
+				     &(newreq->r_rdats) );
+    }
+    else {
+	ret = ADCL_subarray_init ( newreq->r_nneighbors/2, 
+				   vec->v_ndims, 
+				   vec->v_dims, 
+				   vec->v_hwidth, 
+				   vec->v_nc,
+				   order, 
+				   &(newreq->r_sdats), 
+				   &(newreq->r_rdats ) );
+    }
     if ( ret != ADCL_SUCCESS ) {
 	goto exit;
     }

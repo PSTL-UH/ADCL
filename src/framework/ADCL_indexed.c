@@ -8,7 +8,7 @@ int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order,
     int j;
     int ret = ADCL_SUCCESS;
     int blength;
-    MPI_Aint sdispls, rdispls;
+    MPI_Aint sdispl, rdispl;
     MPI_Datatype *sdats=NULL, *rdats=NULL;
 
     sdats = ( MPI_Datatype *) malloc ( 2 * sizeof(MPI_Datatype));
@@ -23,12 +23,12 @@ int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order,
         for ( j = 0; j<2; j++ ) {
 	    if ( nc > 1 ) {
 	        blength = hwidth * nc;
-		sdispl  = ( j== 0 ) ? hwdith * nc : (vecdim - 2*hwidth*nc);
+		sdispl  = ( j== 0 ) ? hwidth * nc : (vecdim - 2*hwidth*nc);
 		rdispl  = ( j== 0 ) ? 0 : (vecdim - hwidth*nc);
 	    }
 	    else {
 	        blength = hwidth;
-		sdispl  = ( j== 0 ) ? hwdith : (vecdim - 2*hwidth);
+		sdispl  = ( j== 0 ) ? hwidth : (vecdim - 2*hwidth);
 		rdispl  = ( j== 0 ) ? 0 : (vecdim - hwidth);
 	    }
 	    MPI_Type_indexed ( 1, &blength, &sdispl, MPI_DOUBLE, &(sdats[j]));
@@ -40,8 +40,8 @@ int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order,
     }
     else {
         /* MPI_ORDER_FORTRAN */
-        MPI_Aint *sdspl, *rdslp;
-	int *bl;
+        MPI_Aint *sdspl, *rdspl;
+	int i, *bl;
 
 	if ( nc > 1 ) {
 	    bl = (int * ) malloc ( nc * sizeof(int));
@@ -68,7 +68,7 @@ int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order,
 	    }
 	    else {
 	        blength = hwidth;
-		sdispl  = ( j== 0 ) ? hwdith : (vecdim - 2*hwidth);
+		sdispl  = ( j== 0 ) ? hwidth : (vecdim - 2*hwidth);
 		rdispl  = ( j== 0 ) ? 0 : (vecdim - hwidth);
 
 		MPI_Type_indexed ( 1, &blength, &sdispl, MPI_DOUBLE, &(sdats[j]));
@@ -97,10 +97,10 @@ int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order,
 int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order,  
 			   MPI_Datatype **senddats, MPI_Datatype **recvdats)
 {
-    int i, j, maxdim;
+    int i, j, k, maxdim;
     int ret = ADCL_SUCCESS;
-    int *blength=NULL;
-    MPI_Aint *sdispls=NULL, *rdispls=NULL;
+    int *blength=NULL, baselen;
+    MPI_Aint *sdispls=NULL, *rdispls=NULL, basedisp;
     MPI_Datatype *sdats=NULL, *rdats=NULL;
 
     maxdim = ADCL_max ( 2, vecdim, nc, hwidth );
@@ -111,7 +111,7 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order,
     sdispls = (MPI_Aint *) malloc ( maxdim * sizeof(MPI_Aint));
     rdispls = (MPI_Aint *) malloc ( maxdim * sizeof(MPI_Aint));
     if ( NULL == sdats  || NULL == rdats  || NULL == blength ||
-	 NULL == sdipls || NULL == rdispls ) {
+	 NULL == sdispls || NULL == rdispls ) {
         ret = ADCL_NO_MEMORY;
 	goto exit;
     }
@@ -120,13 +120,13 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order,
     if ( MPI_ORDER_C == order ) {      
         /* Dimension 0 */
         basedisp = (nc > 1) ? vecdim[1] : vecdim[1] * nc;
-        baselen  = (nc > 1) ? hwidth : hwdith * nc;
+        baselen  = (nc > 1) ? hwidth : hwidth * nc;
 
         for ( j = 0; j<2; j++ ) {
 	    for ( k=0; k< vecdim[1]; k++ ) {
-	        blength[k] = basel;
-		sdispl[k] = (j == 0 ) ? (baselen + k*basedisp) : todo;
-		rdispl[k] = (j == 0 ) ? (k*basedisp) : todo;
+	        blength[k] = baselen;
+		sdispls[k] = (j == 0 ) ? (baselen + k*basedisp) : 0;
+		rdispls[k] = (j == 0 ) ? (k*basedisp) : 0;
 	    }
 	}
     }
@@ -172,7 +172,7 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,
     MPI_Aint *sdispls, *rdispls;
     MPI_Datatype *sdats=NULL, *rdats=NULL;
 
-    maxdim = ADCL_max ( 3, vecdim);
+    maxdim = ADCL_max ( 3, vecdim, hwidth, nc);
 
     sdats = ( MPI_Datatype *) malloc ( 6 * sizeof(MPI_Datatype));
     rdats = ( MPI_Datatype *) malloc ( 6 * sizeof(MPI_Datatype));
