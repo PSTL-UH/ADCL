@@ -5,23 +5,25 @@
 
 /* Dimensions of the data matrix per process */
 #define DIM0  8
-#define DIM1  16
+#define DIM1  4
 
-static void dump_vector_2D ( double *data, int rank, int dim);
-static void dump_vector_3D ( double **data, int rank, int dim, int nc);
-static void set_data_2D ( double *data, int rank, int dim, int hwidth );
-static void set_data_3D ( double **data, int rank, int dim, int hwidth, int nc);
-static void check_data_2D ( double *data, int rank, int size, int dim, int hwidth ); 
-static void check_data_3D ( double **data, int rank, int size, int dim, int hwidth, int nc ); 
+static void dump_vector_2D ( double **data, int rank, int *dim);
+static void dump_vector_3D ( double ***data, int rank, int *dim, int nc);
+static void set_data_2D ( double **data, int rank, int *dim, int hwidth );
+static void set_data_3D ( double ***data, int rank, int *dim, int hwidth, int nc);
+static void check_data_2D ( double **data, int rank, int *dim, 
+			    int hwidth, int *neighbors ); 
+static void check_data_3D ( double ***data, int rank, int *dim, 
+			    int hwidth, int nc, int *neighbors ); 
 
 
 int main ( int argc, char ** argv ) 
 {
     /* General variables */
-    int i, rank, size;
+    int hwidth, rank, size;
     
     /* Definition of the 2-D vector */
-    int dims[2];
+    int dims[2], neighbors[4];
     double **data, ***data2;
     ADCL_Vector vec;
 
@@ -40,6 +42,8 @@ int main ( int argc, char ** argv )
     /* Describe the neighborhood relations */
     MPI_Dims_create ( size, 2, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 2, cdims, periods, 0, &cart_comm);
+    MPI_Cart_shift ( cart_comm, 0, 1, &(neighbors[0]), &(neighbors[1]));
+    MPI_Cart_shift ( cart_comm, 1, 1, &(neighbors[2]), &(neighbors[3]));
 
     /* Initiate the ADCL library and register a topology object with ADCL */
     ADCL_Init ();
@@ -50,7 +54,7 @@ int main ( int argc, char ** argv )
     hwidth=1;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  &dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vector_allocate ( 2,  dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
     ADCL_Request_create ( vec, topo, &request );
     
     set_data_2D ( data, rank, dims, hwidth );
@@ -59,17 +63,17 @@ int main ( int argc, char ** argv )
 #endif
 
     ADCL_Request_start ( request );
-    check_data_2D ( data, rank, dims, hwidth );
+    check_data_2D ( data, rank, dims, hwidth, neighbors );
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
 
     /**********************************************************************/
     /* Test 2: hwidth=2, nc=0 */
-    hwidth=1;
+    hwidth=2;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  &dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vector_allocate ( 2,  dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
     ADCL_Request_create ( vec, topo, &request );
     
     set_data_2D ( data, rank, dims, hwidth );
@@ -78,7 +82,7 @@ int main ( int argc, char ** argv )
 #endif
 
     ADCL_Request_start ( request );
-    check_data_2D ( data, rank, dims, hwidth );
+    check_data_2D ( data, rank, dims, hwidth, neighbors );
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
@@ -88,16 +92,16 @@ int main ( int argc, char ** argv )
     hwidth=1;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  &dims, 1, hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vector_allocate ( 2,  dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
     ADCL_Request_create ( vec, topo, &request );
     
-    set_data_3D ( data, rank, dims, hwidth, 1 );
+    set_data_3D ( data2, rank, dims, hwidth, 1 );
 #ifdef VERBOSE
-    dump_vector_3D ( data, rank, dims, 1 );
+    dump_vector_3D ( data2, rank, dims, 1 );
 #endif
 
     ADCL_Request_start ( request );
-    check_data_3D ( data, rank, dims, hwidth, 1);
+    check_data_3D ( data2, rank, dims, hwidth, 1, neighbors);
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
@@ -107,35 +111,35 @@ int main ( int argc, char ** argv )
     hwidth=2;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  &dims, 1, hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vector_allocate ( 2,  dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
     ADCL_Request_create ( vec, topo, &request );
     
-    set_data_3D ( data, rank, dims, hwidth, 1 );
+    set_data_3D ( data2, rank, dims, hwidth, 1 );
 #ifdef VERBOSE
-    dump_vector_3D ( data, rank, dims, 1 );
+    dump_vector_3D ( data2, rank, dims, 1 );
 #endif
 
     ADCL_Request_start ( request );
-    check_data_3D ( data, rank, dims, hwidth, 1 );
+    check_data_3D ( data2, rank, dims, hwidth, 1, neighbors );
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
 
     /**********************************************************************/
-    /* Test 3: hwidth=2, nc=2 */
+    /* Test 5: hwidth=2, nc=2 */
     hwidth=2;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  &dims, 2, hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vector_allocate ( 2,  dims, 2, hwidth, MPI_DOUBLE, &data2, &vec );
     ADCL_Request_create ( vec, topo, &request );
     
-    set_data_3D ( data, rank, dims, hwidth, 2 );
+    set_data_3D ( data2, rank, dims, hwidth, 2 );
 #ifdef VERBOSE
-    dump_vector_3D ( data, rank, dims, 2 );
+    dump_vector_3D ( data2, rank, dims, 2 );
 #endif
 
     ADCL_Request_start ( request );
-    check_data_3D ( data, rank, dims, hwidth, 2 );
+    check_data_3D ( data2, rank, dims, hwidth, 2, neighbors );
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
@@ -152,42 +156,62 @@ int main ( int argc, char ** argv )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static void check_data_1D ( double *data, int rank, int size, int dim, int hwidth ) 
+static void check_data_3D ( double ***data, int rank, int *dim, 
+			    int hwidth, int nc, int *neighbors ) 
 {
-    int i, lres=1, gres;
+    int i, j, k, lres=1, gres;
+    int should_be;
 
-    if ( rank == 0 ) {
-	for (i=0; i< hwidth; i++ ) {
-	    if ( data[i] != -1 ) {
-		lres = 0;
-	    }
-	}
-    }
-    else {
-	for (i=0; i< hwidth; i++ ) {
-	    if ( data[i] != rank-1 ) {
-		lres = 0;
+    should_be = neighbors[0]==MPI_PROC_NULL ? -1 : neighbors[0];
+    for ( j=hwidth; j<dim[1]-hwidth; j++ ) {
+	for ( i=0; i<hwidth; i++ ) {
+	    for ( k=0; k<nc; k++ ) {
+		if ( data[i][j][k] != should_be ){
+		    lres = 0;
+		}
 	    }
 	}
     }
 
-    for ( i=hwidth; i<(DIM0+hwidth); i++) {
-	if ( data[i] != rank) {
-	    lres = 0;
-	}
-    }
-
-    if ( rank == size -1 ) {
-	for ( i=DIM0+hwidth; i<DIM0+2*hwidth; i++) {
-	    if ( data[i] != -1 ) {
-		lres = 0;
+    should_be = neighbors[1]==MPI_PROC_NULL ? -1 : neighbors[1];
+    for ( j=hwidth; j<dim[1]-hwidth; j++ ) {
+	for ( i=dim[0]-hwidth; i<dim[0]; i++ ) {
+	    for ( k=0; k<nc; k++ ) {
+		if ( data[i][j][k] != should_be ) {
+		    lres = 0;
+		}
 	    }
 	}
     }
-    else {
-	for ( i=DIM0+hwidth; i<DIM0+2*hwidth; i++) {
-	    if ( data[i] != rank+1 ) {
-		lres = 0;
+    should_be = neighbors[2]==MPI_PROC_NULL ? -1 : neighbors[2];
+    for (i=hwidth; i<dim[0]-hwidth; i++ ) {
+	for (j=0; j<hwidth; j++ ){
+	    for ( k=0; k<nc; k++ ) {
+		if ( data[i][j][k] != should_be ) {
+		    lres = 0;
+		}
+	    }
+	}
+    }
+
+    should_be = neighbors[3]==MPI_PROC_NULL ? -1 : neighbors[3];
+    for (i=hwidth; i<dim[0]-hwidth; i++ ) {
+	for (j=dim[1]-hwidth; j<dim[1]; j++ ) {
+	    for ( k=0; k<nc; k++ ) {
+		if ( data[i][j][k] != should_be) {
+		    lres = 0;
+		}
+	    }
+	}
+    }
+
+
+    for ( i=hwidth; i<dim[0]-hwidth; i++) {
+	for (j=hwidth; j<dim[1]-hwidth; j++ ){
+	    for ( k=0; k<nc; k++ ) {
+		if ( data[i][j][k] != rank ) {
+		    lres = 0;
+		}
 	    }
 	}
     }
@@ -195,14 +219,16 @@ static void check_data_1D ( double *data, int rank, int size, int dim, int hwidt
     MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
     if ( gres == 1 ) {
 	if ( rank == 0 ) {
-	    printf("1-D testsuite: hwidth=%d, nc=0 result is correct\n", hwidth);
+	    printf("2-D testsuite: hwidth=%d, nc=%d result is correct\n", 
+		   hwidth, nc);
 	}
     }
     else {
 	if ( rank == 0 ) {
-	    printf("1-D testsuite: hwidth=%d, nc=0 result is wrong\n", hwidth);
+	    printf("2-D testsuite: hwidth=%d, nc=%d result is wrong\n", 
+		   hwidth, nc);
 	}
-	dump_vector_1D ( data, rank, dim);
+	dump_vector_3D ( data, rank, dim, nc);
     }
 
     return;
@@ -211,70 +237,73 @@ static void check_data_1D ( double *data, int rank, int size, int dim, int hwidt
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static void check_data_2D ( double **data, int rank, int size, int dim, int hwidth, int nc )
+static void check_data_2D ( double **data, int rank, int *dim, int hwidth, 
+			    int *neighbors)
 {
     int i, j, lres=1, gres;
+    int should_be;
 
-    if ( rank == 0 )  {
-	for (i=0; i< hwidth; i++ ) {
-	    for (j=0; j<nc; j++ ){
-		if ( data[i][j] != -1) {
-		    lres = 0;
-		}
-	    }
-	}
-    }
-    else {
-	for (i=0; i< hwidth; i++ ) {
-	    for (j=0; j<nc; j++ ){
-		if ( data[i][j] != rank-1) {
-		    lres = 0;
-		}
-	    }
-	}
-    }
 
-    for ( i=hwidth; i<(DIM0+hwidth); i++) {
-	for (j=0; j<nc; j++ ){
-	    if ( data[i][j] != rank) {
+    should_be = neighbors[0]==MPI_PROC_NULL ? -1 : neighbors[0];
+    for ( j=hwidth; j<dim[1]-hwidth; j++ ) {
+	for ( i=0; i<hwidth; i++ ) {
+	    if ( data[i][j] != should_be ){
 		lres = 0;
 	    }
 	}
     }
 
-    
-    if ( rank == size -1 ) {
-	for ( i=DIM0+hwidth; i<DIM0+2*hwidth; i++) {
-	    for (j=0; j<nc; j++ ){
-		if ( data[i][j] != -1 ) {
-		    lres = 0;
-		}
+    should_be = neighbors[1]==MPI_PROC_NULL ? -1 : neighbors[1];
+    for ( j=hwidth; j<dim[1]-hwidth; j++ ) {
+	for ( i=dim[0]-hwidth; i<dim[0]; i++ ) {
+	    if ( data[i][j] != should_be ) {
+		lres = 0;
 	    }
 	}
     }
-    else {
-	for ( i=DIM0+hwidth; i<DIM0+2*hwidth; i++) {
-	    for (j=0; j<nc; j++ ){
-		if ( data[i][j] != rank+1 ) {
-		    lres = 0;
-		}
+    should_be = neighbors[2]==MPI_PROC_NULL ? -1 : neighbors[2];
+    for (i=hwidth; i<dim[0]-hwidth; i++ ) {
+	for (j=0; j<hwidth; j++ ){
+	    if ( data[i][j] != should_be ) {
+		lres = 0;
 	    }
 	}
     }
+
+    should_be = neighbors[3]==MPI_PROC_NULL ? -1 : neighbors[3];
+    for (i=hwidth; i<dim[0]-hwidth; i++ ) {
+	for (j=dim[1]-hwidth; j<dim[1]; j++ ) {
+	    if ( data[i][j] != should_be) {
+		lres = 0;
+	    }
+	}
+    }
+
+
+    for ( i=hwidth; i<dim[0]-hwidth; i++) {
+	for (j=hwidth; j<dim[1]-hwidth; j++ ){
+	    if ( data[i][j] != rank ) {
+		lres = 0;
+	    }
+	}
+    }
+
 
     MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
     if ( gres == 1 ) {
 	if ( rank == 0 ) {
-	    printf("1-D testsuite: hwidth=%d, nc=%d result is correct\n", 
-		   hwidth, nc);
+	    printf("2-D testsuite: hwidth=%d, nc=0 result is correct\n", 
+		   hwidth );
 	}
     }
     else {
 	if ( rank == 0 ) {
-	    printf("1-D testsuite: hwidth=%d, nc=%d result is wrong\n",
-		   hwidth, nc);
+	    printf("2-D testsuite: hwidth=%d, nc=0 result is wrong\n",
+		   hwidth);
 	}
-	dump_vector_2D ( data, rank, dim, 1);
+	dump_vector_2D ( data, rank, dim );
+	printf("%d: n[0]=%d n[1]=%d n[2]=%d n[3]=%d\n", rank, neighbors[0], 
+	       neighbors[1], neighbors[2], neighbors[3] );
     }
 
 
@@ -283,45 +312,76 @@ static void check_data_2D ( double **data, int rank, int size, int dim, int hwid
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static void set_data_1D ( double *data, int rank, int dim, int hwidth ) 
-{
-    int i;
-
-    for (i=0; i< hwidth; i++ ) {
-	data[i] = -1;
-    }
-    for ( i=hwidth; i<(DIM0+hwidth); i++) {
-	data[i] = rank;
-    }
-    for ( i=DIM0+hwidth; i<DIM0+2*hwidth; i++) {
-	data[i] = -1;
-    }
-
-    return;
-}
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-static void set_data_2D ( double **data, int rank, int dim, int hwidth, int nc ) 
+static void set_data_2D ( double **data, int rank, int *dim, int hwidth ) 
 {
     int i, j;
 
-    for (i=0; i< hwidth; i++ ) {
-	for (j=0; j<nc; j++ ){
+    for (i=0; i<dim[0]; i++ ) {
+	for (j=0; j<hwidth; j++ ){
+	    data[i][j] = -1;
+	}
+	for (j=dim[1]-hwidth; j<dim[1]; j++ ) {
 	    data[i][j] = -1;
 	}
     }
-    for ( i=hwidth; i<(DIM0+hwidth); i++) {
-	for (j=0; j<nc; j++ ){
+    for ( j=0; j<dim[1]; j++ ) {
+	for ( i=0; i<hwidth; i++ ) {
+	    data[i][j]=-1;
+	}
+	for ( i=dim[0]-hwidth; i<dim[0]; i++ ) {
+	    data[i][j]=-1;
+	}
+    }
+
+    for ( i=hwidth; i<dim[0]-hwidth; i++) {
+	for (j=hwidth; j<dim[1]-hwidth; j++ ){
 	    data[i][j] = rank;
 	}
     }
-    for ( i=DIM0+hwidth; i<DIM0+2*hwidth; i++) {
-	for (j=0; j<nc; j++ ){
-	    data[i][j] = -1;
+
+
+    return;
+}
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+static void set_data_3D ( double ***data, int rank, int *dim, int hwidth, int nc ) 
+{
+    int i, j, k;
+
+    for (i=0; i<dim[0]; i++ ) {
+	for (j=0; j<hwidth; j++ ){
+	    for ( k=0; k<nc; k++ ) {
+		data[i][j][k] = -1;
+	    }
+	}
+	for (j=dim[1]-hwidth; j<dim[1]; j++ ) {
+	    for ( k=0; k<nc; k++ ) {
+		data[i][j][k] = -1;
+	    }
 	}
     }
+    for ( j=0; j<dim[1]; j++ ) {
+	for ( i=0; i<hwidth; i++ ) {
+	    for ( k=0; k<nc; k++ ) {
+		data[i][j][k]=-1;
+	    }
+	}
+	for ( i=dim[0]-hwidth; i<dim[0]; i++ ) {
+	    for ( k=0; k<nc; k++ ) {
+		data[i][j][k]=-1;
+	    }
+	}
+    }
+
+    for ( i=hwidth; i<dim[0]-hwidth; i++) {
+	for (j=hwidth; j<dim[1]-hwidth; j++ ){
+	    for ( k=0; k<nc; k++ ) {
+		data[i][j][k] = rank;
+	    }
+	}
+    }
+
 
     return;
 }
@@ -329,7 +389,7 @@ static void set_data_2D ( double **data, int rank, int dim, int hwidth, int nc )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static void dump_vector_2D ( double *data, int rank, int *dim)
+static void dump_vector_2D ( double **data, int rank, int *dim)
 {
     int i, j;
     
@@ -347,17 +407,20 @@ static void dump_vector_2D ( double *data, int rank, int *dim)
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static void dump_vector_3D ( double **data, int rank, int dim, int nc)
+static void dump_vector_3D ( double ***data, int rank, int *dim, int nc)
 {
-    int i, j;
+    int i, j, k;
     
-    printf("%d : ", rank);
-    for (i=0; i<dim; i++) {
-	for (j=0; j<nc; j++) {
-	    printf("%lf ", data[i][j]);
+    for (i=0; i<dim[0]; i++) {
+	printf("%d : ", rank);
+	for ( j=0; j<dim[1]; j++ ) {
+	    for ( k=0; k<nc; k++ ) {
+		printf("%lf ", data[i][j][k]);
+	    }
 	}
+	printf ("\n");
     }
-    printf ("\n");
+
 
     return;
 }

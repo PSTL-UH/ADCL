@@ -17,6 +17,9 @@ fourth:	fourth.c
 one-dim: one-dim.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/one-dim one-dim.c $(LDFLAGS)
 
+two-dim: two-dim.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/two-dim two-dim.c $(LDFLAGS)
+
 first_f: first_f.f90
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/first_f first_f.f90 $(FLDFLAGS)
 
