@@ -37,7 +37,6 @@
         call ADCL_Request_start( request, ierror )
         call check_data_1D ( data, rank, size, dims, hwidth )
 
-#if 0
         call ADCL_Request_free ( request, ierror )
         call ADCL_Vector_deregister ( vec, ierror )
 
@@ -100,7 +99,7 @@
 
         call ADCL_Request_free ( request, ierror )
         call ADCL_Vector_deregister ( vec, ierror )
-#endif
+
 !.......done
         call ADCL_Topology_free ( topo, ierror )
         call MPI_Comm_free ( cart_comm, ierror )
@@ -109,7 +108,9 @@
         call MPI_Finalize ( ierror )
       end program first
 
-
+!****************************************************************************
+!****************************************************************************
+!****************************************************************************
 
       subroutine set_data_1D ( data, rank, dim, hwidth )
 
@@ -134,6 +135,10 @@
 
         return
       end subroutine set_data_1D
+
+!****************************************************************************
+!****************************************************************************
+!****************************************************************************
 
       subroutine set_data_2D ( data, rank, dim1, dim2, hwidth, nc )
 
@@ -165,6 +170,9 @@
         return
       end subroutine set_data_2D
 
+!****************************************************************************
+!****************************************************************************
+!****************************************************************************
       subroutine check_data_1D ( data, rank, size, dim, hwidth ) 
 
         implicit none
@@ -172,10 +180,64 @@
 
         double precision data(*)
         integer rank, size, dim, hwidth
+        integer lres, gres, i, ierr
+        
+        lres = 1
+
+        if ( rank .eq. 0 ) then
+           do i=1,hwidth
+              if ( data(i) .ne. -1 ) then
+                 lres = 0
+              end if
+           end do
+        else 
+           do i=1,hwidth
+              if ( data(i) .ne. rank-1 ) then
+                 lres = 0
+              end if
+           end do
+        end if
+
+        do i = hwidth+1, dim-hwidth
+           if ( data(i) .ne. rank ) then
+              lres = 0
+           end if
+        end do
+        
+        if ( rank .eq. size-1 ) then
+           do i = dim-hwidth+1, dim
+              if ( data(i) .ne. -1 ) then
+                 lres = 1
+              end if
+           end do
+        else
+           do i = dim-hwidth+1, dim
+              if ( data(i) .ne. rank+1 ) then
+                 lres = 1
+              end if
+           end do
+        end if
+
+        call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierr)
+        if ( gres .eq. 0 ) then
+           call dump_vector_1D ( data, rank, dim )
+           if ( rank .eq. 0 ) then
+              write (*,*) '1-D Fortran testsuite hwidth =', hwidth, &
+                   'nc =',0, 'failed'  
+           end if
+        else
+           if ( rank .eq. 0 ) then
+              write (*,*) '1-D Fortran testsuite hwidth =', hwidth, &
+                   'nc =',0,'passed'  
+           end if
+        end if
 
         return
       end subroutine check_data_1D
 
+!****************************************************************************
+!****************************************************************************
+!****************************************************************************
       subroutine check_data_2D ( data, rank, size, dim1, dim2, hwidth, nc ) 
 
         implicit none
@@ -183,11 +245,77 @@
 
         double precision data(dim1,dim2)
         integer rank, size, dim1, dim2, hwidth, nc
+        integer lres, gres, i, j, ierr
+        
+        lres = 1
+        
+
+        if ( rank .eq. 0 ) then
+           do i=1,hwidth
+              do j = 1, nc
+                 if ( data(i,j) .ne. -1 ) then
+                    lres = 0
+                 end if
+              end do
+           end do
+        else
+           do i=1,hwidth
+              do j = 1, nc
+                 if ( data(i,j) .ne. rank-1 ) then
+                    lres = 0
+                 end if
+              end do
+           end do
+        end if
+
+        do i = hwidth+1, dim1-hwidth
+           do j = 1, nc
+              if ( data(i,j) .ne. rank ) then
+                 lres = 0
+              end if
+           end do
+        end do
+        
+        if ( rank .eq. size-1 ) then
+           do i = dim1-hwidth+1, dim1
+              do j = 1, nc
+                 if ( data(i, j) .ne. -1 ) then
+                    lres = 0
+                 end if
+              end do
+           end do
+        else
+           do i = dim1-hwidth+1, dim1
+              do j = 1, nc
+                 if ( data(i, j) .ne. rank+1 ) then
+                    lres = 0
+                 end if
+              end do
+           end do
+        end if
+
+        call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierr)
+        if ( gres .eq. 0 ) then
+           call dump_vector_2D ( data, rank, dim1, dim2 )
+           if ( rank .eq. 0 ) then
+              write (*,*) '1-D Fortran testsuite hwidth =', hwidth, &
+                   'nc = ', nc, 'failed'  
+           end if
+        else
+           if ( rank .eq. 0 ) then
+              write (*,*) '1-D Fortran testsuite hwidth =', hwidth, &
+                   'nc =', nc, 'passed'  
+           end if
+        end if
+
 
         return
       end subroutine check_data_2D
 
 
+!****************************************************************************
+!****************************************************************************
+!****************************************************************************
       subroutine dump_vector_1D ( data, rank, dim )
 
         implicit none
@@ -201,6 +329,9 @@
         return
       end subroutine dump_vector_1D
 
+!****************************************************************************
+!****************************************************************************
+!****************************************************************************
       subroutine dump_vector_2D ( data, rank, dim1, dim2 )
 
         implicit none

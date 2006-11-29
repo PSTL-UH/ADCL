@@ -219,13 +219,13 @@ static void check_data_3D ( double ***data, int rank, int *dim,
     MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
     if ( gres == 1 ) {
 	if ( rank == 0 ) {
-	    printf("2-D testsuite: hwidth=%d, nc=%d result is correct\n", 
+	    printf("2-D testsuite: hwidth = %d, nc = %d passed\n", 
 		   hwidth, nc);
 	}
     }
     else {
 	if ( rank == 0 ) {
-	    printf("2-D testsuite: hwidth=%d, nc=%d result is wrong\n", 
+	    printf("2-D testsuite: hwidth = %d, nc = %d failed\n", 
 		   hwidth, nc);
 	}
 	dump_vector_3D ( data, rank, dim, nc);
@@ -292,13 +292,13 @@ static void check_data_2D ( double **data, int rank, int *dim, int hwidth,
     MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
     if ( gres == 1 ) {
 	if ( rank == 0 ) {
-	    printf("2-D testsuite: hwidth=%d, nc=0 result is correct\n", 
+	    printf("2-D C testsuite: hwidth = %d, nc = 0 passed\n", 
 		   hwidth );
 	}
     }
     else {
 	if ( rank == 0 ) {
-	    printf("2-D testsuite: hwidth=%d, nc=0 result is wrong\n",
+	    printf("2-D C testsuite: hwidth = %d, nc = 0 failed\n",
 		   hwidth);
 	}
 	dump_vector_2D ( data, rank, dim );
