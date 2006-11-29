@@ -58,8 +58,8 @@ int ADCL_subarray_init ( int topodims, int vecndims, int *vecdims,
 		    }
 		    else {
 			subdims[k] = vecdims[k]- 2*hwidth;
-			sstarts[k] = 1;
-			rstarts[k] = 1;
+			sstarts[k] = hwidth;
+			rstarts[k] = hwidth;
 		    }
 		}
 		subdims[vecndims-1] = nc;
@@ -75,8 +75,8 @@ int ADCL_subarray_init ( int topodims, int vecndims, int *vecdims,
 		    }
 		    else {
 			subdims[k] = vecdims[k]- 2*hwidth;
-			sstarts[k] = 1;
-			rstarts[k] = 1;
+			sstarts[k] = hwidth;
+			rstarts[k] = hwidth;
 		    }
 		}
 	    }
