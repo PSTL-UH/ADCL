@@ -139,10 +139,10 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order,
         for ( j = 0; j<2; j++ ) {
 	    for ( k=0; k< vecdim[0]-2*hwidth; k++ ) {
 	        blength[k] = baselen;
-		sdispls[k] = (j == 0 ) ? hwidth*basedisp+k*basedisp+basewidth: 
-		                         vecdim[1]-2*basewidth+k*basedisp;
-		rdispls[k] = (j == 0 ) ? hwidth*basedisp+k*basedisp : 
-		                         vecdim[1]-basewidth+k*basedisp;
+		sdispls[k] = (j == 0 ) ? (hwidth+k)*basedisp+basewidth: 
+		                         (hwidth+k+1)*basedisp - 2*basewidth;
+		rdispls[k] = (j == 0 ) ? (hwidth+k)*basedisp : 
+		                         (hwidth+k+1)*basedisp - basewidth;
 	    }
 	    MPI_Type_indexed ( k, blength, sdispls, MPI_DOUBLE, &(sdats[2+j]));
 	    MPI_Type_indexed ( k, blength, rdispls, MPI_DOUBLE, &(rdats[2+j]));
