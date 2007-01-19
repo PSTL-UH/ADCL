@@ -38,7 +38,7 @@ int ATF_Display_Result()
   dim[0] = ATF_dim[0]+2;
   dim[1] = ATF_dim[1]+2;
   dim[2] = ATF_dim[2]+2;
-  dim[3] = ATF_dim[3]+2;
+  dim[3] = 1; 
 
   ATF_allocate_4D_double_matrix(&tmp_vect,dim);
   ATF_allocate_4D_double_matrix(&tmp_vect_2,dim);
