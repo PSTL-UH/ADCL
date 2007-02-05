@@ -21,6 +21,7 @@ all:
 	cd src/communication ; make 
 	cd src/adcl/C ; make all 
 	cd src/adcl/f90 ; make all 
+	cd utils ; make all 
 
 clean:
 	cd src/framework ; make clean
@@ -28,6 +29,7 @@ clean:
 	cd src/communication ; make clean
 	cd src/adcl/C ; make clean 
 	cd src/adcl/f90 ; make clean 
+	cd utils ; make clean
 	rm -rf *~ ./include/*~ 
 	rm -rf ./lib/libadcl.a
 
