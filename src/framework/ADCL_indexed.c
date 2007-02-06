@@ -154,45 +154,50 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order,
     }
     else {
         /* MPI_ORDER_FORTRAN */
-        /* Dimension 0 */
-        int l, m;
-	
-        baselen  = hwidth;
-        basedisp = vecdim[0];
-	
+	int l, cnt;
+
+	/* Dimension 0 */
+        baselen    = hwidth;
+	basedisp   = vecdim[0];
+	baseoffset = vecdim[0]*vecdim[1]; 
+
+	limit = ( nc < 2) ? 1: nc;
+ 
         for ( j = 0; j<2; j++ ) {
-	    for ( k=0; k< vecdim[0]-2*hwidth; k++ ) {
+	    for ( cnt=0, l=0; l < limit; l++) {
+		for ( k=0; k < (vecdim[1]-2*hwidth); k++, cnt++ ) {
+		    blength[cnt] = baselen;
+		    sdispls[cnt] = (j==0) ? (hwidth + k )* basedisp + hwidth : 
+			(hwidth+k)*basedisp + (vecdim[0] - 2*hwidth);
+		    rdispls[cnt] = (j==0) ? (hwidth+k) * basedisp : 
+			(hwidth+k)*basedisp + (vecdim[0]-hwidth);
+		}
+	    }
+	    MPI_Type_indexed ( cnt, blength, sdispls, MPI_DOUBLE, &(sdats[j]));
+	    MPI_Type_indexed ( cnt, blength, rdispls, MPI_DOUBLE, &(rdats[j]));
+	    MPI_Type_commit ( &(sdats[j]) );
+	    MPI_Type_commit ( &(rdats[j]) );
+	    
+	}
+
+
+        /* Dimension 1 */
+	
+        baselen  = vecdim[0]-2*hwidth;
+        basedisp = vecdim[0];
+
+        for ( j = 0; j<2; j++ ) {
+	    for ( k=0; k < hwidth; k++ ) {
 	        blength[k] = baselen;
-		sdispls[k] = (j == 0 ) ? (hwidth+k)*basedisp+basewidth: 
-		    (hwidth+k+1)*basedisp - 2*basewidth;
-		rdispls[k] = (j == 0 ) ? (hwidth+k)*basedisp : 
-		    (hwidth+k+1)*basedisp - basewidth;
+		sdispls[k] = (j == 0 ) ? (hwidth+k)*basedisp+hwidth: 
+		    (vecdim[1]-2*hwidth+k)*basedisp + hwidth ;
+		rdispls[k] = (j == 0 ) ? hwidth+k*basedisp : 
+		    (vecdim[1]- hwidth +k)*basedisp + hwidth ;
 	    }
 	    MPI_Type_indexed ( k, blength, sdispls, MPI_DOUBLE, &(sdats[2+j]));
 	    MPI_Type_indexed ( k, blength, rdispls, MPI_DOUBLE, &(rdats[2+j]));
 	    MPI_Type_commit ( &(sdats[2+j]) );
 	    MPI_Type_commit ( &(rdats[2+j]) );
-	}
-	
-	/* Dimension 1 */
-        baselen   =  (nc < 1 ) ? 1 : nc;
-	
-        for ( j = 0; j<2; j++ ) {
-	    for ( m=0, l=0; l<baselen; l++ ) {
-	        basedisp = l * vecdim[0]*vecdim[1];
-	        for ( k=0; k<hwidth; k++, m++ ) {
-		    blength[m] = vecdim[0] - 2*hwidth;
-	            sdispls[m] = (j==0) ? basedisp + (k+hwidth)*vecdim[0] + hwidth : 
-			basedisp + (vecdim[1]-2*hwidth+k)*vecdim[0] + hwidth;
-	            rdispls[m] = (j==0) ? basedisp + k*vecdim[0]+hwidth : 
-			basedisp + (vecdim[1]-hwidth+k)*vecdim[0]  + hwidth;
-		}
-		MPI_Type_indexed ( m, blength, sdispls, MPI_DOUBLE, &(sdats[2+j]));
-		MPI_Type_indexed ( m, blength, rdispls, MPI_DOUBLE, &(rdats[2+j]));
-		MPI_Type_commit ( &(sdats[2+j]) );
-		MPI_Type_commit ( &(rdats[2+j]) );
-	    }
-	    
 	}
 
     }

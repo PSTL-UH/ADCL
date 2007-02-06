@@ -79,9 +79,8 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
 				     &(newreq->r_sdats), 
 				     &(newreq->r_rdats) );
     }
-    else if ( MPI_ORDER_C == order && 
-	      ((vec->v_ndims == 2 && vec->v_nc == 0) ||
-	       (vec->v_ndims == 3 && vec->v_nc > 0 ))) {
+    else if ( (vec->v_ndims == 2 && vec->v_nc == 0) ||
+	      (vec->v_ndims == 3 && vec->v_nc > 0 )) {
 	ret = ADCL_indexed_2D_init ( vec->v_dims,
 				     vec->v_hwidth,
 				     vec->v_nc, 
