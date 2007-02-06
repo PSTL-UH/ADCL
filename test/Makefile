@@ -1,6 +1,6 @@
 include ../Makefile.defs
 
-all: first second third fourth one-dim first_f second_f
+all: first second third fourth one-dim two-dim one-dim-f two-dim-f first_f second_f
 
 first: 	first.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/first first.c $(LDFLAGS) 

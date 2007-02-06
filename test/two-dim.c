@@ -219,13 +219,13 @@ static void check_data_3D ( double ***data, int rank, int *dim,
     MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
     if ( gres == 1 ) {
 	if ( rank == 0 ) {
-	    printf("2-D testsuite: hwidth = %d, nc = %d passed\n", 
+	    printf("2-D C testsuite: hwidth = %d, nc = %d passed\n", 
 		   hwidth, nc);
 	}
     }
     else {
 	if ( rank == 0 ) {
-	    printf("2-D testsuite: hwidth = %d, nc = %d failed\n", 
+	    printf("2-D C testsuite: hwidth = %d, nc = %d failed\n", 
 		   hwidth, nc);
 	}
 	dump_vector_3D ( data, rank, dim, nc);
