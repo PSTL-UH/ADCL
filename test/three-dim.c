@@ -407,7 +407,7 @@ static void set_data_3D ( double ***data, int rank, int *dim, int hwidth )
     }
 
     for (i=0; i<dim[0]; i++ ) {
-	for (k=0; j<dim[2]; k++ ){
+	for (k=0; k<dim[2]; k++ ){
 	    for (j=0; j<hwidth; j++ ){
 		data[i][j][k] = -1;
 	    }
@@ -418,11 +418,11 @@ static void set_data_3D ( double ***data, int rank, int *dim, int hwidth )
     }
 
     for (j=0; j<dim[1]; j++ ) {
-	for (k=0; j<dim[2]; k++ ){
+	for (k=0; k<dim[2]; k++ ){
 	    for (i=0; i<hwidth; i++ ){
 		data[i][j][k] = -1;
 	    }
-	    for (i=dim[0]-hwidth; j<dim[0]; j++ ) {
+	    for (i=dim[0]-hwidth; i<dim[0]; i++ ) {
 		data[i][j][k] = -1;
 	    }
 	}
@@ -462,7 +462,7 @@ static void set_data_4D ( double ****data, int rank, int *dim, int hwidth, int n
     }
 
     for (i=0; i<dim[0]; i++ ) {
-	for (k=0; j<dim[2]; k++ ){
+	for (k=0; k<dim[2]; k++ ){
 	    for (j=0; j<hwidth; j++ ){
 		for (l=0; l<nc; l++ ) {
 		    data[i][j][k][l] = -1;
@@ -477,13 +477,13 @@ static void set_data_4D ( double ****data, int rank, int *dim, int hwidth, int n
     }
 
     for (j=0; j<dim[1]; j++ ) {
-	for (k=0; j<dim[2]; k++ ){
+	for (k=0; k<dim[2]; k++ ){
 	    for (i=0; i<hwidth; i++ ){
 		for (l=0; l<nc; l++ ) {
 		    data[i][j][k][l] = -1;
 		}
 	    }
-	    for (i=dim[0]-hwidth; j<dim[0]; j++ ) {
+	    for (i=dim[0]-hwidth; i<dim[0]; i++ ) {
 		for (l=0; l<nc; l++ ) {
 		    data[i][j][k][l] = -1;
 		}
