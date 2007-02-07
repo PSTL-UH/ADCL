@@ -154,7 +154,7 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order,
     }
     else {
         /* MPI_ORDER_FORTRAN */
-	int l, cnt;
+	int l, cnt, limit, baseoffset;
 
 	/* Dimension 0 */
         baselen    = hwidth;
@@ -167,10 +167,10 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order,
 	    for ( cnt=0, l=0; l < limit; l++) {
 		for ( k=0; k < (vecdim[1]-2*hwidth); k++, cnt++ ) {
 		    blength[cnt] = baselen;
-		    sdispls[cnt] = (j==0) ? (hwidth + k )* basedisp + hwidth : 
-			(hwidth+k)*basedisp + (vecdim[0] - 2*hwidth);
-		    rdispls[cnt] = (j==0) ? (hwidth+k) * basedisp : 
-			(hwidth+k)*basedisp + (vecdim[0]-hwidth);
+		    sdispls[cnt] = (j==0) ? l*baseoffset + (hwidth+k)*basedisp + hwidth : 
+			l*baseoffset+(hwidth+k)*basedisp + (vecdim[0] - 2*hwidth);
+		    rdispls[cnt] = (j==0) ? l*baseoffset+(hwidth+k)*basedisp : 
+			l*baseoffset+(hwidth+k)*basedisp + (vecdim[0]-hwidth);
 		}
 	    }
 	    MPI_Type_indexed ( cnt, blength, sdispls, MPI_DOUBLE, &(sdats[j]));
