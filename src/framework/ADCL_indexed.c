@@ -269,8 +269,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,
 		rdisps[count]   = dist_4D_C( i, j, hwidth, 0, vecdim, nc);
 	    }
 	}
-	MPI_Type_indexed ( count-1, countarr, sdisps, MPI_DOUBLE, &sdats[0]);
-    	MPI_Type_indexed ( count-1, countarr, rdisps, MPI_DOUBLE, &rdats[0]);
+	MPI_Type_indexed ( count, countarr, sdisps, MPI_DOUBLE, &sdats[0]);
+    	MPI_Type_indexed ( count, countarr, rdisps, MPI_DOUBLE, &rdats[0]);
 	MPI_Type_commit ( &sdats[0] );
 	MPI_Type_commit ( &rdats[0] );
 	
@@ -282,8 +282,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,
 		rdisps[count]   = dist_4D_C( vecdim[0]-hwidth+i, j, hwidth, 0, vecdim, nc);
 	    }
 	}
-	MPI_Type_indexed ( count-1, countarr, sdisps, MPI_DOUBLE, &sdats[1]);
-    	MPI_Type_indexed ( count-1, countarr, rdisps, MPI_DOUBLE, &rdats[1]);
+	MPI_Type_indexed ( count, countarr, sdisps, MPI_DOUBLE, &sdats[1]);
+    	MPI_Type_indexed ( count, countarr, rdisps, MPI_DOUBLE, &rdats[1]);
 	MPI_Type_commit ( &sdats[1] );
 	MPI_Type_commit ( &rdats[1] );
 	
@@ -295,8 +295,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,
 		rdisps[count] = dist_4D_C( i, j, hwidth, 0, vecdim, nc );
 	    }
 	}
-	MPI_Type_indexed ( count-1, countarr, sdisps, MPI_DOUBLE, &sdats[2]);
-	MPI_Type_indexed ( count-1, countarr, rdisps, MPI_DOUBLE, &rdats[2]);
+	MPI_Type_indexed ( count, countarr, sdisps, MPI_DOUBLE, &sdats[2]);
+	MPI_Type_indexed ( count, countarr, rdisps, MPI_DOUBLE, &rdats[2]);
 	MPI_Type_commit ( &rdats[2]);
 	MPI_Type_commit ( &sdats[2]);
 	
@@ -308,8 +308,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,
 		rdisps[count] = dist_4D_C( i, vecdim[1]-hwidth+j, hwidth, 0, vecdim, nc );
 	    }
 	}
-	MPI_Type_indexed ( count-1, countarr, sdisps, MPI_DOUBLE, &sdats[3]);
-	MPI_Type_indexed ( count-1, countarr, rdisps, MPI_DOUBLE, &rdats[3]);
+	MPI_Type_indexed ( count, countarr, sdisps, MPI_DOUBLE, &sdats[3]);
+	MPI_Type_indexed ( count, countarr, rdisps, MPI_DOUBLE, &rdats[3]);
 	MPI_Type_commit ( &rdats[3]);
 	MPI_Type_commit ( &sdats[3]);
 	
@@ -321,8 +321,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,
 		rdisps[count]  = dist_4D_C( i, j, 0, 0, vecdim, nc );
 	    }
 	}
-	MPI_Type_indexed ( count-1, countarr, sdisps, MPI_DOUBLE, &sdats[4]);
-	MPI_Type_indexed ( count-1, countarr, rdisps, MPI_DOUBLE, &rdats[4]);
+	MPI_Type_indexed ( count, countarr, sdisps, MPI_DOUBLE, &sdats[4]);
+	MPI_Type_indexed ( count, countarr, rdisps, MPI_DOUBLE, &rdats[4]);
 	MPI_Type_commit ( &sdats[4]);
 	MPI_Type_commit ( &rdats[4]);
 	
@@ -334,8 +334,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,
 		rdisps[count]  = dist_4D_C( i, j, vecdim[2]-hwidth, 0, vecdim, nc );
 	    }
 	}
-	MPI_Type_indexed ( count-1, countarr, sdisps, MPI_DOUBLE, &sdats[5]);
-	MPI_Type_indexed ( count-1, countarr, rdisps, MPI_DOUBLE, &rdats[5]);
+	MPI_Type_indexed ( count, countarr, sdisps, MPI_DOUBLE, &sdats[5]);
+	MPI_Type_indexed ( count, countarr, rdisps, MPI_DOUBLE, &rdats[5]);
 	MPI_Type_commit ( &sdats[5]);
 	MPI_Type_commit ( &rdats[5]);
     }

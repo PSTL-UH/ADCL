@@ -97,7 +97,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
 				     order, 
 				     &(newreq->r_sdats), 
 				     &(newreq->r_rdats) );
-    }    
+    }   
     else {
 	ret = ADCL_subarray_init ( newreq->r_nneighbors/2, 
 				   vec->v_ndims, 
