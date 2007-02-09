@@ -49,6 +49,7 @@ int main ( int argc, char ** argv )
     MPI_Cart_shift ( cart_comm, 1, 1, &(neighbors[2]), &(neighbors[3]));
     MPI_Cart_shift ( cart_comm, 2, 1, &(neighbors[4]), &(neighbors[5]));
 
+
     /* Initiate the ADCL library and register a topology object with ADCL */
     ADCL_Init ();
     ADCL_Topology_create ( cart_comm, &topo );
@@ -72,6 +73,7 @@ int main ( int argc, char ** argv )
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
+
 
     /**********************************************************************/
     /* Test 2: hwidth=2, nc=0 */
@@ -154,6 +156,7 @@ int main ( int argc, char ** argv )
     ADCL_Vector_free ( &vec );
 
     /**********************************************************************/
+
     ADCL_Topology_free ( &topo );
     MPI_Comm_free ( &cart_comm );
     
@@ -297,6 +300,8 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for ( i=0; i<hwidth; i++ ) {
 		if ( data[i][j][k] != should_be ){
 		    lres = 0;
+		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
+			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -308,6 +313,8 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for ( i=dim[0]-hwidth; i<dim[0]; i++ ) {
 		if ( data[i][j][k] != should_be ) {
 		    lres = 0;
+		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
+			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -319,6 +326,8 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (j=0; j<hwidth; j++ ){
 		if ( data[i][j][k] != should_be ) {
 		    lres = 0;
+		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
+			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -330,6 +339,8 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (j=dim[1]-hwidth; j<dim[1]; j++ ) {
 		if ( data[i][j][k] != should_be) {
 		    lres = 0;
+		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
+			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -342,6 +353,8 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (k=0; k<hwidth; k++ ) {
 		if ( data[i][j][k] != should_be ) {
 		    lres = 0;
+		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
+			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -353,6 +366,8 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (k=dim[2]-hwidth; k<dim[2]; k++ ) {
 		if ( data[i][j][k] != should_be) {
 		    lres = 0;
+		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
+			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -364,6 +379,8 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (k=hwidth; k<dim[2]-hwidth; k++ ){
 		if ( data[i][j][k] != rank ) {
 		    lres = 0;
+		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
+			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}

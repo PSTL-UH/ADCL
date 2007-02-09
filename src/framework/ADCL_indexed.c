@@ -288,8 +288,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,
 	MPI_Type_commit ( &rdats[1] );
 	
 	/* Set the send and recv derived datatypes for the lower end of the y-direction */
-	for ( count=0, i=hwidth; i < (vecdim[0]-hwidth); i++, count++ ) {
-	    for ( j=0; j<hwidth; j++ ) {
+	for ( count=0, i=hwidth; i < (vecdim[0]-hwidth); i++) {
+	    for ( j=0; j<hwidth; j++, count++ ) {
 		countarr[count] = (vecdim[2]-2*hwidth) * nc;
 		sdisps[count] = dist_4D_C( i, hwidth+j, hwidth, 0, vecdim, nc );
 		rdisps[count] = dist_4D_C( i, j, hwidth, 0, vecdim, nc );
@@ -301,8 +301,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,
 	MPI_Type_commit ( &sdats[2]);
 	
 	/* Set the send and recv derived datatypes for the lower end of the y-direction */
-	for ( count=0, i=hwidth; i < (vecdim[0]-hwidth); i++, count++ ) {
-	    for ( j=0; j<hwidth; j++ ) {
+	for ( count=0, i=hwidth; i < (vecdim[0]-hwidth); i++ ) {
+	    for ( j=0; j<hwidth; j++, count++ ) {
 		countarr[count] = (vecdim[2]-2*hwidth) * nc;
 		sdisps[count] = dist_4D_C( i, vecdim[1]-2*hwidth+j, hwidth, 0, vecdim, nc );
 		rdisps[count] = dist_4D_C( i, vecdim[1]-hwidth+j, hwidth, 0, vecdim, nc );
