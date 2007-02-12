@@ -1,7 +1,7 @@
 #include "ADCL_internal.h"
 
 int ADCL_subarray_init ( int topodims, int vecndims, int *vecdims, 
-			 int hwidth, int nc, int order,  
+			 int hwidth, int nc, int order, MPI_Datatype btype, 
 			 MPI_Datatype **senddats, MPI_Datatype **recvdats)
 {
     int i, j, k;
@@ -81,9 +81,9 @@ int ADCL_subarray_init ( int topodims, int vecndims, int *vecdims,
 		}
 	    }
 	    MPI_Type_create_subarray ( vecndims, vecdims, subdims, sstarts,
-				       order, MPI_DOUBLE, &(sdats[j]));
+				       order, btype, &(sdats[j]));
 	    MPI_Type_create_subarray ( vecndims, vecdims, subdims, rstarts,
-				       order, MPI_DOUBLE, &(rdats[j]));
+				       order, btype, &(rdats[j]));
 	    MPI_Type_commit ( &(sdats[j]));
 	    MPI_Type_commit ( &(rdats[j]));
 	}

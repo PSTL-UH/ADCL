@@ -75,6 +75,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
 	ret = ADCL_indexed_1D_init ( vec->v_dims[0],
 				     vec->v_hwidth,
 				     vec->v_nc, 
+				     vec->v_dat,
 				     order, 
 				     &(newreq->r_sdats), 
 				     &(newreq->r_rdats) );
@@ -85,6 +86,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
 				     vec->v_hwidth,
 				     vec->v_nc, 
 				     order, 
+				     vec->v_dat,
 				     &(newreq->r_sdats), 
 				     &(newreq->r_rdats) );
     }
@@ -95,6 +97,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
 				     vec->v_hwidth,
 				     vec->v_nc, 
 				     order, 
+				     vec->v_dat,
 				     &(newreq->r_sdats), 
 				     &(newreq->r_rdats) );
     }   
@@ -105,6 +108,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
 				   vec->v_hwidth, 
 				   vec->v_nc,
 				   order, 
+				   vec->v_dat,
 				   &(newreq->r_sdats), 
 				   &(newreq->r_rdats ) );
     }
