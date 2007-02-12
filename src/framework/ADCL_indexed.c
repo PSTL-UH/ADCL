@@ -233,7 +233,7 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
 int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datatype btype,
 			   MPI_Datatype **senddats, MPI_Datatype **recvdats)
 {
-    int i, j, maxdim;
+    int i, j, k,  maxdim;
     int ret = ADCL_SUCCESS;
     int *countarr, count;
     int *sdisps=NULL, *rdisps=NULL;
@@ -340,7 +340,99 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
 	MPI_Type_commit ( &rdats[5]);
     }
     else {
-      /* MPI_ORDER_FORTRAN */
+	/* MPI_ORDER_FORTRAN */
+	if ( nc < 2 ) nc = 1;
+
+	/* Set the send and recv derived datatype for the lower end of x-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( j=hwidth; j<vecdim[2]-hwidth; j++ ) {
+		for ( k=hwidth; k<(vecdim[1]-hwidth); k++, count++ ) {
+		    countarr[count]  = hwidth;
+		    sdisps[count]   = dist_4D_Fortran( hwidth, j, k, i, vecdim, nc);
+		    rdisps[count]   = dist_4D_Fortran( 0, j, k, i, vecdim, nc);
+		}
+	    }
+	}
+	MPI_Type_indexed ( count, countarr, sdisps, btype, &sdats[0]);
+    	MPI_Type_indexed ( count, countarr, rdisps, btype, &rdats[0]);
+	MPI_Type_commit ( &sdats[0] );
+	MPI_Type_commit ( &rdats[0] );
+
+	/* Set the send and recv derived datatype for the upper end of x-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( j=hwidth; j<vecdim[2]-hwidth; j++ ) {
+		for ( k=hwidth; k<(vecdim[1]-hwidth); k++, count++ ) {
+		    countarr[count]  = hwidth;
+		    sdisps[count]   = dist_4D_Fortran( vecdim[0]-2*hwidth, j, k, i, vecdim, nc);
+		    rdisps[count]   = dist_4D_Fortran( vecdim[0]-hwidth, j, k, i, vecdim, nc);
+		}
+	    }
+	}
+	MPI_Type_indexed ( count, countarr, sdisps, btype, &sdats[1]);
+    	MPI_Type_indexed ( count, countarr, rdisps, btype, &rdats[1]);
+	MPI_Type_commit ( &sdats[1] );
+	MPI_Type_commit ( &rdats[1] );
+
+	/* Set the send and recv derived datatype for the lower end of y-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( j=hwidth; j<(vecdim[2]-hwidth); j++ ) {
+		for ( k=0; k<hwidth; k++, count++ ) {
+		    countarr[count]  = vecdim[0]-2*hwidth;
+		    sdisps[count]   = dist_4D_Fortran( hwidth, hwidth+k, j, i, vecdim, nc);
+		    rdisps[count]   = dist_4D_Fortran( hwidth, k, j, i, vecdim, nc);
+		}
+	    }
+	}
+	MPI_Type_indexed ( count, countarr, sdisps, btype, &sdats[2]);
+    	MPI_Type_indexed ( count, countarr, rdisps, btype, &rdats[2]);
+	MPI_Type_commit ( &sdats[2] );
+	MPI_Type_commit ( &rdats[2] );
+
+	/* Set the send and recv derived datatype for the upper end of y-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( j=hwidth; j<(vecdim[2]-hwidth); j++ ) {
+		for ( k=0; k<hwidth; k++, count++ ) {
+		    countarr[count]  = vecdim[0]-2*hwidth;
+		    sdisps[count]   = dist_4D_Fortran( hwidth, vecdim[1]-2*hwidth+k, j, i, vecdim, nc);
+		    rdisps[count]   = dist_4D_Fortran( hwidth, vecdim[1]-hwidth+k, j, i, vecdim, nc);
+		}
+	    }
+	}
+	MPI_Type_indexed ( count, countarr, sdisps, btype, &sdats[3]);
+    	MPI_Type_indexed ( count, countarr, rdisps, btype, &rdats[3]);
+	MPI_Type_commit ( &sdats[3] );
+	MPI_Type_commit ( &rdats[3] );
+
+
+	/* Set the send and recv derived datatype for the lower end of z-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( j=hwidth; j<(vecdim[1]-hwidth); j++ ) {
+		for ( k=0; k<hwidth; k++, count++ ) {
+		    countarr[count]  = vecdim[0]-2*hwidth;
+		    sdisps[count]   = dist_4D_Fortran( hwidth, j, hwidth+k, i, vecdim, nc);
+		    rdisps[count]   = dist_4D_Fortran( hwidth, j, k, i, vecdim, nc);
+		}
+	    }
+	}
+	MPI_Type_indexed ( count, countarr, sdisps, btype, &sdats[4]);
+    	MPI_Type_indexed ( count, countarr, rdisps, btype, &rdats[4]);
+	MPI_Type_commit ( &sdats[4] );
+	MPI_Type_commit ( &rdats[4] );
+
+	/* Set the send and recv derived datatype for the upper end of z-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( j=hwidth; j<(vecdim[1]-hwidth); j++ ) {
+		for ( k=0; k<hwidth; k++, count++ ) {
+		    countarr[count]  = vecdim[0]-2*hwidth;
+		    sdisps[count]   = dist_4D_Fortran( hwidth, j, vecdim[2]-2*hwidth+k, i, vecdim, nc);
+		    rdisps[count]   = dist_4D_Fortran( hwidth, j, vecdim[2]-hwidth+k, i, vecdim, nc);
+		}
+	    }
+	}
+	MPI_Type_indexed ( count, countarr, sdisps, btype, &sdats[5]);
+    	MPI_Type_indexed ( count, countarr, rdisps, btype, &rdats[5]);
+	MPI_Type_commit ( &sdats[5] );
+	MPI_Type_commit ( &rdats[5] );
 
     }
 
