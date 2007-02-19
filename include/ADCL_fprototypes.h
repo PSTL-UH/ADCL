@@ -4,6 +4,8 @@
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
+
+/* ADCL environment functions */
 void adcl_init   ( int *ierror );
 void adcl_init_  ( int *ierror );
 void adcl_init__ ( int *ierror );
@@ -15,6 +17,7 @@ void adcl_finalize__ ( int *ierror );
 void ADCL_FINALIZE   ( int *ierror );
 
 
+/* ADCL attribute and attribute set functions */
 void adcl_attribute_create   ( int* maxnvalues, int *array_of_values, 
 			       int *attr, int *ierr );
 void adcl_attribute_create_  ( int* maxnvalues, int *array_of_values, 
@@ -44,6 +47,45 @@ void adcl_attrset_free__ ( int *attrset, int *ierr );
 void ADCL_ATTRSET_FREE   ( int *attrset, int *ierr );
 
 
+/* ADCL Functiongroup functions */
+void adcl_fnctgrp_create   ( int* maxnum, int *fctgrp, int *ierr );
+void adcl_fnctgrp_create_  ( int* maxnum, int *fctgrp, int *ierr );
+void adcl_fnctgrp_create__ ( int* maxnum, int *fctgrp, int *ierr );
+void ADCL_FNCTGRP_CREATE   ( int* maxnum, int *fctgrp, int *ierr );
+
+void adcl_fnctgrp_free   ( int *fctgrp, int *ierr );
+void adcl_fnctgrp_free_  ( int *fctgrp, int *ierr );
+void adcl_fnctgrp_free__ ( int *fctgrp, int *ierr );
+void ADCL_FNCTGRP_FREE   ( int *fctgrp, int *ierr );
+
+void adcl_fnctgrp_register_fnct   ( int *fctgrp, int *cnt, 
+				    void *fct, int *ierr );
+void adcl_fnctgrp_register_fnct_  ( int *fctgrp, int *cnt, 
+				    void *fct, int *ierr );
+void adcl_fnctgrp_register_fnct__ ( int *fctgrp, int *cnt, 
+				    void *fct, int *ierr );
+void ADCL_FNCTGRP_REGISTER_FNCT   ( int *fctgrp, int *cnt, 
+				    void *fct, int *ierr );
+
+
+void adcl_fnctgrp_register_fnct_and_attrset   ( int *fctgrp, int *cnt, 
+						void *fct, int *attrset, 
+						int *array_of_attrvalues, 
+						int *ierr );
+void adcl_fnctgrp_register_fnct_and_attrset_  ( int *fctgrp, int *cnt, 
+						void *fct, int *attrset, 
+						int *array_of_attrvalues, 
+						int *ierr );
+void adcl_fnctgrp_register_fnct_and_attrset__ ( int *fctgrp, int *cnt, 
+						void *fct, int *attrset, 
+						int *array_of_attrvalues, 
+						int *ierr );
+void ADCL_FNCTGRP_REGISTER_FNCT_AND_ATTRSET   ( int *fctgrp, int *cnt, 
+						void *fct, int *attrset, 
+						int *array_of_attrvalues, 
+						int *ierr );
+
+/* ADCL vector functions */
 
 void adcl_vector_register   ( int *ndims, int *dims, int *nc, int *hwidth, 
 			      int *dat, void *data, int *vec, int *ierror);
@@ -59,6 +101,8 @@ void adcl_vector_deregister_  ( int *vec, int *ierror );
 void adcl_vector_deregister__ ( int *vec, int *ierror );
 void ADCL_VECTOR_DEREGISTER   ( int *vec, int *ierror );
 
+
+/* ADCL Process topology functions */
 
 void adcl_topology_create_generic   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
 				      int *comm, int *topo, int *ierror );
@@ -78,6 +122,8 @@ void adcl_topology_free   (int *topo, int *ierror);
 void adcl_topology_free_  (int *topo, int *ierror);
 void adcl_topology_free__ (int *topo, int *ierror);
 void ADCL_TOPOLOGY_FREE   (int *topo, int *ierror);
+
+/* ADCL Request functions */
 
 void adcl_request_create   ( int *vec, int *topo, int *req, int *ierror ); 
 void adcl_request_create_  ( int *vec, int *topo, int *req, int *ierror ); 
@@ -104,24 +150,24 @@ void adcl_request_wait_  ( int *req, int *ierror );
 void adcl_request_wait__ ( int *req, int *ierror );
 void ADCL_REQUEST_WAIT   ( int *req, int *ierror );
 
-void adcl_request_start_overlap ( int *req, ADCL_work_fctn_ptr *mid,
-				  ADCL_work_fctn_ptr *end, 
-				  ADCL_work_fctn_ptr *total, 
+void adcl_request_start_overlap ( int *req, ADCL_work_fnct_ptr *mid,
+				  ADCL_work_fnct_ptr *end, 
+				  ADCL_work_fnct_ptr *total, 
 				  void *arg1, void* arg2, void* arg3, 
 				  int *ierror );
-void adcl_request_start_overlap_ ( int *req, ADCL_work_fctn_ptr *mid,
-				   ADCL_work_fctn_ptr *end, 
-				   ADCL_work_fctn_ptr *total, 
+void adcl_request_start_overlap_ ( int *req, ADCL_work_fnct_ptr *mid,
+				   ADCL_work_fnct_ptr *end, 
+				   ADCL_work_fnct_ptr *total, 
 				   void *arg1, void* arg2, void* arg3, 
 				   int *ierror );
-void adcl_request_start_overlap__ ( int *req, ADCL_work_fctn_ptr *mid,
-				    ADCL_work_fctn_ptr *end, 
-				    ADCL_work_fctn_ptr *total, 
+void adcl_request_start_overlap__ ( int *req, ADCL_work_fnct_ptr *mid,
+				    ADCL_work_fnct_ptr *end, 
+				    ADCL_work_fnct_ptr *total, 
 				    void *arg1, void* arg2, void* arg3, 
 				    int *ierror );
-void ADCL_REQUEST_START_OVERLAP   ( int *req, ADCL_work_fctn_ptr *mid,
-				    ADCL_work_fctn_ptr *end, 
-				    ADCL_work_fctn_ptr *total, 
+void ADCL_REQUEST_START_OVERLAP   ( int *req, ADCL_work_fnct_ptr *mid,
+				    ADCL_work_fnct_ptr *end, 
+				    ADCL_work_fnct_ptr *total, 
 				    void *arg1, void* arg2, void* arg3, 
 				    int *ierror );
 
