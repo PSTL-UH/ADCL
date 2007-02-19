@@ -78,9 +78,9 @@ int ADCL_Request_wait ( ADCL_Request req )
     return ret;
 }
 
-int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fctn_ptr* midfctn,
-				 ADCL_work_fctn_ptr *endfctn, 
-				 ADCL_work_fctn_ptr *totalfctn,
+int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
+				 ADCL_work_fnct_ptr *endfctn, 
+				 ADCL_work_fnct_ptr *totalfctn,
 				 void *arg1, void* arg2, void *arg3 )
 
 {
@@ -97,17 +97,17 @@ int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fctn_ptr* midfctn,
     }
     
     if ( db ) {
-	if ( ADCL_NULL_FCTN_PTR != midfctn ) {
-	    midfctn ( arg1, arg2, arg3 );
+	if ( ADCL_NULL_FNCT_PTR != midfctn ) {
+	    midfctn ( req, arg1, arg2, arg3 );
 	}
 	ret = ADCL_request_wait ( req );
-	if ( ADCL_NULL_FCTN_PTR != endfctn ) {
-	    endfctn ( arg1, arg2, arg3 );
+	if ( ADCL_NULL_FNCT_PTR != endfctn ) {
+	    endfctn ( req, arg1, arg2, arg3 );
 	}
     }
     else {
-	if ( ADCL_NULL_FCTN_PTR != endfctn ) {
-	    totalfctn(arg1, arg2, arg3 );
+	if ( ADCL_NULL_FNCT_PTR != endfctn ) {
+	    totalfctn (req, arg1, arg2, arg3 );
 	}
     }
     t2 = TIME;

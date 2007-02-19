@@ -93,9 +93,9 @@ void adcl_request_wait ( int *req, int *ierror )
     return;
 }
 
-void adcl_request_start_overlap ( int *req, ADCL_work_fctn_ptr *mid,
-				  ADCL_work_fctn_ptr *end, 
-				  ADCL_work_fctn_ptr *total, 
+void adcl_request_start_overlap ( int *req, ADCL_work_fnct_ptr *mid,
+				  ADCL_work_fnct_ptr *end, 
+				  ADCL_work_fnct_ptr *total, 
 				  void *arg1, void* arg2, void* arg3, 
 				  int *ierror )
 {

@@ -33,7 +33,7 @@
 #define ADCL_ATTRIBUTE_NULL (void*) -4
 #define ADCL_ATTRSET_NULL   (void*) -5
 #define ADCL_FNCTGRP_NULL   (void*) -6
-#define ADCL_NULL_FCTN_PTR  (void*) -7
+#define ADCL_NULL_FNCT_PTR  (void*) -7
 
 /* define the object types visible to the user */
 typedef struct ADCL_vector_s*    ADCL_Vector;
