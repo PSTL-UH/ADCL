@@ -93,6 +93,6 @@ int ADCL_topology_free ( ADCL_topology_t **topo)
 	free ( ttopo->t_neighbors );
     }
 
-    *topo = NULL;
+    *topo = ADCL_TOPOLOGY_NULL;
     return ADCL_SUCCESS;
 }

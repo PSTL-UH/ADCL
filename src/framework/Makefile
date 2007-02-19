@@ -1,19 +1,20 @@
 include ../../Makefile.defs
 
 
-OBJ = 	ADCL_vector.o           \
-	ADCL_array.o 		\
-	ADCL_method.o 		\
+OBJ = 	ADCL_array.o 		\
+	ADCL_attribute.o	\
 	ADCL_emethod.o 		\
+	ADCL_hypothesis.o       \
+	ADCL_indexed.o          \
+	ADCL_method.o 		\
+	ADCL_packunpack.o       \
+	ADCL_printf.o		\
+	ADCL_readenv.o          \
 	ADCL_request.o 		\
 	ADCL_statistics.o       \
 	ADCL_subarray.o         \
-	ADCL_indexed.o         \
-	ADCL_packunpack.o       \
-	ADCL_readenv.o          \
-	ADCL_hypothesis.o       \
 	ADCL_topology.o         \
-	ADCL_printf.o
+	ADCL_vector.o           
 
 .SUFFIXES: .o.c
 
