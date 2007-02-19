@@ -14,6 +14,37 @@ void adcl_finalize_  ( int *ierror );
 void adcl_finalize__ ( int *ierror );
 void ADCL_FINALIZE   ( int *ierror );
 
+
+void adcl_attribute_create   ( int* maxnvalues, int *array_of_values, 
+			       int *attr, int *ierr );
+void adcl_attribute_create_  ( int* maxnvalues, int *array_of_values, 
+			       int *attr, int *ierr );
+void adcl_attribute_create__ ( int* maxnvalues, int *array_of_values, 
+			     int *attr, int *ierr );
+void ADCL_ATTRIBUTE_CREATE   ( int* maxnvalues, int *array_of_values, 
+			       int *attr, int *ierr );
+
+void adcl_attribute_free    ( int *attr, int *ierr );
+void adcl_attribute_free_   ( int *attr, int *ierr );
+void adcl_attribute_free__  ( int *attr, int *ierr );
+void ADCL_ATTRIBUTE_FREE    ( int *attr, int *ierr );
+
+void adcl_attrset_create   ( int* maxnum, int *array_of_attributes, 
+			     int *attrset, int *ierr );
+void adcl_attrset_create_  ( int* maxnum, int *array_of_attributes, 
+			     int *attrset, int *ierr );
+void adcl_attrset_create__ ( int* maxnum, int *array_of_attributes, 
+			     int *attrset, int *ierr );
+void ADCL_ATTRSET_CREATE   ( int* maxnum, int *array_of_attributes, 
+			     int *attrset, int *ierr );
+
+void adcl_attrset_free   ( int *attrset, int *ierr );
+void adcl_attrset_free_  ( int *attrset, int *ierr );
+void adcl_attrset_free__ ( int *attrset, int *ierr );
+void ADCL_ATTRSET_FREE   ( int *attrset, int *ierr );
+
+
+
 void adcl_vector_register   ( int *ndims, int *dims, int *nc, int *hwidth, 
 			      int *dat, void *data, int *vec, int *ierror);
 void adcl_vector_register_  ( int *ndims, int *dims, int *nc, int *hwidth, 

@@ -237,7 +237,6 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
     int ret = ADCL_SUCCESS;
     int *countarr, count;
     int *sdisps=NULL, *rdisps=NULL;
-    MPI_Aint base=0;
     MPI_Datatype *sdats=NULL, *rdats=NULL;
 
     if ( nc > 1 ) {
@@ -436,24 +435,22 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
 
     }
 
- exit:
     if ( ADCL_SUCCESS != ret ) {
-      if ( NULL != sdats ) {
-	free ( sdats );
-      }
-      if ( NULL != rdats ) {
-	free ( rdats );
-      }
-
+	if ( NULL != sdats ) {
+	    free ( sdats );
+	}
+	if ( NULL != rdats ) {
+	    free ( rdats );
+	}
+	
     }
-
+    
     if ( NULL != countarr ) {
-      free ( countarr );
+	free ( countarr );
     }
     if ( NULL != sdisps ) {
-      free ( sdisps );
+	free ( sdisps );
     }
-
 		
 
     *senddats = sdats;
@@ -467,7 +464,7 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
 static int dist_4D_C ( int dim0, int dim1, int dim2, int dim3, 
 		       int vecdim[2], int nc)
 {
-    int distance=0, tmpdist;
+    int distance=0;
     
     distance = dim3+dim2*nc+dim1*vecdim[2]*nc;
     distance += dim0*nc*vecdim[2]*vecdim[1];
@@ -478,7 +475,7 @@ static int dist_4D_C ( int dim0, int dim1, int dim2, int dim3,
 static int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3, 
 			     int vecdim[3], int nc)
 {
-    int distance=0, tmpdist;
+    int distance=0;
     
     distance = dim0+ dim1*vecdim[0]+ dim2*vecdim[0]*vecdim[1];
     distance += dim3*vecdim[0]*vecdim[1]*vecdim[2];
