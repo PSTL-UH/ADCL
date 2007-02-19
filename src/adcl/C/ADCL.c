@@ -17,6 +17,7 @@ int ADCL_Init (void )
     ADCL_array_init ( &(ADCL_topology_farray),  "ADCL_Topology", 32 );
     ADCL_array_init ( &(ADCL_attribute_farray), "ADCL_Attribute",32 );
     ADCL_array_init ( &(ADCL_attrset_farray),   "ADCL_Attrset",  32 );
+    ADCL_array_init ( &(ADCL_fnctgrp_farray),   "ADCL_Fnctgrp",  32 );
     return ret;
 }
 
@@ -34,6 +35,7 @@ int ADCL_Finalize ( void )
     ADCL_array_free ( &(ADCL_topology_farray));
     ADCL_array_free ( &(ADCL_attribute_farray));
     ADCL_array_free ( &(ADCL_attrset_farray));
+    ADCL_array_free ( &(ADCL_fnctgrp_farray));
 
     ADCL_printf_finalize ();
     return ret;

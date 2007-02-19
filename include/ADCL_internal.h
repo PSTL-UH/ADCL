@@ -14,6 +14,7 @@
 #include "ADCL_attribute.h"
 #include "ADCL_method.h"
 #include "ADCL_emethod.h"
+#include "ADCL_fnctgrp.h"
 #include "ADCL_memory.h"
 #include "ADCL_subarray.h"
 #include "ADCL_packunpack.h"
@@ -36,6 +37,8 @@
 #define ADCL_STATISTIC_VOTE 0
 #define ADCL_STATISTIC_MAX  1
 
+
+/* Some prototypes of functions which do not deserve their own header file */
 int ADCL_printf_init     ( void );
 int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);

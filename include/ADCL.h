@@ -72,19 +72,20 @@ int ADCL_Attribute_create ( int maxnvalues, int *array_of_values,
 			    ADCL_Attribute *attr );
 int ADCL_Attribute_free   ( ADCL_Attribute *attr );
 
-int ADCL_Attrset_create        ( int maxnum, ADCL_Attribute *array_of_attributes, 
-				 ADCL_Attrset *attrset );
-int ADCL_Attrset_free          ( ADCL_Attrset *attrset );
+int ADCL_Attrset_create   ( int maxnum, ADCL_Attribute *array_of_attributes, 
+			    ADCL_Attrset *attrset );
+int ADCL_Attrset_free     ( ADCL_Attrset *attrset );
 
 /* ADCL Function and ADCL Functiongroup functions */
-typedef void ADCL_work_fctn_ptr ( void *arg1, void *arg2, void *arg3 );
+typedef void ADCL_work_fnct_ptr ( ADCL_Request req, void *arg1, 
+				  void *arg2, void *arg3 );
 
 int ADCL_Fnctgrp_create        ( int maxnum, ADCL_Fnctgrp *fctgrp );
 int ADCL_Fnctgrp_free          ( ADCL_Fnctgrp *fctgrp );
 int ADCL_Fnctgrp_register_fnct ( ADCL_Fnctgrp fctgrp, int cnt, 
-				 ADCL_work_fctn_ptr *fct );
+				 ADCL_work_fnct_ptr *fct );
 int ADCL_Fnctgrp_register_fnct_and_attrset ( ADCL_Fnctgrp fctgrp, int cnt, 
-					     ADCL_work_fctn_ptr *fct, 
+					     ADCL_work_fnct_ptr *fct, 
 					     ADCL_Attrset attrset, 
 					     int *array_of_attrvalues );
 
@@ -95,16 +96,18 @@ int ADCL_Request_create         ( ADCL_Vector vec, ADCL_Topology topo,
 int ADCL_Request_create_generic ( ADCL_Vector *array_of_vec, 
 				  ADCL_Topology topo, 
 				  ADCL_Request *req );
-int ADCL_Request_create_fctngrp ( ADCL_Fnctgrp fctgrp, ADCL_Request *req );
-int ADCL_Request_free           ( ADCL_Request *req );
+int ADCL_Request_create_fnctgrp ( ADCL_Fnctgrp fctgrp, ADCL_Request *req );
+
+int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm );
+int ADCL_Request_free      ( ADCL_Request *req );
 
 int ADCL_Request_start ( ADCL_Request req );
 int ADCL_Request_init  ( ADCL_Request req );
 int ADCL_Request_wait  ( ADCL_Request req );
 
-int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fctn_ptr* midfctn,
-				 ADCL_work_fctn_ptr *endfcnt, 
-				 ADCL_work_fctn_ptr *totalfcnt,
+int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
+				 ADCL_work_fnct_ptr *endfcnt, 
+				 ADCL_work_fnct_ptr *totalfcnt,
 				 void *arg1, void* arg2, void *arg3 );
 
 
