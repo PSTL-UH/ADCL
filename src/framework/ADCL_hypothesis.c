@@ -5,20 +5,30 @@ static int get_num_methods_and_blocks ( ADCL_emethod_req_t *er, int *nummethods,
 					int *numblocks);
 
 
-int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, 
-                                        int attribute, int required_value )
+int ADCL_hypothesis_shrinklist_byattr ( ADCL_fnctset_t *fnctset
+                                        ADCL_attribute_t *attr, int required_value )
 {
-    int i, count=0;
-    ADCL_method_t *tmeth=NULL;
-    int org_count=ermethod->er_num_emethods;
-    ADCL_emethod_t *emethods=ermethod->er_emethods;
+    int i, count=0, pos=-1;
+    int org_count=fnctset->f_maxnum;
+    ADCL_attrset_t *attrset=fnctset->f_attrset;
+
+    /* Find the position of this attribute in the attrset */
+    for ( i=0; i< attrset->a->as_maxnum; i++ ) {
+	if ( attrset->as_attrs[i]->a_id == attr->a_id ) {
+	    pos = i;
+	    break;
+	}
+    }
+    if ( -1 == pos ) {
+	/* Attribute not found */
+	return ADCL_ERROR_INTERNAL;
+    }
 
     /* This following loop is only for debugging purposes and should be removed
        from later production runs */
     for ( i=0; i < org_count; i++ ) {
-        tmeth = emethods[i].em_method;
-	if ( tmeth->m_attr[attribute] != required_value ) {
-	    ADCL_printf("#Removing method %d for attr %d required %d is %d\n",
+	if ( fnctset->f_attrvals[i][pos] != required_value ) {
+	    ADCL_printf("#Removing function %d for attr %d required %d is %d\n",
 			tmeth->m_id, attribute, required_value, 
 			tmeth->m_attr[attribute]);
 	}

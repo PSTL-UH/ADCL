@@ -17,7 +17,7 @@ struct ADCL_emethod_s {
     ADCL_statistics_t  *em_stat; /* array of statics objects containing the 
 				    measurements etc. Length of the array is equal 
 				    to the no. of fncts registered in the fnctset */
-    ADCL_fnctset_t  *em_fnctset; /* function group associated with this object */
+    ADCL_fnctset_t   em_fnctset; /* copy of the function group associated with this object */
     ADCL_hypothesis_t   em_hypo; /* Performance hypothesis object of to this emethod */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;

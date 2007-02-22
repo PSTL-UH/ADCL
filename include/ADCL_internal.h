@@ -9,6 +9,7 @@
 
 #include "ADCL.h"
 #include "ADCL_array.h"
+#include "ADCL_statistics.h"
 #include "ADCL_vector.h"
 #include "ADCL_topology.h"
 #include "ADCL_attribute.h"
@@ -43,16 +44,7 @@ int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);
 
 int ADCL_readenv( void );
-int ADCL_statistics_filter_timings  ( ADCL_emethod_t **emethods, int count, 
-				      int rank );
-int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
- 				 MPI_Comm comm, int num_blocks, int *blength, 
-				 int *winners, int rank );
 
-int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_req_t *ermethod, 
-                                        int attribute, int required_value );
-int ADCL_hypothesis_set     ( ADCL_emethod_req_t *er, int attr, int attrval );
-int ADCL_hypothesis_eval_v2 ( ADCL_emethod_req_t *er );
 
 
 #endif /* __ADCL_INTERNAL_H__ */

@@ -29,7 +29,7 @@ void adcl_fnctset_create ( int* maxnum, int *fctset, int *ierr )
 	return;
     }
 
-    *ierr = ADCL_fnctset_create ( *maxnum, &cfnctset );
+    *ierr = ADCL_fnctset_create ( *maxnum, NULL, &cfnctset );
     if ( *ierr == ADCL_SUCCESS ) {
 	*fctset = cfnctset->f_findex;
     }
@@ -63,7 +63,7 @@ void adcl_fnctset_register_fnct ( int *fctset, int *cnt,
     }
 
     cfnctset = (ADCL_fnctset_t *) ADCL_array_get_ptr_by_pos (ADCL_fnctset_farray, *fctset );
-    *ierr = ADCL_fnctset_register_fnct ( cfnctset, *cnt, fct );
+    *ierr = ADCL_fnctset_register_fnct ( cfnctset, *cnt, fct, NULL );
     return;
 }
 
@@ -87,7 +87,7 @@ void adcl_fnctset_register_fnct_and_attrset ( int *fctset, int *cnt,
     cfnctset = (ADCL_fnctset_t *) ADCL_array_get_ptr_by_pos ( ADCL_fnctset_farray, *fctset );
     cattrset = (ADCL_attrset_t *) ADCL_array_get_ptr_by_pos ( ADCL_attrset_farray, *attrset );
     *ierr = ADCL_fnctset_register_fnct_and_attrset ( cfnctset, *cnt, fct, cattrset, 
-						     array_of_attrvalues );
+						     array_of_attrvalues, NULL );
     return;
 }
 

@@ -34,7 +34,7 @@ struct lininf {
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count, 
+int ADCL_statistics_filter_timings (ADCL_statistics_t **statistics, int count, 
 				    int rank )
 {
     int i, j;
@@ -45,48 +45,46 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count,
     for (i=0; i < count; i++ ) {
 	sum          = 0.0;
 	sum_filtered = 0.0;
-	if ( !(ADCL_EM_IS_FILTERED(emethods[i]))) {
+	if ( !(ADCL_STAT_IS_FILTERED(statistics[i]))) {
 	    /* Determine the min  value for method i*/
-	    for ( min=999999, j=0; j<emethods[i]->em_rescount; j++ ) {
-		if ( emethods[i]->em_time[j] < min ) {
-		    min = emethods[i]->em_time[j];
+	    for ( min=999999, j=0; j<statistics[i]->s_rescount; j++ ) {
+		if ( statistics[i]->s_time[j] < min ) {
+		    min = statistics[i]->em_time[j];
 		}
 	    }	    
 	
 	    /* Count how many values are N times larger than the min. */
-	    for ( numoutl=0, j=0; j<emethods[i]->em_rescount; j++ ) {
-		sum += emethods[i]->em_time[j];
-		if ( emethods[i]->em_time[j] >= (ADCL_OUTLIER_FACTOR * min) ) {
+	    for ( numoutl=0, j=0; j<statistics[i]->s_rescount; j++ ) {
+		sum += statistics[i]->s_time[j];
+		if ( statisticss[i]->s_time[j] >= (ADCL_OUTLIER_FACTOR * min) ) {
 #if 0 
-		    ADCL_printf("#%d: method %d meas. %d is outlier %lf min "
-				"%lf\n", rank, emethods[i]->em_method->m_id, 
-				j, emethods[i]->em_time[j], min );
+		    ADCL_printf("#%d: stat %d meas. %d is outlier %lf min "
+				"%lf\n", rank, i, j, statistics[i]->s_time[j], min );
 #endif
 		    numoutl++;
 		}
 		else {
-		    sum_filtered += emethods[i]->em_time[j];
+		    sum_filtered += statistics[i]->s_time[j];
 		}
 	    }
 
 	    /* unfiltered avg. */
-	    emethods[i]->em_lpts[0] = sum / emethods[i]->em_rescount; 
+	    statisticss[i]->s_lpts[0] = sum / statistics[i]->s_rescount; 
 
 	    /* filtered avg. */
-	    emethods[i]->em_lpts[1] = sum_filtered/(emethods[i]->em_rescount- 
-						    numoutl );       
+	    statistics[i]->s_lpts[1] = sum_filtered/(statistics[i]->s_rescount- 
+						     numoutl );       
 	    /* percentage of outliers */
-	    emethods[i]->em_lpts[2] = 100*numoutl/emethods[i]->em_rescount; 
+	    statistics[i]->s_lpts[2] = 100*numoutl/statistics[i]->s_rescount; 
 
 #if 0
-	    ADCL_printf("#%d: method %d num. of outliers %d min %lf avg. %lf "
+	    ADCL_printf("#%d: stat %d num. of outliers %d min %lf avg. %lf "
 			"filtered avg. %lf perc. %lf \n", rank, 
-			emethods[i]->em_method->m_id, numoutl, min,
-			emethods[i]->em_lpts[0], emethods[i]->em_lpts[1], 
-			emethods[i]->em_lpts[2]);
+			i, numoutl, min, statistics[i]->s_lpts[0], 
+			statistics[i]->s_lpts[1], statistics[i]->s_lpts[2]);
 #endif
 
-	    ADCL_EM_SET_FILTERED (emethods[i]); 
+	    ADCL_STAT_SET_FILTERED (statistics[i]); 
 	}
     }
 
@@ -97,7 +95,7 @@ int ADCL_statistics_filter_timings (ADCL_emethod_t **emethods, int count,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
+int ADCL_statistics_global_max ( ADCL_statistics_t **statistics, int count,
  				 MPI_Comm comm, int num_blocks, int *blength, 
 				 int *winners, int rank )
 {
@@ -112,9 +110,9 @@ int ADCL_statistics_global_max ( ADCL_emethod_t **emethods, int count,
     gpts = &(lpts[3 * count]);    
 
     for ( i = 0; i < count; i++ ) {
-	lpts[3*i]   = emethods[i]->em_lpts[0];
-	lpts[3*i+1] = emethods[i]->em_lpts[1];
-	lpts[3*i+2] = emethods[i]->em_lpts[2];
+	lpts[3*i]   = statistics[i]->s_lpts[0];
+	lpts[3*i+1] = statistics[i]->s_lpts[1];
+	lpts[3*i+2] = statistics[i]->s_lpts[2];
     }
 
     if  ( ADCL_STATISTIC_MAX == ADCL_statistic_method ) {

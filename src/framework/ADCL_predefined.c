@@ -123,11 +123,15 @@ int ADCL_predefined_init ( void )
 #endif
 
 
-    ADCL_attribute_create ( ADCL_ATTR_MAPPING_MAX, ADCL_attr_mapping, &ADCL_neighborhood_attrs[0]); 
-    ADCL_attribute_create ( ADCL_ATTR_NONCONT_MAX, ADCL_attr_noncont, &ADCL_neighborhood_attrs[1]); 
-    ADCL_attribute_create ( ADCL_ATTR_TRANSFER_MAX, ADCL_attr_transfer, &ADCL_neighborhood_attrs[2]); 
+    ADCL_attribute_create ( ADCL_ATTR_MAPPING_MAX, ADCL_attr_mapping, 
+			    &ADCL_neighborhood_attrs[0]); 
+    ADCL_attribute_create ( ADCL_ATTR_NONCONT_MAX, ADCL_attr_noncont, 
+			    &ADCL_neighborhood_attrs[1]); 
+    ADCL_attribute_create ( ADCL_ATTR_TRANSFER_MAX, ADCL_attr_transfer, 
+			    &ADCL_neighborhood_attrs[2]); 
     
-    ADCL_attrset_create ( ADCL_ATTR_TOTAL_NUM, ADCL_neighborhood_attrs, &ADCL_neighborhood_attrset);
+    ADCL_attrset_create ( ADCL_ATTR_TOTAL_NUM, ADCL_neighborhood_attrs, 
+			  &ADCL_neighborhood_attrset);
     
 #ifdef MPI_WIN
     ADCL_method_total_num = 20; 

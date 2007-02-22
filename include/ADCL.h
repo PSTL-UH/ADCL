@@ -85,14 +85,16 @@ int ADCL_Attrset_free     ( ADCL_Attrset *attrset );
 typedef void ADCL_work_fnct_ptr ( ADCL_Request req, void *arg1, 
 				  void *arg2, void *arg3 );
 
-int ADCL_Fnctset_create        ( int maxnum, ADCL_Fnctset *fnctset );
+int ADCL_Fnctset_create        ( int maxnum, char *name, 
+				 ADCL_Fnctset *fnctset );
 int ADCL_Fnctset_free          ( ADCL_Fnctset *fnctset );
 int ADCL_Fnctset_register_fnct ( ADCL_Fnctset fnctset, int cnt, 
-				 ADCL_work_fnct_ptr *fct );
+				 ADCL_work_fnct_ptr *fct, char *name );
 int ADCL_Fnctset_register_fnct_and_attrset ( ADCL_Fnctset fnctset, int cnt, 
 					     ADCL_work_fnct_ptr *fct, 
 					     ADCL_Attrset attrset, 
-					     int *array_of_attrvalues );
+					     int *array_of_attrvalues, 
+					     char *name);
 
 
 /* ADCL Request functions */
