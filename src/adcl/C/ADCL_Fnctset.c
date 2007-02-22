@@ -1,39 +1,39 @@
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
-int ADCL_Fnctgrp_create ( int maxnum, ADCL_Fnctgrp *fctgrp )
+int ADCL_Fnctset_create ( int maxnum, ADCL_Fnctset *fctset )
 {
     if ( 0 >= maxnum ) {
 	return ADCL_INVALID_ARG;
     }
-    if ( NULL == fctgrp ) {
+    if ( NULL == fctset ) {
 	return ADCL_INVALID_ARG;
     }
 
-    return ADCL_fnctgrp_create ( maxnum, fctgrp );
+    return ADCL_fnctset_create ( maxnum, fctset );
 }
 
-int ADCL_Fnctgrp_free ( ADCL_Fnctgrp *fctgrp )
+int ADCL_Fnctset_free ( ADCL_Fnctset *fctset )
 {
-    if ( NULL == fctgrp ) {
+    if ( NULL == fctset ) {
 	return ADCL_INVALID_ARG;
     }
 
-    if ( (*fctgrp)->f_id < 0 ) {
-	return ADCL_INVALID_FNCTGRP;
+    if ( (*fctset)->f_id < 0 ) {
+	return ADCL_INVALID_FNCTSET;
     }
 
-    return ADCL_fnctgrp_free ( fctgrp );
+    return ADCL_fnctset_free ( fctset );
 }
 
 
 
-int ADCL_Fnctgrp_register_fnct ( ADCL_Fnctgrp fctgrp, int cnt, 
+int ADCL_Fnctset_register_fnct ( ADCL_Fnctset fctset, int cnt, 
 				 ADCL_work_fnct_ptr *fct )
 {
 
-    if ( fctgrp->f_id < 0 ) {
-	return ADCL_INVALID_FNCTGRP;
+    if ( fctset->f_id < 0 ) {
+	return ADCL_INVALID_FNCTSET;
     }
     if ( 0 > cnt ) {
 	return ADCL_INVALID_ARG;
@@ -42,17 +42,17 @@ int ADCL_Fnctgrp_register_fnct ( ADCL_Fnctgrp fctgrp, int cnt,
 	return ADCL_INVALID_ARG;
     }
     
-    return ADCL_fnctgrp_register_fnct ( fctgrp, cnt, fct );
+    return ADCL_fnctset_register_fnct ( fctset, cnt, fct );
 }
 
 
-int ADCL_Fnctgrp_register_fnct_and_attrset ( ADCL_Fnctgrp fctgrp, int cnt, 
+int ADCL_Fnctset_register_fnct_and_attrset ( ADCL_Fnctset fctset, int cnt, 
 					     ADCL_work_fnct_ptr *fct, 
 					     ADCL_Attrset attrset, 
 					     int *array_of_attrvalues )
 {
-    if ( fctgrp->f_id < 0 ) {
-	return ADCL_INVALID_FNCTGRP;
+    if ( fctset->f_id < 0 ) {
+	return ADCL_INVALID_FNCTSET;
     }
     if ( 0 > cnt ) {
 	return ADCL_INVALID_ARG;
@@ -67,6 +67,6 @@ int ADCL_Fnctgrp_register_fnct_and_attrset ( ADCL_Fnctgrp fctgrp, int cnt,
 	return ADCL_INVALID_ARG;
     }
 
-    return ADCL_fnctgrp_register_fnct_and_attrset ( fctgrp, cnt, fct, attrset, 
+    return ADCL_fnctset_register_fnct_and_attrset ( fctset, cnt, fct, attrset, 
 						    array_of_attrvalues );
 }

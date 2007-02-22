@@ -48,39 +48,39 @@ void ADCL_ATTRSET_FREE   ( int *attrset, int *ierr );
 
 
 /* ADCL Functiongroup functions */
-void adcl_fnctgrp_create   ( int* maxnum, int *fctgrp, int *ierr );
-void adcl_fnctgrp_create_  ( int* maxnum, int *fctgrp, int *ierr );
-void adcl_fnctgrp_create__ ( int* maxnum, int *fctgrp, int *ierr );
-void ADCL_FNCTGRP_CREATE   ( int* maxnum, int *fctgrp, int *ierr );
+void adcl_fnctset_create   ( int* maxnum, int *fnctset, int *ierr );
+void adcl_fnctset_create_  ( int* maxnum, int *fnctset, int *ierr );
+void adcl_fnctset_create__ ( int* maxnum, int *fnctset, int *ierr );
+void ADCL_FNCTSET_CREATE   ( int* maxnum, int *fnctset, int *ierr );
 
-void adcl_fnctgrp_free   ( int *fctgrp, int *ierr );
-void adcl_fnctgrp_free_  ( int *fctgrp, int *ierr );
-void adcl_fnctgrp_free__ ( int *fctgrp, int *ierr );
-void ADCL_FNCTGRP_FREE   ( int *fctgrp, int *ierr );
+void adcl_fnctset_free   ( int *fnctset, int *ierr );
+void adcl_fnctset_free_  ( int *fnctset, int *ierr );
+void adcl_fnctset_free__ ( int *fnctset, int *ierr );
+void ADCL_FNCTSET_FREE   ( int *fnctset, int *ierr );
 
-void adcl_fnctgrp_register_fnct   ( int *fctgrp, int *cnt, 
+void adcl_fnctset_register_fnct   ( int *fnctset, int *cnt, 
 				    void *fct, int *ierr );
-void adcl_fnctgrp_register_fnct_  ( int *fctgrp, int *cnt, 
+void adcl_fnctset_register_fnct_  ( int *fnctset, int *cnt, 
 				    void *fct, int *ierr );
-void adcl_fnctgrp_register_fnct__ ( int *fctgrp, int *cnt, 
+void adcl_fnctset_register_fnct__ ( int *fnctset, int *cnt, 
 				    void *fct, int *ierr );
-void ADCL_FNCTGRP_REGISTER_FNCT   ( int *fctgrp, int *cnt, 
+void ADCL_FNCTSET_REGISTER_FNCT   ( int *fnctset, int *cnt, 
 				    void *fct, int *ierr );
 
 
-void adcl_fnctgrp_register_fnct_and_attrset   ( int *fctgrp, int *cnt, 
+void adcl_fnctset_register_fnct_and_attrset   ( int *fnctset, int *cnt, 
 						void *fct, int *attrset, 
 						int *array_of_attrvalues, 
 						int *ierr );
-void adcl_fnctgrp_register_fnct_and_attrset_  ( int *fctgrp, int *cnt, 
+void adcl_fnctset_register_fnct_and_attrset_  ( int *fnctset, int *cnt, 
 						void *fct, int *attrset, 
 						int *array_of_attrvalues, 
 						int *ierr );
-void adcl_fnctgrp_register_fnct_and_attrset__ ( int *fctgrp, int *cnt, 
+void adcl_fnctset_register_fnct_and_attrset__ ( int *fnctset, int *cnt, 
 						void *fct, int *attrset, 
 						int *array_of_attrvalues, 
 						int *ierr );
-void ADCL_FNCTGRP_REGISTER_FNCT_AND_ATTRSET   ( int *fctgrp, int *cnt, 
+void ADCL_FNCTSET_REGISTER_FNCT_AND_ATTRSET   ( int *fnctset, int *cnt, 
 						void *fct, int *attrset, 
 						int *array_of_attrvalues, 
 						int *ierr );

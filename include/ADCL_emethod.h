@@ -1,101 +1,49 @@
 #ifndef __ADCL_EMETHOD_H__
 #define __ADCL_EMETHOD_H__
 
-#include "ADCL_method.h"
 #include "ADCL_sysconfig.h"
-#include <sys/time.h>
-#include "mpi.h"
 
-#define TIME_TYPE double
-
-//#define TIME      MPI_Wtime()
-#define TIME ADCL_emethod_time()
-#define ADCL_EMETHOD_TIMEDIFF(_tstart,_tend,_exec) {         \
-    if ( _tend > _tstart ) _exec = (double) (_tend-_tstart); \
-    else _exec = (1000000.0 - _tstart) + _tend; }
-
-#define ADCL_FLAG_PERF     -100
-#define ADCL_FLAG_NOPERF   -101
-
-/* Structure used for evaluating a communication method. 
-** It contains the method itself, and statistical data
-*/
 
 struct ADCL_emethod_s {
-    int                em_id; /* unique identifier */
-    ADCL_method_t* em_method; /* which method am I associated with ? */
-    short           em_count; /* how often has this routine already been called */
-    short        em_rescount; /* how often has this routine already reported back */
-    TIME_TYPE       *em_time; /* measurements */
-    int             em_flags; /* Has this data set already been filtered? */
-    double        em_lpts[3]; /* local no. of pts by this method */
+    int                   em_id; /* unique identifier */
+    int               em_findex; /* index of this object in the fortran array */
+    int                em_state; /* state of the object */
+    int                 em_last; /* last element given out */
+
+    ADCL_topology_t    *em_topo; /* pointer to topology object */
+    ADCL_vector_t       *em_vec; /* pointer to vector object. Only the size of the 
+				    data array is really required, not the buffer 
+				    pointers. */
+    ADCL_statistics_t  *em_stat; /* array of statics objects containing the 
+				    measurements etc. Length of the array is equal 
+				    to the no. of fncts registered in the fnctset */
+    ADCL_fnctset_t  *em_fnctset; /* function group associated with this object */
+    ADCL_hypothesis_t   em_hypo; /* Performance hypothesis object of to this emethod */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 
-/* Possible values for em_flags */
-#define ADCL_EM_TESTED    0x00000001
-#define ADCL_EM_FILTERED  0x00000002
-#define ADCL_EM_EVAL  0x00000004
 
-#define ADCL_EM_IS_TESTED(em)   ((em)->em_flags & ADCL_EM_TESTED)
-#define ADCL_EM_IS_FILTERED(em) ((em)->em_flags & ADCL_EM_FILTERED)
-#define ADCL_EM_IS_EVAL(em)     ((em)->em_flags & ADCL_EM_EVAL)
+ADCL_emethod_t* ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
+				    int *neighbors, int vndims, 
+				    int *vdims, int vnc, int vhwidth);
 
-#define ADCL_EM_SET_TESTED(em)   ((em)->em_flags |= ADCL_EM_TESTED)
-#define ADCL_EM_SET_FILTERED(em) ((em)->em_flags |= ADCL_EM_FILTERED)
-#define ADCL_EM_SET_EVAL(em)     ((em)->em_flags |= ADCL_EM_EVAL)
-
-struct ADCL_emethod_req_s {
-    MPI_Comm                           er_comm;
-    int                                 er_pos;
-    int                               er_rfcnt;
-    int                               er_state; /* state of the object */
-    int                                er_last; /* last element given out */
-    int                        er_max_emethods; /* length of the er_emethod array */
-    int                        er_num_emethods; /* how many methods shall be evaluated */
-    int                             er_vhwidth;
-    int                                 er_vnc;
-    int                              er_vndims;
-    int                          er_nneighbors;
-    int                          *er_neighbors;
-    int                              *er_vdims;
-    ADCL_emethod_t                *er_emethods;
-    ADCL_method_t                  *er_wmethod; /* winner method used after the testing */
-    
-    short er_attr_hypothesis[ADCL_ATTR_TOTAL_NUM]; /* List of performance hypothesis*/
-    short er_attr_confidence[ADCL_ATTR_TOTAL_NUM]; /* List of confidence*/
-    short                     er_num_avail_meas;   /* Counter keeping track of how many 
-						      methods have already been tested*/
-    short                   er_num_active_attrs;  
-    short  er_active_attr_list[ADCL_ATTR_TOTAL_NUM];
-};
-
-typedef struct ADCL_emethod_req_s ADCL_emethod_req_t;
-
-int ADCL_emethod_req_init     ( void );
-int ADCL_emethod_req_finalize ( void );
-
-ADCL_emethod_req_t* ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
-                                        int *neighbors, int vndims, 
-					int *vdims, int vnc, int vhwidth);
-
-void ADCL_emethod_free ( ADCL_emethod_req_t * er );
+void ADCL_emethod_free ( ADCL_emethod_t * er );
 
 double ADCL_emethod_time(void);
 
-ADCL_method_t *ADCL_emethod_get_method ( ADCL_emethod_req_t *emethod, int pos);
+ADCL_fnctset_t *ADCL_emethod_get_fnctset ( ADCL_emethod_t *emethod, int pos);
 
-int ADCL_emethod_monitor ( ADCL_emethod_req_t *emethod, int pos,
+int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, int pos,
 			   TIME_TYPE tstart, TIME_TYPE tend );
 
-int  ADCL_emethods_get_winner ( ADCL_emethod_req_t *ermethods, MPI_Comm comm );
-int  ADCL_emethods_get_next ( ADCL_emethod_req_t *ermethods, int mode, int *flag);
-void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos, 
+int  ADCL_emethods_get_winner ( ADCL_emethod_t *ermethods, MPI_Comm comm );
+int  ADCL_emethods_get_next ( ADCL_emethod_t *ermethods, int mode, int *flag);
+void ADCL_emethods_update ( ADCL_emethod_t *ermethods, int pos, 
 			    int flag, TIME_TYPE tstart, TIME_TYPE tend );
 
 int ADCL_emethod_get_next_id (void);
 
-ADCL_emethod_t* ADCL_emethod_get_by_attrs ( ADCL_emethod_req_t *erm, int *attr);
+ADCL_fnctset_t* ADCL_emethod_get_by_attrs ( ADCL_emethod_t *erm, int *attr);
 
 
 #endif /* __ADCL_EMETHOD_H__ */

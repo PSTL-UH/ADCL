@@ -2,7 +2,7 @@ include ../../../Makefile.defs
 
 OBJ =  	ADCL.o		        \
 	ADCL_Attribute.o	\
-	ADCL_Fnctgrp.o	        \
+	ADCL_Fnctset.o	        \
 	ADCL_Vector.o           \
 	ADCL_Topology.o         \
 	ADCL_Request.o           
