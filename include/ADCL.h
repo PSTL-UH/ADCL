@@ -25,15 +25,17 @@
 #define ADCL_INVALID_TOPOLOGY  20
 #define ADCL_INVALID_ATTRIBUTE 21
 #define ADCL_INVALID_ATTRSET   22
-#define ADCL_INVALID_FNCTSET   23
+#define ADCL_INVALID_FUNCTION  23
+#define ADCL_INVALID_FNCTSET   24
 
 #define ADCL_VECTOR_NULL    (void*) -1
 #define ADCL_REQUEST_NULL   (void*) -2
 #define ADCL_TOPOLOGY_NULL  (void*) -3
 #define ADCL_ATTRIBUTE_NULL (void*) -4
 #define ADCL_ATTRSET_NULL   (void*) -5
-#define ADCL_FNCTSET_NULL   (void*) -6
-#define ADCL_NULL_FNCT_PTR  (void*) -7
+#define ADCL_FUNCTION_NULL  (void*) -6
+#define ADCL_FNCTSET_NULL   (void*) -7
+#define ADCL_NULL_FNCT_PTR  (void*) -8
 
 
 #define ADCL_MAX_ATTRLEN 32
@@ -46,6 +48,7 @@ typedef struct ADCL_request_s*   ADCL_Request;
 typedef struct ADCL_topology_s*  ADCL_Topology;
 typedef struct ADCL_attribute_s* ADCL_Attribute;
 typedef struct ADCL_attrset_s*   ADCL_Attrset;
+typedef struct ADCL_function_s*  ADCL_Function;
 typedef struct ADCL_fnctset_s*   ADCL_Fnctset;
 
 
@@ -85,16 +88,18 @@ int ADCL_Attrset_free     ( ADCL_Attrset *attrset );
 typedef void ADCL_work_fnct_ptr ( ADCL_Request req, void *arg1, 
 				  void *arg2, void *arg3 );
 
-int ADCL_Fnctset_create        ( int maxnum, char *name, 
-				 ADCL_Fnctset *fnctset );
-int ADCL_Fnctset_free          ( ADCL_Fnctset *fnctset );
-int ADCL_Fnctset_register_fnct ( ADCL_Fnctset fnctset, int cnt, 
-				 ADCL_work_fnct_ptr *fct, char *name );
-int ADCL_Fnctset_register_fnct_and_attrset ( ADCL_Fnctset fnctset, int cnt, 
-					     ADCL_work_fnct_ptr *fct, 
-					     ADCL_Attrset attrset, 
-					     int *array_of_attrvalues, 
-					     char *name);
+int ADCL_Function_create       ( ADCL_work_fnct_ptr *fnct, ADCL_Attrset attrset, 
+				 int *array_of_attrvalues, char *name, ADCL_Function *fnct);
+int ADCL_Function_create_async ( ADCL_work_fnct_ptr *init_fnct, 
+				 ADCL_work_fnct_ptr *wait_fnct, 
+				 ADCL_Attrset attrset, 
+				 int *array_of_attrvalues, char *name, 
+				 ADCL_Function *fnct);
+int ADCL_Function_free         ( ADCL_Function *fnct );
+
+int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name, 
+			  ADCL_Fnctset *fnctset );
+int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
 
 
 /* ADCL Request functions */

@@ -19,7 +19,9 @@ struct ADCL_request_s{
 
     ADCL_vector_t            *r_vec; /* ptr to the vector describing data items */
     ADCL_emethod_t       *r_emethod; /* ptr to the emethod describing everything */ 
-
+    ADCL_function_t     *r_function; /* ADCL function currently being used. This pointer
+					will also contain the 'winner' function once 
+					the evaluation part is over. */
 
 
     /* Elements used for the communication */
@@ -42,7 +44,6 @@ struct ADCL_request_s{
     int                     r_erflag; /* flag to be passed to the state machine */
     TIME_TYPE                 r_time; /* temporary buffer to store the exeuction 
 					 time for dual-block operations */
-    ADCL_work_fnct_ptr_t     *r_fnct; /* current function being used */
 };
 typedef struct ADCL_request_s ADCL_request_t;
 
