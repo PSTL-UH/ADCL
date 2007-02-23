@@ -16,21 +16,20 @@ struct ADCL_request_s{
     int                        r_id; /* unique identifier */
     int                    r_findex; /* index for the fortran interface */
     int                r_comm_state; /* communication state of the object  */
+
     ADCL_vector_t            *r_vec; /* ptr to the vector describing data items */
-    MPI_Comm                 r_comm; /* Communicator used for communication */
-    int                      r_rank; /* Rank of this proc in this communicator */
-    MPI_Win                   r_win; /* window used for one-sided operations */
-    MPI_Group               r_group; /* Group used for some window operations */
-    int                r_nneighbors; /* numbers of neighboring processes = dim of 
-					v_dats, v_sreqs, v_rreqs. nneighbor should
-				        be 2*the number of dimensions of the 
-				        cartesian structure */
-    int                *r_neighbors; /* array of neighboring processes. */
+    ADCL_emethod_t       *r_emethod; /* ptr to the emethod describing everything */ 
+
+
+
+    /* Elements used for the communication */
     int                   *r_coords; /* coordinate of this proc in the proc-topology */
     int                   *r_spsize; /* size of each individual temporary sbuf used 
 			     	        for pack/unpack */
     int                   *r_rpsize; /* size of each individual temporary rbuf used 
 					for pack/unpack */
+    MPI_Win                   r_win; /* window used for one-sided operations */
+    MPI_Group               r_group; /* Group used for some window operations */
     MPI_Datatype           *r_sdats; /* array of MPI datatypes used for sending */
     MPI_Datatype           *r_rdats; /* array of MPI datatypes used for receiving */
     MPI_Request            *r_sreqs; /* array of send requests used for nb ops */
@@ -38,12 +37,12 @@ struct ADCL_request_s{
     char                   **r_rbuf; /* temp recv buffer used for pack/unpack */
     char                   **r_sbuf; /* temp send buffer used for pack/unpack */    
 
+    /* Elements required for the selection logic */
     int                     r_erlast; /* last method used */
     int                     r_erflag; /* flag to be passed to the state machine */
     TIME_TYPE                 r_time; /* temporary buffer to store the exeuction 
 					 time for dual-block operations */
-    ADCL_emethod_req_t   *r_ermethod; /* list of emethods being evaluated */
-    ADCL_method_t         *r_cmethod; /* current method being used */
+    ADCL_work_fnct_ptr_t     *r_fnct; /* current function being used */
 };
 typedef struct ADCL_request_s ADCL_request_t;
 

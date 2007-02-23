@@ -1,66 +1,53 @@
 #include "ADCL_internal.h"
 
 static int ADCL_local_id_counter=0;
-static ADCL_array_t *ADCL_emethod_req_array=NULL;
+static ADCL_array_t *ADCL_emethod_array=NULL;
 
 int ADCL_emethod_selection = -1;
 int ADCL_merge_requests=1;
 int ADCL_emethod_numtests=ADCL_EMETHOD_NUMTESTS;
 int ADCL_emethod_use_perfhypothesis=0; /* false */
 
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-int ADCL_emethod_req_init ( void ) 
-{
-    ADCL_array_init ( &(ADCL_emethod_req_array), "ADCL_emethod_req", 32 );    
-    return ADCL_SUCCESS;
-}
 
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_emethod_req_finalize ( void ) 
+ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
+				     int *neighbors, int vndims, 
+				     int *vdims, int vnc, int vhwidth )
 {
-    ADCL_array_free ( &(ADCL_emethod_req_array) );    
-    return ADCL_SUCCESS;
-}
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
-					 int *neighbors, int vndims, 
-					 int *vdims, int vnc, int vhwidth )
-{
-    ADCL_emethod_req_t *er;    
+    ADCL_emethod_t *e;    
     int i;
 
     if ( ADCL_merge_requests ) {
 	int j, last, found=-1;
 	int result;
+	ADCL_topology_t *topo;
+	ADCL_vector_t *vec;
 	
-	/* Check first, whether we have an entry in the ADCL_emethods_req_array,
+	/* Check first, whether we have an entry in the ADCL_emethods_array,
 	   which fulfills already our requirements; 
 	*/
-	last = ADCL_array_get_last ( ADCL_emethod_req_array );
+	last = ADCL_array_get_last ( ADCL_emethod_array );
 	for ( i=0; i<= last; i++ ) {
-	    er = ( ADCL_emethod_req_t * ) ADCL_array_get_ptr_by_pos ( 
-		ADCL_emethod_req_array, i );
-	    
-	    MPI_Comm_compare ( er->er_comm, comm, &result );
+	    e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos ( 
+		ADCL_emethod_array, i );
+	    topo = e->em_topo;
+	    vec  = e->em_vec;
+
+	    MPI_Comm_compare ( topo->t_comm, comm, &result );
 	    if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
 		continue;
 	    }
 	    
 	    found = i;
-	    if ( ( er->er_nneighbors == nneighbors ) && 
-		 ( er->er_vndims     == vndims     ) && 
-		 ( er->er_vnc        == vnc        ) && 
-		 ( er->er_vhwidth    == vhwidth    ) ) {
+	    if ( ( topo->t_nneighbors == nneighbors ) && 
+		 ( vec->v_ndims       == vndims     ) && 
+		 ( vec->v_nc          == vnc        ) && 
+		 ( vec->v_hwidth      == vhwidth    ) ) {
 		
-		for ( j=0; j< er->er_nneighbors; j++ ) {
-		    if ( er->er_neighbors[i] != neighbors [i] ) {
+		for ( j=0; j< topo->t_nneighbors; j++ ) {
+		    if ( topo->t_neighbors[i] != neighbors [i] ) {
 			found = -1;
 			break;
 		    }
@@ -68,8 +55,8 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 		if ( found == -1 ) {
 		    continue;
 		}
-		for ( j=0 ; j< er->er_vndims; j++ ){
-		    if ( er->er_vdims[i] != vdims[i] ) {
+		for ( j=0 ; j< vec->v_ndims; j++ ){
+		    if ( vec->v_dims[i] != vdims[i] ) {
 			found = -1;
 			break;
 		    }
@@ -81,14 +68,14 @@ ADCL_emethod_req_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	}
 	
 	if ( found > -1 ) {
-	    er->er_rfcnt++;
-	    return er;
+	    e->em_rfcnt++;
+	    return e;
 	}
     }
 	
     /* we did not find this configuraion yet, so we have to add it */
-    er = ( ADCL_emethod_req_t *) calloc (1, sizeof(ADCL_emethod_req_t));
-    if ( NULL == er ) {
+    e = ( ADCL_emethod_t *) calloc (1, sizeof(ADCL_emethod_t));
+    if ( NULL == e ) {
 	return NULL;
     }
 

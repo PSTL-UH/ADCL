@@ -6,6 +6,7 @@
 
 struct ADCL_emethod_s {
     int                   em_id; /* unique identifier */
+    int                em_rfcnt; /* reference counter */
     int               em_findex; /* index of this object in the fortran array */
     int                em_state; /* state of the object */
     int                 em_last; /* last element given out */
