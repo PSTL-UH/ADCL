@@ -1,10 +1,129 @@
 #include "ADCL_internal.h"
 #include <string.h>
 
-ADCL_array_t *ADCL_fnctset_farray;
-static int ADCL_local_counter=0;
+ADCL_array_t *ADCL_function_farray;
+static int ADCL_local_function_counter=0;
 
-int ADCL_fnctset_create ( int maxnum, char *name, ADCL_fnctset_t **fnctset )
+ADCL_array_t *ADCL_fnctset_farray;
+static int ADCL_local_fnctset_counter=0;
+
+
+int ADCL_function_create ( ADCL_work_fnct_ptr *fnct, ADCL_attrset_t *attrset, 
+			   int *array_of_attrvalues, char *name, ADCL_function_t **fnct)
+{
+    ADCL_function_t *newfunction;
+    int ret=ADCL_SUCCESS;
+
+    newfunction = ( ADCL_function_t *) calloc (1, sizeof (ADCL_function_t));
+    if ( NULL == newfunction ) {
+	return ADCL_NO_MEMORY;
+    }
+
+    newfunction->f_id = ADCL_local_function_counter++;
+    ADCL_array_get_next_free_pos ( ADCL_function_farray, &(newfunction->f_findex));
+    ADCL_array_set_element ( ADCL_function_farray, newfunction->f_findex,
+			     newfunction->f_id, newfunction );
+
+    if (ADCL_ATTRSET_NULL != attrset ) {
+	newfunction->f_attrvals = (int *) malloc ( sizeof(int) * attrset->as_maxnum );
+	if ( NULL == newfunction->f_attrvals ) {
+	    ret = ADCL_NO_MEMORY;
+	    goto exit;
+	}
+	memcpy (newfunction->f_attrvals, array_of_attrvals, attrse->as_maxnum*sizeof(int));
+    }
+
+    if ( NULL != name ) {
+	newfunction->f_name = strdup ( name );
+    }
+
+    newfunction->f_iptr = fnct;
+
+ exit:
+    if ( ret != ADCL_SUCCESS ) {
+	if ( NULL != newfunction->f_attrvals ) {
+	    free ( newfunction->f_attrvals );
+	}
+	if ( NULL != newfunction->f_name ) {
+	    free ( newfunction->f_name );
+	}
+	free ( newfunction );
+    }
+
+    *fnct = newfunction;
+    return ret;
+}
+
+int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct, 
+				 ADCL_work_fnct_ptr *wait_fnct, 
+				 ADCL_attrset_t * attrset, 
+				 int *array_of_attrvalues, char *name, 
+				 ADCL_function_t **fnct)
+{
+    ADCL_function_t *newfunction;
+    int ret=ADCL_SUCCESS;
+
+    newfunction = ( ADCL_function_t *) calloc (1, sizeof (ADCL_function_t));
+    if ( NULL == newfunction ) {
+	return ADCL_NO_MEMORY;
+    }
+
+    newfunction->f_id = ADCL_local_function_counter++;
+    ADCL_array_get_next_free_pos ( ADCL_function_farray, &(newfunction->f_findex));
+    ADCL_array_set_element ( ADCL_function_farray, newfunction->f_findex,
+			     newfunction->f_id, newfunction );
+
+    if (ADCL_ATTRSET_NULL != attrset ) {
+	newfunction->f_attrvals = (int *) malloc ( sizeof(int) * attrset->as_maxnum );
+	if ( NULL == newfunction->f_attrvals ) {
+	    ret = ADCL_NO_MEMORY;
+	    goto exit;
+	}
+	memcpy (newfunction->f_attrvals, array_of_attrvals, attrse->as_maxnum*sizeof(int));
+    }
+
+    if ( NULL != name ) {
+	newfunction->f_name = strdup ( name );
+    }
+
+    newfunction->f_iptr = init_fnct;
+    newfunction->w_iptr = wait_fnct;
+
+ exit:
+    if ( ret != ADCL_SUCCESS ) {
+	if ( NULL != newfunction->f_attrvals ) {
+	    free ( newfunction->f_attrvals );
+	}
+	if ( NULL != newfunction->f_name ) {
+	    free ( newfunction->f_name );
+	}
+	free ( newfunction );
+    }
+
+    *fnct = newfunction;
+    return ret;
+}
+int ADCL_function_free ( ADCL_function_t **fnct )
+{
+    ADCL_function_t *tfnct=*fnct;
+
+    ADCL_array_remove_element ( ADCL_function_farray, tfnct->f_findex);
+
+    if ( NULL != tfnct->f_attrvals ) {
+	free ( tfnct->f_attrvals );
+    }
+    if ( NULL != tfnct->f_name ) {
+	free ( tfnct->f_name );
+    }
+    free ( tfnct );
+
+    *fnct = ADCL_FUNCTION_NULL;
+    return ADCL_SUCCESS;
+}
+
+
+int ADCL_fnctset_create( int maxnum, ADCL_function_t **fncts, char *name, 
+			 ADCL_fnctset_t **fnctset )
 {
     int i, ret = ADCL_SUCCESS;
     ADCL_fnctset_t *newfnctset=NULL;
@@ -14,56 +133,47 @@ int ADCL_fnctset_create ( int maxnum, char *name, ADCL_fnctset_t **fnctset )
 	return ADCL_NO_MEMORY;
     }
 
-    newfnctset->f_id = ADCL_local_counter++;
-    ADCL_array_get_next_free_pos ( ADCL_fnctset_farray, &(newfnctset->f_findex));
-    ADCL_array_set_element ( ADCL_fnctset_farray, newfnctset->f_findex,
-			     newfnctset->f_id, newfnctset );
+    newfnctset->fs_id = ADCL_local_fnctset_counter++;
+    ADCL_array_get_next_free_pos ( ADCL_fnctset_farray, &(newfnctset->fs_findex));
+    ADCL_array_set_element ( ADCL_fnctset_farray, newfnctset->fs_findex,
+			     newfnctset->fs_id, newfnctset );
 
-    newfnctset->f_maxnum = maxnum;
-    newfnctset->f_fptrs = (ADCL_work_fnct_ptr **) calloc ( 1, maxnum*sizeof (ADCL_work_fnct_ptr*));
-    if ( NULL == newfnctset->f_fptrs ) {
-	ret = ADCL_NO_MEMORY;
-	goto exit;
-    }
-    
-    newfnctset->f_attrset = ADCL_ATTRSET_NULL;
-    newfnctset->f_attrvals = NULL;
-
-    newfnctset->f_fnctnames = (char **) calloc ( 1, maxnum * sizeof (char *));
-    if ( NULL == newfnctset->f_fnctnames ) {
-	ret =  ADCL_NO_MEMORY;
-	goto exit;
-    }
-    for ( i=0; i< maxnum; i++ ) {
-	newfnctset->f_fnctnames[i] = (char *) malloc ( ADCL_MAX_NAMELEN );
-	if ( NULL == newfnctset->f_fnctnames[i] ) {
-	    ret =  ADCL_NO_MEMORY;
+    /* Make sure all functions have use the same attribute set */
+    for (i=1; i<maxnum; i++ ) {
+	if ( fncts[i]->f_attrset != fncts[0]->f_attrset ) {
+	    ADCL_printf("Error Generating a function set: inconsistent attribute set across "
+			"multiple functions ");
+	    ret = ADCL_USER_ERROR;
 	    goto exit;
 	}
     }
+    
+    newfnctset->fs_attrset = fncts[0]->f_attrset;
+    newfnctset->fs_maxnum  = maxnum;
+    newfnctset->fs_fptrs   = (ADCL_function_t **) calloc ( 1, maxnum*sizeof (ADCL_function_t *));
+    if ( NULL == newfnctset->fs_fptrs ) {
+	ret = ADCL_NO_MEMORY;
+	goto exit;
+    }
+    memcpy ( newfnctset->fs_fptrs, fncts, maxnum * sizeof (ADCL_function_t *));
 
     if ( NULL != name ) {
-	strncpy ( newfnctset->f_fnctsetname, name, ADCL_MAX_NAMELEN);
+	newfnctset->fs_name = strdup ( name );
     }
 
  exit:
     if ( ret != ADCL_SUCCESS ) {
-	if ( NULL != newfnctset->f_fptrs ) {
-	    free ( newfnctset->f_fptrs );
+	if ( NULL != newfnctset->fs_fptrs ) {
+	    free ( newfnctset->fs_fptrs );
 	}
 
-	if ( NULL != newfnctset->f_fnctnames ) {
-	    for ( i=0; i<maxnum; i++ ) {
-		if ( NULL != newfnctset->f_fnctnames[i] ) {
-		    free ( newfnctset->f_fnctnames[i] );
-		}
-	    }
-	    free ( newfnctset->f_fnctnames );
+	if ( NULL != newfnctset->fs_name ) {
+	    free ( newfnctset->fs_name );
 	}
     }
 
     *fnctset = newfnctset;
-    return ADCL_SUCCESS;
+    return ret;
 }
 
 
@@ -73,18 +183,13 @@ int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
     ADCL_fnctset_t *tfnctset=*fnctset;
 
     if ( NULL != tfnctset ) {
-	if ( NULL != tfnctset->f_fptrs ) {
-	    free (tfnctset->f_fptrs );
+	if ( NULL != tfnctset->fs_fptrs ) {
+	    free (tfnctset->fs_fptrs );
 	}
-	ADCL_array_remove_element ( ADCL_fnctset_farray, tfnctset->f_findex);
+	ADCL_array_remove_element ( ADCL_fnctset_farray, tfnctset->fs_findex);
 
-	if ( NULL != tfnctset->f_fnctnames ) {
-	    for ( i=0; i<tfnctset->f_maxnum; i++ ) {
-		if ( NULL != tfnctset->f_fnctnames[i] ) {
-		    free ( tfnctset->f_fnctnames[i] );
-		}
-	    }
-	    free ( tnfcntset->f_fnctnames );
+	if ( NULL != tfnctset->fs_name ) {
+	    free ( tnfcntset->fs_name );
 	}
 	free ( fnctset );
     }    
@@ -93,80 +198,3 @@ int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
     return ADCL_SUCCESS;
 }
 
-int ADCL_fnctset_register_fnct ( ADCL_fnctset_t * fnctset, int pos, ADCL_work_fnct_ptr *fnct, 
-				 char *name)
-{
-
-    if ( NULL != fnctset->f_attrvals ) {
-	/* Somebody registered a function pointer together with attributes already.
-	** Thus, all functions have to be registered with attributes in order to 
-	**  maintain a consistent view for the selection logic. 
-	*/
-	ADCL_printf("%s: inconsistent usage of ADCL_Fnctset object when registering functions\n",
-		    __FILE__ ) ;
-	return ADCL_USER_ERROR;
-    }
-       
-    memcpy ( fnctset->f_fptrs[pos], fnct, sizeof(ADCL_work_fnct_ptr));
-    if ( NULL != name  ) {
-	strncpy (fnctset->f_fnctnames[pos], name, ADCL_MAX_NAMELEN );
-    }
-    return ADCL_SUCCESS;
-}
-
-
-int ADCL_fnctset_register_fnct_and_attrset ( ADCL_fnctset_t * fnctset, int pos, 
-					     ADCL_work_fnct_ptr *fnct,
-					     ADCL_attrset_t * attrset, 
-					     int *array_of_attrvalues, char *name )
-{
-    int i, found=0;
-
-    for (i=0; i< fnctset->f_maxnum; i++ ) {
-	if ( NULL != fnctset->f_fptrs[i] ) {
-	    found = 1;
-	}
-    }
-    
-    /* If found == 1, than the user has set already some function pointers. 
-    ** In order to preserve consistency, either all function pointers have 
-    ** to provide attributes or none.
-    */
-    if ( found && ( NULL == fnctset->f_attrvals) ) {
-	ADCL_printf("%s: inconsistent usage of ADCL_Fnctset object when "
-		    "registering functions\n",   __FILE__ ) ;
-	return ADCL_USER_ERROR;
-    }
-    
-    if ( NULL == fnctset->f_attrvals ) {
-	fnctset->f_attrvals = (int **) malloc ( fnctset->f_maxnum * sizeof (int *));
-	if ( NULL == fnctset->f_attrvals ) {
-	    return ADCL_NO_MEMORY;
-	}
-	for ( i=0; i< fnctset->f_maxnum; i++ ) {
-	    fnctset->f_attrvals[i] = (int *) malloc (attrset->as_maxnum * sizeof (int ));
-	    if ( NULL == fnctset->f_attrvals[i] ) {
-		return ADCL_NO_MEMORY;
-	    }
-	}
-	
-	fnctset->f_attrset = attrset;
-    }
-
-    /* Make sure all functions use the same attrset, else our attribute based 
-       selection logic will fail */
-    if ( fnctset->f_attrset != attrset ) {
-	ADCL_printf("%s: inconsistent usage of ADCL_Fnctset object when attribute"
-		    " sets\n",	    __FILE__ ) ;
-	return ADCL_INVALID_ATTRSET;
-    }
-
-    /* Copy the real objects */
-    memcpy ( fnctset->f_fptrs[pos], fnct, sizeof(ADCL_work_fnct_ptr));
-    memcpy ( fnctset->f_attrvals[pos], array_of_attrvalues, sizeof(int) * attrset->as_maxnum );
-    if ( NULL != name  ) {
-	strncpy (fnctset->f_fnctnames[pos], name, ADCL_MAX_NAMELEN );
-    }
-
-    return ADCL_SUCCESS;
-}

@@ -17,7 +17,7 @@ struct ADCL_function_s {
     ADCL_attrset_t    *f_attrset; /* attribute set characterizing this function */
     int              *f_attrvals; /* array of attribute values for this particular 
 				     function */
-    char            *f_fnctnames; /* name of each function */
+    char                 *f_name; /* name of the function */
 }
 typedef struct ADCL_function_s ADCL_function_t;
 extern ADCL_array_t *ADCL_function_farray;
@@ -35,12 +35,12 @@ int ADCL_function_free ( ADCL_function_t **fnct );
 
 
 struct ADCL_fnctset_s{
-    int                     fs_id; /* id of the object */
-    int                 fs_findex; /* index of this object in the fortran array */
-    int                 fs_maxnum; /* no. of functions in this function-group */
-    ADCL_function_t     **f_fptrs; /* list of function pointers of this group. */
-    ADCL_attrset_t     *f_attrset; /* attribute set used to characterize the function */    
-    char           f_fnctsetname[ADCL_MAX_NAMELEN]; /* Name of the attribute set */
+    int                    fs_id; /* id of the object */
+    int                fs_findex; /* index of this object in the fortran array */
+    int                fs_maxnum; /* no. of functions in this function-group */
+    ADCL_function_t   **fs_fptrs; /* list of function pointers of this group. */
+    ADCL_attrset_t   *fs_attrset; /* attribute set used to characterize the function */    
+    char                *fs_name; /* Name of the attribute set */
 };
 typedef struct ADCL_fnctset_s ADCL_fnctset_t;
 extern ADCL_array_t *ADCL_fnctset_farray;
