@@ -14,7 +14,7 @@
 #include "ADCL_topology.h"
 #include "ADCL_attribute.h"
 #include "ADCL_emethod.h"
-#include "ADCL_fnctset.h"
+#include "ADCL_function.h"
 #include "ADCL_memory.h"
 #include "ADCL_subarray.h"
 #include "ADCL_packunpack.h"
