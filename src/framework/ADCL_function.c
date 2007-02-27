@@ -8,57 +8,12 @@ ADCL_array_t *ADCL_fnctset_farray;
 static int ADCL_local_fnctset_counter=0;
 
 
-int ADCL_function_create ( ADCL_work_fnct_ptr *fnct, ADCL_attrset_t *attrset, 
-			   int *array_of_attrvalues, char *name, ADCL_function_t **fnct)
-{
-    ADCL_function_t *newfunction;
-    int ret=ADCL_SUCCESS;
 
-    newfunction = ( ADCL_function_t *) calloc (1, sizeof (ADCL_function_t));
-    if ( NULL == newfunction ) {
-	return ADCL_NO_MEMORY;
-    }
-
-    newfunction->f_id = ADCL_local_function_counter++;
-    ADCL_array_get_next_free_pos ( ADCL_function_farray, &(newfunction->f_findex));
-    ADCL_array_set_element ( ADCL_function_farray, newfunction->f_findex,
-			     newfunction->f_id, newfunction );
-
-    if (ADCL_ATTRSET_NULL != attrset ) {
-	newfunction->f_attrvals = (int *) malloc ( sizeof(int) * attrset->as_maxnum );
-	if ( NULL == newfunction->f_attrvals ) {
-	    ret = ADCL_NO_MEMORY;
-	    goto exit;
-	}
-	memcpy (newfunction->f_attrvals, array_of_attrvals, attrse->as_maxnum*sizeof(int));
-    }
-
-    if ( NULL != name ) {
-	newfunction->f_name = strdup ( name );
-    }
-
-    newfunction->f_iptr = fnct;
-
- exit:
-    if ( ret != ADCL_SUCCESS ) {
-	if ( NULL != newfunction->f_attrvals ) {
-	    free ( newfunction->f_attrvals );
-	}
-	if ( NULL != newfunction->f_name ) {
-	    free ( newfunction->f_name );
-	}
-	free ( newfunction );
-    }
-
-    *fnct = newfunction;
-    return ret;
-}
-
-int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct, 
-				 ADCL_work_fnct_ptr *wait_fnct, 
-				 ADCL_attrset_t * attrset, 
-				 int *array_of_attrvalues, char *name, 
-				 ADCL_function_t **fnct)
+int ADCL_function_create ( ADCL_work_fnct_ptr *init_fnct, 
+			   ADCL_work_fnct_ptr *wait_fnct, 
+			   ADCL_attrset_t * attrset, 
+			   int *array_of_attrvalues, char *name, 
+			   ADCL_function_t **fnct)
 {
     ADCL_function_t *newfunction;
     int ret=ADCL_SUCCESS;

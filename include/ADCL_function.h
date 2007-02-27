@@ -18,12 +18,9 @@ struct ADCL_function_s {
     int              *f_attrvals; /* array of attribute values for this particular 
 				     function */
     char                 *f_name; /* name of the function */
-}
+};
 typedef struct ADCL_function_s ADCL_function_t;
 extern ADCL_array_t *ADCL_function_farray;
-
-int ADCL_function_create ( ADCL_work_fnct_ptr *fnct, ADCL_attrset_t *attrset, 
-			   int *array_of_attrvalues, char *name, ADCL_function_t **fnct);
 
 int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct, 
 				 ADCL_work_fnct_ptr *wait_fnct, 
@@ -49,5 +46,5 @@ extern ADCL_array_t *ADCL_fnctset_farray;
 int ADCL_fnctset_create ( int maxnum, ADCL_function_t **fncts, char *name, 
 			  ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_free   ( ADCL_fnctset_t **fnctset );
-
+int ADCL_fnctset_dup    ( ADCL_fnctset_t *org, ADCL_fnctset_t *dup );
 #endif

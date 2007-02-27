@@ -4,7 +4,7 @@
 #include "mpi.h"
 
 #include "ADCL_vector.h"
-#include "ADCL_fnctset.h"
+#include "ADCL_function.h"
 #include "ADCL_emethod.h"
 #include "ADCL_topology.h"
 

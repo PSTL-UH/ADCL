@@ -12,9 +12,9 @@ int ADCL_emethod_use_perfhypothesis=0; /* false */
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors, 
-				     int *neighbors, int vndims, 
-				     int *vdims, int vnc, int vhwidth )
+ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v, 
+				   ADCL_fnctset_t *f )
+
 {
     ADCL_emethod_t *e;    
     int i;
@@ -35,19 +35,20 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	    topo = e->em_topo;
 	    vec  = e->em_vec;
 
-	    MPI_Comm_compare ( topo->t_comm, comm, &result );
+	    MPI_Comm_compare ( topo->t_comm, t->t_comm, &result );
 	    if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
 		continue;
 	    }
 	    
 	    found = i;
-	    if ( ( topo->t_nneighbors == nneighbors ) && 
-		 ( vec->v_ndims       == vndims     ) && 
-		 ( vec->v_nc          == vnc        ) && 
-		 ( vec->v_hwidth      == vhwidth    ) ) {
+	    if ( ( e->em_orgfnctset == f )          &&
+		 ( topo->t_ndims   == t->t_ndims  ) && 
+		 ( vec->v_ndims    == v->v_ndims  ) && 
+		 ( vec->v_nc       == v->v_nc     ) && 
+		 ( vec->v_hwidth   == v->v_hwidth ) ) {
 		
-		for ( j=0; j< topo->t_nneighbors; j++ ) {
-		    if ( topo->t_neighbors[i] != neighbors [i] ) {
+		for ( j=0; j< (2*topo->t_ndims); j++ ) {
+		    if ( topo->t_neighbors[i] != t->t_neighbors [i] ) {
 			found = -1;
 			break;
 		    }
@@ -56,7 +57,7 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 		    continue;
 		}
 		for ( j=0 ; j< vec->v_ndims; j++ ){
-		    if ( vec->v_dims[i] != vdims[i] ) {
+		    if ( vec->v_dims[i] != v->v_dims[i] ) {
 			found = -1;
 			break;
 		    }
@@ -79,92 +80,53 @@ ADCL_emethod_t * ADCL_emethod_init ( MPI_Comm comm, int nneighbors,
 	return NULL;
     }
 
-    er->er_comm           = comm;
-    er->er_nneighbors     = nneighbors;
-    er->er_vndims         = vndims;
-    er->er_rfcnt          = 1;
-    er->er_state          = ADCL_STATE_TESTING;
-    er->er_neighbors      = (int *) malloc ( nneighbors * sizeof(int));
-    er->er_vdims          = (int *) malloc ( vndims * sizeof(int));
-    
-    for(i=0; i<ADCL_ATTR_TOTAL_NUM; i++){
-      er->er_attr_hypothesis[i]= ADCL_ATTR_NOT_SET;
-    }
-    
-    memset(er->er_attr_confidence, 0, ADCL_ATTR_TOTAL_NUM * sizeof(short));
-    er->er_num_avail_meas = 0;
+    ADCL_array_get_next_free_pos ( ADCL_emethod_array, &e->em_findex );
+    ADCL_array_set_element ( ADCL_emethod_array, e->em_findex, 
+			     e->em_id, e );    
 
-    if ( NULL == er->er_neighbors || NULL == er->er_vdims ) {
-	free ( er );
-	return NULL;
-    }
-    memcpy ( er->er_neighbors, neighbors, nneighbors * sizeof(int));
-    memcpy ( er->er_vdims, vdims, vndims * sizeof(int));
-    er->er_vnc     = vnc;
-    er->er_vhwidth = vhwidth;
+    e->em_id          = ADCL_local_id_counter++;
+    e->em_rfcnt       = 1;
+    e->em_state       = ADCL_STATE_TESTING;
+    e->em_topo        = t;
+    e->em_vec         = v;
+    e->em_orgfnctset  = f;
 
-    er->er_num_emethods = ADCL_get_num_methods ();
-    er->er_emethods     = (ADCL_emethod_t*) calloc ( 1, er->er_num_emethods *
-						     sizeof(ADCL_emethod_t));
-    if ( NULL == er->er_emethods ) {
-	free ( er->er_vdims ) ;
-	free ( er->er_neighbors );
-	free ( er );
-	return NULL;
-    }
+    /* 
+    ** Generate a duplicate of the functions which we will work with.
+    ** The reason is, that the list of functions etc. might be modified
+    ** during the runtime optimization. We do not want to delete the original
+    ** set, since it might be use by multiple requests/emehods *and*
+    ** we might need the original list again when a re-evaluation has been 
+    ** initiated. 
+    */
+    ADCL_fnctset_dup ( f, &(e->em_fnctset));
 
-    for ( i=0; i< er->er_num_emethods; i++ ) {
-	er->er_emethods[i].em_time   = (TIME_TYPE *) calloc (1, 
-							     ADCL_emethod_numtests 
-							     * sizeof(TIME_TYPE));
-	  er->er_emethods[i].em_id     = ADCL_emethod_get_next_id ();
-	  er->er_emethods[i].em_method = ADCL_get_method(i);
-	  er->er_emethods[i].em_flags  = 0;
-    }
+    /* Set confidence values to 0 */
+//    memset(er->er_attr_confidence, 0, ADCL_ATTR_TOTAL_NUM * sizeof(short));
+//    er->er_num_avail_meas = 0;
+//    er->er_num_active_attrs=2;
+//    er->er_active_attr_list[0]=ADCL_ATTR_MAPPING;
+//    er->er_active_attr_list[1]=ADCL_ATTR_NONCONT;
 
-    er->er_num_active_attrs=2;
-    er->er_active_attr_list[0]=ADCL_ATTR_MAPPING;
-    er->er_active_attr_list[1]=ADCL_ATTR_NONCONT;
 
-    ADCL_array_get_next_free_pos ( ADCL_emethod_req_array, &er->er_pos );
-    ADCL_array_set_element ( ADCL_emethod_req_array, 
-			     er->er_pos, 
-			     er->er_pos,
-			     er );    
+//    if ( -1 != ADCL_emethod_selection ) {
+//	er->er_state = ADCL_STATE_REGULAR;
+//	er->er_wmethod = ADCL_emethod_get_method ( er, ADCL_emethod_selection );
+//   }
 
-    if ( -1 != ADCL_emethod_selection ) {
-	er->er_state = ADCL_STATE_REGULAR;
-	er->er_wmethod = ADCL_emethod_get_method ( er, ADCL_emethod_selection );
-    }
-
-    return er;
+    return e;
 }
 
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-void ADCL_emethod_free ( ADCL_emethod_req_t * er )
+void ADCL_emethod_free ( ADCL_emethod_t * e )
 {
-    int i;
 
-    er->er_rfcnt--;
-    if ( er->er_rfcnt == 0 ) {
-	for ( i=0; i< er->er_num_emethods; i++ ) {
-	    if ( NULL != er->er_emethods[i].em_time ) {
-		free ( er->er_emethods[i].em_time );
-	    }
-	}
-	if ( NULL != er->er_vdims  ) {
-	    free ( er->er_vdims);
-	}
-	if ( NULL != er->er_neighbors ) {
-	    free ( er->er_neighbors );
-	}
-	if ( NULL != er->er_emethods ) {
-	    free ( er->er_emethods );
-	}
-	ADCL_array_remove_element ( ADCL_emethod_req_array, er->er_pos );
-	free ( er );
+    e->em_rfcnt--;
+    if ( e->em_rfcnt == 0 ) {
+	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
+	free ( e );
     }
 
     return;
@@ -183,39 +145,32 @@ double ADCL_emethod_time (void)
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_emethod_get_next_id (void)
+ADCL_function_t* ADCL_emethod_get_function ( ADCL_emethod_t *e, int pos)
 {
-    return ADCL_local_id_counter++;
-}
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-ADCL_method_t* ADCL_emethod_get_method ( ADCL_emethod_req_t *erm, int pos)
-{
-    return erm->er_emethods[pos].em_method;
+    return e->em_fnctset.fs_fptrs[pos];
 }
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-ADCL_emethod_t* ADCL_emethod_get_by_attrs ( ADCL_emethod_req_t *erm, 
-					    int *attr)
+ADCL_function_t* ADCL_emethod_get_by_attrs ( ADCL_emethod_t *em, 
+					     int *attr)
 {
   int i, j, found;
-  ADCL_emethod_t* tmp_emethod, *result=NULL;
+  ADCL_fnctset_t* fnctset;
+  ADCL_function_t *result=NULL;
 
-  for ( i=0; i<erm->er_num_emethods; i++ ) {
-    tmp_emethod = &(erm->er_emethods[i]);
-    for ( found=1, j=0; j<ADCL_ATTR_TOTAL_NUM; j++ ){
-      if ( tmp_emethod->em_method->m_attr[j] != attr[j] ) {
-	found = 0; /* false */
-	break;
+  fnctset = &(em->em_fnctset);
+  for ( i=0; i< fnctset->fs_maxnum; i++ ) {
+      for ( found=1, j=0; j<fnctset->fs_attrset->as_maxnum; j++ ){
+	  if ( fnctset->fs_fptrs[i]->f_attrvals[j] != attr[j] ) {
+	      found = 0; /* false */
+	      break;
+	  }
       }
-    }
-    if ( found ) {
-      result = tmp_emethod;
-      break;
-    }
+      if ( found ) {
+	  result = fnctset->fs_fptrs[i];
+	  break;
+      }
   }
 	 
   
@@ -226,7 +181,7 @@ ADCL_emethod_t* ADCL_emethod_get_by_attrs ( ADCL_emethod_req_t *erm,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_emethod_monitor ( ADCL_emethod_req_t *ermethod, int pos, 
+int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, int pos, 
 			   TIME_TYPE tstart, TIME_TYPE tend )
 {
     /* to be done later */
@@ -236,63 +191,52 @@ int ADCL_emethod_monitor ( ADCL_emethod_req_t *ermethod, int pos,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_emethods_get_winner (ADCL_emethod_req_t *ermethod, MPI_Comm comm)
+int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
 {
-    int i, winner, rank;
-    ADCL_emethod_t **er=NULL;
-    
-    er = (ADCL_emethod_t **) malloc ( ermethod->er_num_emethods * 
-				      sizeof(ADCL_emethod_t *));
-    if ( NULL == er ) {
-	return ADCL_NO_MEMORY;
-    }
-    for ( i=0; i<ermethod->er_num_emethods; i++ ) {
-	er[i] = &(ermethod->er_emethods[i]);
-    }
+    int winner, rank;
 
-    MPI_Comm_rank ( ermethod->er_comm, &rank );
+    MPI_Comm_rank ( emethod->em_topo->t_comm, &rank );
 
     /* 
     ** Filter the input data, i.e. remove outliers which 
     ** would falsify the results 
     */
-    ADCL_statistics_filter_timings ( er,
-				     ermethod->er_num_emethods, 
+    ADCL_statistics_filter_timings ( &(emethod->em_stats),
+				     emethod->em_fnctset.fs_maxnum, 
 				     rank );
 
     /* 
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */
-    ADCL_statistics_global_max ( er,
-				 ermethod->er_num_emethods, 
-				 ermethod->er_comm, 1, 
-				 &(ermethod->er_num_emethods), 
+    ADCL_statistics_global_max ( &(emethod->em_stats),
+				 emethod->em_fnctset.fs_maxnum, 
+				 emethod->em_topo->t_comm, 1, 
+				 &(emethod->em_fnctset.fs_maxnum), 
 				 &winner, rank);
 
-    free ( er );
     return winner;
 }
 
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
+int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
 {
     int i, next=ADCL_EVAL_DONE;
-    ADCL_emethod_t *emethod;
-
-    emethod = &(er->er_emethods[er->er_last]);
-    if ( emethod->em_count < ADCL_emethod_numtests ) {
+    int last = e->em_last;
+    ADCL_hypothesis_t *hypo=&(e->em_hypo);
+    
+    if ( e->em_stats[last].s_count < ADCL_emethod_numtests ) {
         *flag = ADCL_FLAG_PERF;
-        emethod->em_count++;
-        return er->er_last;
+        e->em_stats[last].s_count++;
+        return last;
     }
     
-    ADCL_EM_SET_TESTED (emethod);
-    MPI_Barrier ( er->er_comm );
-    er->er_num_avail_meas++;
-    if ( emethod->em_rescount < ADCL_emethod_numtests ) {
+    ADCL_STAT_SET_TESTED (&(e->em_stats[last]));
+    MPI_Barrier ( e->em_topo->t_comm );
+    hypo->h_num_avail_meas++;
+    if ( e->em_stats[last].s_rescount < ADCL_emethod_numtests ) {
         /* 
         ** ok, some data is still outstanding. So we 
         ** do not switch yet to the evaluation mode, 
@@ -300,23 +244,23 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
         ** (= performance data not relevant for evaluation)
         */
         *flag = ADCL_FLAG_NOPERF;
-        return er->er_last;
+        return last;
     }
 
     if ( ADCL_emethod_use_perfhypothesis ) {
-	ADCL_hypothesis_eval_v2 ( er );
+	ADCL_hypothesis_eval_v2 ( e );
     }
     
-    for ( er->er_num_avail_meas=0,i=0;i<er->er_num_emethods;i++){
+    for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){
 	/* increase er_num_available_measurements every time 
 	   a method has the em_tested flag set to true; */
-	if ( !(ADCL_EM_IS_TESTED (&(er->er_emethods[i])))  ) {
+	if ( !(ADCL_STAT_IS_TESTED (&(e->em_stats[i])))  ) {
 	    next = i;
-	    er->er_last=next;
-	    er->er_emethods[next].em_count++;
+	    e->em_last=next;
+	    e->em_stats[next].s_count++;
 	    break;
 	}
-	er->er_num_avail_meas++;
+	hypo->h_num_avail_meas++;
     }
     
     *flag = ADCL_FLAG_PERF;
@@ -326,18 +270,17 @@ int ADCL_emethods_get_next ( ADCL_emethod_req_t *er, int mode, int *flag )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-void ADCL_emethods_update ( ADCL_emethod_req_t *ermethods, int pos, int flag, 
+void ADCL_emethods_update ( ADCL_emethod_t *emethod, int pos, int flag, 
 			    TIME_TYPE tstart, TIME_TYPE tend )
 {
-    ADCL_emethod_t *emethods = ermethods->er_emethods;
-    ADCL_emethod_t *tmpem;
+    ADCL_statistics_t *stat;
     TIME_TYPE exectime;
     
-    ADCL_EMETHOD_TIMEDIFF ( tstart, tend, exectime );
+    ADCL_STAT_TIMEDIFF ( tstart, tend, exectime );
     if ( flag == ADCL_FLAG_PERF ) {
-	tmpem = &emethods[pos];
-	tmpem->em_time[tmpem->em_rescount] = exectime;
-	tmpem->em_rescount++;
+	stat = &(emethod->em_stats[pos]);
+	stat->s_time[stat->s_rescount] = exectime;
+	stat->s_rescount++;
     }
 
     return;

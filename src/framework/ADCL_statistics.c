@@ -49,14 +49,14 @@ int ADCL_statistics_filter_timings (ADCL_statistics_t **statistics, int count,
 	    /* Determine the min  value for method i*/
 	    for ( min=999999, j=0; j<statistics[i]->s_rescount; j++ ) {
 		if ( statistics[i]->s_time[j] < min ) {
-		    min = statistics[i]->em_time[j];
+		    min = statistics[i]->s_time[j];
 		}
 	    }	    
 	
 	    /* Count how many values are N times larger than the min. */
 	    for ( numoutl=0, j=0; j<statistics[i]->s_rescount; j++ ) {
 		sum += statistics[i]->s_time[j];
-		if ( statisticss[i]->s_time[j] >= (ADCL_OUTLIER_FACTOR * min) ) {
+		if ( statistics[i]->s_time[j] >= (ADCL_OUTLIER_FACTOR * min) ) {
 #if 0 
 		    ADCL_printf("#%d: stat %d meas. %d is outlier %lf min "
 				"%lf\n", rank, i, j, statistics[i]->s_time[j], min );
@@ -69,7 +69,7 @@ int ADCL_statistics_filter_timings (ADCL_statistics_t **statistics, int count,
 	    }
 
 	    /* unfiltered avg. */
-	    statisticss[i]->s_lpts[0] = sum / statistics[i]->s_rescount; 
+	    statistics[i]->s_lpts[0] = sum / statistics[i]->s_rescount; 
 
 	    /* filtered avg. */
 	    statistics[i]->s_lpts[1] = sum_filtered/(statistics[i]->s_rescount- 

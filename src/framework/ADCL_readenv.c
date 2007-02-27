@@ -15,7 +15,7 @@ extern int ADCL_printf_silence;
 extern int ADCL_emethod_use_perfhypothesis;
 
 extern int ADCL_method_total_num;
-extern ADCL_method_t * ADCL_method_array;
+//extern ADCL_method_t * ADCL_method_array;
 
 #define Debug 1
 
@@ -135,7 +135,7 @@ int ADCL_readenv()
 #endif
 	}
 	
-	/*  ADCL_EMETHOD_SELECTION */
+	/*  ADCL_EMETHOD_SELECTION 
 	else if (strncmp(keyword,"ADCL_EMETHOD_SELECTION",
 			 strlen("ADCL_EMETHOD_SELECTION"))==0) {
 	    sscanf(ptr,"%s", valstring);
@@ -148,7 +148,7 @@ int ADCL_readenv()
 		    break;
 		}
 	    }
-	}
+	    }*/
 
 	/*  ADCL_PRINTF_SILENCE  */
 	else if ( strncmp(keyword, "ADCL_PRINTF_SILENCE", 

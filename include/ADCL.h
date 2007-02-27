@@ -85,16 +85,19 @@ int ADCL_Attrset_create   ( int maxnum, ADCL_Attribute *array_of_attributes,
 int ADCL_Attrset_free     ( ADCL_Attrset *attrset );
 
 /* ADCL Function and ADCL Functiongroup functions */
-typedef void ADCL_work_fnct_ptr ( ADCL_Request req, void *arg1, 
-				  void *arg2, void *arg3 );
+typedef void ADCL_work_fnct_ptr ( ADCL_Request req, void *arg1, void *arg2, void *arg3 );
 
-int ADCL_Function_create       ( ADCL_work_fnct_ptr *fnct, ADCL_Attrset attrset, 
-				 int *array_of_attrvalues, char *name, ADCL_Function *fnct);
+int ADCL_Function_create       ( ADCL_work_fnct_ptr *fnctp, 
+				 ADCL_Attrset attrset, 
+				 int *array_of_attrvalues, 
+				 char *name, 
+				 ADCL_Function *fnct);
 int ADCL_Function_create_async ( ADCL_work_fnct_ptr *init_fnct, 
 				 ADCL_work_fnct_ptr *wait_fnct, 
 				 ADCL_Attrset attrset, 
-				 int *array_of_attrvalues, char *name, 
+				 int *array_of_attrvalues, char *name,  
 				 ADCL_Function *fnct);
+
 int ADCL_Function_free         ( ADCL_Function *fnct );
 
 int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name, 
