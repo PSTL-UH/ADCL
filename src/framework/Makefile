@@ -4,7 +4,7 @@ include ../../Makefile.defs
 OBJ = 	ADCL_array.o 		\
 	ADCL_attribute.o	\
 	ADCL_vector.o           \
-	ADCL_fnctset.o 		\
+	ADCL_function.o		\
 	ADCL_indexed.o          \
 	ADCL_method.o 		\
 	ADCL_packunpack.o       \

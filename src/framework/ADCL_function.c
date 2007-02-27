@@ -34,7 +34,7 @@ int ADCL_function_create ( ADCL_work_fnct_ptr *init_fnct,
 	    ret = ADCL_NO_MEMORY;
 	    goto exit;
 	}
-	memcpy (newfunction->f_attrvals, array_of_attrvals, attrse->as_maxnum*sizeof(int));
+	memcpy (newfunction->f_attrvals, array_of_attrvalues, attrset->as_maxnum*sizeof(int));
     }
 
     if ( NULL != name ) {
@@ -42,7 +42,7 @@ int ADCL_function_create ( ADCL_work_fnct_ptr *init_fnct,
     }
 
     newfunction->f_iptr = init_fnct;
-    newfunction->w_iptr = wait_fnct;
+    newfunction->f_wptr = wait_fnct;
 
  exit:
     if ( ret != ADCL_SUCCESS ) {
@@ -58,6 +58,7 @@ int ADCL_function_create ( ADCL_work_fnct_ptr *init_fnct,
     *fnct = newfunction;
     return ret;
 }
+
 int ADCL_function_free ( ADCL_function_t **fnct )
 {
     ADCL_function_t *tfnct=*fnct;
@@ -131,6 +132,40 @@ int ADCL_fnctset_create( int maxnum, ADCL_function_t **fncts, char *name,
     return ret;
 }
 
+/* Please note, memory for the copy argument is already allocated ! */
+int ADCL_fnctset_dup ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy )
+{
+    int ret = ADCL_SUCCESS;
+
+    copy->fs_id      = ADCL_local_fnctset_counter++;
+    copy->fs_finxed  = -1; /* not set */
+    copy->fs_attrset = org->fs_attrset;
+    copy->fs_maxnum  = org->fs_maxnum;
+    copy->fs_fptrs   = (ADCL_function_t**)calloc(1,org->fs_maxnum*sizeof(ADCL_function_t*));
+    if ( NULL == copy->fs_fptrs ) {
+	ret = ADCL_NO_MEMORY;
+	goto exit;
+    }
+    memcpy ( copy->fs_fptrs, org->fs_fptrs, org->fs_maxnum * sizeof (ADCL_function_t *));
+
+    if ( NULL != org->fs_name ) {
+	copy->fs_name = strdup ( org->fs_name );
+    }
+
+ exit:
+    if ( ret != ADCL_SUCCESS ) {
+	if ( NULL != copy->fs_fptrs ) {
+	    free ( copy->fs_fptrs );
+	}
+
+	if ( NULL != copy->fs_name ) {
+	    free ( copy->fs_name );
+	}
+    }
+
+    *copy = newfnctset;
+    return ret;
+}
 
 int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
 {
@@ -141,10 +176,12 @@ int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
 	if ( NULL != tfnctset->fs_fptrs ) {
 	    free (tfnctset->fs_fptrs );
 	}
-	ADCL_array_remove_element ( ADCL_fnctset_farray, tfnctset->fs_findex);
+	if ( tfcntset->fs_findex != -1 ) {
+	    ADCL_array_remove_element ( ADCL_fnctset_farray, tfnctset->fs_findex);
+	}
 
 	if ( NULL != tfnctset->fs_name ) {
-	    free ( tnfcntset->fs_name );
+	    free ( tfnctset->fs_name );
 	}
 	free ( fnctset );
     }    

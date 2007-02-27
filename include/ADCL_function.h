@@ -9,7 +9,7 @@
 
 struct ADCL_function_s {
     int                     f_id; /* id of the object */
-    int                  f_index; /* index of this object in the fortran array */
+    int                 f_findex; /* index of this object in the fortran array */
     ADCL_work_fnct_ptr   *f_iptr; /* init function pointer. This pointer will 
 				     also be used for single block functions */
     ADCL_work_fnct_ptr   *f_wptr; /* wait function pointer. Has to  be NULL 
@@ -46,5 +46,5 @@ extern ADCL_array_t *ADCL_fnctset_farray;
 int ADCL_fnctset_create ( int maxnum, ADCL_function_t **fncts, char *name, 
 			  ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_free   ( ADCL_fnctset_t **fnctset );
-int ADCL_fnctset_dup    ( ADCL_fnctset_t *org, ADCL_fnctset_t *dup );
+int ADCL_fnctset_dup    ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy );
 #endif

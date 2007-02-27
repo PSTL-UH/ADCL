@@ -16,7 +16,8 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 				   ADCL_fnctset_t *f )
 
 {
-    ADCL_emethod_t *e;    
+    ADCL_emethod_t *e=NULL;    
+    ADCL_hypothesis_t *hypo=NULL;
     int i;
 
     if ( ADCL_merge_requests ) {
@@ -101,7 +102,32 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     */
     ADCL_fnctset_dup ( f, &(e->em_fnctset));
 
-    /* Set confidence values to 0 */
+    /* Allocate the according number of statitics objects */
+    e->em_stats = (ADCL_statistics_t *) calloc ( 1, f->fs_maxnum*sizeof(ADCL_statistics_t));
+    if ( NULL == e->em_stats ) {
+	ret = ADCL_NO_MEMORY;
+	goto exit;
+    }
+    
+    /* initiate the performance hypothesis structure */
+    hypo = &(e->em_hypo);
+    hypo->h_num_avail_meas = 0;
+    hypo->h_num_active_attrs = 0;
+    hypo->h_attr_hypothesis  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
+    hypo->h_attr_confidence  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
+    hypo->h_active_attr_list = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
+    if ( NULL == hypo->h_attr_hypothesis ||
+	 NULL == hypo->h_attr_confidence ||
+	 NULL == hypo->h_active_attr_list ) {
+	ret = ADCL_NO_MEMORY;
+	goto exit;
+    }
+
+    /* Initialize the attribute list if we are dealing with a predefined functionset */
+    if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
+	hypo->h_num_active_attrs = 2;
+	hypo->h_active_attr_list[0] = 
+    
 //    memset(er->er_attr_confidence, 0, ADCL_ATTR_TOTAL_NUM * sizeof(short));
 //    er->er_num_avail_meas = 0;
 //    er->er_num_active_attrs=2;
