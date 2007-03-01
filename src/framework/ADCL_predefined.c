@@ -15,8 +15,8 @@
 				   Used in the performance hypothesis v2 */
 
 /* Store for each attribute the maximum number of possible values */
-extern int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
-extern int ADCL_attr_base[ADCL_ATTR_TOTAL_NUM];
+//extern int ADCL_attr_max[ADCL_ATTR_TOTAL_NUM];
+//extern int ADCL_attr_base[ADCL_ATTR_TOTAL_NUM];
 /*=================================================================*/
 /* 
 ** The mapping step

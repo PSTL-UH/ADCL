@@ -54,7 +54,8 @@ int ADCL_attribute_free ( ADCL_attribute_t **attribute)
 int ADCL_attrset_create ( int maxnum, ADCL_attribute_t **array_of_attributes, ADCL_attrset_t **attrset)
 {
     ADCL_attrset_t *newattrset=NULL;
-        
+    int i;
+       
     newattrset = ( ADCL_attrset_t *) calloc (1, sizeof (ADCL_attrset_t));
     if ( NULL == newattrset ) {
 	return ADCL_NO_MEMORY;
@@ -74,6 +75,21 @@ int ADCL_attrset_create ( int maxnum, ADCL_attribute_t **array_of_attributes, AD
     }
     
     memcpy ( newattrset->as_attrs, array_of_attributes, maxnum*sizeof(ADCL_attribute_t *));
+
+    /* Determine the base and the last values for all attributes. That's required for
+       some of the loops within the performance hypothesis code */
+    newattrset->as_attrs_baseval = (int *) malloc ( maxnum * sizeof(int) );
+    newattrset->as_attrs_maxval  = (int *) malloc ( maxnum * sizeof(int) );
+    if ( NULL == newattrset->as_attrs_baseval || NULL == newattrset->as_attrs_maxval ) {
+	free ( newattrset->as_attrs);
+	free ( newattrset );
+	return ADCL_NO_MEMORY;
+    }
+
+    for ( i=0; i< maxnum; i++ ) {
+	newattrset->as_attrs_baseval[i] = array_of_attributes[i]->a_values[0];
+	newattrset->as_attrs_maxval[i] = array_of_attributes[i]->a_values[array_of_attributes[i]->a_maxnvalues-1];
+    }
     
     *attrset = newattrset;
     return ADCL_SUCCESS;
@@ -87,6 +103,15 @@ int ADCL_attrset_free ( ADCL_attrset_t **attrset)
 	if ( NULL != tattrset->as_attrs ) {
 	    free ( tattrset->as_attrs );
 	}
+
+	if ( NULL != tattrset->as_attrs_baseval ) {
+	    free ( tattrset->as_attrs_baseval) ;
+	}
+
+	if ( NULL != tattrset->as_attrs_maxval ) {
+	    free ( tattrset->as_attrs_maxval) ;
+	}
+
 	ADCL_array_remove_element ( ADCL_attrset_farray, tattrset->as_findex);
 	free ( tattrset );
     }

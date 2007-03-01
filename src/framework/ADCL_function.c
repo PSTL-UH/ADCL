@@ -138,7 +138,7 @@ int ADCL_fnctset_dup ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy )
     int ret = ADCL_SUCCESS;
 
     copy->fs_id      = ADCL_local_fnctset_counter++;
-    copy->fs_finxed  = -1; /* not set */
+    copy->fs_findex  = -1; /* not set */
     copy->fs_attrset = org->fs_attrset;
     copy->fs_maxnum  = org->fs_maxnum;
     copy->fs_fptrs   = (ADCL_function_t**)calloc(1,org->fs_maxnum*sizeof(ADCL_function_t*));
@@ -163,20 +163,18 @@ int ADCL_fnctset_dup ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy )
 	}
     }
 
-    *copy = newfnctset;
     return ret;
 }
 
 int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
 {
-    int i;
     ADCL_fnctset_t *tfnctset=*fnctset;
 
     if ( NULL != tfnctset ) {
 	if ( NULL != tfnctset->fs_fptrs ) {
 	    free (tfnctset->fs_fptrs );
 	}
-	if ( tfcntset->fs_findex != -1 ) {
+	if ( tfnctset->fs_findex != -1 ) {
 	    ADCL_array_remove_element ( ADCL_fnctset_farray, tfnctset->fs_findex);
 	}
 

@@ -27,6 +27,7 @@ struct ADCL_emethod_s {
 				      this object */
     ADCL_hypothesis_t     em_hypo; /* Performance hypothesis object of to this 
 				      emethod */
+    ADCL_function_t  *em_wfunction; /* winner function */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 

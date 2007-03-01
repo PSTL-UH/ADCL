@@ -8,6 +8,8 @@ int ADCL_merge_requests=1;
 int ADCL_emethod_numtests=ADCL_EMETHOD_NUMTESTS;
 int ADCL_emethod_use_perfhypothesis=0; /* false */
 
+#define ADCL_ATTR_TOTAL_NUM 3
+extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
 
 /**********************************************************************/
 /**********************************************************************/
@@ -18,7 +20,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 {
     ADCL_emethod_t *e=NULL;    
     ADCL_hypothesis_t *hypo=NULL;
-    int i;
+    int i, ret=ADCL_SUCCESS;
 
     if ( ADCL_merge_requests ) {
 	int j, last, found=-1;
@@ -115,7 +117,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     hypo->h_num_active_attrs = 0;
     hypo->h_attr_hypothesis  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
     hypo->h_attr_confidence  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
-    hypo->h_active_attr_list = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
+    hypo->h_active_attr_list = (ADCL_attribute_t **) calloc (1, f->fs_attrset->as_maxnum * sizeof(ADCL_attribute_t *));
     if ( NULL == hypo->h_attr_hypothesis ||
 	 NULL == hypo->h_attr_confidence ||
 	 NULL == hypo->h_active_attr_list ) {
@@ -126,19 +128,35 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     /* Initialize the attribute list if we are dealing with a predefined functionset */
     if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
 	hypo->h_num_active_attrs = 2;
-	hypo->h_active_attr_list[0] = 
+	hypo->h_active_attr_list[0] = ADCL_neighborhood_attrs[0]; /* ADCL_ATTR_MAPPING */
+	hypo->h_active_attr_list[1] = ADCL_neighborhood_attrs[0]; /* ADCL_ATTR_NONCONT */
+    }
     
-//    memset(er->er_attr_confidence, 0, ADCL_ATTR_TOTAL_NUM * sizeof(short));
-//    er->er_num_avail_meas = 0;
-//    er->er_num_active_attrs=2;
-//    er->er_active_attr_list[0]=ADCL_ATTR_MAPPING;
-//    er->er_active_attr_list[1]=ADCL_ATTR_NONCONT;
-
 
 //    if ( -1 != ADCL_emethod_selection ) {
 //	er->er_state = ADCL_STATE_REGULAR;
 //	er->er_wmethod = ADCL_emethod_get_method ( er, ADCL_emethod_selection );
 //   }
+
+ exit:
+    if ( ret != ADCL_SUCCESS  ) {
+	if ( NULL != e->em_stats  ) {
+	    free ( e->em_stats );
+	}
+	if ( NULL != hypo->h_attr_hypothesis ) {
+	    free ( hypo->h_attr_hypothesis );
+	}
+	if ( NULL != hypo->h_attr_confidence ) {
+	    free ( hypo->h_attr_confidence );
+	}
+	if ( NULL != hypo->h_active_attr_list ) {
+	    free ( hypo->h_active_attr_list );
+	}
+
+	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
+	free ( e );
+	e = NULL;
+    }
 
     return e;
 }
@@ -151,6 +169,22 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
 
     e->em_rfcnt--;
     if ( e->em_rfcnt == 0 ) {
+	ADCL_hypothesis_t *hypo = &(e->em_hypo);
+
+	if ( NULL != e->em_stats  ) {
+	    free ( e->em_stats );
+	}
+
+	if ( NULL != hypo->h_attr_hypothesis ) {
+	    free ( hypo->h_attr_hypothesis );
+	}
+	if ( NULL != hypo->h_attr_confidence ) {
+	    free ( hypo->h_attr_confidence );
+	}
+	if ( NULL != hypo->h_active_attr_list ) {
+	    free ( hypo->h_active_attr_list );
+	}
+
 	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
 	free ( e );
     }
@@ -179,7 +213,7 @@ ADCL_function_t* ADCL_emethod_get_function ( ADCL_emethod_t *e, int pos)
 /**********************************************************************/
 /**********************************************************************/
 ADCL_function_t* ADCL_emethod_get_by_attrs ( ADCL_emethod_t *em, 
-					     int *attr)
+					     int *attrval)
 {
   int i, j, found;
   ADCL_fnctset_t* fnctset;
@@ -188,7 +222,7 @@ ADCL_function_t* ADCL_emethod_get_by_attrs ( ADCL_emethod_t *em,
   fnctset = &(em->em_fnctset);
   for ( i=0; i< fnctset->fs_maxnum; i++ ) {
       for ( found=1, j=0; j<fnctset->fs_attrset->as_maxnum; j++ ){
-	  if ( fnctset->fs_fptrs[i]->f_attrvals[j] != attr[j] ) {
+	  if ( fnctset->fs_fptrs[i]->f_attrvals[j] != attrval[j] ) {
 	      found = 0; /* false */
 	      break;
 	  }
@@ -273,10 +307,13 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
         return last;
     }
 
+#if 0
     if ( ADCL_emethod_use_perfhypothesis ) {
 	ADCL_hypothesis_eval_v2 ( e );
     }
     
+#endif
+
     for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){
 	/* increase er_num_available_measurements every time 
 	   a method has the em_tested flag set to true; */

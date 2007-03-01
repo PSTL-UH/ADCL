@@ -30,9 +30,9 @@ struct ADCL_attrset_s{
     int               as_findex; /* index of this object in the fortran array */
     int               as_refcnt; /* reference counter of this object */
     int               as_maxnum; /* no. of attributes contained in this set */
-    int          *as_attrs_base; /* array containing the first values of each attribute
+    int       *as_attrs_baseval; /* array containing the first values of each attribute
 				    in this attribute set */
-    int           *as_attrs_max; /* array containing the last values of each attribute
+    int        *as_attrs_maxval; /* array containing the last values of each attribute
 				    in this attribute set */
     ADCL_attribute_t **as_attrs; /* array of ADCL_attributes in this set */
 };

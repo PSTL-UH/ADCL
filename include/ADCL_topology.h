@@ -7,6 +7,7 @@ struct ADCL_topology_s{
     int         t_id; /* id of the object */
     int     t_findex; /* index of this object in the fortran array */
     MPI_Comm  t_comm; /* communicator used for data exchange */
+    int       t_rank; /* rank of this process in the t_comm */
     int      t_ndims; /* number of dimension of this process topology */
     int *t_neighbors; /* array of neighboring processes, dimension 
 			 2*t_ndims */    
