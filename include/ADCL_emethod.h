@@ -37,7 +37,6 @@ ADCL_emethod_t* ADCL_emethod_init ( ADCL_topology_t *topo, ADCL_vector_t *vec,
 
 void ADCL_emethod_free ( ADCL_emethod_t * er );
 
-double ADCL_emethod_time(void);
 
 int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, int pos,
 			   TIME_TYPE tstart, TIME_TYPE tend );

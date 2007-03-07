@@ -6,8 +6,6 @@ int ADCL_Init (void )
     int ret;
 
     ret = ADCL_printf_init();
-    ret = ADCL_emethod();
-
     ret = ADCL_readenv();
 
     /* Initialize the request, topology and vector fortran pointer arrays */
@@ -17,7 +15,7 @@ int ADCL_Init (void )
     ADCL_array_init ( &(ADCL_attribute_farray), "ADCL_Attribute",32 );
     ADCL_array_init ( &(ADCL_attrset_farray),   "ADCL_Attrset",  32 );
     ADCL_array_init ( &(ADCL_function_farray),  "ADCL_Function",  32 );
-    ADCL_array_init ( &(ADCL_fnctgrp_farray),   "ADCL_Fnctgrp",  32 );
+    ADCL_array_init ( &(ADCL_fnctset_farray),   "ADCL_Fnctgrp",  32 );
 
     ret = ADCL_predefined_init ();
 
@@ -28,8 +26,6 @@ int ADCL_Finalize ( void )
 {
     int ret;
     
-    ret = ADCL_emethod_finalize();
-
     /* Initialize the request and vector fortran pointer arrays */
     ADCL_array_free ( &(ADCL_vector_farray));
     ADCL_array_free ( &(ADCL_request_farray));
@@ -37,7 +33,7 @@ int ADCL_Finalize ( void )
     ADCL_array_free ( &(ADCL_attribute_farray));
     ADCL_array_free ( &(ADCL_attrset_farray));
     ADCL_array_free ( &(ADCL_function_farray));
-    ADCL_array_free ( &(ADCL_fnctgrp_farray));
+    ADCL_array_free ( &(ADCL_fnctset_farray));
 
     ADCL_printf_finalize ();
     return ret;

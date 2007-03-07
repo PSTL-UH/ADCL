@@ -47,43 +47,49 @@ void adcl_attrset_free__ ( int *attrset, int *ierr );
 void ADCL_ATTRSET_FREE   ( int *attrset, int *ierr );
 
 
-/* ADCL Functiongroup functions */
-void adcl_fnctset_create   ( int* maxnum, int *fnctset, int *ierr );
-void adcl_fnctset_create_  ( int* maxnum, int *fnctset, int *ierr );
-void adcl_fnctset_create__ ( int* maxnum, int *fnctset, int *ierr );
-void ADCL_FNCTSET_CREATE   ( int* maxnum, int *fnctset, int *ierr );
-
-void adcl_fnctset_free   ( int *fnctset, int *ierr );
-void adcl_fnctset_free_  ( int *fnctset, int *ierr );
-void adcl_fnctset_free__ ( int *fnctset, int *ierr );
-void ADCL_FNCTSET_FREE   ( int *fnctset, int *ierr );
-
-void adcl_fnctset_register_fnct   ( int *fnctset, int *cnt, 
-				    void *fct, int *ierr );
-void adcl_fnctset_register_fnct_  ( int *fnctset, int *cnt, 
-				    void *fct, int *ierr );
-void adcl_fnctset_register_fnct__ ( int *fnctset, int *cnt, 
-				    void *fct, int *ierr );
-void ADCL_FNCTSET_REGISTER_FNCT   ( int *fnctset, int *cnt, 
-				    void *fct, int *ierr );
+/* ADCL Function and functionsets */
+void adcl_function_create   ( void *iptr, int *attrset, int *array_of_attrvals, char *name, 
+			      int *fnct, int *ierr );
+void adcl_function_create_  ( void *iptr, int *attrset, int *array_of_attrvals, char *name, 
+			      int *fnct, int *ierr );
+void adcl_function_create__ ( void *iptr, int *attrset, int *array_of_attrvals, char *name, 
+			      int *fnct, int *ierr );
+void ADCL_FUNCTION_CREATE   ( void *iptr, int *attrset, int *array_of_attrvals, char *name, 
+			      int *fnct, int *ierr );
 
 
-void adcl_fnctset_register_fnct_and_attrset   ( int *fnctset, int *cnt, 
-						void *fct, int *attrset, 
-						int *array_of_attrvalues, 
-						int *ierr );
-void adcl_fnctset_register_fnct_and_attrset_  ( int *fnctset, int *cnt, 
-						void *fct, int *attrset, 
-						int *array_of_attrvalues, 
-						int *ierr );
-void adcl_fnctset_register_fnct_and_attrset__ ( int *fnctset, int *cnt, 
-						void *fct, int *attrset, 
-						int *array_of_attrvalues, 
-						int *ierr );
-void ADCL_FNCTSET_REGISTER_FNCT_AND_ATTRSET   ( int *fnctset, int *cnt, 
-						void *fct, int *attrset, 
-						int *array_of_attrvalues, 
-						int *ierr );
+void adcl_function_create_async   ( void *iptr, void *wptr, int *attrset, 
+				    int *array_of_attrvals, char *name, 
+				    int *fnct, int *ierr );
+void adcl_function_create_async_  ( void *iptr, void *wptr, int *attrset, 
+				    int *array_of_attrvals, char *name, 
+				    int *fnct, int *ierr );
+void adcl_function_create_async__ ( void *iptr, void *wptr, int *attrset, 
+				    int *array_of_attrvals, char *name, 
+				    int *fnct, int *ierr );
+void ADCL_FUNCTION_CREATE_ASYNC   ( void *iptr, void *wptr, int *attrset, 
+				    int *array_of_attrvals, char *name, 
+				    int *fnct, int *ierr );
+
+
+void adcl_function_free ( int *fnct, int *ierr  );
+void adcl_function_free_ ( int *fnct, int *ierr  );
+void adcl_function_free__ ( int *fnct, int *ierr  );
+void ADCL_FUNCTION_FREE ( int *fnct, int *ierr  );
+
+void adcl_fnctset_create   ( int* maxnum, int *array_of_fncts, int *fctset, 
+			     char *name, int *ierr );
+void adcl_fnctset_create_  ( int* maxnum, int *array_of_fncts, int *fctset, 
+			     char *name, int *ierr );
+void adcl_fnctset_create__ ( int* maxnum, int *array_of_fncts, int *fctset, 
+			     char *name, int *ierr );
+void ADCL_FNCTSET_CREATE   ( int* maxnum, int *array_of_fncts, int *fctset, 
+			     char *name, int *ierr );
+
+void adcl_fnctset_free   ( int *fctset, int *ierr );
+void adcl_fnctset_free_  ( int *fctset, int *ierr );
+void adcl_fnctset_free__ ( int *fctset, int *ierr );
+void ADCL_FNCTSET_FREE   ( int *fctset, int *ierr );
 
 /* ADCL vector functions */
 

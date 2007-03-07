@@ -47,6 +47,9 @@ int ADCL_statistics_global_max ( ADCL_statistics_t **stats, int count,
  				 MPI_Comm comm, int num_blocks, int *blength, 
 				 int *winners, int rank );
 
+double ADCL_statistics_time(void);
+
+
 struct ADCL_hypothesis_s {
     int                 *h_attr_hypothesis; /* List of performance hypothesis*/
     int                 *h_attr_confidence; /* List of confidence values */
@@ -56,6 +59,7 @@ struct ADCL_hypothesis_s {
     int                 h_num_active_attrs;  
 };
 typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
+
 
 
 

@@ -4,7 +4,12 @@
 int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
 			  ADCL_Request *req )
 {
-    /* TODO: check validaty of vec and of the topo objects */
+    if ( vec->v_id < 0 ) {
+	return ADCL_INVALID_VECTOR;
+    }
+    if ( topo->t_id < 0 ) {
+	return ADCL_INVALID_TOPOLOGY;
+    }
     return ADCL_request_create (vec, topo, req, MPI_ORDER_C );
 }
 
