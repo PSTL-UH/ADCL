@@ -9,11 +9,11 @@ static int ADCL_local_fnctset_counter=0;
 
 
 
-int ADCL_function_create ( ADCL_work_fnct_ptr *init_fnct, 
-			   ADCL_work_fnct_ptr *wait_fnct, 
-			   ADCL_attrset_t * attrset, 
-			   int *array_of_attrvalues, char *name, 
-			   ADCL_function_t **fnct)
+int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct, 
+				 ADCL_work_fnct_ptr *wait_fnct, 
+				 ADCL_attrset_t * attrset, 
+				 int *array_of_attrvalues, char *name, 
+				 ADCL_function_t **fnct)
 {
     ADCL_function_t *newfunction;
     int ret=ADCL_SUCCESS;
@@ -43,6 +43,9 @@ int ADCL_function_create ( ADCL_work_fnct_ptr *init_fnct,
 
     newfunction->f_iptr = init_fnct;
     newfunction->f_wptr = wait_fnct;
+    if ( NULL != wait_fnct ) {
+	newfunction->f_db   = 1; /* true */
+    }
 
  exit:
     if ( ret != ADCL_SUCCESS ) {
