@@ -4,14 +4,14 @@
 
 
 /* Neighborhood communication initiating all operations at-once */
-int ADCL_CHANGE_SB_AAO ( ADCL_request_t *req )
+void ADCL_CHANGE_SB_AAO ( ADCL_request_t *req, void *a, void *b, void *c )
 {
-    int i, nneighs=req->r_nneighbors;
+    int i, nneighs=2*TOPO->t_ndims;
 
     PREPARE_COMMUNICATION(req);
     
     for ( i=0; i<nneighs; i++ ) {
-	if ( MPI_PROC_NULL != req->r_neighbors[i] ) {
+	if ( MPI_PROC_NULL != TOPO->t_neighbors[i] ) {
 	    RECV_START(req, i, AAO_SB_TAG);
 	    SEND_START(req, i, AAO_SB_TAG);
 	}
@@ -26,6 +26,6 @@ int ADCL_CHANGE_SB_AAO ( ADCL_request_t *req )
 
     STOP_COMMUNICATION(req);
         
-    return ADCL_SUCCESS;
+    return;
 }
 

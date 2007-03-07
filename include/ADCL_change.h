@@ -4,6 +4,9 @@
 #include "ADCL.h"
 
 
+#define TOPO req->r_emethod->em_topo
+
+
 #if COMMMODE == 0
   #define COMMTEXT  "DebugNoCommunication"
 
@@ -14,13 +17,13 @@
   #define STOP_COMMUNICATION(req)
 
   #define SEND_START(req,i,tag) { int _rank;   \
-         MPI_Comm_rank ( req->r_comm, &_rank );\
+         MPI_Comm_rank ( TOPO->t_comm, &_rank );\
          printf("%d: want to send to %d\n",    \
-                _rank, req->r_neighbors[i]);}
+                _rank, TOPO->t_neighbors[i]);}
   #define RECV_START(req,i,tag) { int _rank;    \
-         MPI_Comm_rank ( req->r_comm, &_rank ); \
+         MPI_Comm_rank ( TOPO->t_comm, &_rank ); \
          printf("%d: want to recv from %d\n",   \
-                _rank, req->r_neighbors[i]); }
+                _rank, TOPO->t_neighbors[i]); }
   #define SEND_WAITALL(req) 
   #define RECV_WAITALL(req) 
   #define SEND_WAIT(req,i) 
@@ -35,15 +38,16 @@
   #define PREPARE_COMMUNICATION(req)
   #define STOP_COMMUNICATION(req)
 
+
   #define SEND_START(req,i,tag) MPI_Isend(req->r_vec->v_data, 1,\
-         req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm,\
+         req->r_sdats[i], TOPO->t_neighbors[i], tag, TOPO->t_comm,\
          &req->r_sreqs[i])
-  #define RECV_START(req,i,tag) MPI_Irecv(req->r_vec->v_data, 1,\
-         req->r_rdats[i], req->r_neighbors[i], tag, req->r_comm,\
-         &req->r_rreqs[i])
-  #define SEND_WAITALL(req) MPI_Waitall(req->r_nneighbors, req->r_sreqs, \
+ #define RECV_START(req,i,tag) MPI_Irecv(req->r_vec->v_data, 1,\
+         req->r_rdats[i], TOPO->t_neighbors[i], tag, TOPO->t_comm,\
+         &req->r_rreqs[i]) 
+  #define SEND_WAITALL(req) MPI_Waitall(2*TOPO->t_ndims, req->r_sreqs, \
          MPI_STATUSES_IGNORE )
-  #define RECV_WAITALL(req) MPI_Waitall(req->r_nneighbors, req->r_rreqs, \
+  #define RECV_WAITALL(req) MPI_Waitall(2*TOPO->t_ndims, req->r_rreqs, \
          MPI_STATUSES_IGNORE)
   #define SEND_WAIT(req,i) MPI_Wait(&req->r_sreqs[i], MPI_STATUS_IGNORE)
   #define RECV_WAIT(req,i) MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE)
@@ -56,9 +60,9 @@
   #define STOP_COMMUNICATION(req)
 
   #define SEND_START(req,i,tag) MPI_Send(req->r_vec->v_data, 1, \
-                                req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm )
+                                req->r_sdats[i], TOPO->t_neighbors[i], tag, TOPO->t_comm )
   #define RECV_START(req,i,tag) MPI_Recv(req->r_vec->v_data, 1,  \
-         req->r_rdats[i], req->r_neighbors[i], tag, req->r_comm, \
+         req->r_rdats[i], TOPO->t_neighbors[i], tag, TOPO->t_comm, \
          MPI_STATUS_IGNORE )
   #define SEND_WAITALL(req) 
   #define RECV_WAITALL(req) 
@@ -74,12 +78,12 @@
 
   #define ADCL_CHANGE_SB_PAIR ADCL_change_sb_pair_SendIrecv
   #define SEND_START(req,i,tag) MPI_Send(req->r_vec->v_data, 1,\
-         req->r_sdats[i], req->r_neighbors[i], tag, req->r_comm)
+         req->r_sdats[i], TOPO->t_neighbors[i], tag, TOPO->t_comm)
   #define RECV_START(req,i,tag) MPI_Irecv(req->r_vec->v_data, 1,\
-         req->r_rdats[i], req->r_neighbors[i], tag, req->r_comm,\
+         req->r_rdats[i], TOPO->t_neighbors[i], tag, TOPO->t_comm,\
          &req->r_rreqs[i])
   #define SEND_WAITALL(req) 
-  #define RECV_WAITALL(req) MPI_Waitall(req->r_nneighbors, req->r_rreqs, \
+  #define RECV_WAITALL(req) MPI_Waitall(2*TOPO->t_ndims, req->r_rreqs, \
          MPI_STATUSES_IGNORE)
   #define SEND_WAIT(req,i) 
   #define RECV_WAIT(req,i) MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE)
@@ -95,26 +99,26 @@
 
   #define SEND_START(req,i,tag) { int _pos=0;                          \
      MPI_Pack ( req->r_vec->v_data, 1, req->r_sdats[i],                \
-                req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);\
-     MPI_Isend(req->r_sbuf[i], _pos, MPI_PACKED, req->r_neighbors[i],  \
-	       tag, req->r_comm, &req->r_sreqs[i]);}
+                req->r_sbuf[i], req->r_spsize[i], &_pos, TOPO->t_comm);\
+     MPI_Isend(req->r_sbuf[i], _pos, MPI_PACKED, TOPO->t_neighbors[i],  \
+	       tag, TOPO->t_comm, &req->r_sreqs[i]);}
 
   #define RECV_START(req,i,tag) MPI_Irecv(req->r_rbuf[i], req->r_rpsize[i],\
-         MPI_PACKED, req->r_neighbors[i], tag, req->r_comm,&req->r_rreqs[i])
-  #define SEND_WAITALL(req) MPI_Waitall(req->r_nneighbors, req->r_sreqs,    \
+         MPI_PACKED, TOPO->t_neighbors[i], tag, TOPO->t_comm,&req->r_rreqs[i])
+  #define SEND_WAITALL(req) MPI_Waitall(2*TOPO->t_ndims, req->r_sreqs,    \
          MPI_STATUSES_IGNORE )
   #define RECV_WAITALL(req) { int _i, _pos=0;                            \
-     MPI_Waitall(req->r_nneighbors, req->r_rreqs, MPI_STATUSES_IGNORE);  \
-     for (_i=0; _i< req->r_nneighbors; _i++, _pos=0 ) {                  \
-         if ( req->r_neighbors[_i] == MPI_PROC_NULL ) continue;          \
+     MPI_Waitall(2*TOPO->t_ndims, req->r_rreqs, MPI_STATUSES_IGNORE);  \
+     for (_i=0; _i< 2*TOPO->t_ndims; _i++, _pos=0 ) {                  \
+         if ( TOPO->t_neighbors[_i] == MPI_PROC_NULL ) continue;          \
          MPI_Unpack(req->r_rbuf[_i], req->r_rpsize[_i], &_pos,           \
-              req->r_vec->v_data, 1, req->r_rdats[_i], req->r_comm ); } }
+              req->r_vec->v_data, 1, req->r_rdats[_i], TOPO->t_comm ); } }
 
   #define SEND_WAIT(req,i) MPI_Wait(&req->r_sreqs[i], MPI_STATUS_IGNORE)
   #define RECV_WAIT(req,i) { int _pos=0;                         \
      MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE);              \
      MPI_Unpack(req->r_rbuf[i], req->r_rpsize[i], &_pos,         \
-         req->r_vec->v_data, 1, req->r_rdats[i], req->r_comm ); }
+         req->r_vec->v_data, 1, req->r_rdats[i], TOPO->t_comm ); }
 
 #elif COMMMODE == 5
 
@@ -127,15 +131,15 @@
 
    #define SEND_START(req, i, tag) {  int _pos=0;                      \
      MPI_Pack( req->r_vec->v_data, 1, req->r_sdats[i],                 \
-              req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);   \
+              req->r_sbuf[i], req->r_spsize[i], &_pos, TOPO->t_comm);   \
      MPI_Send( req->r_sbuf[i], _pos, MPI_PACKED,                       \
-               req->r_neighbors[i], tag, req->r_comm ); }
+               TOPO->t_neighbors[i], tag, TOPO->t_comm ); }
 
   #define RECV_START(req,i,tag) { int _pos =0;                                   \
     MPI_Recv( req->r_rbuf[i], req->r_rpsize[i],                                    \
-              MPI_PACKED, req->r_neighbors[i], tag, req->r_comm, MPI_STATUS_IGNORE );   \
+              MPI_PACKED, TOPO->t_neighbors[i], tag, TOPO->t_comm, MPI_STATUS_IGNORE );   \
     MPI_Unpack( req->r_rbuf[i], req->r_rpsize[i], &_pos,              \
-                req->r_vec->v_data, 1, req->r_rdats[i], req->r_comm ); }
+                req->r_vec->v_data, 1, req->r_rdats[i], TOPO->t_comm ); }
 
   #define SEND_WAITALL(req) 
   #define RECV_WAITALL(req) 
@@ -154,21 +158,21 @@
 
   #define SEND_START(req, i, tag) {  int _pos=0;                      \
      MPI_Pack( req->r_vec->v_data, 1, req->r_sdats[i],                 \
-              req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);   \
+              req->r_sbuf[i], req->r_spsize[i], &_pos, TOPO->t_comm);   \
      MPI_Send( req->r_sbuf[i], _pos, MPI_PACKED,                       \
-               req->r_neighbors[i], tag, req->r_comm ); }
+               TOPO->t_neighbors[i], tag, TOPO->t_comm ); }
 
   #define RECV_START(req,i,tag)  MPI_Irecv(req->r_rbuf[i], \
-      req->r_rpsize[i],MPI_PACKED,  req->r_neighbors[i], tag,\
-      req->r_comm,&req->r_rreqs[i])
+      req->r_rpsize[i],MPI_PACKED,  TOPO->t_neighbors[i], tag,\
+      TOPO->t_comm,&req->r_rreqs[i])
 
   #define SEND_WAITALL(req) 
-  #define RECV_WAITALL(req) { int _i, _pos=0;   MPI_Waitall(req->r_nneighbors,\
+  #define RECV_WAITALL(req) { int _i, _pos=0;   MPI_Waitall(2*TOPO->t_ndims,\
       req->r_rreqs, MPI_STATUSES_IGNORE);  \
-    for (_i=0; _i< req->r_nneighbors; _i++, _pos=0 ) {                 \
-        if ( req->r_neighbors[_i] == MPI_PROC_NULL ) continue;       \
+    for (_i=0; _i< 2*TOPO->t_ndims; _i++, _pos=0 ) {                 \
+        if ( TOPO->t_neighbors[_i] == MPI_PROC_NULL ) continue;       \
             MPI_Unpack(req->r_rbuf[_i], req->r_rpsize[_i], &_pos,       \
-            req->r_vec->v_data, 1, req->r_rdats[_i], req->r_comm );     \
+            req->r_vec->v_data, 1, req->r_rdats[_i], TOPO->t_comm );     \
 	} \
    }
 
@@ -176,7 +180,7 @@
   #define RECV_WAIT(req,i) { int _pos=0;                                \
     MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE);              		\
     MPI_Unpack(req->r_rbuf[i], req->r_rpsize[i], &_pos,         		\
-               req->r_vec->v_data, 1, req->r_rdats[i], req->r_comm ); }
+               req->r_vec->v_data, 1, req->r_rdats[i], TOPO->t_comm ); }
 
 #elif COMMMODE == 7
 
@@ -188,13 +192,13 @@
 
   #define SEND_START(req, i, tag) {  int _pos=0;                            \
          MPI_Pack( req->r_vec->v_data, 1, req->r_sdats[i],                  \
-                   req->r_sbuf[i], req->r_spsize[i], &_pos, req->r_comm);   \
-         MPI_Sendrecv(req->r_sbuf[i], _pos, MPI_PACKED, req->r_neighbors[i],\
+                   req->r_sbuf[i], req->r_spsize[i], &_pos, TOPO->t_comm);   \
+         MPI_Sendrecv(req->r_sbuf[i], _pos, MPI_PACKED, TOPO->t_neighbors[i],\
 		      tag, req->r_rbuf[i], req->r_rpsize[i], MPI_PACKED,    \
-                      req->r_neighbors[i], tag, req->r_comm, MPI_STATUS_IGNORE ); \
+                      TOPO->t_neighbors[i], tag, TOPO->t_comm, MPI_STATUS_IGNORE ); \
          _pos=0;                                                            \
          MPI_Unpack( req->r_rbuf[i], req->r_rpsize[i], &_pos,               \
-                     req->r_vec->v_data, 1, req->r_rdats[i], req->r_comm ); }
+                     req->r_vec->v_data, 1, req->r_rdats[i], TOPO->t_comm ); }
 
   #define RECV_START(req,i,tag)
   #define SEND_WAITALL(req)
@@ -212,8 +216,8 @@
   #define STOP_COMMUNICATION(req)
 
   #define SEND_START(req,i,tag) MPI_Sendrecv(req->r_vec->v_data, 1,req->r_sdats[i],\
-                    req->r_neighbors[i], tag, req->r_vec->v_data,1, req->r_rdats[i],\
-                    req->r_neighbors[i], tag, req->r_comm, MPI_STATUS_IGNORE )
+                    TOPO->t_neighbors[i], tag, req->r_vec->v_data,1, req->r_rdats[i],\
+                    TOPO->t_neighbors[i], tag, TOPO->t_comm, MPI_STATUS_IGNORE )
 
   #define RECV_START(req,i,tag) 
   #define SEND_WAITALL(req) 
@@ -233,7 +237,7 @@
   #define STOP_COMMUNICATION(req)    MPI_Win_fence (0, req->r_win);
 
   #define SEND_START( req, i, tag )  MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], \
-                                               req->r_neighbors[i], 0, 1, \
+                                               TOPO->t_neighbors[i], 0, 1, \
 					       ( (i%2 == 0) ? req->r_rdats[i+1]:req->r_rdats[i-1]), \
                                                req->r_win)
   
@@ -256,7 +260,7 @@
   #define SEND_START(req,i,tag)
 
   #define RECV_START( req, i, tag )  MPI_Get ( req->r_vec->v_data, 1, req->r_rdats[i], \
-                                               req->r_neighbors[i], 0, 1, \
+                                               TOPO->t_neighbors[i], 0, 1, \
                                                ((i%2 == 0)?req->r_sdats[i+1]:req->r_sdats[i-1]), \
                                                req->r_win)
  
@@ -279,7 +283,7 @@
 					 MPI_Win_wait(req->r_win);}
 
   #define SEND_START( req, i, tag )  MPI_Put ( req->r_vec->v_data, 1, req->r_sdats[i], \
-                                               req->r_neighbors[i], 0, 1, \
+                                               TOPO->t_neighbors[i], 0, 1, \
 					       ((i%2 == 0)? req->r_rdats[i+1]:req->r_rdats[i-1]), \
 					       req->r_win)
   
@@ -304,7 +308,7 @@
   #define SEND_START(req,i,tag)
 
   #define RECV_START( req, i, tag )  MPI_Get( req->r_vec->v_data, 1, req->r_rdats[i],  \
-                                              req->r_neighbors[i], 0, 1, ((i%2 ==0)?req->r_sdats[i+1]:req->r_sdats[i-1]), req->r_win)
+                                              TOPO->t_neighbors[i], 0, 1, ((i%2 ==0)?req->r_sdats[i+1]:req->r_sdats[i-1]), req->r_win)
   #define SEND_WAITALL(req)
   #define RECV_WAITALL(req)
   #define SEND_WAIT(req,i) 
@@ -313,51 +317,51 @@
 #endif
 
 /*COMM 1*/
-int ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req);
-int ADCL_change_sb_pair_IsendIrecv (ADCL_request_t *req);
+void ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_IsendIrecv (ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 /*COMM 2*/
-int ADCL_change_sb_pair_SendRecv (ADCL_request_t *req);
+void ADCL_change_sb_pair_SendRecv (ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 
 /*COMM 3*/
-int ADCL_change_sb_aao_SendIrecv  (ADCL_request_t *req);
-int ADCL_change_sb_pair_SendIrecv (ADCL_request_t *req);
+void ADCL_change_sb_aao_SendIrecv  (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_SendIrecv (ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 /*COMM 4*/
-int ADCL_change_sb_aao_IsendIrecv_pack  (ADCL_request_t *req);
-int ADCL_change_sb_pair_IsendIrecv_pack (ADCL_request_t *req);
+void ADCL_change_sb_aao_IsendIrecv_pack  (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_IsendIrecv_pack (ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 /*COMM 5*/
-int ADCL_change_sb_pair_SendRecv_pack (ADCL_request_t *req);
+void ADCL_change_sb_pair_SendRecv_pack (ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 /*COMM 6*/
-int ADCL_change_sb_aao_SendIrecv_pack  (ADCL_request_t *req);
-int ADCL_change_sb_pair_SendIrecv_pack (ADCL_request_t *req);
+void ADCL_change_sb_aao_SendIrecv_pack  (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_SendIrecv_pack (ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 /* COMM 7: SendRecv-Packed datatype*/
 
-int ADCL_change_sb_pair_Sendrecv_pack (ADCL_request_t *req);
+void ADCL_change_sb_pair_Sendrecv_pack (ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 /* COMM 8: SendRecv-Derived datatype*/
-int ADCL_change_sb_pair_Sendrecv(ADCL_request_t *req);
+void ADCL_change_sb_pair_Sendrecv(ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 /* COMM 9: Win_fence_put-Derived datatype*/
-int ADCL_change_sb_pair_win_fence_put(ADCL_request_t *req);
-int ADCL_change_sb_aao_win_fence_put(ADCL_request_t *req);
+void ADCL_change_sb_pair_win_fence_put(ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_aao_win_fence_put(ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 /* COMM 10:Win_fence_get-Derived datatype */
-int ADCL_change_sb_pair_win_fence_get( ADCL_request_t *req);
-int ADCL_change_sb_aao_win_fence_get(ADCL_request_t *req);
+void ADCL_change_sb_pair_win_fence_get( ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_aao_win_fence_get(ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 /*COMM 11: Post_start_put-Derived datatype*/
-int ADCL_change_sb_pair_post_start_put( ADCL_request_t *req);
-int ADCL_change_sb_aao_post_start_put (ADCL_request_t *req);
+void ADCL_change_sb_pair_post_start_put( ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_aao_post_start_put (ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 
 /*COMM 12: Post_start_get-Derived datatype*/
-int ADCL_change_sb_pair_post_start_get( ADCL_request_t *req);
-int ADCL_change_sb_aao_post_start_get( ADCL_request_t *req);
+void ADCL_change_sb_pair_post_start_get( ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_aao_post_start_get( ADCL_request_t *req, void* data1, void* data2, void* data3);
 
 #endif /* __ADCL_CHANGE_H__ */
 

@@ -14,6 +14,7 @@ OBJ = 	ADCL_array.o 		\
 	ADCL_topology.o         \
 	ADCL_emethod.o 		\
 	ADCL_hypothesis.o       \
+	ADCL_predefined.o       \
 	ADCL_request.o 		
 
 .SUFFIXES: .o.c
