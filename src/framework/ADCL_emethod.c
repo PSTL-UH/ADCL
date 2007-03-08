@@ -95,6 +95,18 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     e->em_orgfnctset  = f;
 
     /* 
+    ** Set the algorithm for the selection logic. Set it to the default value,
+    ** if we have an attribute set. However, if no attributes are assigned to 
+    ** functionset, we have to use the brute force algorithm 
+    */
+    if ( f->fs_attrset != NULL && f->fs_attrset != ADCL_ATTRSET_NULL ) {
+	e->em_perfhypothesis = ADCL_emethod_use_perfhypothesis;
+    }
+    else {
+	e->em_perfhypothesis = 0;
+    }
+
+    /* 
     ** Generate a duplicate of the functions which we will work with.
     ** The reason is, that the list of functions etc. might be modified
     ** during the runtime optimization. We do not want to delete the original
@@ -131,7 +143,8 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     hypo->h_num_active_attrs = 0;
     hypo->h_attr_hypothesis  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
     hypo->h_attr_confidence  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
-    hypo->h_active_attr_list = (ADCL_attribute_t **) calloc (1, f->fs_attrset->as_maxnum * sizeof(ADCL_attribute_t *));
+    hypo->h_active_attr_list = (ADCL_attribute_t **) calloc (1, f->fs_attrset->as_maxnum * 
+							     sizeof(ADCL_attribute_t *));
     if ( NULL == hypo->h_attr_hypothesis ||
 	 NULL == hypo->h_attr_confidence ||
 	 NULL == hypo->h_active_attr_list ) {
@@ -144,13 +157,11 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	hypo->h_num_active_attrs = 2;
 	hypo->h_active_attr_list[0] = ADCL_neighborhood_attrs[0]; /* ADCL_ATTR_MAPPING */
 	hypo->h_active_attr_list[1] = ADCL_neighborhood_attrs[0]; /* ADCL_ATTR_NONCONT */
-    }
-    
-
+	
 //    if ( -1 != ADCL_emethod_selection ) {
 //	er->er_state = ADCL_STATE_REGULAR;
 //	er->er_wmethod = ADCL_emethod_get_method ( er, ADCL_emethod_selection );
-//   }
+    }
 
  exit:
     if ( ret != ADCL_SUCCESS  ) {
@@ -329,7 +340,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     }
 
 #if 0
-    if ( ADCL_emethod_use_perfhypothesis ) {
+    if ( e->em_perfhypothesis ) {
 	ADCL_hypothesis_eval_v2 ( e );
     }
     
