@@ -29,6 +29,7 @@ int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
 			     newfunction->f_id, newfunction );
 
     if (ADCL_ATTRSET_NULL != attrset ) {
+	newfunction->f_attrset  = attrset;
 	newfunction->f_attrvals = (int *) malloc ( sizeof(int) * attrset->as_maxnum );
 	if ( NULL == newfunction->f_attrvals ) {
 	    ret = ADCL_NO_MEMORY;

@@ -45,6 +45,10 @@ int ADCL_printf          ( const char *format, ...);
 
 int ADCL_readenv( void );
 
+int ADCL_predefined_init ( void );
+
+
+
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_fnctset_t *fnctset, 
                                         ADCL_attribute_t * attr, int required_value );
 int ADCL_hypothesis_set     ( ADCL_emethod_t *er, int attr, int attrval );

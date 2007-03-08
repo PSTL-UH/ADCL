@@ -25,7 +25,6 @@ struct ADCL_request_s{
 
 
     /* Elements used for the communication */
-    int                   *r_coords; /* coordinate of this proc in the proc-topology */
     int                   *r_spsize; /* size of each individual temporary sbuf used 
 			     	        for pack/unpack */
     int                   *r_rpsize; /* size of each individual temporary rbuf used 

@@ -17,7 +17,7 @@ struct ADCL_emethod_s {
     ADCL_vector_t         *em_vec; /* pointer to vector object. Only the size of the 
 				      data array is really required, not the buffer 
 				      pointers. */
-    ADCL_statistics_t   *em_stats; /* array of statics objects containing the 
+    ADCL_statistics_t  **em_stats; /* array of statics objects containing the 
 				      measurements etc. Length of the array is equal 
 				      to the no. of fncts registered in the fnctset */
     ADCL_fnctset_t *em_orgfnctset; /* pointer to the original function set. Only 

@@ -1,7 +1,7 @@
 #include "ADCL_internal.h"
 
 static int ADCL_local_id_counter=0;
-static ADCL_array_t *ADCL_emethod_array=NULL;
+ADCL_array_t *ADCL_emethod_array=NULL;
 
 int ADCL_emethod_selection = -1;
 int ADCL_merge_requests=1;
@@ -105,10 +105,24 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     ADCL_fnctset_dup ( f, &(e->em_fnctset));
 
     /* Allocate the according number of statitics objects */
-    e->em_stats = (ADCL_statistics_t *) calloc ( 1, f->fs_maxnum*sizeof(ADCL_statistics_t));
+    e->em_stats = (ADCL_statistics_t **) calloc ( 1, f->fs_maxnum*sizeof(ADCL_statistics_t *));
     if ( NULL == e->em_stats ) {
 	ret = ADCL_NO_MEMORY;
 	goto exit;
+    }
+    for ( i=0; i< f->fs_maxnum; i++ ) {
+	e->em_stats[i] = (ADCL_statistics_t *) calloc (1, sizeof(ADCL_statistics_t ));
+	if ( NULL == e->em_stats[i] ) {
+	    ret = ADCL_NO_MEMORY;
+	    goto exit;
+	}
+
+	/* Allocate the measurements arrays */
+	e->em_stats[i]->s_time = (TIME_TYPE *)calloc (1, sizeof(TIME_TYPE)*ADCL_emethod_numtests);
+	if ( NULL == e->em_stats[i]->s_time ) {
+	    ret = ADCL_NO_MEMORY;
+	    goto exit;
+	}
     }
     
     /* initiate the performance hypothesis structure */
@@ -141,6 +155,14 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
  exit:
     if ( ret != ADCL_SUCCESS  ) {
 	if ( NULL != e->em_stats  ) {
+	    for ( i=0; i< f->fs_maxnum; i++ ) {
+		if ( NULL != e->em_stats[i]) {
+		    if ( NULL != e->em_stats[i]->s_time ) {
+			free ( e->em_stats[i]->s_time );
+		    }
+		    free ( e->em_stats[i] );
+		}
+	    }
 	    free ( e->em_stats );
 	}
 	if ( NULL != hypo->h_attr_hypothesis ) {
@@ -172,6 +194,15 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
 	ADCL_hypothesis_t *hypo = &(e->em_hypo);
 
 	if ( NULL != e->em_stats  ) {
+	    int i;
+	    for ( i=0; i< e->em_fnctset.fs_maxnum; i++ ) {
+		if ( NULL != e->em_stats[i] ) {
+		    if ( NULL != e->em_stats[i]->s_time ) {
+			free ( e->em_stats[i]->s_time );
+		    }
+		    free ( e->em_stats[i]);
+		}
+	    }
 	    free ( e->em_stats );
 	}
 
@@ -251,7 +282,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
     ** Filter the input data, i.e. remove outliers which 
     ** would falsify the results 
     */
-    ADCL_statistics_filter_timings ( &(emethod->em_stats),
+    ADCL_statistics_filter_timings ( emethod->em_stats,
 				     emethod->em_fnctset.fs_maxnum, 
 				     rank );
 
@@ -259,7 +290,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */
-    ADCL_statistics_global_max ( &(emethod->em_stats),
+    ADCL_statistics_global_max ( emethod->em_stats,
 				 emethod->em_fnctset.fs_maxnum, 
 				 emethod->em_topo->t_comm, 1, 
 				 &(emethod->em_fnctset.fs_maxnum), 
@@ -277,16 +308,16 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     int last = e->em_last;
     ADCL_hypothesis_t *hypo=&(e->em_hypo);
     
-    if ( e->em_stats[last].s_count < ADCL_emethod_numtests ) {
+    if ( e->em_stats[last]->s_count < ADCL_emethod_numtests ) {
         *flag = ADCL_FLAG_PERF;
-        e->em_stats[last].s_count++;
+        e->em_stats[last]->s_count++;
         return last;
     }
     
-    ADCL_STAT_SET_TESTED (&(e->em_stats[last]));
+    ADCL_STAT_SET_TESTED ( e->em_stats[last]);
     MPI_Barrier ( e->em_topo->t_comm );
     hypo->h_num_avail_meas++;
-    if ( e->em_stats[last].s_rescount < ADCL_emethod_numtests ) {
+    if ( e->em_stats[last]->s_rescount < ADCL_emethod_numtests ) {
         /* 
         ** ok, some data is still outstanding. So we 
         ** do not switch yet to the evaluation mode, 
@@ -307,10 +338,10 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){
 	/* increase er_num_available_measurements every time 
 	   a method has the em_tested flag set to true; */
-	if ( !(ADCL_STAT_IS_TESTED (&(e->em_stats[i])))  ) {
+	if ( !(ADCL_STAT_IS_TESTED (e->em_stats[i]))  ) {
 	    next = i;
 	    e->em_last=next;
-	    e->em_stats[next].s_count++;
+	    e->em_stats[next]->s_count++;
 	    break;
 	}
 	hypo->h_num_avail_meas++;
@@ -331,7 +362,7 @@ void ADCL_emethods_update ( ADCL_emethod_t *emethod, int pos, int flag,
     
     ADCL_STAT_TIMEDIFF ( tstart, tend, exectime );
     if ( flag == ADCL_FLAG_PERF ) {
-	stat = &(emethod->em_stats[pos]);
+	stat = emethod->em_stats[pos];
 	stat->s_time[stat->s_rescount] = exectime;
 	stat->s_rescount++;
     }
