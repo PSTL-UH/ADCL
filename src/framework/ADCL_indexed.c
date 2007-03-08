@@ -1,13 +1,12 @@
 #include "ADCL_internal.h"
 
 
-static int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth );
-static int compare ( const void *p, const void* q );
+int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth );
+int compare ( const void *p, const void* q );
 
-static int dist_4D_C ( int dim0, int dim1, int dim2, int dim3, 
-		       int vecdim[3], int nc);
-static int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3, 
-			     int vecdim[3], int nc);
+int dist_4D_C ( int dim0, int dim1, int dim2, int dim3, int vecdim[3], int nc);
+int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3, int vecdim[3], int nc);
+int dist_3D_Fortran ( int dim0, int dim1, int dim2, int vecdim[2], int nc);
 
 int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order, MPI_Datatype btype,
 			   MPI_Datatype **senddats, MPI_Datatype **recvdats)
@@ -100,7 +99,7 @@ int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order, MPI_Dataty
 int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datatype btype, 
 			   MPI_Datatype **senddats, MPI_Datatype **recvdats)
 {
-    int j, k, maxdim;
+    int i, j, k, maxdim, count;
     int ret = ADCL_SUCCESS;
     int *blength=NULL, baselen;
     int *sdispls=NULL, *rdispls=NULL, basedisp, basewidth;
@@ -159,6 +158,62 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
     }
     else {
         /* MPI_ORDER_FORTRAN */
+	if ( nc < 2 ) nc = 1;
+
+	/* Set the send and recv derived datatype for the lower end of x-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( k=hwidth; k<(vecdim[1]-hwidth); k++, count++ ) {
+		blength[count]  = hwidth;
+		sdispls[count]   = dist_3D_Fortran( hwidth, k, i, vecdim, nc);
+		rdispls[count]   = dist_3D_Fortran( 0, k, i, vecdim, nc);
+	    }
+	}
+	MPI_Type_indexed ( count, blength, sdispls, btype, &sdats[0]);
+    	MPI_Type_indexed ( count, blength, rdispls, btype, &rdats[0]);
+	MPI_Type_commit ( &sdats[0] );
+	MPI_Type_commit ( &rdats[0] );
+
+	/* Set the send and recv derived datatype for the upper end of x-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( k=hwidth; k<(vecdim[1]-hwidth); k++, count++ ) {
+		blength[count]  = hwidth;
+		sdispls[count]   = dist_3D_Fortran( vecdim[0]-2*hwidth, k, i, vecdim, nc);
+		rdispls[count]   = dist_3D_Fortran( vecdim[0]-hwidth, k, i, vecdim, nc);
+	    }
+	}
+	MPI_Type_indexed ( count, blength, sdispls, btype, &sdats[1]);
+    	MPI_Type_indexed ( count, blength, rdispls, btype, &rdats[1]);
+	MPI_Type_commit ( &sdats[1] );
+	MPI_Type_commit ( &rdats[1] );
+
+	/* Set the send and recv derived datatype for the lower end of y-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( k=0; k<hwidth; k++, count++ ) {
+		blength[count]  = vecdim[0]-2*hwidth;
+		sdispls[count]   = dist_3D_Fortran( hwidth, hwidth+k, i, vecdim, nc);
+		rdispls[count]   = dist_3D_Fortran( hwidth, k, i, vecdim, nc);
+	    }
+	}
+	MPI_Type_indexed ( count, blength, sdispls, btype, &sdats[2]);
+    	MPI_Type_indexed ( count, blength, rdispls, btype, &rdats[2]);
+	MPI_Type_commit ( &sdats[2] );
+	MPI_Type_commit ( &rdats[2] );
+
+	/* Set the send and recv derived datatype for the upper end of y-direction */
+	for ( count=0, i=0; i<nc; i++ ) {
+	    for ( k=0; k<hwidth; k++, count++ ) {
+		blength[count]  = vecdim[0]-2*hwidth;
+		sdispls[count]   = dist_3D_Fortran( hwidth, vecdim[1]-2*hwidth+k, i, vecdim, nc);
+		rdispls[count]   = dist_3D_Fortran( hwidth, vecdim[1]-hwidth+k, i, vecdim, nc);
+	    }
+	}
+	MPI_Type_indexed ( count, blength, sdispls, btype, &sdats[3]);
+    	MPI_Type_indexed ( count, blength, rdispls, btype, &rdats[3]);
+	MPI_Type_commit ( &sdats[3] );
+	MPI_Type_commit ( &rdats[3] );
+    }
+
+#if 0
 	int l, cnt, limit, baseoffset;
 
 	/* Dimension 0 */
@@ -206,6 +261,8 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
 	}
 
     }
+#endif
+
 
  exit:
     if ( ADCL_SUCCESS != ret ) {
@@ -459,8 +516,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static int dist_4D_C ( int dim0, int dim1, int dim2, int dim3, 
-		       int vecdim[2], int nc)
+int dist_4D_C ( int dim0, int dim1, int dim2, int dim3, 
+		int vecdim[2], int nc)
 {
     int distance=0;
     
@@ -470,8 +527,8 @@ static int dist_4D_C ( int dim0, int dim1, int dim2, int dim3,
     return distance;
 }
 
-static int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3, 
-			     int vecdim[3], int nc)
+int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3, 
+		      int vecdim[3], int nc)
 {
     int distance=0;
     
@@ -481,10 +538,20 @@ static int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3,
     return distance;
 }
 
+int dist_3D_Fortran ( int dim0, int dim1, int dim2,  
+			     int vecdim[2], int nc)
+{
+    int distance=0;
+    
+    distance = dim0+ dim1*vecdim[0]+ dim2*vecdim[0]*vecdim[1];
+
+    return distance;
+}
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth )
+int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth )
 {
     int i;
     int maxdim;
@@ -514,7 +581,7 @@ static int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth )
 }
 
 
-static int compare ( const void *p, const void* q )
+int compare ( const void *p, const void* q )
 {
     int *a, *b;
 
