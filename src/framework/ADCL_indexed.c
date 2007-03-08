@@ -1,6 +1,9 @@
 #include "ADCL_internal.h"
 
+
 static int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth );
+static int compare ( const void *p, const void* q );
+
 static int dist_4D_C ( int dim0, int dim1, int dim2, int dim3, 
 		       int vecdim[3], int nc);
 static int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3, 
@@ -239,12 +242,7 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
     int *sdisps=NULL, *rdisps=NULL;
     MPI_Datatype *sdats=NULL, *rdats=NULL;
 
-    if ( nc > 1 ) {
-	maxdim = vecdim[1]*vecdim[2]* nc* hwidth;
-    }
-    else {
-	maxdim = vecdim[1]*vecdim[2]*hwidth;
-    }
+    maxdim = ADCL_max ( 3, vecdim,  nc,  hwidth);
 
     sdats = ( MPI_Datatype *) malloc ( 6 * sizeof(MPI_Datatype));
     rdats = ( MPI_Datatype *) malloc ( 6 * sizeof(MPI_Datatype));
@@ -489,12 +487,20 @@ static int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3,
 static int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth )
 {
     int i;
-    int maxdim=vecdim[0];
+    int maxdim;
+    int *sorted=NULL;
 
-    for ( i=1; i < cnt; i++ ) {
-        if ( vecdim[i] > maxdim ) {
-	    maxdim = vecdim[i];
-	} 
+    sorted = (int *) malloc ( cnt * sizeof (int));
+    if ( NULL == sorted ) {
+	return ADCL_NO_MEMORY;
+    }
+
+    memcpy ( sorted, vecdim, cnt*sizeof(int));
+    qsort (sorted, cnt, sizeof(int), compare );
+
+    maxdim = sorted[cnt-1];
+    for ( i=cnt-2; i > 0; i-- ) {
+	maxdim *= sorted[i];
     }
     
     if ( nc > 1 ) {
@@ -505,4 +511,22 @@ static int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth )
     }
     
     return (maxdim);
+}
+
+
+static int compare ( const void *p, const void* q )
+{
+    int *a, *b;
+
+    a = (int*) p;
+    b = (int*) q;
+
+    if ( *a < *b ) {
+	return -1;
+    }
+    if ( *a > *b ) {
+	return 1;
+    }
+
+    return 0;
 }
