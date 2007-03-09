@@ -29,6 +29,7 @@ int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
 				 int *array_of_attrvalues, char *name, 
 				 ADCL_function_t **fnct);
 int ADCL_function_free ( ADCL_function_t **fnct );
+int ADCL_function_get_attrval ( ADCL_function_t *func, int attr_pos );
 
 
 

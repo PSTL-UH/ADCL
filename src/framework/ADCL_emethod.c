@@ -271,12 +271,15 @@ ADCL_function_t* ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *em,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-ADCL_statistics_t* ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, 
-						     int *attrval)
+int ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval, 
+				      ADCL_statistics_t **stat, 
+				      ADCL_function_t **func )
 {
   int i, j, found;
   ADCL_fnctset_t* fnctset;
-  ADCL_statistics_t *result=NULL;
+
+  *stat = NULL;
+  *func = NULL;
 
   fnctset = &(em->em_fnctset);
   for ( i=0; i< fnctset->fs_maxnum; i++ ) {
@@ -287,13 +290,14 @@ ADCL_statistics_t* ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em,
 	  }
       }
       if ( found ) {
-	  result = em->em_stats[i];
+	  *stat = em->em_stats[i];
+	  *func = fnctset->fs_fptrs[i];
 	  break;
       }
   }
 	 
   
-  return result;
+  return ADCL_SUCCESS;
 }
 
 

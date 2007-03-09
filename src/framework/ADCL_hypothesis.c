@@ -1,46 +1,38 @@
 #include "ADCL_internal.h"
 
 int ADCL_hypo_req_confidence=2;
-#if 0
+
 static int next_attr_combination ( int cnt, ADCL_attrset_t *attrset, 
 				   ADCL_attribute_t  **attr_list, int *attr_val_list );
 static int get_num_methods_and_blocks ( ADCL_emethod_t *e, int *nummethods, 
 					int *numblocks);
-#endif
+
+extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
+
 
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_fnctset_t *fnctset,
-                                        ADCL_attribute_t *attr, int required_value )
+                                        int attr_pos, int required_value )
 {
-    int i, count=0, pos=-1;
+    int i, count=0;
     int org_count=fnctset->fs_maxnum;
     ADCL_attrset_t *attrset=fnctset->fs_attrset;
     ADCL_function_t *tfunc=NULL;
 
     /* Find the position of this attribute in the attrset */
-    for ( i=0; i< attrset->as_maxnum; i++ ) {
-	if ( attrset->as_attrs[i]->a_id == attr->a_id ) {
-	    pos = i;
-	    break;
-	}
-    }
-    if ( -1 == pos ) {
-	/* Attribute not found */
-	return ADCL_ERROR_INTERNAL;
-    }
 
     /* This following loop is only for debugging purposes and should be removed
        from later production runs */
     for ( i=0; i < org_count; i++ ) {
-	if ( fnctset->fs_fptrs[i]->f_attrvals[pos] != required_value ) {
+	if ( fnctset->fs_fptrs[i]->f_attrvals[attr_pos] != required_value ) {
 	    ADCL_printf("#Removing function %d for attr %d required %d is %d\n",
-			fnctset->fs_fptrs[i]->f_id, attr->a_id, required_value, 
-			fnctset->fs_fptrs[i]->f_attrvals[pos]);
+			fnctset->fs_fptrs[i]->f_id, attrset->as_attrs[attr_pos]->a_id, 
+			required_value, fnctset->fs_fptrs[i]->f_attrvals[attr_pos]);
 	}
     }
 
     for ( i=0; i < org_count; i++ ) {
         tfunc = fnctset->fs_fptrs[i];
-	if ( tfunc->f_attrvals[pos] == required_value ) {
+	if ( tfunc->f_attrvals[attr_pos] == required_value ) {
             if ( count != i ) {
 		/* move this emethod from pos i to pos count */
 		fnctset->fs_fptrs[count] = fnctset->fs_fptrs[i];
@@ -86,7 +78,7 @@ int ADCL_hypothesis_set ( ADCL_emethod_t *e, int attrpos, int attrval )
   
   return ADCL_SUCCESS;
 }
-#if 0
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -127,9 +119,10 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
     int i, tval, loop, ret = ADCL_SUCCESS;
     int *attrval_list=NULL;
     int *attr_pos=NULL;
-    int rank;
+    int pos;
 
     ADCL_statistics_t  **tmp_stats=NULL;
+    ADCL_function_t  **tmp_fncts=NULL;
     ADCL_attribute_t **tmp_active_attr_list=NULL;
     ADCL_hypothesis_t *hypo=&(e->em_hypo);
     ADCL_attrset_t *attrset=e->em_fnctset.fs_attrset;
@@ -176,21 +169,24 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 	    */
 
 	    for ( i=0; i< hypo->h_num_active_attrs; i++ ) {
-		tmp_active_attr_list[i] = hypo->h_active_attr_list[(i+loop)%hypo->h_num_active_attrs];
+		pos = (i+loop)%hypo->h_num_active_attrs;
+		tmp_active_attr_list[i] = hypo->h_active_attr_list[pos];
 	    }
 	    
 	    /* Generate the first combination of attributes. The first
 	       one is really independent of the list of attributes used. 
 	    */
-	    tattrpos = ADCL_attrset_get_pos ( attrset, hypo->h_active_attr_list[loop]);
+	    pos = ADCL_attrset_get_pos ( attrset, hypo->h_active_attr_list[loop]);
 	    for ( i = 0; i < attrset->as_maxnum; i++ ) {
 		attrval_list[i] = attrset->as_attrs_baseval[i];
 	    }
-	    attr_pos[bcnt] = tattrpos;
+	    attr_pos[bcnt] = pos;
 	    
 	    ret = ADCL_SUCCESS;
 	    while ( ret != ADCL_EVAL_DONE ) {
-		ADCL_emethod_get_stats_by_attrs ( e, attrval_list, &tmp_stats[cnt], &tmp_fncts[cnt]); 
+		ADCL_emethod_get_stats_by_attrs ( e, attrval_list, 
+						  &tmp_stats[cnt], 
+						  &tmp_fncts[cnt]); 
 		cnt++;
 		blencnt++;
 		
@@ -200,7 +196,7 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 					    attrval_list);
 		if ( ret != ADCL_SUCCESS ) {
 		    blength[bcnt++] = blencnt;
-		    attr_pos[bcnt]  = tattrpos;
+		    attr_pos[bcnt]  = pos;
 		    blencnt         = 0;
 		}
 	    }
@@ -214,15 +210,15 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 	
 	/* Set the according performance hypothesis */
 	for (i=0; i< numblocks; i++ ) {
-	    tval = ADCL_function_get_attrval ( tmp_fncts[winner[i]], attr_pos[i]);
+	    tval = ADCL_function_get_attrval ( tmp_fncts[winners[i]], attr_pos[i]);
 	    ADCL_hypothesis_set ( e, attr_pos[i], tval );
 	}
 	
 	/* Now the shrink the emethods list if we reached a threshold */
 	for ( i=0; i< numblocks; i++ ){
 	    if ( hypo->h_attr_confidence[attr_pos[i]] >= ADCL_hypo_req_confidence ) {
-		ADCL_hypothesis_shrinklist_byattr(e, attr_pos[i], 
-						  hypo->h_attr_hypothesis[pattrs[i]]);
+		ADCL_hypothesis_shrinklist_byattr(&(e->em_fnctset), attr_pos[i], 
+						  hypo->h_attr_hypothesis[attr_pos[i]]);
 		hypo->h_attr_confidence[attr_pos[i]]=0;
 
 		/* TBD: we will have to adapt here the number of attributes for pattrs[i]
@@ -234,11 +230,11 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 	
 	/* Switch to the next list of attributes to be evaluated */
 	hypo->h_num_active_attrs=1;
-	hypo->h_active_attr_list[0] = ADCL_neighborhod_attrs[2];
+	hypo->h_active_attr_list[0] = ADCL_neighborhood_attrs[2];
 	
-	free ( attr_list );
 	free ( tmp_active_attr_list );
 	free ( tmp_stats );
+	free ( tmp_fncts );
 	free ( blength );
     }
 
@@ -296,17 +292,16 @@ static int get_num_methods_and_blocks ( ADCL_emethod_t *e, int *nummethods,
     int tmpnblocks, i, j;
     int nm, nb=0;
     ADCL_hypothesis_t *hypo=&(e->em_hypo);
-    ADCL_attrset_t *attrset = e->em_fnctset.fs_attrset;
 
     for ( nm=hypo->h_num_active_attrs, i=0; i<hypo->h_num_active_attrs; i++) {
 	for ( tmpnblocks=1, j=0; j < hypo->h_num_active_attrs; j++ ) {
 	    if ( j == i ) {
 		continue;
 	    }
-	    tmpnblocks *= attrset->as_attrs_maxval[hypo->h_active_attr_list[j]];
+	    tmpnblocks *= hypo->h_active_attr_list[j]->a_maxnvalues;
 	}
 	nb += tmpnblocks;
-	nm *= attrset->as_attrs_maxval[hypo->h_active_attr_list[i]];
+	nm *= hypo->h_active_attr_list[i]->a_maxnvalues;
     }
 
     *nummethods = nm;
@@ -316,4 +311,4 @@ static int get_num_methods_and_blocks ( ADCL_emethod_t *e, int *nummethods,
 }
 
 
-#endif 
+

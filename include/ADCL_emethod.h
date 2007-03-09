@@ -50,7 +50,8 @@ void ADCL_emethods_update ( ADCL_emethod_t *ermethods, int pos,
 int  ADCL_emethods_get_next ( ADCL_emethod_t *emethods, int mode, int *flag);
 ADCL_function_t *  ADCL_emethod_get_function ( ADCL_emethod_t *emethod, int pos);
 ADCL_function_t*   ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *erm, int *attr);
-ADCL_statistics_t* ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval);
+int ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval, 
+				      ADCL_statistics_t **stat, ADCL_function_t **func );
 
 
 

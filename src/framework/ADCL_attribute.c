@@ -84,6 +84,24 @@ int ADCL_attribute_free ( ADCL_attribute_t **attribute)
     *attribute = ADCL_ATTRIBUTE_NULL;
     return ADCL_SUCCESS;
 }
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+int ADCL_attribute_get_nextval ( ADCL_attribute_t *attr, int val )
+{
+    int i, nextval=-1;
+    for ( i=0; i< attr->a_maxnvalues; i++ ) {
+	if ( attr->a_values[i] == val ) {
+	    nextval = i;
+	}
+    }
+
+    if ( nextval != -1 && nextval != (attr->a_maxnvalues-1) ) {
+	nextval = attr->a_values[i+1];
+    }
+
+    return nextval;
+}
 
 
 /********************************************************************************/
@@ -232,4 +250,24 @@ int ADCL_attrset_free ( ADCL_attrset_t **attrset)
 
     *attrset = ADCL_ATTRSET_NULL;
     return ADCL_SUCCESS;
+}
+
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+int ADCL_attrset_get_pos ( ADCL_attrset_t *attrset, ADCL_attribute_t *attr )
+{
+    int i, found =0;
+    for ( i=0; i< attrset->as_maxnum; i++ ) {
+	if ( attrset->as_attrs[i] == attr ) {
+	    found = 1;
+	    break;
+	}
+    }
+
+    if ( 0 == found ) {
+	i = -1;
+    }
+
+    return i;
 }
