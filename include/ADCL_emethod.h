@@ -7,6 +7,7 @@
 #include "ADCL_statistics.h"
 #include "ADCL_function.h"
 
+
 struct ADCL_emethod_s {
     int                     em_id; /* unique identifier */
     int                  em_rfcnt; /* reference counter */
@@ -47,8 +48,10 @@ void ADCL_emethods_update ( ADCL_emethod_t *ermethods, int pos,
 			    int flag, TIME_TYPE tstart, TIME_TYPE tend );
 
 int  ADCL_emethods_get_next ( ADCL_emethod_t *emethods, int mode, int *flag);
-ADCL_function_t *ADCL_emethod_get_function ( ADCL_emethod_t *emethod, int pos);
-ADCL_function_t* ADCL_emethod_get_by_attrs ( ADCL_emethod_t *erm, int *attr);
+ADCL_function_t *  ADCL_emethod_get_function ( ADCL_emethod_t *emethod, int pos);
+ADCL_function_t*   ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *erm, int *attr);
+ADCL_statistics_t* ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval);
+
 
 
 #endif /* __ADCL_EMETHOD_H__ */

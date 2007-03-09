@@ -35,6 +35,38 @@ int ADCL_attribute_create ( int maxnvalues, int *array_of_values,
     return ADCL_SUCCESS;
 }
 
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+int ADCL_attribute_dup ( ADCL_attribute_t *org, ADCL_attribute_t **copy )
+{
+    ADCL_attribute_t *newattribute=NULL;
+
+    newattribute = ( ADCL_attribute_t *) calloc (1, sizeof (ADCL_attribute_t));
+    if ( NULL == newattribute ) {
+	return ADCL_NO_MEMORY;
+    }
+
+    newattribute->a_id         = ADCL_attribute_local_counter++;
+    newattribute->a_findex     = -1;
+    newattribute->a_refcnt     = 1;
+    newattribute->a_maxnvalues = org->a_maxnvalues;
+    newattribute->a_values     = (int *) malloc ( org->a_maxnvalues * sizeof (int));
+    if ( NULL == newattribute->a_values ) {
+	free ( newattribute );
+	return ADCL_NO_MEMORY;
+    }
+    
+    memcpy ( newattribute->a_values, org->a_values, org->a_maxnvalues*sizeof(int));
+        
+    *copy = newattribute;
+    return ADCL_SUCCESS;
+}
+
+
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
 int ADCL_attribute_free ( ADCL_attribute_t **attribute)
 {
     ADCL_attribute_t *tattribute=*attribute;
@@ -43,7 +75,9 @@ int ADCL_attribute_free ( ADCL_attribute_t **attribute)
 	if ( NULL != tattribute->a_values ) {
 	    free (tattribute->a_values );
 	}
-	ADCL_array_remove_element ( ADCL_attribute_farray, tattribute->a_findex);
+	if ( tattribute->a_findex != -1 ) {
+	    ADCL_array_remove_element ( ADCL_attribute_farray, tattribute->a_findex);
+	}
 	free ( attribute );
     }
 
@@ -51,7 +85,12 @@ int ADCL_attribute_free ( ADCL_attribute_t **attribute)
     return ADCL_SUCCESS;
 }
 
-int ADCL_attrset_create ( int maxnum, ADCL_attribute_t **array_of_attributes, ADCL_attrset_t **attrset)
+
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+int ADCL_attrset_create ( int maxnum, ADCL_attribute_t **array_of_attributes, 
+			  ADCL_attrset_t **attrset)
 {
     ADCL_attrset_t *newattrset=NULL;
     int i;
@@ -80,7 +119,9 @@ int ADCL_attrset_create ( int maxnum, ADCL_attribute_t **array_of_attributes, AD
        some of the loops within the performance hypothesis code */
     newattrset->as_attrs_baseval = (int *) malloc ( maxnum * sizeof(int) );
     newattrset->as_attrs_maxval  = (int *) malloc ( maxnum * sizeof(int) );
-    if ( NULL == newattrset->as_attrs_baseval || NULL == newattrset->as_attrs_maxval ) {
+    newattrset->as_attrs_numval  = (int *) malloc ( maxnum * sizeof(int) );
+    if ( NULL == newattrset->as_attrs_baseval || NULL == newattrset->as_attrs_maxval ||
+	 NULL == newattrset->as_attrs_numval ) {
 	free ( newattrset->as_attrs);
 	free ( newattrset );
 	return ADCL_NO_MEMORY;
@@ -88,21 +129,73 @@ int ADCL_attrset_create ( int maxnum, ADCL_attribute_t **array_of_attributes, AD
 
     for ( i=0; i< maxnum; i++ ) {
 	newattrset->as_attrs_baseval[i] = array_of_attributes[i]->a_values[0];
-	newattrset->as_attrs_maxval[i] = array_of_attributes[i]->a_values[array_of_attributes[i]->a_maxnvalues-1];
+	newattrset->as_attrs_maxval[i]  = array_of_attributes[i]->a_values[array_of_attributes[i]->a_maxnvalues-1];
+	newattrset->as_attrs_numval[i]  = array_of_attributes[i]->a_maxnvalues;
     }
     
     *attrset = newattrset;
     return ADCL_SUCCESS;
 }
 
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+int ADCL_attrset_dup ( ADCL_attrset_t *org, ADCL_attrset_t **copy )
+{
+    ADCL_attrset_t *newattrset=NULL;
+    int i;
+
+    newattrset = ( ADCL_attrset_t *) calloc (1, sizeof (ADCL_attrset_t));
+    if ( NULL == newattrset ) {
+	return ADCL_NO_MEMORY;
+    }
+
+    newattrset->as_id     = ADCL_attrset_local_counter++;
+    newattrset->as_findex = -1;
+    newattrset->as_refcnt = 1;
+    newattrset->as_maxnum = org->as_maxnum;
+    newattrset->as_attrs = (ADCL_attribute_t **) malloc ( org->as_maxnum * sizeof (ADCL_attribute_t *));
+    if ( NULL == newattrset->as_attrs ) {
+	free ( newattrset );
+	return ADCL_NO_MEMORY;
+    }
+    
+
+    /* Determine the base and the last values for all attributes. That's required for
+       some of the loops within the performance hypothesis code */
+    newattrset->as_attrs_baseval = (int *) malloc ( org->as_maxnum * sizeof(int) );
+    newattrset->as_attrs_maxval  = (int *) malloc ( org->as_maxnum * sizeof(int) );
+    newattrset->as_attrs_numval  = (int *) malloc ( org->as_maxnum * sizeof(int) );
+    if ( NULL == newattrset->as_attrs_baseval || NULL == newattrset->as_attrs_maxval ||
+	 NULL == newattrset->as_attrs_numval ) {
+	free ( newattrset->as_attrs);
+	free ( newattrset );
+	return ADCL_NO_MEMORY;
+    }
+
+    
+    memcpy ( newattrset->as_attrs_baseval, org->as_attrs_baseval, org->as_maxnum * sizeof(int));
+    memcpy ( newattrset->as_attrs_maxval, org->as_attrs_maxval, org->as_maxnum * sizeof(int));
+    memcpy ( newattrset->as_attrs_numval, org->as_attrs_numval, org->as_maxnum * sizeof(int));
+
+    for ( i=0; i< org->as_maxnum; i++ ) {
+	ADCL_attribute_dup ( org->as_attrs[i], &newattrset->as_attrs[i]);
+    }
+
+    
+    *copy = newattrset;
+    return ADCL_SUCCESS;
+}
+
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
 int ADCL_attrset_free ( ADCL_attrset_t **attrset)
 {
     ADCL_attrset_t *tattrset=*attrset;
+    int i;
 
     if ( NULL != tattrset ) {
-	if ( NULL != tattrset->as_attrs ) {
-	    free ( tattrset->as_attrs );
-	}
 
 	if ( NULL != tattrset->as_attrs_baseval ) {
 	    free ( tattrset->as_attrs_baseval) ;
@@ -112,7 +205,28 @@ int ADCL_attrset_free ( ADCL_attrset_t **attrset)
 	    free ( tattrset->as_attrs_maxval) ;
 	}
 
-	ADCL_array_remove_element ( ADCL_attrset_farray, tattrset->as_findex);
+	if ( NULL != tattrset->as_attrs_numval ) {
+	    free ( tattrset->as_attrs_numval) ;
+	}
+
+	
+	if ( tattrset->as_findex != -1 ) {
+	    ADCL_array_remove_element ( ADCL_attrset_farray, tattrset->as_findex);
+	    if ( NULL != tattrset->as_attrs ) {
+		free ( tattrset->as_attrs );
+	    }
+	}
+	else {
+	    /* These attributes are the result of an ADCL_attrset_dup
+	       operation and have to be freed together with the duplicated
+	       attrset */
+	    if ( NULL != tattrset->as_attrs ) {
+		for ( i=0; i< tattrset->as_maxnum; i++ ) {
+		    ADCL_attribute_free ( &tattrset->as_attrs[i] );
+		}
+		free ( tattrset->as_attrs );
+	    }
+	}
 	free ( tattrset );
     }
 
