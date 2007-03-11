@@ -135,6 +135,7 @@ int ADCL_statistics_global_max ( ADCL_statistics_t **statistics, int count,
 		TLINE_MIN ( tline_unfiltered, gpts[3*i],  i );
 		TLINE_MIN ( tline_filtered, gpts[3*i+1],  i );
 	    }
+
 	    if ( gpts[ 3 * tline_filtered.minloc + 2]<ADCL_OUTLIER_FRACTION){
 		winners[j] = tline_filtered.minloc;
 		ADCL_printf("#%d: block %d winner is %d (filtered) \n", 

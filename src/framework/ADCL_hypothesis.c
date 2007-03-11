@@ -154,6 +154,10 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 	winners  = &(blength[numblocks]);
 	attr_pos = &(blength[2*numblocks]);
 	
+	/* Set the base values for all attributes */
+	for ( i = 0; i < attrset->as_maxnum; i++ ) {
+	    attrval_list[i] = attrset->as_attrs_baseval[i];
+	}
 	/* 
 	 * main loop over the number of attributes currently investigated. 
 	 * Within this loop we generate the list of emethods, which 
@@ -171,15 +175,15 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 	    for ( i=0; i< hypo->h_num_active_attrs; i++ ) {
 		pos = (i+loop)%hypo->h_num_active_attrs;
 		tmp_active_attr_list[i] = hypo->h_active_attr_list[pos];
+
+		/* Generate the first combination of attributes. The first
+		   one is really independent of the list of attributes used. 
+		*/
+		pos = ADCL_attrset_get_pos ( attrset, tmp_active_attr_list[i]);
+		attrval_list = attrset->as_attrs_baseval[pos];
 	    }
 	    
-	    /* Generate the first combination of attributes. The first
-	       one is really independent of the list of attributes used. 
-	    */
 	    pos = ADCL_attrset_get_pos ( attrset, hypo->h_active_attr_list[loop]);
-	    for ( i = 0; i < attrset->as_maxnum; i++ ) {
-		attrval_list[i] = attrset->as_attrs_baseval[i];
-	    }
 	    attr_pos[bcnt] = pos;
 	    
 	    ret = ADCL_SUCCESS;
@@ -196,8 +200,10 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 					    attrval_list);
 		if ( ret != ADCL_SUCCESS ) {
 		    blength[bcnt++] = blencnt;
-		    attr_pos[bcnt]  = pos;
-		    blencnt         = 0;
+		    if ( ret != ADCL_EVAL_DONE ) {
+			attr_pos[bcnt]  = pos;
+			blencnt         = 0;
+		    }
 		}
 	    }
 	}

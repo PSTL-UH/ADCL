@@ -93,6 +93,7 @@ int ADCL_attribute_get_nextval ( ADCL_attribute_t *attr, int val )
     for ( i=0; i< attr->a_maxnvalues; i++ ) {
 	if ( attr->a_values[i] == val ) {
 	    nextval = i;
+	    break;
 	}
     }
 

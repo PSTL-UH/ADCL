@@ -155,8 +155,8 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     /* Initialize the attribute list if we are dealing with a predefined functionset */
     if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
 	hypo->h_num_active_attrs = 2;
-	hypo->h_active_attr_list[0] = ADCL_neighborhood_attrs[0]; /* ADCL_ATTR_MAPPING */
-	hypo->h_active_attr_list[1] = ADCL_neighborhood_attrs[0]; /* ADCL_ATTR_NONCONT */
+	hypo->h_active_attr_list[0] = e->em_fnctset.fs_attrset->as_attrs[0]; /* ADCL_ATTR_MAPPING */
+	hypo->h_active_attr_list[1] = e->em_fnctset.fs_attrset->as_attrs[1]; /* ADCL_ATTR_NONCONT */
 	
 //    if ( -1 != ADCL_emethod_selection ) {
 //	er->er_state = ADCL_STATE_REGULAR;
@@ -371,12 +371,10 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
         return last;
     }
 
-#if 0
     if ( e->em_perfhypothesis ) {
 	ADCL_hypothesis_eval_v2 ( e );
     }
     
-#endif
 
     for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){
 	/* increase er_num_available_measurements every time 
