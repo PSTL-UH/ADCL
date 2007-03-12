@@ -141,7 +141,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     hypo = &(e->em_hypo);
     hypo->h_num_avail_meas = 0;
     hypo->h_num_active_attrs = 0;
-    hypo->h_attr_hypothesis  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
+    hypo->h_attr_hypothesis  = (int *) malloc (f->fs_attrset->as_maxnum * sizeof(int));
     hypo->h_attr_confidence  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
     hypo->h_active_attr_list = (ADCL_attribute_t **) calloc (1, f->fs_attrset->as_maxnum * 
 							     sizeof(ADCL_attribute_t *));
@@ -152,9 +152,14 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	goto exit;
     }
 
+    for ( i=0; i< e->em_fnctset.fs_attrset->as_maxnum; i++ ) {
+	hypo->h_attr_hypothesis[i] = ADCL_ATTR_NOT_SET;
+    }
+
     /* Initialize the attribute list if we are dealing with a predefined functionset */
     if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
-	hypo->h_num_active_attrs = 2;
+	hypo->h_num_active_attrs  = 2;
+	hypo->h_num_required_meas = 4;
 	hypo->h_active_attr_list[0] = e->em_fnctset.fs_attrset->as_attrs[0]; /* ADCL_ATTR_MAPPING */
 	hypo->h_active_attr_list[1] = e->em_fnctset.fs_attrset->as_attrs[1]; /* ADCL_ATTR_NONCONT */
 	

@@ -55,6 +55,7 @@ struct ADCL_hypothesis_s {
     ADCL_attribute_t  **h_active_attr_list; /* List of attributes currently being investigated */
     int                   h_num_avail_meas; /* Counter keeping track of how many 
 					       methods have already been tested*/
+    int                 h_num_required_meas;  
     int                 h_num_active_attrs;  
 };
 typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;

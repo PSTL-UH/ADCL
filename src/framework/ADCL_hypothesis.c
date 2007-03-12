@@ -10,15 +10,15 @@ static int get_num_methods_and_blocks ( ADCL_emethod_t *e, int *nummethods,
 extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
 
 
-int ADCL_hypothesis_shrinklist_byattr ( ADCL_fnctset_t *fnctset,
+int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_t *e,
                                         int attr_pos, int required_value )
 {
     int i, count=0;
+    ADCL_fnctset_t *fnctset=&(e->em_fnctset);
     int org_count=fnctset->fs_maxnum;
     ADCL_attrset_t *attrset=fnctset->fs_attrset;
     ADCL_function_t *tfunc=NULL;
 
-    /* Find the position of this attribute in the attrset */
 
     /* This following loop is only for debugging purposes and should be removed
        from later production runs */
@@ -36,6 +36,9 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_fnctset_t *fnctset,
             if ( count != i ) {
 		/* move this emethod from pos i to pos count */
 		fnctset->fs_fptrs[count] = fnctset->fs_fptrs[i];
+		
+		/* do the same with the statisticst objects */
+		e->em_stats[count] = e->em_stats[i];
 	    }
 	    count++;
 	}
@@ -44,6 +47,15 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_fnctset_t *fnctset,
     ADCL_printf("#Fnctset has been shrinked from %d to %d entries\n", 
 		org_count, count );
 
+
+    /* Finally, adjust the attribute list and the attrset to the new values */
+    attrset->as_attrs[attr_pos]->a_maxnvalues =  1;
+    attrset->as_attrs[attr_pos]->a_values[0]  =  required_value;
+	
+    attrset->as_attrs_baseval[attr_pos] = required_value;
+    attrset->as_attrs_maxval[attr_pos]  = required_value;
+    attrset->as_attrs_numval[attr_pos]  = 1;
+        
     return ADCL_SUCCESS;
 }
 
@@ -127,9 +139,13 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
     ADCL_hypothesis_t *hypo=&(e->em_hypo);
     ADCL_attrset_t *attrset=e->em_fnctset.fs_attrset;
 
-/*    if ( hypo->h_num_avail_meas == hypo->h_num_required_meas ) { */
-    if ( hypo->h_num_avail_meas == 4 ) {
+    if ( hypo->h_num_avail_meas == hypo->h_num_required_meas ) {
 
+	/* 
+	** Please note: the attrval_list is always in the same order 
+	** as the attributes in the attribute set. This is in contrary
+	** to the tmp_active_attr_list
+	*/
 	attrval_list         = (int *) malloc ( attrset->as_maxnum * sizeof(int)); 
 	tmp_active_attr_list = (ADCL_attribute_t **) malloc ( attrset->as_maxnum * 
 							      sizeof(ADCL_attribute_t *));
@@ -154,10 +170,7 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 	winners  = &(blength[numblocks]);
 	attr_pos = &(blength[2*numblocks]);
 	
-	/* Set the base values for all attributes */
-	for ( i = 0; i < attrset->as_maxnum; i++ ) {
-	    attrval_list[i] = attrset->as_attrs_baseval[i];
-	}
+
 	/* 
 	 * main loop over the number of attributes currently investigated. 
 	 * Within this loop we generate the list of emethods, which 
@@ -175,12 +188,14 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 	    for ( i=0; i< hypo->h_num_active_attrs; i++ ) {
 		pos = (i+loop)%hypo->h_num_active_attrs;
 		tmp_active_attr_list[i] = hypo->h_active_attr_list[pos];
+	    }
 
-		/* Generate the first combination of attributes. The first
-		   one is really independent of the list of attributes used. 
-		*/
-		pos = ADCL_attrset_get_pos ( attrset, tmp_active_attr_list[i]);
-		attrval_list = attrset->as_attrs_baseval[pos];
+
+	    /* Generate the first combination of attributes. The first
+	       one is really independent of the list of attributes used. 
+	    */
+	    for ( i = 0; i < attrset->as_maxnum; i++ ) {
+		attrval_list[i] = attrset->as_attrs_baseval[i];
 	    }
 	    
 	    pos = ADCL_attrset_get_pos ( attrset, hypo->h_active_attr_list[loop]);
@@ -200,9 +215,9 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 					    attrval_list);
 		if ( ret != ADCL_SUCCESS ) {
 		    blength[bcnt++] = blencnt;
+		    blencnt         = 0;
 		    if ( ret != ADCL_EVAL_DONE ) {
 			attr_pos[bcnt]  = pos;
-			blencnt         = 0;
 		    }
 		}
 	    }
@@ -223,7 +238,7 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 	/* Now the shrink the emethods list if we reached a threshold */
 	for ( i=0; i< numblocks; i++ ){
 	    if ( hypo->h_attr_confidence[attr_pos[i]] >= ADCL_hypo_req_confidence ) {
-		ADCL_hypothesis_shrinklist_byattr(&(e->em_fnctset), attr_pos[i], 
+		ADCL_hypothesis_shrinklist_byattr( e, attr_pos[i], 
 						  hypo->h_attr_hypothesis[attr_pos[i]]);
 		hypo->h_attr_confidence[attr_pos[i]]=0;
 
@@ -235,8 +250,9 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
 	}
 	
 	/* Switch to the next list of attributes to be evaluated */
-	hypo->h_num_active_attrs=1;
-	hypo->h_active_attr_list[0] = ADCL_neighborhood_attrs[2];
+	hypo->h_num_active_attrs  = 1;
+	hypo->h_active_attr_list[0] = e->em_fnctset.fs_attrset->as_attrs[2];
+	hypo->h_num_required_meas = 200000; /* don't do that right now */
 	
 	free ( tmp_active_attr_list );
 	free ( tmp_stats );
