@@ -377,21 +377,30 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     }
 
     if ( e->em_perfhypothesis ) {
-	ADCL_hypothesis_eval_v2 ( e );
-    }
-    
+	if ( hypo->h_num_avail_meas == hypo->h_num_required_meas ) {
+	    ADCL_hypothesis_eval_v2 ( e );
+	}
 
-    for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){
-	/* increase er_num_available_measurements every time 
-	   a method has the em_tested flag set to true; */
-	if ( !(ADCL_STAT_IS_TESTED (e->em_stats[i]))  ) {
-	    next = i;
+	for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){
+	    /* increase er_num_available_measurements every time 
+	       a method has the em_tested flag set to true; */
+	    if ( !(ADCL_STAT_IS_TESTED (e->em_stats[i]))  ) {
+		next = i;
+		e->em_last=next;
+		e->em_stats[next]->s_count++;
+		break;
+	    }
+	    hypo->h_num_avail_meas++;
+	}
+    }
+    else {
+	if ( last <  ( e->em_fnctset.fs_maxnum -1  ) ){
+	    next = last+1;
 	    e->em_last=next;
 	    e->em_stats[next]->s_count++;
-	    break;
 	}
-	hypo->h_num_avail_meas++;
     }
+	    
     
     *flag = ADCL_FLAG_PERF;
     return next;
