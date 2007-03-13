@@ -72,6 +72,7 @@
 
 
 !...Close parallel environment
+      call ADCL_Finalize ( ierror )
       call MPI_Finalize ( ierror )
 
       end

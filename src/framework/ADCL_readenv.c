@@ -135,20 +135,20 @@ int ADCL_readenv()
 #endif
 	}
 	
-	/*  ADCL_EMETHOD_SELECTION 
+	/*  ADCL_EMETHOD_SELECTION */
 	else if (strncmp(keyword,"ADCL_EMETHOD_SELECTION",
 			 strlen("ADCL_EMETHOD_SELECTION"))==0) {
 	    sscanf(ptr,"%s", valstring);
 #ifdef	Debug	
 	    ADCL_printf("#ADCL_EMETHOD_SELECTION : %s\n", valstring);	
 #endif
-	    for ( i=0; i< ADCL_method_total_num; i++ ) {			
-		if ( strcmp(valstring, ADCL_method_array[i].m_name) == 0) {
+	    for ( i=0; i< ADCL_neighborhood_fnctset->fs_maxnum; i++ ) {			
+		if ( strcmp(valstring, ADCL_neighborhood_fnctset->fs_fptrs[i]->f_name) == 0) {
 		    ADCL_emethod_selection = i;
 		    break;
 		}
 	    }
-	    }*/
+	    }
 
 	/*  ADCL_PRINTF_SILENCE  */
 	else if ( strncmp(keyword, "ADCL_PRINTF_SILENCE", 

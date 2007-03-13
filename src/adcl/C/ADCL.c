@@ -8,7 +8,6 @@ int ADCL_Init (void )
     int ret;
 
     ret = ADCL_printf_init();
-    ret = ADCL_readenv();
 
     /* Initialize the request, topology and vector fortran pointer arrays */
     ADCL_array_init ( &(ADCL_vector_farray),    "ADCL_Vector",   32 );
@@ -21,6 +20,7 @@ int ADCL_Init (void )
     ADCL_array_init ( &(ADCL_fnctset_farray),   "ADCL_Fnctgrp",  32 );
 
     ret = ADCL_predefined_init ();
+    ret = ADCL_readenv();
 
     return ret;
 }
