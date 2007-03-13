@@ -1,8 +1,10 @@
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
-
+#ifndef PATH_MAX 
 #define PATH_MAX 80
+#endif
+
 #define MAXLINE 80
 
 extern int ADCL_OUTLIER_FACTOR;
