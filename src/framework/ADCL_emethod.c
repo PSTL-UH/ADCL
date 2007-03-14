@@ -37,6 +37,9 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 		ADCL_emethod_array, i );
 	    topo = e->em_topo;
 	    vec  = e->em_vec;
+	    if ( ADCL_VECTOR_NULL == vec  ) {
+		continue;
+	    }
 
 	    MPI_Comm_compare ( topo->t_comm, t->t_comm, &result );
 	    if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
