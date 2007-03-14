@@ -10,12 +10,23 @@ extern ADCL_fnctset_t *ADCL_neighborhood_fnctset;
 #define CHECK_COMM_STATE(state1,state2) if (state1!=state2) return ADCL_SUCCESS
 
  
-int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo, 
-			  ADCL_request_t **req, int order )
+int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs, 
+				  ADCL_vector_t **array_of_recv_vecs,
+				  ADCL_topology_t *topo, 
+				  ADCL_request_t **req, int order )
 {
-    int ret = ADCL_SUCCESS;
+    int i, ret = ADCL_SUCCESS;
     ADCL_request_t *newreq;
-    
+
+
+    /*  
+    ** Since the dimension of all vector objects has to be the same, 
+    ** we can pick any of them	for the shortcut purposes, e.g. for the 
+    ** emethod_init function, since these functions are only interested in 
+    ** the  number of dimensions and the extent of each dimension    
+    */
+    ADCL_vector_t *vec = array_of_send_vecs[0];
+
     /* Alloacte the general ADCL_request structure */
     newreq = (ADCL_request_t *) calloc ( 1, sizeof(ADCL_request_t));
     if ( NULL == newreq ) {
@@ -31,10 +42,22 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
 			     newreq );
     
     newreq->r_comm_state = ADCL_COMM_AVAIL;
-    newreq->r_vec        = vec;
+    /* In this constructor, all send are request buffers are the same, 
+       thus all vector objects point to vec. */
+    newreq->r_svecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
+    newreq->r_rvecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
+    if ( NULL == newreq->r_rvecs || NULL == newreq->r_svecs ) {
+	ret = ADCL_NO_MEMORY;
+	goto exit;
+    }
+    for ( i=0; i < 2* topo->t_ndims; i++ ) {
+	newreq->r_svecs[i] = array_of_send_vecs[i];
+	newreq->r_rvecs[i] = array_of_recv_vecs[i];
+    }
     
     /* Initialize the emethod data structures required for evaluating
-       the different communication methods */
+       the different communication methods. 
+    */
     newreq->r_function = NULL;
     newreq->r_emethod  = ADCL_emethod_init ( topo, vec, ADCL_neighborhood_fnctset );
     
@@ -45,7 +68,9 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
     /* Set now elements of the structure required for the communication itself */
     
 #ifdef MPI_WIN 
-    MPI_Type_size (MPI_DOUBLE, &tsize);
+    /*  Doesn't work in this concept anymore!!!
+
+    MPI_Type_size (array_of_send_vecs[0]->v_dat, &tsize);
     if ( vec->v_nc > 0 ) {
 	tcount = vec->v_nc;
     }
@@ -55,6 +80,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
     MPI_Win_create ( newreq->r_vec->v_data, tcount , tsize, MPI_INFO_NULL, 
 		     topo->t_comm, &(newreq->r_win));
     MPI_Comm_group ( topo->t_comm, &(newreq->r_group) );   
+    */
 #else
     newreq->r_win        = MPI_WIN_NULL; /* TBD: unused for right now! */
     newreq->r_group      = MPI_GROUP_NULL; /* TBD: unused for right now! */
@@ -64,7 +90,7 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
     ** Generate the derived datatypes describing which parts of this
     ** vector are going to be sent/received from which process
     */
-    if ( vec->v_ndims == 1 || ( vec->v_ndims == 2 && vec->v_nc > 0 )) {
+    if ( vec->v_ndims == 1 || (vec->v_ndims == 2 && vec->v_nc > 0 )) {
 	ret = ADCL_indexed_1D_init ( vec->v_dims[0],
 				     vec->v_hwidth,
 				     vec->v_nc, 
@@ -135,6 +161,13 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
     
  exit:
     if ( ret != ADCL_SUCCESS ) {
+	if ( NULL != newreq->r_svecs ) {
+	    free ( newreq->r_svecs );
+	}
+	if ( NULL != newreq->r_rvecs ) {
+	    free ( newreq->r_rvecs );
+	}
+
 	if ( NULL != newreq->r_sreqs ) {
 	    free ( newreq->r_sreqs );
 	}
@@ -161,9 +194,19 @@ int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo,
     return ret;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_request_free ( ADCL_request_t **req )
 {
     ADCL_request_t *preq=*req;
+    
+    if ( NULL != preq->r_svecs ) {
+	free ( preq->r_svecs );
+    }
+    if ( NULL != preq->r_rvecs ) {
+	free ( preq->r_rvecs );
+    }
     
     if ( NULL != preq->r_sreqs ) {
 	free ( preq->r_sreqs );
@@ -197,7 +240,43 @@ int ADCL_request_free ( ADCL_request_t **req )
     *req = ADCL_REQUEST_NULL;
     return ADCL_SUCCESS;
 }
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+int ADCL_request_create_fnctset ( ADCL_topology_t *topo, ADCL_fnctset_t *fnctset, 
+				  ADCL_request_t **req )
+{
+    ADCL_request_t *newreq;
 
+    /* Alloacte the general ADCL_request structure */
+    newreq = (ADCL_request_t *) calloc ( 1, sizeof(ADCL_request_t));
+    if ( NULL == newreq ) {
+	return ADCL_NO_MEMORY;
+    }
+    
+    /* Fill in the according elements, start with the simple ones */
+    newreq->r_id         = ADCL_local_id_counter++;
+    ADCL_array_get_next_free_pos ( ADCL_request_farray, &(newreq->r_findex) );
+    ADCL_array_set_element ( ADCL_request_farray, 
+			     newreq->r_findex, 
+			     newreq->r_id,
+			     newreq );
+    
+    newreq->r_comm_state = ADCL_COMM_AVAIL;
+    
+    /* 
+    ** Please note, that there are no vectors, data types, temporary 
+    ** buffers and MPI requests associated to this type of request. 
+    */
+    
+    newreq->r_function = NULL;
+    newreq->r_win      = MPI_WIN_NULL; /* TBD: unused for right now! */
+    newreq->r_group    = MPI_GROUP_NULL; /* TBD: unused for right now! */
+
+    newreq->r_emethod = ADCL_emethod_init ( topo, ADCL_VECTOR_NULL, fnctset );
+    
+    return ADCL_SUCCESS;
+}
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -325,3 +404,13 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
+int ADCL_request_get_comm ( ADCL_request_t *req, MPI_Comm *comm, int *rank, int *size)
+{
+    ADCL_topology_t *topo=req->r_emethod->em_topo;
+    
+    *comm = topo->t_comm;
+    *rank = topo->t_rank;
+    *size = topo->t_size;
+
+    return ADCL_SUCCESS;
+}

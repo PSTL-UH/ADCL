@@ -17,7 +17,8 @@ struct ADCL_request_s{
     int                    r_findex; /* index for the fortran interface */
     int                r_comm_state; /* communication state of the object  */
 
-    ADCL_vector_t            *r_vec; /* ptr to the vector describing data items */
+    ADCL_vector_t         **r_svecs; /* ptr to the vectors describing send data items */
+    ADCL_vector_t         **r_rvecs; /* ptr to the vectors describing recv data items */
     ADCL_emethod_t       *r_emethod; /* ptr to the emethod describing everything */ 
     ADCL_function_t     *r_function; /* ADCL function currently being used. This pointer
 					will also contain the 'winner' function once 
@@ -48,14 +49,21 @@ typedef struct ADCL_request_s ADCL_request_t;
 
 extern ADCL_array_t * ADCL_request_farray;
 
-int ADCL_request_create ( ADCL_vector_t *vec, ADCL_topology_t *topo, 
-			  ADCL_request_t **req, int order );
+int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs, 
+				  ADCL_vector_t **array_of_recv_vecs, 
+				  ADCL_topology_t *topo, 
+				  ADCL_request_t **req, int order );
+int ADCL_request_create_fnctset ( ADCL_topology_t *topo, ADCL_fnctset_t *fnctset, 
+				  ADCL_request_t **req );
+
+
 int ADCL_request_free ( ADCL_request_t **req );
 int ADCL_request_init ( ADCL_request_t *req, int *db );
 int ADCL_request_wait ( ADCL_request_t *req );
 
 int ADCL_request_update ( ADCL_request_t *req, 
 			  TIME_TYPE t1, TIME_TYPE t2 );
+int ADCL_request_get_comm ( ADCL_request_t *req, MPI_Comm *comm, int *rank, int *size);
 
 #endif /* __ADCL_REQUEST_H__ */
 

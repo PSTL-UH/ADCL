@@ -99,7 +99,7 @@ void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, int *fctset, char *
 	return;
     }
     
-    cfncts = ( ADCL_function_t *) malloc ( *maxnum  * sizeof  ( ADCL_function_t *));
+    cfncts = ( ADCL_function_t **) malloc ( *maxnum  * sizeof  ( ADCL_function_t *));
     if ( NULL == cfncts ) {
 	cfncts[i] = (ADCL_function_t *) ADCL_array_get_ptr_by_pos ( ADCL_function_farray, array_of_fncts[i] );
     }

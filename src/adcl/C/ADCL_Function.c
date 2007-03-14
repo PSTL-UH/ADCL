@@ -68,11 +68,18 @@ int ADCL_Function_free ( ADCL_Function *fnct )
 int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, 
 			  char *name, ADCL_Fnctset *fctset )
 {
+    int i;
+
     if ( 0 >= maxnum ) {
 	return ADCL_INVALID_ARG;
     }
     if ( NULL == fctset ) {
 	return ADCL_INVALID_ARG;
+    }
+    for ( i=0; i< maxnum; i++ ) {
+	if ( fncts[i]->f_id < 0 ) {
+	    return ADCL_INVALID_FUNCTION;
+	}
     }
 
     return ADCL_fnctset_create ( maxnum, fncts, name, fctset );

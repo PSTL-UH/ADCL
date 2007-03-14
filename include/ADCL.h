@@ -29,6 +29,7 @@
 #define ADCL_INVALID_WORK_FUNCTION_PTR  24
 #define ADCL_INVALID_FNCTSET   25
 #define ADCL_INVALID_VECTOR    26
+#define ADCL_INVALID_DIRECTION 27
 
 #define ADCL_VECTOR_NULL    (void*) -1
 #define ADCL_REQUEST_NULL   (void*) -2
@@ -42,6 +43,10 @@
 
 #define ADCL_MAX_ATTRLEN 32
 #define ADCL_MAX_NAMELEN 32
+
+#define ADCL_DIRECTION_BOTH          1
+#define ADCL_DIRECTION_LEFT_TO_RIGHT 2
+#define ADCL_DIRECTION_RIGHT_TO_LEFT 3
 
 
 /* define the object types visible to the user */
@@ -73,7 +78,7 @@ int ADCL_Vector_deregister ( ADCL_Vector *vec );
 int ADCL_Topology_create  ( MPI_Comm cart_comm, ADCL_Topology *topo);
 int ADCL_Topology_free    ( ADCL_Topology *topo );
 int ADCL_Topology_create_generic ( int ndims, int *lneighbors, 
-				   int *rneighbors, int *coords, 
+				   int *rneighbors, int *coords, int direction,  
 				   MPI_Comm comm, ADCL_Topology *topo);
 
 
@@ -110,12 +115,13 @@ int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
 /* ADCL Request functions */
 int ADCL_Request_create         ( ADCL_Vector vec, ADCL_Topology topo, 
 				  ADCL_Request *req );
-int ADCL_Request_create_generic ( ADCL_Vector *array_of_vec, 
+int ADCL_Request_create_generic ( ADCL_Vector *array_of_send_vecs, 
+				  ADCL_Vector *array_of_recv_vecs, 
 				  ADCL_Topology topo, 
 				  ADCL_Request *req );
-int ADCL_Request_create_fnctset ( ADCL_Fnctset fnctset, ADCL_Request *req );
+int ADCL_Request_create_fnctset ( ADCL_Topology topo, ADCL_Fnctset fnctset, ADCL_Request *req );
 
-int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm );
+int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm, int *rank, int *size );
 int ADCL_Request_free      ( ADCL_Request *req );
 
 int ADCL_Request_start ( ADCL_Request req );

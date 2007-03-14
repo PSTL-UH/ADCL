@@ -2,7 +2,7 @@
 #include "ADCL_internal.h"
 
 int ADCL_Topology_create_generic ( int ndims, int *lneighbors, int *rneighbors,
-				   int *coords, MPI_Comm comm, 
+				   int *coords, int direction, MPI_Comm comm, 
 				   ADCL_Topology *topo)
 {
     if ( 0 == ndims ) {
@@ -18,8 +18,14 @@ int ADCL_Topology_create_generic ( int ndims, int *lneighbors, int *rneighbors,
 	return ADCL_INVALID_TOPOLOGY;
     }
 
+    if ( direction != ADCL_DIRECTION_BOTH && 
+	 direction != ADCL_DIRECTION_LEFT_TO_RIGHT && 
+	 direction != ADCL_DIRECTION_RIGHT_TO_LEFT ){
+	return ADCL_INVALID_DIRECTION;
+    }
+
     return ADCL_topology_create_generic ( ndims, lneighbors, rneighbors, 
-					  coords, comm, topo );
+					  coords, direction, comm, topo );
 }
 
 int ADCL_Topology_create ( MPI_Comm cart_comm, ADCL_Topology *topo)

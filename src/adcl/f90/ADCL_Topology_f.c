@@ -21,6 +21,7 @@ void adcl_topology_create_generic ( int *ndims, int *lneighb, int *rneighb, int 
 {
     ADCL_topology_t *ctopo;
     MPI_Comm ccomm;
+    int direction=ADCL_DIRECTION_BOTH;
     
     if ( ( NULL == ndims )    || 
 	 ( NULL == lneighb )  ||
@@ -39,7 +40,7 @@ void adcl_topology_create_generic ( int *ndims, int *lneighb, int *rneighb, int 
     }
     
     *ierror = ADCL_topology_create_generic ( *ndims, lneighb, rneighb, 
-					     coords, ccomm, 
+					     coords,  direction, ccomm,
 					     &ctopo );
     if ( *ierror == ADCL_SUCCESS ) {
 	*topo = ctopo->t_findex;

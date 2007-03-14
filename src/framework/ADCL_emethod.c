@@ -22,7 +22,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     ADCL_hypothesis_t *hypo=NULL;
     int i, ret=ADCL_SUCCESS;
 
-    if ( ADCL_merge_requests ) {
+    if ( ADCL_merge_requests && v != ADCL_VECTOR_NULL ) {
 	int j, last, found=-1;
 	int result;
 	ADCL_topology_t *topo;

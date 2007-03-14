@@ -29,9 +29,10 @@
 
 void adcl_request_create ( int *vec, int *topo, int *req, int *ierror ) 
 {
-    ADCL_vector_t *cvec;
+    ADCL_vector_t *cvec, **svecs, **rvecs;
     ADCL_request_t *creq;
     ADCL_topology_t *ctopo;
+    int i;
     
     if ( ( NULL == vec )   || 
 	 ( NULL == topo )  ||
@@ -45,10 +46,23 @@ void adcl_request_create ( int *vec, int *topo, int *req, int *ierror )
     cvec = (ADCL_vector_t *) ADCL_array_get_ptr_by_pos ( ADCL_vector_farray, 
 							 *vec );
 
-    *ierror = ADCL_request_create ( cvec, ctopo, &creq, MPI_ORDER_FORTRAN );
+    svecs = ( ADCL_vector_t **) malloc ( 4 * ctopo->t_ndims * sizeof(ADCL_vector_t *));
+    if ( NULL == svecs ) {
+	*ierror = ADCL_NO_MEMORY;
+	return;
+    }
+    rvecs = &svecs[2*ctopo->t_ndims];
+
+    for ( i=0; i<2*ctopo->t_ndims; i++ ) {
+	svecs[i] = cvec;
+	rvecs[i] = cvec;
+    }
+
+    *ierror = ADCL_request_create_generic ( svecs, rvecs, ctopo, &creq, MPI_ORDER_FORTRAN );
     if ( *ierror == ADCL_SUCCESS ) {
 	*req = creq->r_findex;
     }
+    free ( svecs );
 
     return;
 }
