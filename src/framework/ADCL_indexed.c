@@ -354,8 +354,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
 	    for ( j=hwidth; j<vecdim[2]-hwidth; j++ ) {
 		for ( k=hwidth; k<(vecdim[1]-hwidth); k++, count++ ) {
 		    countarr[count]  = hwidth;
-		    sdisps[count]   = dist_4D_Fortran( hwidth, j, k, i, vecdim, nc);
-		    rdisps[count]   = dist_4D_Fortran( 0, j, k, i, vecdim, nc);
+		    sdisps[count]   = dist_4D_Fortran( hwidth, k, j, i, vecdim, nc);
+		    rdisps[count]   = dist_4D_Fortran( 0, k, j, i, vecdim, nc);
 		}
 	    }
 	}
@@ -369,8 +369,8 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, MPI_Datat
 	    for ( j=hwidth; j<vecdim[2]-hwidth; j++ ) {
 		for ( k=hwidth; k<(vecdim[1]-hwidth); k++, count++ ) {
 		    countarr[count]  = hwidth;
-		    sdisps[count]   = dist_4D_Fortran( vecdim[0]-2*hwidth, j, k, i, vecdim, nc);
-		    rdisps[count]   = dist_4D_Fortran( vecdim[0]-hwidth, j, k, i, vecdim, nc);
+		    sdisps[count]   = dist_4D_Fortran( vecdim[0]-2*hwidth, k, j, i, vecdim, nc);
+		    rdisps[count]   = dist_4D_Fortran( vecdim[0]-hwidth, k, j, i, vecdim, nc);
 		}
 	    }
 	}
@@ -485,7 +485,7 @@ int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3,
     int distance=0;
     
     distance = dim0+ dim1*vecdim[0]+ dim2*vecdim[0]*vecdim[1];
-    distance += dim3*vecdim[0]*vecdim[1]*vecdim[2];
+    distance += dim3*vecdim[0]*vecdim[1]*nc;
 
     return distance;
 }
@@ -495,7 +495,7 @@ int dist_3D_Fortran ( int dim0, int dim1, int dim2,
 {
     int distance=0;
     
-    distance = dim0+ dim1*vecdim[0]+ dim2*vecdim[0]*vecdim[1];
+    distance = dim0+ dim1*vecdim[0]+ dim2*vecdim[0]*nc;
 
     return distance;
 }
