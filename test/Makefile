@@ -2,7 +2,7 @@ include ../Makefile.defs
 
 all: ctests ftests
 
-ctests: first second third fourth one-dim two-dim three-dim 
+ctests: first second third fourth one-dim two-dim three-dim test-fnctset-noattrs
 ftests: one-dim-f two-dim-f three-dim-f three-dim-large  first_f second_f
 
 first: 	first.c
@@ -25,6 +25,9 @@ two-dim: two-dim.c
 
 three-dim: three-dim.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/three-dim three-dim.c $(LDFLAGS)
+
+test-fnctset-noattrs: test-fnctset-noattrs.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-noattrs test-fnctset-noattrs.c $(LDFLAGS)
 
 first_f: first_f.f90
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/first_f first_f.f90 $(FLDFLAGS)
