@@ -3,10 +3,10 @@ include ../Makefile.defs
 all: ctests ftests
 
 ctests: first second third fourth one-dim two-dim three-dim 
-ftests: one-dim-f two-dim-f three-dim first_f second_f
+ftests: one-dim-f two-dim-f three-dim-f three-dim-large  first_f second_f
 
 first: 	first.c
-	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/first first.c $(LDFLAGS) -lefence
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/first first.c $(LDFLAGS) 
 
 second:	second.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/second second.c $(LDFLAGS)
@@ -41,6 +41,9 @@ two-dim-f: two-dim-f.f90
 three-dim-f: three-dim-f.f90
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/three-dim-f three-dim-f.f90 $(FLDFLAGS)
 
+three-dim-large: three-dim-large.f90
+	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/three-dim-large three-dim-large.f90 $(FLDFLAGS)
+
 clean:
 	rm -rf *.o *~ *.out
 	rm -f $(ADCL_BIN_DIR)/first $(ADCL_BIN_DIR)/second 
@@ -49,3 +52,4 @@ clean:
 	rm -f $(ADCL_BIN_DIR)/one-dim $(ADCL_BIN_DIR)/two-dim 
 	rm -f $(ADCL_BIN_DIR)/one-dim-f $(ADCL_BIN_DIR)/two-dim-f
 	rm -f $(ADCL_BIN_DIR)/three-dim $(ADCL_BIN_DIR)/three-dim-f
+	rm -f $(ADCL_BIN_DIR)/three-dim-large
