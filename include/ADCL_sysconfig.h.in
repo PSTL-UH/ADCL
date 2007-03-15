@@ -4,6 +4,8 @@
 /* How many iterations are we testing each single method? Should
    probably be a parameter later on */
 #define ADCL_EMETHOD_NUMTESTS @adcl_emethod_numtests@
+#undef ADCL_PAPI 
+
 
 #endif
 

@@ -19,6 +19,10 @@ int ADCL_Init (void )
     ADCL_array_init ( &(ADCL_function_farray),  "ADCL_Function",  32 );
     ADCL_array_init ( &(ADCL_fnctset_farray),   "ADCL_Fnctgrp",  32 );
 
+#ifdef ADCL_PAPI
+    ADCL_array_init ( &(ADCL_papi_farray),      "ADCL_Papi", 32 );
+#endif
+
     ret = ADCL_predefined_init ();
     ret = ADCL_readenv();
 
@@ -38,6 +42,9 @@ int ADCL_Finalize ( void )
     ADCL_array_free ( &(ADCL_attrset_farray));
     ADCL_array_free ( &(ADCL_function_farray));
     ADCL_array_free ( &(ADCL_fnctset_farray));
+#ifdef ADCL_PAPI
+    ADCL_array_free ( &(ADCL_papi_farray));
+#endif
 
     ADCL_printf_finalize ();
     return ret;

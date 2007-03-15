@@ -5,7 +5,7 @@ OBJ =  	ADCL.o		        \
 	ADCL_Function.o	        \
 	ADCL_Vector.o           \
 	ADCL_Topology.o         \
-	ADCL_Request.o           
+	@adcl_Papi_o@ ADCL_Request.o 
 
 
 .SUFFIXES: .o.c

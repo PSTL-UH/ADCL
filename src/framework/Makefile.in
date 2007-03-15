@@ -15,7 +15,7 @@ OBJ = 	ADCL_array.o 		\
 	ADCL_emethod.o 		\
 	ADCL_hypothesis.o       \
 	ADCL_predefined.o       \
-	ADCL_request.o 		
+	@adcl_papi_o@ ADCL_request.o
 
 .SUFFIXES: .o.c
 

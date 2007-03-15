@@ -31,6 +31,10 @@
 #define ADCL_INVALID_VECTOR    26
 #define ADCL_INVALID_DIRECTION 27
 
+#ifdef ADCL_PAPI
+#define ADCL_INVALID_PAPI      28
+#endif
+
 #define ADCL_VECTOR_NULL    (void*) -1
 #define ADCL_REQUEST_NULL   (void*) -2
 #define ADCL_TOPOLOGY_NULL  (void*) -3
@@ -40,6 +44,9 @@
 #define ADCL_FNCTSET_NULL   (void*) -7
 #define ADCL_NULL_FNCT_PTR  (void*) -8
 
+#ifdef ADCL_PAPI
+#define ADCL_PAPI_NULL      (void*) -9
+#endif
 
 #define ADCL_MAX_ATTRLEN 32
 #define ADCL_MAX_NAMELEN 32
@@ -57,7 +64,9 @@ typedef struct ADCL_attribute_s* ADCL_Attribute;
 typedef struct ADCL_attrset_s*   ADCL_Attrset;
 typedef struct ADCL_function_s*  ADCL_Function;
 typedef struct ADCL_fnctset_s*   ADCL_Fnctset;
-
+#ifdef ADCL_PAPI
+typedef struct ADCL_papi_s*      ADCL_Papi;
+#endif
 
 /* Prototypes of the User level interface functions */
 
@@ -81,6 +90,14 @@ int ADCL_Topology_create_generic ( int ndims, int *lneighbors,
 				   int *rneighbors, int *coords, int direction,  
 				   MPI_Comm comm, ADCL_Topology *topo);
 
+#ifdef ADCL_PAPI
+/* ADCL PAPI functions */
+int ADCL_Papi_create (ADCL_Papi *papi);
+int ADCL_Papi_free   (ADCL_Papi *papi);
+int ADCL_Papi_enter  (ADCL_Papi papi);
+int ADCL_Papi_leave  (ADCL_Papi papi);
+int ADCL_Papi_print  (ADCL_Papi papi);
+#endif
 
 /* ADCL Attributes and Attributeset fucntions */
 int ADCL_Attribute_create ( int maxnvalues, int *array_of_values, 

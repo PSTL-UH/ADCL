@@ -22,6 +22,10 @@
 #include "ADCL_change.h"
 #include "ADCL_predefined.h"
 
+#ifdef ADCL_PAPI
+#include "ADCL_papi.h"
+#endif
+
 #include "ADCL_config.h"
 #include "ADCL_sysconfig.h"
 
