@@ -193,7 +193,6 @@ int ATF_Set_rhs ( int *ATF_dim)
     
     double my_pi = 3.1415926535897932384;
     double x, y, z, xoffset, yoffset, zoffset;
-    double **** tmp_vect_3;
     
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank);
     MPI_Comm_size ( MPI_COMM_WORLD, &size);
@@ -240,10 +239,9 @@ int ATF_Set_rhs ( int *ATF_dim)
 	    }
 	}
     }
-    ATF_allocate_4D_double_matrix(&tmp_vect_3, dim);
 
-    ATF_Matmul ( adcl_Req_loes, ATF_rhs, tmp_vect_3);
-    
+    ATF_Matmul ( adcl_Req_loes, ATF_loes, ATF_rhs );
+
     if ( ATF_rand_sing ){
 	for(j=1; j<=ATF_dim[1]; j++){
 	    for(k=1; k<=ATF_dim[2]; k++){
@@ -305,8 +303,6 @@ int ATF_Set_rhs ( int *ATF_dim)
 	}
     }
             
-    ATF_free_4D_double_matrix(&tmp_vect_3);
-
     return ATF_SUCCESS;
 }
 

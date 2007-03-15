@@ -83,7 +83,6 @@ int ATF_Solver_tfqmr( int nreal)
     tfqmr_limit = 1.0e-09;
 
     /* Initialize all variables*/
-
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     MPI_Comm_size( MPI_COMM_WORLD, &size );
 
@@ -92,7 +91,6 @@ int ATF_Solver_tfqmr( int nreal)
     /*In ADCL, the function is substituted by ATF_Matmul 
     ATF_Matmul ( ATF_dq, zwischen_vekt_2, pattern);
     */
-
     ATF_Matmul( adcl_Req_dq, ATF_dq, tmp_vect_2 );
 
     /*	A=B-C ,where A, B and C have the same dimensions*/
