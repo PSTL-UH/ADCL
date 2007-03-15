@@ -215,14 +215,19 @@ int ADCL_request_free ( ADCL_request_t **req )
 	free ( preq->r_rreqs );
     }
     ADCL_array_remove_element ( ADCL_request_farray, preq->r_findex);
-    ADCL_subarray_free ( 2 * preq->r_emethod->em_topo->t_ndims, 
-			 &(preq->r_sdats), 
-			 &(preq->r_rdats) );
-    ADCL_packunpack_free ( 2 * preq->r_emethod->em_topo->t_ndims, 
-			   &(preq->r_rbuf),
-			   &(preq->r_sbuf), 
-			   &(preq->r_spsize), 
-			   &(preq->r_rpsize) );
+    
+    if ( NULL != preq->r_sdats  && NULL != preq->r_rdats ) {
+	ADCL_subarray_free ( 2 * preq->r_emethod->em_topo->t_ndims, 
+			     &(preq->r_sdats), 
+			     &(preq->r_rdats) );
+    }
+    if ( NULL != preq->r_sbuf  && NULL != preq->r_rbuf ) {
+	ADCL_packunpack_free ( 2 * preq->r_emethod->em_topo->t_ndims, 
+			       &(preq->r_rbuf),
+			       &(preq->r_sbuf), 
+			       &(preq->r_spsize), 
+			       &(preq->r_rpsize) );
+    }
     
     ADCL_emethod_free ( preq->r_emethod );
     
@@ -275,6 +280,7 @@ int ADCL_request_create_fnctset ( ADCL_topology_t *topo, ADCL_fnctset_t *fnctset
 
     newreq->r_emethod = ADCL_emethod_init ( topo, ADCL_VECTOR_NULL, fnctset );
     
+    *req = newreq;
     return ADCL_SUCCESS;
 }
 /**********************************************************************/

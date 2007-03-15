@@ -5,13 +5,16 @@ int ADCL_Topology_create_generic ( int ndims, int *lneighbors, int *rneighbors,
 				   int *coords, int direction, MPI_Comm comm, 
 				   ADCL_Topology *topo)
 {
-    if ( 0 == ndims ) {
-	return ADCL_INVALID_NDIMS;
-    }
+    /* 
+    ** Please note, that if ndims == 0  it is legal to pass in 
+    ** NULL pointers for the neighbors list and for the coords 
+    */
 
-    if ( NULL == lneighbors || NULL == rneighbors ||
-	 NULL == coords ) {
-	return ADCL_INVALID_ARG;
+    if ( 0 != ndims ) {
+	if ( NULL == lneighbors || NULL == rneighbors ||
+	     NULL == coords ) {
+	    return ADCL_INVALID_ARG;
+	}
     }
 
     if ( NULL == topo ) {

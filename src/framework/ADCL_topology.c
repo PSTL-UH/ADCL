@@ -24,17 +24,19 @@ int ADCL_topology_create_generic ( int ndims, int *lneighbors, int *rneighbors,
     
     newtopo->t_ndims = ndims;
     newtopo->t_comm  = comm;
-    newtopo->t_neighbors = (int *) malloc ( 2 * ndims * sizeof(int));
-    newtopo->t_coords    = (int *) malloc ( ndims * sizeof (int));
-    if ( NULL == newtopo->t_coords || NULL == newtopo->t_neighbors ) {
-	free ( newtopo );
-	return ADCL_NO_MEMORY;
-    }
+    if ( ndims > 0 ) {
+	newtopo->t_neighbors = (int *) malloc ( 2 * ndims * sizeof(int));
+	newtopo->t_coords    = (int *) malloc ( ndims * sizeof (int));
+	if ( NULL == newtopo->t_coords || NULL == newtopo->t_neighbors ) {
+	    free ( newtopo );
+	    return ADCL_NO_MEMORY;
+	}
 
-    for ( i=0, j=0; i< ndims; i++ ) {
-	newtopo->t_neighbors[j++] = lneighbors[i];
-	newtopo->t_neighbors[j++] = rneighbors[i];
-	newtopo->t_coords[i]      = coords[i];
+	for ( i=0, j=0; i< ndims; i++ ) {
+	    newtopo->t_neighbors[j++] = lneighbors[i];
+	    newtopo->t_neighbors[j++] = rneighbors[i];
+	    newtopo->t_coords[i]      = coords[i];
+	}
     }
         
     MPI_Comm_rank ( comm, &(newtopo->t_rank) );

@@ -28,8 +28,8 @@ int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
     ADCL_array_set_element ( ADCL_function_farray, newfunction->f_findex,
 			     newfunction->f_id, newfunction );
 
+    newfunction->f_attrset = attrset;
     if (ADCL_ATTRSET_NULL != attrset ) {
-	newfunction->f_attrset  = attrset;
 	newfunction->f_attrvals = (int *) malloc ( sizeof(int) * attrset->as_maxnum );
 	if ( NULL == newfunction->f_attrvals ) {
 	    ret = ADCL_NO_MEMORY;
@@ -164,7 +164,13 @@ int ADCL_fnctset_dup ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy )
     copy->fs_id      = ADCL_local_fnctset_counter++;
     copy->fs_findex  = -1; /* not set */
 
-    ADCL_attrset_dup ( org->fs_attrset, &copy->fs_attrset );
+    if ( ADCL_ATTRSET_NULL == org->fs_attrset ) {
+	copy->fs_attrset = ADCL_ATTRSET_NULL;
+    }
+    else {
+	ADCL_attrset_dup ( org->fs_attrset, &copy->fs_attrset );
+    }
+    
 
     copy->fs_maxnum  = org->fs_maxnum;
     copy->fs_fptrs   = (ADCL_function_t**)calloc(1,org->fs_maxnum*sizeof(ADCL_function_t*));

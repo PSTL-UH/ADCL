@@ -18,6 +18,7 @@ int main ( int argc, char ** argv )
     ADCL_Function funcs[3];
     ADCL_Fnctset fnctset;
     ADCL_Request request;
+    ADCL_Topology topo;
     
     MPI_Init ( &argc, &argv );
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
@@ -35,7 +36,10 @@ int main ( int argc, char ** argv )
 			   "test_func_3", &(funcs[2]));
 
     ADCL_Fnctset_create ( 3, funcs, "trivial functions", &fnctset );
-    ADCL_Request_create_fnctset ( fnctset, &request );
+
+    ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
+				   MPI_COMM_WORLD, &topo );
+    ADCL_Request_create_fnctset ( topo, fnctset, &request );
     
 
     for ( i=0; i<NIT; i++ ) {
@@ -46,7 +50,7 @@ int main ( int argc, char ** argv )
     ADCL_Fnctset_free ( &fnctset );
     
     for ( i=0; i<3; i++ ) {
-	ADCL_Function_free ( &funcs[0] );
+	ADCL_Function_free ( &funcs[i] );
     }
 
     
@@ -58,32 +62,32 @@ int main ( int argc, char ** argv )
 void test_func_1 ( ADCL_Request req, int *a, int* b, int *c )
 {
     MPI_Comm comm;
-    int rank;
+    int rank, size;
 
-    ADCL_Request_get_comm ( req, &comm );
-    ADCL_Request_get_rank ( req, &rank );
-    printf("%d: In test_func_1, a=%d, b=%d, c=%d \n", rank, *a, *b, *c );
+    ADCL_Request_get_comm ( req, &comm, &rank, &size );
+/*     printf("%d: In test_func_1, a=%d, b=%d, c=%d \n", rank, *a, *b, *c ); */
+    printf("%d: In test_func_1 , size=%d\n", rank, size);
     return;
 }
 
 void test_func_2 ( ADCL_Request req, int *a, int* b, int *c )
 {
     MPI_Comm comm;
-    int rank;
+    int rank, size;
 
-    ADCL_Request_get_comm ( req, &comm );
-    ADCL_Request_get_rank ( req, &rank );
-    printf("%d: In test_func_2, a=%d, b=%d, c=%d \n", rank, *a, *b, *c );
+    ADCL_Request_get_comm ( req, &comm, &rank, &size );
+/*     printf("%d: In test_func_2, a=%d, b=%d, c=%d \n", rank, *a, *b, *c ); */
+    printf("%d: In test_func_2 , size=%d\n", rank, size);
     return;
 }
 
 void test_func_3 ( ADCL_Request req, int *a, int* b, int *c )
 {
     MPI_Comm comm;
-    int rank;
+    int rank, size;
 
-    ADCL_Request_get_comm ( req, &comm );
-    ADCL_Request_get_rank ( req, &rank );
-    printf("%d: In test_func_3, a=%d, b=%d, c=%d \n", rank, *a, *b, *c );
+    ADCL_Request_get_comm ( req, &comm, &rank, &size );
+/*     printf("%d: In test_func_3, a=%d, b=%d, c=%d \n", rank, *a, *b, *c ); */
+    printf("%d: In test_func_3 , size=%d\n", rank, size);
     return;
 }
