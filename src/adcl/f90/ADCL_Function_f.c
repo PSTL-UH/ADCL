@@ -25,10 +25,12 @@
 
 
 void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, char *name, 
-			    int *fnct, int *ierr )
+			    int *fnct, int *ierr, int name_len )
 {
     ADCL_attrset_t *cattrset;
     ADCL_function_t *cfunction;
+    int ret;
+    char *cname;
 
     if ( ( NULL == iptr )    ||
 	 ( NULL == attrset ) ||
@@ -37,9 +39,15 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
 	*ierr = ADCL_INVALID_ARG;
 	return;
     }
-    
+
+    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
+    if ( ADCL_SUCCESS != ret ) {
+	*ierr = ADCL_ERROR_INTERNAL;
+	return;
+    }
+
     if ( ADCL_FATTRSET_NULL == *attrset ) {
-	*ierr = ADCL_Function_create ( iptr, ADCL_ATTRSET_NULL, NULL, NULL, &cfunction );
+	*ierr = ADCL_Function_create ( iptr, ADCL_ATTRSET_NULL, NULL, cname, &cfunction );
     }
     else {
 	cattrset = ( ADCL_attrset_t *) ADCL_array_get_ptr_by_pos ( ADCL_attrset_farray, *attrset );
@@ -47,20 +55,25 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
 	    *ierr = ADCL_INVALID_ATTRSET;
 	    return;
 	}
-	*ierr = ADCL_Function_create ( iptr, cattrset, array_of_attrvals, NULL, &cfunction );
+	*ierr = ADCL_Function_create ( iptr, cattrset, array_of_attrvals, cname, &cfunction );
     }
+
+
     if ( ADCL_SUCCESS == *ierr ) {
 	*fnct = cfunction->f_findex;
     }
 
+    free ( cname );
     return;
 }
 
 void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *array_of_attrvals, 
-				  char *name, int *fnct, int *ierr )
+				  char *name, int *fnct, int *ierr, int name_len )
 {
     ADCL_attrset_t *cattrset;
     ADCL_function_t *cfunction;
+    int ret;
+    char *cname;
 
     if ( ( NULL == iptr )    ||
 	 ( NULL == wptr )    ||
@@ -71,8 +84,14 @@ void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *arr
 	return;
     }
 
+    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
+    if ( ADCL_SUCCESS != ret ) {
+	*ierr = ADCL_ERROR_INTERNAL;
+	return;
+    }
+
     if ( ADCL_FATTRSET_NULL == *attrset ) {
-	*ierr = ADCL_Function_create_async ( iptr, wptr, ADCL_ATTRSET_NULL, NULL, NULL, &cfunction );
+	*ierr = ADCL_Function_create_async ( iptr, wptr, ADCL_ATTRSET_NULL, NULL, cname, &cfunction );
     }
     else {
 	cattrset = ( ADCL_attrset_t *) ADCL_array_get_ptr_by_pos ( ADCL_attrset_farray, *attrset );
@@ -81,11 +100,12 @@ void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *arr
 	    return;
 	}
     }
-    *ierr = ADCL_Function_create_async ( iptr, wptr, cattrset, array_of_attrvals, NULL, &cfunction );
+    *ierr = ADCL_Function_create_async ( iptr, wptr, cattrset, array_of_attrvals, cname, &cfunction );
     if ( ADCL_SUCCESS == *ierr ) {
 	*fnct = cfunction->f_findex;
     }
 
+    free ( cname );
     return;
 }
 
@@ -109,11 +129,14 @@ void adcl_function_free ( int *fnct, int *ierr  )
     return;
 }
 
-void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, int *fctset, int *ierr )
+void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, int *fctset, 
+			   int *ierr, int name_len )
 {
     ADCL_fnctset_t *cfnctset;
     ADCL_function_t **cfncts;
     int i;
+    int ret;
+    char *cname;
 
     if ( ( NULL == maxnum )        ||
 	 ( NULL == array_of_fncts) ||
@@ -138,12 +161,19 @@ void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, int *fc
 	}
     }
 
-    *ierr = ADCL_fnctset_create ( *maxnum, cfncts, NULL, &cfnctset );
+    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
+    if ( ADCL_SUCCESS != ret ) {
+	*ierr = ADCL_ERROR_INTERNAL;
+	return;
+    }
+
+    *ierr = ADCL_fnctset_create ( *maxnum, cfncts, cname, &cfnctset );
     if ( *ierr == ADCL_SUCCESS ) {
 	*fctset = cfnctset->fs_findex;
     }
 
     free ( cfncts );
+    free ( cname );
     return;
 }
 

@@ -45,16 +45,16 @@ int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);
 
 int ADCL_readenv( void );
-
 int ADCL_predefined_init ( void );
-
-
 
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_t *e, int attr_pos, 
 					int required_value );
 int ADCL_hypothesis_set     ( ADCL_emethod_t *er, int attr, int attrval );
 int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e );
 
+
+int ADCL_fortran_string_f2c(char *fstr, int len, char **cstr);
+int ADCL_fortran_string_c2f(char *cstr, char *fstr, int len);
 
 
 #endif /* __ADCL_INTERNAL_H__ */
