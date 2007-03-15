@@ -5,6 +5,16 @@
 #include "ADCL_internal.h"
 
 
+#define ADCL_FVECTOR_NULL     -1
+#define ADCL_FREQUEST_NULL    -2
+#define ADCL_FTOPOLOGY_NULL   -3
+#define ADCL_FATTRIBUTE_NULL  -4
+#define ADCL_FATTRSET_NULL    -5
+#define ADCL_FFUNCTION_NULL   -6
+#define ADCL_FFNCTSET_NULL    -7
+#define ADCL_FNULL_FNCT_PTR   -8
+
+
 /* ADCL environment functions */
 void adcl_init   ( int *ierror );
 void adcl_init_  ( int *ierror );
@@ -77,14 +87,14 @@ void adcl_function_free_ ( int *fnct, int *ierr  );
 void adcl_function_free__ ( int *fnct, int *ierr  );
 void ADCL_FUNCTION_FREE ( int *fnct, int *ierr  );
 
-void adcl_fnctset_create   ( int* maxnum, int *array_of_fncts, int *fctset, 
-			     char *name, int *ierr );
-void adcl_fnctset_create_  ( int* maxnum, int *array_of_fncts, int *fctset, 
-			     char *name, int *ierr );
-void adcl_fnctset_create__ ( int* maxnum, int *array_of_fncts, int *fctset, 
-			     char *name, int *ierr );
-void ADCL_FNCTSET_CREATE   ( int* maxnum, int *array_of_fncts, int *fctset, 
-			     char *name, int *ierr );
+void adcl_fnctset_create   ( int* maxnum, int *array_of_fncts, char *name,
+			     int *fctset, int *ierr );
+void adcl_fnctset_create_  ( int* maxnum, int *array_of_fncts, char *name,
+			     int *fctset, int *ierr );
+void adcl_fnctset_create__ ( int* maxnum, int *array_of_fncts, char *name,
+			     int *fctset, int *ierr );
+void ADCL_FNCTSET_CREATE   ( int* maxnum, int *array_of_fncts, char *name,
+			     int *fctset, int *ierr );
 
 void adcl_fnctset_free   ( int *fctset, int *ierr );
 void adcl_fnctset_free_  ( int *fctset, int *ierr );
@@ -111,13 +121,13 @@ void ADCL_VECTOR_DEREGISTER   ( int *vec, int *ierror );
 /* ADCL Process topology functions */
 
 void adcl_topology_create_generic   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-				      int *comm, int *topo, int *ierror );
+				      int *dir, int *comm, int *topo, int *ierror );
 void adcl_topology_create_generic_  ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-				      int *comm, int *topo, int *ierror );
+				      int *dir, int *comm, int *topo, int *ierror );
 void adcl_topology_create_generic__ ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-				      int *comm, int *topo, int *ierror );
+				      int *dir, int *comm, int *topo, int *ierror );
 void ADCL_TOPOLOGY_CREATE_GENERIC   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-				      int *comm, int *topo, int *ierror );
+				      int *dir, int *comm, int *topo, int *ierror );
 
 void adcl_topology_create   ( int* cart_comm, int *topo, int *ierror );
 void adcl_topology_create_  ( int* cart_comm, int *topo, int *ierror );

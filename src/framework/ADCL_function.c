@@ -220,7 +220,7 @@ int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
 	if ( NULL != tfnctset->fs_name ) {
 	    free ( tfnctset->fs_name );
 	}
-	free ( fnctset );
+	free ( tfnctset );
     }    
 
     *fnctset = ADCL_FNCTSET_NULL;
