@@ -251,8 +251,9 @@ int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
     /* Switch to the next list of attributes to be evaluated */
     hypo->h_num_active_attrs  = 1;
     hypo->h_active_attr_list[0] = e->em_fnctset.fs_attrset->as_attrs[2];
-    hypo->h_num_required_meas = e->em_fnctset.fs_attrset->as_attrs_numval[2]+1; /* don't do that right now */
-    
+    /* hypo->h_num_required_meas = e->em_fnctset.fs_attrset->as_attrs_numval[2]+1;*/ 
+    hypo->h_num_required_meas = 1000;    /* don't do that right now */
+
     free ( tmp_active_attr_list );
     free ( tmp_stats );
     free ( tmp_fncts );
