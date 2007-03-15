@@ -146,8 +146,7 @@ int ADCL_Request_wait ( ADCL_Request req )
 
 int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
 				 ADCL_work_fnct_ptr *endfctn, 
-				 ADCL_work_fnct_ptr *totalfctn,
-				 void *arg1, void* arg2, void *arg3 )
+				 ADCL_work_fnct_ptr *totalfctn )
 
 {
     TIME_TYPE t1, t2;
@@ -164,16 +163,16 @@ int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
     
     if ( db ) {
 	if ( ADCL_NULL_FNCT_PTR != midfctn ) {
-	    midfctn ( req, arg1, arg2, arg3 );
+	    midfctn ( req );
 	}
 	ret = ADCL_request_wait ( req );
 	if ( ADCL_NULL_FNCT_PTR != endfctn ) {
-	    endfctn ( req, arg1, arg2, arg3 );
+	    endfctn ( req );
 	}
     }
     else {
 	if ( ADCL_NULL_FNCT_PTR != endfctn ) {
-	    totalfctn (req, arg1, arg2, arg3 );
+	    totalfctn (req );
 	}
     }
     t2 = TIME;

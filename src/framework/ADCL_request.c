@@ -292,7 +292,7 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_AVAIL);
 	
     req->r_function = ADCL_request_get_function ( req, ADCL_COMM_AVAIL);
-    req->r_function->f_iptr ( req, NULL, NULL, NULL );
+    req->r_function->f_iptr ( req );
 
     *db = req->r_function->f_db;
     if ( req->r_function->f_db ) {
@@ -310,7 +310,7 @@ int ADCL_request_wait ( ADCL_request_t *req )
     CHECK_COMM_STATE (req->r_comm_state, ADCL_COMM_ACTIVE);
 	
     if ( NULL != req->r_function->f_wptr ) {
-	req->r_function->f_wptr ( req, NULL, NULL, NULL );
+	req->r_function->f_wptr ( req  );
     }
     
     req->r_comm_state = ADCL_COMM_AVAIL;

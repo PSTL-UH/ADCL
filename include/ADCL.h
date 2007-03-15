@@ -92,7 +92,7 @@ int ADCL_Attrset_create   ( int maxnum, ADCL_Attribute *array_of_attributes,
 int ADCL_Attrset_free     ( ADCL_Attrset *attrset );
 
 /* ADCL Function and ADCL Functiongroup functions */
-typedef void ADCL_work_fnct_ptr ( ADCL_Request req, void *arg1, void *arg2, void *arg3 );
+typedef void ADCL_work_fnct_ptr ( ADCL_Request req );
 
 int ADCL_Function_create       ( ADCL_work_fnct_ptr *fnctp, 
 				 ADCL_Attrset attrset, 
@@ -130,8 +130,7 @@ int ADCL_Request_wait  ( ADCL_Request req );
 
 int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
 				 ADCL_work_fnct_ptr *endfcnt, 
-				 ADCL_work_fnct_ptr *totalfcnt,
-				 void *arg1, void* arg2, void *arg3 );
+				 ADCL_work_fnct_ptr *totalfcnt );
 
 
 #endif /* __ADCL_H__ */

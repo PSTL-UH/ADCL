@@ -313,51 +313,51 @@
 #endif
 
 /*COMM 1*/
-void ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req, void* data1, void* data2, void* data3);
-void ADCL_change_sb_pair_IsendIrecv (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req );
+void ADCL_change_sb_pair_IsendIrecv (ADCL_request_t *req );
 
 /*COMM 2*/
-void ADCL_change_sb_pair_SendRecv (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_SendRecv (ADCL_request_t *req );
 
 
 /*COMM 3*/
-void ADCL_change_sb_aao_SendIrecv  (ADCL_request_t *req, void* data1, void* data2, void* data3);
-void ADCL_change_sb_pair_SendIrecv (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_aao_SendIrecv  (ADCL_request_t *req );
+void ADCL_change_sb_pair_SendIrecv (ADCL_request_t *req );
 
 /*COMM 4*/
-void ADCL_change_sb_aao_IsendIrecv_pack  (ADCL_request_t *req, void* data1, void* data2, void* data3);
-void ADCL_change_sb_pair_IsendIrecv_pack (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_aao_IsendIrecv_pack  (ADCL_request_t *req );
+void ADCL_change_sb_pair_IsendIrecv_pack (ADCL_request_t *req );
 
 /*COMM 5*/
-void ADCL_change_sb_pair_SendRecv_pack (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_SendRecv_pack (ADCL_request_t *req );
 
 /*COMM 6*/
-void ADCL_change_sb_aao_SendIrecv_pack  (ADCL_request_t *req, void* data1, void* data2, void* data3);
-void ADCL_change_sb_pair_SendIrecv_pack (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_aao_SendIrecv_pack  (ADCL_request_t *req );
+void ADCL_change_sb_pair_SendIrecv_pack (ADCL_request_t *req );
 
 /* COMM 7: SendRecv-Packed datatype*/
 
-void ADCL_change_sb_pair_Sendrecv_pack (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_Sendrecv_pack (ADCL_request_t *req );
 
 /* COMM 8: SendRecv-Derived datatype*/
-void ADCL_change_sb_pair_Sendrecv(ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_Sendrecv(ADCL_request_t *req );
 
 /* COMM 9: Win_fence_put-Derived datatype*/
-void ADCL_change_sb_pair_win_fence_put(ADCL_request_t *req, void* data1, void* data2, void* data3);
-void ADCL_change_sb_aao_win_fence_put(ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_win_fence_put(ADCL_request_t *req );
+void ADCL_change_sb_aao_win_fence_put(ADCL_request_t *req );
 
 /* COMM 10:Win_fence_get-Derived datatype */
-void ADCL_change_sb_pair_win_fence_get( ADCL_request_t *req, void* data1, void* data2, void* data3);
-void ADCL_change_sb_aao_win_fence_get(ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_win_fence_get( ADCL_request_t *req );
+void ADCL_change_sb_aao_win_fence_get(ADCL_request_t *req );
 
 /*COMM 11: Post_start_put-Derived datatype*/
-void ADCL_change_sb_pair_post_start_put( ADCL_request_t *req, void* data1, void* data2, void* data3);
-void ADCL_change_sb_aao_post_start_put (ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_post_start_put( ADCL_request_t *req );
+void ADCL_change_sb_aao_post_start_put (ADCL_request_t *req );
 
 
 /*COMM 12: Post_start_get-Derived datatype*/
-void ADCL_change_sb_pair_post_start_get( ADCL_request_t *req, void* data1, void* data2, void* data3);
-void ADCL_change_sb_aao_post_start_get( ADCL_request_t *req, void* data1, void* data2, void* data3);
+void ADCL_change_sb_pair_post_start_get( ADCL_request_t *req );
+void ADCL_change_sb_aao_post_start_get( ADCL_request_t *req );
 
 #endif /* __ADCL_CHANGE_H__ */
 

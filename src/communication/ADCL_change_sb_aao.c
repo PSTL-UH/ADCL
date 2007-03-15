@@ -4,7 +4,7 @@
 
 
 /* Neighborhood communication initiating all operations at-once */
-void ADCL_CHANGE_SB_AAO ( ADCL_request_t *req, void *a, void *b, void *c )
+void ADCL_CHANGE_SB_AAO ( ADCL_request_t *req )
 {
     int i, nneighs=2*TOPO->t_ndims;
 

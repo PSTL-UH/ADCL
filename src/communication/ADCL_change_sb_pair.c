@@ -4,7 +4,7 @@
 
 
 /* Neighborhood communication based on pairwise message exchange */
-void ADCL_CHANGE_SB_PAIR ( ADCL_request_t *req, void *a, void* b, void *c )
+void ADCL_CHANGE_SB_PAIR ( ADCL_request_t *req )
 {
     int i, dim;
     int nneighs = 2*req->r_emethod->em_topo->t_ndims;

@@ -136,6 +136,25 @@ void adcl_request_create_  ( int *vec, int *topo, int *req, int *ierror );
 void adcl_request_create__ ( int *vec, int *topo, int *req, int *ierror ); 
 void ADCL_REQUEST_CREATE   ( int *vec, int *topo, int *req, int *ierror ); 
 
+void adcl_request_create_fnctset   (int * topo, int *fnctset, int *req, int *ierr);
+void adcl_request_create_fnctset_  (int * topo, int *fnctset, int *req, int *ierr);
+void adcl_request_create_fnctset__ (int * topo, int *fnctset, int *req, int *ierr);
+void ADCL_REQUEST_CREATE_FNCTSET   (int * topo, int *fnctset, int *req, int *ierr);
+
+void adcl_request_create_generic   ( int *svecsarr, int *rvecsarr, int *topo, 
+				     int *req, int *ierror );
+void adcl_request_create_generic_  ( int *svecsarr, int *rvecsarr, int *topo, 
+				     int *req, int *ierror );
+void adcl_request_create_generic__ ( int *svecsarr, int *rvecsarr, int *topo, 
+				     int *req, int *ierror );
+void ADCL_REQUEST_CREATE_GENERIC   ( int *svecsarr, int *rvecsarr, int *topo, 
+				     int *req, int *ierror );
+
+void adcl_request_get_comm   ( int *req, int *comm, int *rank, int *size, int *ierr);
+void adcl_request_get_comm_  ( int *req, int *comm, int *rank, int *size, int *ierr);
+void adcl_request_get_comm__ ( int *req, int *comm, int *rank, int *size, int *ierr);
+void ADCL_REQUEST_GET_COMM   ( int *req, int *comm, int *rank, int *size, int *ierr);
+
 void adcl_request_free   ( int *req, int *ierror );
 void adcl_request_free_  ( int *req, int *ierror );
 void adcl_request_free__ ( int *req, int *ierror );
@@ -159,22 +178,18 @@ void ADCL_REQUEST_WAIT   ( int *req, int *ierror );
 void adcl_request_start_overlap ( int *req, ADCL_work_fnct_ptr *mid,
 				  ADCL_work_fnct_ptr *end, 
 				  ADCL_work_fnct_ptr *total, 
-				  void *arg1, void* arg2, void* arg3, 
 				  int *ierror );
 void adcl_request_start_overlap_ ( int *req, ADCL_work_fnct_ptr *mid,
 				   ADCL_work_fnct_ptr *end, 
 				   ADCL_work_fnct_ptr *total, 
-				   void *arg1, void* arg2, void* arg3, 
 				   int *ierror );
 void adcl_request_start_overlap__ ( int *req, ADCL_work_fnct_ptr *mid,
 				    ADCL_work_fnct_ptr *end, 
 				    ADCL_work_fnct_ptr *total, 
-				    void *arg1, void* arg2, void* arg3, 
 				    int *ierror );
 void ADCL_REQUEST_START_OVERLAP   ( int *req, ADCL_work_fnct_ptr *mid,
 				    ADCL_work_fnct_ptr *end, 
 				    ADCL_work_fnct_ptr *total, 
-				    void *arg1, void* arg2, void* arg3, 
 				    int *ierror );
 
 
