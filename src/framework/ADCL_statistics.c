@@ -205,7 +205,7 @@ int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
 /**********************************************************************/
 /**********************************************************************/
 int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count, 
-				    int rank, int *winner ) 
+				    int *winner ) 
 {
     struct lininf tline_filtered, tline_unfiltered;
     TLINE_INIT ( tline_unfiltered );
@@ -213,10 +213,8 @@ int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count,
 
     for ( i = 0; j < count; i++) {
 #if 0
-        if ( rank == 0 ) {
-	    ADCL_printf("#%d: %lf %lf %lf\n", i, statistics[i]->s_gpts[0], 
-			statistics[i]->s_gpts[1], statistics[i]->s_gpts[2]);
-	}
+	ADCL_printf("#%d: %lf %lf %lf\n", i, statistics[i]->s_gpts[0], 
+		    statistics[i]->s_gpts[1], statistics[i]->s_gpts[2]);
 #endif
 	TLINE_MIN ( tline_unfiltered, statistics[i]->s_gpts[0],  i );
 	TLINE_MIN ( tline_filtered, statistics[i]->s_gpts[1],  i );
