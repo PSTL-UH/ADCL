@@ -406,7 +406,7 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
 
     free ( tmp_stats );
     free ( tmp_funcs );
-    return ADCL_SUCCESS;
+    return count;
 }
 
 /****************************************************************************/
@@ -415,22 +415,32 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
 
 int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
 {
-    for ( loop=0; loop<hypo->h_num_active_attrs; loop++ ){
-	
-	/* Generate the first combination of attributes. The first
-	   one is really independent of the list of attributes used. 
-	*/
+    
+    /* Loop forward to the attribute combination where we should
+       start the current set of evaluations */
+    if ( hypo->h_start_meas == 0 ) {
 	for ( i = 0; i < attrset->as_maxnum; i++ ) {
 	    attrval_list[i] = attrset->as_attrs_baseval[i];
 	}
-	
-	pos = ADCL_attrset_get_pos ( attrset, hypo->h_active_attr_list[loop]);
+    }
 
-	ADCL_hypothesis_eval_one_attr ( e, e->em_fnctset->fs_attrset->as_maxnum, 
-					attrval_list, pos, 
-					hypo->h_active_attr_list[loop]->a_maxnum, 
-					&winner_attr_val_pos, &winner_attr_val );
+    for ( loop=0; loop<hypo->h_start_meas; loop++ ){
+	if ( loop == 0 ) {
+	    for ( i = 0; i < attrset->as_maxnum; i++ ) {
+		attrval_list[i] = attrset->as_attrs_baseval[i];
+	    }
+	}
 	
+	next_attr_combination ( attrset, attrval_list, hypo->h_active_attr );
+    }
+
+    /* This is now the starting point for the evaluation */
+
+    while ( loop < hypo->h_meas_cnt ) {
+	loop += ADCL_hypothesis_eval_one_attr ( e, e->em_fnctset->fs_attrset->as_maxnum, 
+						attrval_list, pos, 
+						hypo->h_active_attr_list[loop]->a_maxnum, 
+						&winner_attr_val_pos, &winner_attr_val );
 	ADCL_hypothesis_set ( e, pos, winner_attr_val );
     }
     
