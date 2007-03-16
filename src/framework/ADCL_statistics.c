@@ -167,3 +167,70 @@ double ADCL_statistics_time (void)
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
+#ifdef V3
+int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
+				    MPI_Comm comm, int rank )
+{
+    int i;
+    double *lpts, *gpts;
+
+    lpts = (double *) malloc ( 2 * 3 * count * sizeof(double) );
+    if ( NULL == lpts ) {
+	return ADCL_NO_MEMORY;
+    }
+    gpts = &(lpts[3 * count]);    
+
+    for ( i = 0; i < count; i++ ) {
+	lpts[3*i]   = statistics[i]->s_lpts[0];
+	lpts[3*i+1] = statistics[i]->s_lpts[1];
+	lpts[3*i+2] = statistics[i]->s_lpts[2];
+    }
+
+    if  ( ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
+	MPI_Allreduce ( lpts, gpts, 3 * count, MPI_DOUBLE, MPI_MAX, comm);
+    }
+
+    for ( i = 0; i < count; i++ ) {
+      statistics[i]->s_gpts[0] = gpts[3*i];
+      statistics[i]->s_gpts[1] = gpts[3*i+1];
+      statistics[i]->s_gpts[2] = gpts[3*i+2];
+    }
+
+	
+    free ( lpts );
+    return ADCL_SUCCESS;
+}    
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count, 
+				    int rank, int *winner ) 
+{
+    struct lininf tline_filtered, tline_unfiltered;
+    TLINE_INIT ( tline_unfiltered );
+    TLINE_INIT ( tline_filtered );
+
+    for ( i = 0; j < count; i++) {
+#if 0
+        if ( rank == 0 ) {
+	    ADCL_printf("#%d: %lf %lf %lf\n", i, statistics[i]->s_gpts[0], 
+			statistics[i]->s_gpts[1], statistics[i]->s_gpts[2]);
+	}
+#endif
+	TLINE_MIN ( tline_unfiltered, statistics[i]->s_gpts[0],  i );
+	TLINE_MIN ( tline_filtered, statistics[i]->s_gpts[1],  i );
+    }
+
+    if ( statistics[tline_filtered.minloc]->s_gpts[2] < ADCL_OUTLIER_FRACTION){
+        *winner = tline_filtered.minloc;
+	ADCL_printf("#%d: winner is %d (filtered) \n", rank, *winner);
+    }
+    else {
+        *winner = tline_unfiltered.minloc;
+	ADCL_printf("#%d: winner is %d (unfiltered) \n",  rank, *winner );
+    }
+
+    return ADCL_SUCCESS;
+}
+#endif

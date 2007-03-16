@@ -35,8 +35,10 @@ struct ADCL_statistics_s{
     short      s_rescount; /* how often has this routine already reported back */
     TIME_TYPE    *s_time;  /* measurements */
     int          s_flags;  /* Has this data set already been filtered? */
-    double      s_lpts[3]; /* local no. of pts by this method */
-
+    double      s_lpts[3]; /* local no. of pts by this function */
+#ifdef V3
+    double      g_lpts[3]; /* global no. of pts for this function */
+#endif
 };
 typedef struct ADCL_statistics_s ADCL_statistics_t;
 
@@ -47,19 +49,34 @@ int ADCL_statistics_global_max ( ADCL_statistics_t **stats, int count,
 				 int *winners, int rank );
 
 double ADCL_statistics_time(void);
-
+#ifdef V3
+int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
+				    MPI_Comm comm, int rank );
+int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count, 
+				    int rank, int *winner );
+#endif
 
 struct ADCL_hypothesis_s {
-    int                 *h_attr_hypothesis; /* List of performance hypothesis*/
-    int                 *h_attr_confidence; /* List of confidence values */
-    ADCL_attribute_t  **h_active_attr_list; /* List of attributes currently being investigated */
-    int                   h_num_avail_meas; /* Counter keeping track of how many 
+    int                *h_attr_hypothesis; /* List of performance hypothesis*/
+    int                *h_attr_confidence; /* List of confidence values */
+    ADCL_attribute_t **h_active_attr_list; /* List of attributes currently being investigated */
+    int                  h_num_avail_meas; /* Counter keeping track of how many 
 					       methods have already been tested*/
-    int                 h_num_required_meas;  
-    int                 h_num_active_attrs;  
+    int               h_num_required_meas;  
+    int                h_num_active_attrs;  
+#ifdef V3
+    int                        *h_noneval; /* Array containing the positions of the 
+					      functions in the function set which 
+					      have been executed but not yet 
+					      statistically analysed */
+#endif
 };
 typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
 
+#ifdef V3
+int ADCL_hypothesis_eval_meas_series ( ADCL_emethod_t *e, int nummethods);
+int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e ); 
+#endif
 
 
 

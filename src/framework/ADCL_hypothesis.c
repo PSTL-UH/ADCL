@@ -331,5 +331,48 @@ static int get_num_methods_and_blocks ( ADCL_emethod_t *e, int *nummethods,
     return ADCL_SUCCESS;
 }
 
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+#ifdef V3
+/* 
+** This routines takes the statistical data of functions which have been already
+** tested, but which did not yet go through the evaluation proces. 
+*/
+int ADCL_hypothesis_eval_meas_series ( ADCL_emethod_t *e, int nummethods )
+{
+    ADCL_hypothesis_t *hypo=&(e->em_hypo);
+    ADCL_statistics_t **tmp_stats;
+    int i;
 
+    tmp_stats = (ADCL_statistics_t **) malloc (nummethods * sizeof(ADCL_statistics_t*)); 
+    if ( NULL==tmp_stats ) {
+	return ADCL_NO_MEMORY;
+    }
 
+    for ( i=0; i<nummethods; i++ ) {
+      tmp_stats[i] = e->em_stats[hypo->h_noneval[i]];
+    }
+
+    /* Determine now the winners across all provided measurement lists */
+    ADCL_statistics_filter_timings  ( tmp_stats, nummethods, e->em_topo->t_rank);
+    ADCL_statistics_global_max_v3 ( tmp_stats, nummethods, e->em_topo->t_comm, 
+				    e->em_topo->t_rank );
+
+    /* Clear the list of not evaluated functions on the performance hypothesis
+       object */
+    for ( i=0; i < e->em_fnctset->fs_maxnum; i++ ) {
+      hypo->h_noneval[i] = -1;
+    }
+
+    return ADCL_SUCCESS;
+}
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e,  ) 
+{
+
+  return ADCL_SUCCESS;
+}
+#endif
