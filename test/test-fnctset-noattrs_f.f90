@@ -100,7 +100,7 @@ end module MMultiply
         integer funcs(3), fnctset
         integer NIT, i, rank, size, ierror
 		!integer :: NewComm
-        external PMatmulSych, test_func2, test_func3
+        external PMatmulSych, PMatmulOverLap, PMatmulBcast
 
         NIT = 200
 
@@ -113,10 +113,10 @@ end module MMultiply
 
         call ADCL_Function_create ( PMatmulSych, ADCL_ATTRSET_NULL, 0, &
              "PMatmulSych", funcs(1), ierror ) 
-        call ADCL_Function_create ( test_func2, ADCL_ATTRSET_NULL, 0, &
-             "test_func2", funcs(2), ierror ) 
-        call ADCL_Function_create ( test_func3, ADCL_ATTRSET_NULL, 0, &
-             "test_func3", funcs(3), ierror ) 
+        call ADCL_Function_create ( PMatmulOverLap, ADCL_ATTRSET_NULL, 0, &
+             "PMatmulOverLap", funcs(2), ierror ) 
+        call ADCL_Function_create ( PMatmulBcast, ADCL_ATTRSET_NULL, 0, &
+             "PMatmulBcast", funcs(3), ierror ) 
 
         call SetMatrix( size, rank )
 
@@ -135,7 +135,7 @@ end module MMultiply
              ierror)
 
         call ADCL_Topology_create_generic ( 0, 0, 0, 0, ADCL_DIRECTION_BOTH, &
-             MPI_COMM_WORLD, topo, ierror )
+             NewComm, topo, ierror )
 
         call ADCL_Request_create_fnctset ( topo, fnctset, request, ierror )
 
@@ -180,8 +180,10 @@ end module MMultiply
           ierror = 1
         end if
 
-        call MPI_Cart_shift ( comm, direction, disp, left, right, ierror )
+        direction = 1
+        disp = 1
 
+        call MPI_Cart_shift ( comm, direction, disp, left, right, ierror )
 
         pColA => ColA
         pColTemp => ColTemp
@@ -208,28 +210,108 @@ end module MMultiply
         pColA => ColA
         pColTemp => ColTemp
 
+       call MPI_Irecv ( pColTemp(1,1), nProSize*Nxx, MPI_DOUBLE_PRECISION, left, tag, comm, rowreqs(1), ierror )
+       call MPI_ISend ( pColA(1,1), nProSize*Nxx, MPI_DOUBLE_PRECISION, right, tag, comm, rowreqs(2),ierror )
+       call MPI_Waitall (2, rowreqs, rowstatus, ierror)
+
       end subroutine PMatmulSych
 
-      subroutine test_func2 ( request ) 
+
+      subroutine PMatmulOverLap ( request ) 
+      use Matrix
+      use MMultiply
 
         implicit none
         include 'ADCL.inc'
 
         integer request
-        integer comm, rank, size, ierror
+        integer comm, tag, i, rank, size, ierror, TopoType
+        integer :: direction, disp, right,left
+        integer :: rowreqs(2), rowstatus (MPI_STATUS_SIZE, 2)
+
+        double precision, dimension(nProSize,Nxx),target :: ColTemp
+        double precision, dimension(:,:), pointer:: pColA, pColTemp
 
         call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
-        write (*,*) rank, ": In test_func2, size = ", size
-      end subroutine test_func2
+        write (*,*) rank, ": In PMatmulOverLap, size = ", size
 
-      subroutine test_func3 ( request ) 
+        call MPI_Topo_test (comm, TopoType, ierror)
 
+        if(TopoType .ne. MPI_CART) then
+          write(*,*) "Error! Communicator topology is not set!"
+          ierror = 1
+        !return error code!	
+        end if
+
+        direction = 1
+        disp = 1
+
+        call MPI_Cart_shift ( comm, direction, disp, left, right, ierror )
+
+        pColA => ColA
+        pColTemp => ColTemp
+
+        tag = 100
+        do i=size, 1, -1
+
+          call MPI_Irecv ( pColTemp(1,1), nProSize*Nxx, MPI_DOUBLE_PRECISION, left, tag, Comm, rowreqs(1), ierror )
+          call MPI_ISend ( pColA(1,1), nProSize*Nxx, MPI_DOUBLE_PRECISION, right, tag, Comm, rowreqs(2),ierror )
+
+          call Multiply(ColC, pColA, ColB, nProSize, Nxx, mod((i+rank),size))
+          call MPI_Waitall(2, rowreqs, rowstatus, ierror)
+
+          if ( mod(i,2) .eq. 0 )then 
+            pColA => ColTemp
+            pColTemp => ColA
+          else
+            pColA => ColA
+            pColTemp => ColTemp
+          endif
+        enddo  
+
+       pColA => ColA
+       pColTemp => ColTemp
+
+       call MPI_Irecv ( pColTemp(1,1), nProSize*Nxx, MPI_DOUBLE_PRECISION, left, tag, comm, rowreqs(1), ierror )
+       call MPI_ISend ( pColA(1,1), nProSize*Nxx, MPI_DOUBLE_PRECISION, right, tag, comm, rowreqs(2),ierror )
+       call MPI_Waitall (2, rowreqs, rowstatus, ierror)
+  
+    end subroutine PMatmulOverLap
+
+      subroutine PMatmulBcast ( request ) 
+        use Matrix
+        use MMultiply
         implicit none
         include 'ADCL.inc'
 
         integer request
-        integer comm, rank, size, ierror
+        integer comm, tag, i, rank, size, ierror, TopoType
+        double precision, dimension(nProSize,Nxx),target :: ColTemp
+        double precision, dimension(:,:), pointer:: pColA, pColTemp
 
         call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
-        write (*,*) rank, ": In test_func3, size = ", size
-      end subroutine test_func3
+        write (*,*) rank, ": In PMatmulBcast, size = ", size
+
+        call MPI_Topo_test (Comm, TopoType, ierror)
+
+        if(TopoType .ne. MPI_CART) then
+          write(*,*) "Error! Communicator topology is not set!"
+          ierror = 1
+          !return error code!	
+        end if
+
+        !Each process broadcast it's part of A to others.
+        do i=size-1, 0, -1
+    
+          if (rank .eq. i ) then 
+            call MPI_Bcast(ColA, Nxx*nProSize, MPI_DOUBLE_PRECISION, i, comm, ierror)
+            pColA => ColA
+            call Multiply(ColC, pColA, ColB, nProSize, Nxx, i)
+          else
+            call MPI_Bcast (ColTemp, Nxx*nProSize, MPI_DOUBLE_PRECISION, i, comm, ierror )
+            pColA => ColTemp
+            call Multiply(ColC, pColA, ColB, nProSize, Nxx, i)
+          endif
+        enddo
+
+      end subroutine PMatmulBcast
