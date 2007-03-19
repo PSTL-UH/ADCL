@@ -389,9 +389,15 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
 	ret = ADCL_emethod_get_stats_by_attrs ( e, attrval_list, 
 						&tmp_stats[count], 
 						&tmp_funcs[count]);
+
 	if ( ADCL_SUCESS != ret ) {
 	    /* There is no function with this particular combination of attribute values */
 	    continue;
+	}
+	if (!(ADCL_STAT_IS_FILTERED(tmp_stats[count]) )){
+	  /* this function does exist, has however not yet been evaluated */
+	  *winner_attr_val_pos = ADCL_ATTR_NOT_SET;
+	  goto exit;
 	}
 	count++;
     }
@@ -404,6 +410,7 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
     *winner_attr_val     = ADCL_function_get_attrval ( tmp_funcs[winner], attr_pos );
     *winner_attr_val_pos = ADCL_attribute_get_pos ( attr, *winner_attr_val );
 
+ exit:
     free ( tmp_stats );
     free ( tmp_funcs );
     return count;
@@ -415,43 +422,46 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
 
 int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
 {
-    
-    /* Loop forward to the attribute combination where we should
-       start the current set of evaluations */
-    if ( hypo->h_start_meas == 0 ) {
-	for ( i = 0; i < attrset->as_maxnum; i++ ) {
-	    attrval_list[i] = attrset->as_attrs_baseval[i];
+    int i, loop, ret, done=0;
+    int *attrval_list=NULL;
+    ADCL_hypothesis_t *hypo=&(e->em_hypo);
+    ADCL_attrset_t *attrset=&(e->em_fnctset.fs_attrset);
+
+    /* Reset the confidence values to 0 and all performance 
+       hypothesis to NOT SET for all attributes */
+    for ( i=0; i< attrset->as_maxnum; i++ ) {
+      hypo->h_attr_confidence[i] = 0 ;
+      hypo->h_attr_hypothesis[i] = ADCL_ATTR_NOT_SET;
+    }
+     
+    for ( loop=0; loop<attrset->as_maxnum; loop++ ){
+      /* Initialize the attribute value list to the base values */
+      for ( i = 0; i < attrset->as_maxnum; i++ ) {
+	attrval_list[i] = attrset->as_attrs_baseval[i];
+      }
+
+      
+      while (!done) {
+	ret = next_attr_combination_excluding_active_attr ( attrset, attrval_list, loop );
+	if ( ADCL_SUCCESS != ret ) {
+	  break;
 	}
-    }
-
-    for ( loop=0; loop<hypo->h_start_meas; loop++ ){
-	if ( loop == 0 ) {
-	    for ( i = 0; i < attrset->as_maxnum; i++ ) {
-		attrval_list[i] = attrset->as_attrs_baseval[i];
-	    }
+	ADCL_hypothesis_eval_one_attr ( e, e->em_fnctset->fs_attrset->as_maxnum, 
+					attrval_list, attrset->as_attrs[loop], loop, 
+					attrset->as_attrs[loop]->a_maxnum, 
+					&winner_attr_val_pos, &winner_attr_val );
+	if ( winner_attr_val_pos != ADCL_ATTR_NOT_SET ) {
+	  ADCL_hypothesis_set ( e, pos, winner_attr_val );
 	}
-	
-	next_attr_combination ( attrset, attrval_list, hypo->h_active_attr );
+      }
     }
 
-    /* This is now the starting point for the evaluation */
-
-    while ( loop < hypo->h_meas_cnt ) {
-	loop += ADCL_hypothesis_eval_one_attr ( e, e->em_fnctset->fs_attrset->as_maxnum, 
-						attrval_list, pos, 
-						hypo->h_active_attr_list[loop]->a_maxnum, 
-						&winner_attr_val_pos, &winner_attr_val );
-	ADCL_hypothesis_set ( e, pos, winner_attr_val );
-    }
-    
     /* Now the shrink the emethods list if we reached a threshold */
-    for ( loop=0; loop<h->num_active_attrs; loop++ ){
-	pos = ADCL_attrset_get_pos ( attrset, hypo->h_active_attr_list[loop]);
-	if ( hypo->h_attr_confidence[pos] >= ADCL_hypo_req_confidence ) {
-	    ADCL_hypothesis_shrinklist_byattr( e, pos, 
-					       hypo->h_attr_hypothesis[pos]);
-	    hypo->h_attr_confidence[pos]=0;
-	}
+    for ( loop=0; loop<attrset->as_maxnum; loop++ ){
+      if ( hypo->h_attr_confidence[loop] >= ADCL_hypo_req_confidence ) {
+	ADCL_hypothesis_shrinklist_byattr( e, loop, 
+					   hypo->h_attr_hypothesis[loop]);
+      }
     }
 
     return ADCL_SUCCESS;
