@@ -86,7 +86,8 @@ int main(int argc, char **argv)
 	}
         ATF_Free_matrix();
     }
-    
+
+    ADCL_Finalize();
     MPI_Finalize();
     return ATF_SUCCESS;
 }
