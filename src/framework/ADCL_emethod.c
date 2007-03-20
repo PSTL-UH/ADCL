@@ -21,7 +21,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     ADCL_emethod_t *e=NULL;    
     ADCL_hypothesis_t *hypo=NULL;
     int i, ret=ADCL_SUCCESS;
-
+    
     if ( ADCL_merge_requests && v != ADCL_VECTOR_NULL ) {
 	int j, last, found=-1;
 	int result;
@@ -40,7 +40,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	    if ( ADCL_VECTOR_NULL == vec  ) {
 		continue;
 	    }
-
+	    
 	    MPI_Comm_compare ( topo->t_comm, t->t_comm, &result );
 	    if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
 		continue;
@@ -79,24 +79,24 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	    return e;
 	}
     }
-	
+    
     /* we did not find this configuraion yet, so we have to add it */
     e = ( ADCL_emethod_t *) calloc (1, sizeof(ADCL_emethod_t));
     if ( NULL == e ) {
 	return NULL;
     }
-
+    
     ADCL_array_get_next_free_pos ( ADCL_emethod_array, &e->em_findex );
     ADCL_array_set_element ( ADCL_emethod_array, e->em_findex, 
 			     e->em_id, e );    
-
+    
     e->em_id          = ADCL_local_id_counter++;
     e->em_rfcnt       = 1;
     e->em_state       = ADCL_STATE_TESTING;
     e->em_topo        = t;
     e->em_vec         = v;
     e->em_orgfnctset  = f;
-
+    
     /* 
     ** Set the algorithm for the selection logic. Set it to the default value,
     ** if we have an attribute set. However, if no attributes are assigned to 
@@ -108,7 +108,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     else {
 	e->em_perfhypothesis = 0;
     }
-
+    
     /* 
     ** Generate a duplicate of the functions which we will work with.
     ** The reason is, that the list of functions etc. might be modified
@@ -118,7 +118,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     ** initiated. 
     */
     ADCL_fnctset_dup ( f, &(e->em_fnctset));
-
+    
     /* Allocate the according number of statitics objects */
     e->em_stats = (ADCL_statistics_t **) calloc ( 1, f->fs_maxnum*sizeof(ADCL_statistics_t *));
     if ( NULL == e->em_stats ) {
@@ -131,7 +131,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	    ret = ADCL_NO_MEMORY;
 	    goto exit;
 	}
-
+	
 	/* Allocate the measurements arrays */
 	e->em_stats[i]->s_time = (TIME_TYPE *)calloc (1, sizeof(TIME_TYPE)*ADCL_emethod_numtests);
 	if ( NULL == e->em_stats[i]->s_time ) {
@@ -143,31 +143,25 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     /* initiate the performance hypothesis structure */
     hypo = &(e->em_hypo);
     hypo->h_num_avail_meas = 0;
-    hypo->h_num_active_attrs = 0;
     if ( f->fs_attrset != ADCL_ATTRSET_NULL ) {
 	hypo->h_attr_hypothesis  = (int *) malloc (f->fs_attrset->as_maxnum * sizeof(int));
 	hypo->h_attr_confidence  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
-	hypo->h_active_attr_list = (ADCL_attribute_t **) calloc (1, f->fs_attrset->as_maxnum * 
-								 sizeof(ADCL_attribute_t *));
+	hypo->h_noneval  = (int *) calloc (1, f->fs_maxnum * sizeof(int));
 	if ( NULL == hypo->h_attr_hypothesis ||
-	     NULL == hypo->h_attr_confidence ||
-	     NULL == hypo->h_active_attr_list ) {
+	     NULL == hypo->h_attr_confidence || 
+	     NULL == hypo->h_noneval         ) {
 	    ret = ADCL_NO_MEMORY;
 	    goto exit;
 	}
-
+	
 	for ( i=0; i< e->em_fnctset.fs_attrset->as_maxnum; i++ ) {
 	    hypo->h_attr_hypothesis[i] = ADCL_ATTR_NOT_SET;
 	}
-
+	
 	/* Initialize the attribute list if we are dealing with a predefined functionset */
 	if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
-	    hypo->h_num_active_attrs  = 2;
 	    hypo->h_num_required_meas = 4;
 	    /* ADCL_ATTR_MAPPING */
-	    hypo->h_active_attr_list[0] = e->em_fnctset.fs_attrset->as_attrs[0]; 
-	    /* ADCL_ATTR_NONCONT */
-	    hypo->h_active_attr_list[1] = e->em_fnctset.fs_attrset->as_attrs[1]; 
 	    
 	    if ( -1 != ADCL_emethod_selection ) {
 		e->em_state = ADCL_STATE_REGULAR;
@@ -175,7 +169,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	    }
 	}
     }
-
+	
  exit:
     if ( ret != ADCL_SUCCESS  ) {
 	if ( NULL != e->em_stats  ) {
@@ -195,15 +189,15 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	if ( NULL != hypo->h_attr_confidence ) {
 	    free ( hypo->h_attr_confidence );
 	}
-	if ( NULL != hypo->h_active_attr_list ) {
-	    free ( hypo->h_active_attr_list );
+	if ( NULL != hypo->h_noneval ) {
+	    free ( hypo->h_noneval );
 	}
-
+	
 	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
 	free ( e );
 	e = NULL;
     }
-
+    
     return e;
 }
 
@@ -212,11 +206,11 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 /**********************************************************************/
 void ADCL_emethod_free ( ADCL_emethod_t * e )
 {
-
+    
     e->em_rfcnt--;
     if ( e->em_rfcnt == 0 ) {
 	ADCL_hypothesis_t *hypo = &(e->em_hypo);
-
+	
 	if ( NULL != e->em_stats  ) {
 	    int i;
 	    for ( i=0; i< e->em_fnctset.fs_maxnum; i++ ) {
@@ -236,8 +230,8 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
 	if ( NULL != hypo->h_attr_confidence ) {
 	    free ( hypo->h_attr_confidence );
 	}
-	if ( NULL != hypo->h_active_attr_list ) {
-	    free ( hypo->h_active_attr_list );
+	if ( NULL != hypo->h_noneval ) {
+	    free ( hypo->h_noneval );
 	}
 
 	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
@@ -309,12 +303,12 @@ int ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval,
       }
   }
 	 
-  
+  if ( !found ) {
+      return ADCL_NOT_FOUND;
+  }
+
   return ADCL_SUCCESS;
-}
-
-
-    
+}   
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -330,9 +324,7 @@ int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, int pos,
 /**********************************************************************/
 int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
 {
-    int winner, rank;
-
-    MPI_Comm_rank ( emethod->em_topo->t_comm, &rank );
+    int winner;
 
     /* 
     ** Filter the input data, i.e. remove outliers which 
@@ -340,17 +332,20 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
     */
     ADCL_statistics_filter_timings ( emethod->em_stats,
 				     emethod->em_fnctset.fs_maxnum, 
-				     rank );
+				     emethod->em_topo->t_rank );
 
     /* 
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */
-    ADCL_statistics_global_max ( emethod->em_stats,
-				 emethod->em_fnctset.fs_maxnum, 
-				 emethod->em_topo->t_comm, 1, 
-				 &(emethod->em_fnctset.fs_maxnum), 
-				 &winner, rank);
+    ADCL_statistics_global_max_v3 ( emethod->em_stats,
+				    emethod->em_fnctset.fs_maxnum, 
+				    emethod->em_topo->t_comm, 
+				    emethod->em_topo->t_rank);
+
+    ADCL_statistics_get_winner_v3 ( emethod->em_stats, 
+				    emethod->em_fnctset.fs_maxnum,
+				    &winner );
 
     return winner;
 }
@@ -371,8 +366,9 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     }
     
     ADCL_STAT_SET_TESTED ( e->em_stats[last]);
+    ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1, 
+				     e->em_topo->t_rank );
     MPI_Barrier ( e->em_topo->t_comm );
-    hypo->h_num_avail_meas++;
     if ( e->em_stats[last]->s_rescount < ADCL_emethod_numtests ) {
         /* 
         ** ok, some data is still outstanding. So we 
@@ -385,15 +381,14 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     }
 
     if ( e->em_perfhypothesis ) {
-#ifdef V3
-	ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1, e->em_topo->t_rank );
-#endif
+	/* hypo->h_noneval[]=last; */
+	ADCL_statistics_global_max_v3 ( &(e->em_stats[last]), 1, 
+					e->em_topo->t_comm, 
+					e->em_topo->t_rank );
+	hypo->h_num_avail_meas++;
 	if ( hypo->h_num_avail_meas == hypo->h_num_required_meas ) {
-#ifdef V3
+	    /* ADCL_hypothesis_eval_meas_series ( e, hypo->h_num_avail_meas ); */
 	    ADCL_hypothesis_eval_v3 ( e );
-#else
-	    ADCL_hypothesis_eval_v2 ( e );
-#endif
 	}
 
 	for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){

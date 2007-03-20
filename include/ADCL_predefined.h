@@ -49,9 +49,9 @@ extern const int ADCL_attr_noncont_individual;
 #define ADCL_ATTR_TRANSFER 2
 
 #ifdef MPI_WIN
-#define ADCL_ATTR_TRANSFER_MAX 4 
-#else
 #define ADCL_ATTR_TRANSFER_MAX 8
+#else
+#define ADCL_ATTR_TRANSFER_MAX 4
 #endif
 
 extern const int ADCL_attr_transfer_IsendIrecv;

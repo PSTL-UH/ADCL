@@ -9,7 +9,6 @@ OBJ =	ADCL_memory.o 		\
 
 HEADER = $(ADCL_INC_DIR)/ADCL.h           \
 	 $(ADCL_INC_DIR)/ADCL_internal.h  \
-	 $(ADCL_INC_DIR)/ADCL_method.h    \
 	 $(ADCL_INC_DIR)/ADCL_emethod.h   \
 	 $(ADCL_INC_DIR)/ADCL_request.h   \
 	 $(ADCL_INC_DIR)/ADCL_vector.h    \

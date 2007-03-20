@@ -7,13 +7,85 @@ static int next_attr_combination ( int cnt, ADCL_attrset_t *attrset,
 static int next_attr_combination_excluding_active_attr ( ADCL_attrset_t *attrset, 
 							 int *attr_val_list, 
 							 int active_attr_pos );
-static int get_num_methods_and_blocks ( ADCL_emethod_t *e, int *nummethods, 
-					int *numblocks);
 static int get_max_attr_vals ( ADCL_attrset_t *attrset );
 
-extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 
+int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
+{
+    int i, loop, ret, winner_attr_val_pos, winner_attr_val, done=0;
+    int maxdim, *attrval_list=NULL;
+    ADCL_hypothesis_t *hypo=&(e->em_hypo);
+    ADCL_attrset_t *attrset=e->em_fnctset.fs_attrset;
 
+    ADCL_statistics_t **tmp_stats;
+    ADCL_function_t **tmp_funcs;
+
+    maxdim = get_max_attr_vals ( attrset );
+    tmp_stats = (ADCL_statistics_t **) malloc ( maxdim * sizeof (ADCL_statistics_t *));
+    tmp_funcs = (ADCL_function_t **) malloc ( maxdim * sizeof (ADCL_function_t *));
+    attrval_list = (int *) malloc ( attrset->as_maxnum * sizeof(int));
+    if ( NULL == tmp_stats || NULL == tmp_funcs || NULL == attrval_list ) {
+	return ADCL_NO_MEMORY;
+    }
+
+    for ( i=0; i< attrset->as_maxnum; i++ ) {
+    /* Reset the confidence values to 0 and all performance 
+       hypothesis to NOT SET for the attributes which have not
+       yet reached the critical values */
+	if ( hypo->h_attr_confidence[i] < ADCL_hypo_req_confidence ) {
+	    hypo->h_attr_confidence[i] = 0 ;
+	    hypo->h_attr_hypothesis[i] = ADCL_ATTR_NOT_SET;
+	}
+    }
+     
+    for ( loop=0; loop<attrset->as_maxnum; loop++ ){
+	if ( hypo->h_attr_hypothesis[loop] != ADCL_ATTR_NOT_SET ) {	    
+	    /* skip this attribute, its already done */
+	    continue;
+	}
+
+	/* Initialize the attribute value list to the base values */
+	for ( i = 0; i < attrset->as_maxnum; i++ ) {
+	    attrval_list[i] = attrset->as_attrs_baseval[i];
+	}
+	
+      
+	while (!done) {
+	    ADCL_hypothesis_eval_one_attr ( e, attrset->as_maxnum, 
+					    attrval_list, attrset->as_attrs[loop], loop, 
+					    attrset->as_attrs[loop]->a_maxnvalues, 
+					    &winner_attr_val_pos, &winner_attr_val, 
+					    tmp_stats, tmp_funcs );
+	    if ( winner_attr_val_pos != ADCL_ATTR_NOT_SET ) {
+		ADCL_hypothesis_set ( e, loop, winner_attr_val );
+	    }
+	    ret = next_attr_combination_excluding_active_attr ( attrset, attrval_list, loop );
+	    if ( ADCL_SUCCESS != ret ) {
+		break;
+	    }	  
+	}
+    }
+    
+    /* Now the shrink the emethods list if we reached a threshold */
+    for ( loop=0; loop<attrset->as_maxnum; loop++ ){
+	if ( hypo->h_attr_confidence[loop] >= ADCL_hypo_req_confidence ) {
+	    ADCL_hypothesis_shrinklist_byattr( e, loop, 
+					       hypo->h_attr_hypothesis[loop]);
+	}
+    }
+    
+    free ( tmp_stats );
+    free ( tmp_funcs );
+    free ( attrval_list );
+    return ADCL_SUCCESS;
+}
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_t *e,
                                         int attr_pos, int required_value )
 {
@@ -98,177 +170,88 @@ int ADCL_hypothesis_set ( ADCL_emethod_t *e, int attrpos, int attrval )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-/* General description what this algorithm is doing.
- * Goal: this algorithm is supposed to evaluate the performance 
- *       of different emethods based on the attributes. The main
- *       difference to v1 are that the evaluation is not done
- *       every time an emethod has been finished with testing,
- *       but every time all available values for a given attribute
- *       has been evaluated. Example: attr[0] has three possible
- *       values (a,b,c). Three methods with attr[0...n]={a,...},
- *       {b,...},{c,...} with ... being an arbitrary but constant
- *       list of all other attributes. A comparison of all
- *       three methods will lead to a performance hypothesis
- *       for attr[0] and increase/decrease the confidence value
- *       by one. (This approach avoids the unhandled case in 
- *       v1 and is more consistent. It also reduces the number
- *       of additional collective operations).
- *
- *       The second goal is to 'postpone' the evaluation until a 
- *       given number of attributes have been evaluated. Thus, if
- *       if num_active_attr is 2, with current_active_attr[0]=attr[0],
- *       and current_active_attr[1]=attr[1], all methods providing 
- *       all possible combination of attr[0] and attr[1] has to be finished.
- *       This coalloscing of attributes further reduces the communication,
- *       reduces potentially the number of emethods having to be evaluated
- *       but delays the shrinking of the emethods list.
- * 
- * Implementation:
- */
 
-
-int ADCL_hypothesis_eval_v2 ( ADCL_emethod_t *e )
+/* 
+** This routines takes the statistical data of functions which have been already
+** tested, but which did not yet go through the evaluation proces. 
+*/
+int ADCL_hypothesis_eval_meas_series ( ADCL_emethod_t *e, int nummethods )
 {
-    int numblocks=0, nummethods=0;
-    int cnt=0, blencnt=0, bcnt=0;
-    int *winners=NULL, *blength=NULL; 
-    int i, tval, loop, ret = ADCL_SUCCESS;
-    int *attrval_list=NULL;
-    int *attr_pos=NULL;
-    int pos;
-
-    ADCL_statistics_t  **tmp_stats=NULL;
-    ADCL_function_t  **tmp_fncts=NULL;
-    ADCL_attribute_t **tmp_active_attr_list=NULL;
     ADCL_hypothesis_t *hypo=&(e->em_hypo);
-    ADCL_attrset_t *attrset=e->em_fnctset.fs_attrset;
+    ADCL_statistics_t **tmp_stats;
+    int i;
 
-
-    /* 
-    ** Please note: the attrval_list is always in the same order 
-    ** as the attributes in the attribute set. This is in contrary
-    ** to the tmp_active_attr_list
-    */
-    attrval_list         = (int *) malloc ( attrset->as_maxnum * sizeof(int)); 
-    tmp_active_attr_list = (ADCL_attribute_t **) malloc ( attrset->as_maxnum * 
-							  sizeof(ADCL_attribute_t *));
-    if ( NULL == attrval_list || NULL == tmp_active_attr_list ) {
-	return ADCL_NO_MEMORY;
-    }
-    
-    /* 
-     * Determine how many blocks we will generate and how many individual
-     * methods will be in the final list. 
-     */
-    get_num_methods_and_blocks ( e, &nummethods, &numblocks);
-    
     tmp_stats = (ADCL_statistics_t **) malloc (nummethods * sizeof(ADCL_statistics_t*)); 
-    tmp_fncts = (ADCL_function_t **)   malloc (nummethods * sizeof(ADCL_function_t*)); 
-    blength = (int *) calloc ( 1, 3 * numblocks * sizeof(int));
-    if ( NULL==tmp_stats || NULL== tmp_fncts || NULL == blength ){
-	free ( attrval_list );
-	free ( tmp_active_attr_list );
+    if ( NULL==tmp_stats ) {
 	return ADCL_NO_MEMORY;
     }
-    winners  = &(blength[numblocks]);
-    attr_pos = &(blength[2*numblocks]);
-    
-    
-    /* 
-     * main loop over the number of attributes currently investigated. 
-     * Within this loop we generate the list of emethods, which 
-     * we will pass to the evaluation function. 
-     */
-    for ( loop=0; loop<hypo->h_num_active_attrs; loop++ ){
-	
-	/* 
-	 * The attribute currently investigated has to be on the top 
-	 * of the list for the next_attr_combination function.  Thus
-	 * generate for every 'loop' loop iterations a new list of
-	 * attributes moving the according element to the top of the list 
-	 */
-	
-	for ( i=0; i< hypo->h_num_active_attrs; i++ ) {
-	    pos = (i+loop)%hypo->h_num_active_attrs;
-	    tmp_active_attr_list[i] = hypo->h_active_attr_list[pos];
-	}
-	
-	
-	/* Generate the first combination of attributes. The first
-	   one is really independent of the list of attributes used. 
-	*/
-	for ( i = 0; i < attrset->as_maxnum; i++ ) {
-	    attrval_list[i] = attrset->as_attrs_baseval[i];
-	}
-	
-	pos = ADCL_attrset_get_pos ( attrset, hypo->h_active_attr_list[loop]);
-	attr_pos[bcnt] = pos;
-	
-	ret = ADCL_SUCCESS;
-	while ( ret != ADCL_EVAL_DONE ) {
-	    ADCL_emethod_get_stats_by_attrs ( e, attrval_list, 
-					      &tmp_stats[cnt], 
-					      &tmp_fncts[cnt]); 
-	    cnt++;
-	    blencnt++;
-	    
-	    ret = next_attr_combination(hypo->h_num_active_attrs, 
-					attrset,
-					tmp_active_attr_list, 
-					attrval_list);
-	    if ( ret != ADCL_SUCCESS ) {
-		blength[bcnt++] = blencnt;
-		blencnt         = 0;
-		if ( ret != ADCL_EVAL_DONE ) {
-		    attr_pos[bcnt]  = pos;
-		}
-	    }
-	}
+
+    for ( i=0; i<nummethods; i++ ) {
+      tmp_stats[i] = e->em_stats[hypo->h_noneval[i]];
     }
-    
-    
+
     /* Determine now the winners across all provided measurement lists */
-    ADCL_statistics_filter_timings  ( tmp_stats, nummethods, e->em_topo->t_rank);
-    ADCL_statistics_global_max ( tmp_stats, nummethods, e->em_topo->t_comm, 
-				 numblocks, blength, winners, e->em_topo->t_rank);
-    
-    /* Set the according performance hypothesis */
-    for (i=0; i< numblocks; i++ ) {
-	tval = ADCL_function_get_attrval ( tmp_fncts[winners[i]], attr_pos[i]);
-	ADCL_hypothesis_set ( e, attr_pos[i], tval );
+    ADCL_statistics_global_max_v3 ( tmp_stats, nummethods, e->em_topo->t_comm, 
+				    e->em_topo->t_rank );
+
+    /* Clear the list of not evaluated functions on the performance hypothesis
+       object */
+    for ( i=0; i < e->em_fnctset.fs_maxnum; i++ ) {
+      hypo->h_noneval[i] = -1;
     }
-    
-    /* Now the shrink the emethods list if we reached a threshold */
-    for ( i=0; i< numblocks; i++ ){
-	if ( hypo->h_attr_confidence[attr_pos[i]] >= ADCL_hypo_req_confidence ) {
-	    ADCL_hypothesis_shrinklist_byattr( e, attr_pos[i], 
-					       hypo->h_attr_hypothesis[attr_pos[i]]);
-	    hypo->h_attr_confidence[attr_pos[i]]=0;
-	    
-	    /* TBD: we will have to adapt here the number of attributes for pattrs[i]
-	     *      as well as the attr_base value!!! This has to  be done on a 
-	     *      per emethods_req basis 
-	     */
+
+    return ADCL_SUCCESS;
+}
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr_values,
+				    ADCL_attribute_t * attr, int attr_pos, int max_attr_vals,
+				    int *winner_attr_val_pos, int *winner_attr_val, 
+				    ADCL_statistics_t **tmp_stats, ADCL_function_t **tmp_funcs ) 
+{
+    int ret, i, winner, count;
+
+    *winner_attr_val_pos  = ADCL_ATTR_NOT_SET;
+
+    for ( count=0, i=0; i<max_attr_vals; i++ ) {
+	attr_values[attr_pos] = ADCL_attribute_get_val ( attr, i ) ;
+	ret = ADCL_emethod_get_stats_by_attrs ( e, attr_values, 
+						&tmp_stats[count], 
+						&tmp_funcs[count]);
+
+	if ( ADCL_SUCCESS != ret ) {
+	    /* There is no function with this particular combination of attribute values */
+	    continue;
 	}
+	if (!(ADCL_STAT_IS_FILTERED(tmp_stats[count]) )){
+	    /* this function does exist, has however not yet been evaluated */
+	    goto exit;
+	}
+	count++;
     }
     
-    /* Switch to the next list of attributes to be evaluated */
-    hypo->h_num_active_attrs  = 1;
-    hypo->h_active_attr_list[0] = e->em_fnctset.fs_attrset->as_attrs[2];
-    /* hypo->h_num_required_meas = e->em_fnctset.fs_attrset->as_attrs_numval[2]+1;*/ 
-    hypo->h_num_required_meas = 1000;    /* don't do that right now */
+    if ( count < 2 ) {
+	goto exit;
+    }
+    /* 
+    ** Assuming that the data is filtered at this point already, 
+    ** and the global max per series has been determined 
+    */
+    ADCL_statistics_get_winner_v3 ( tmp_stats, count, &winner );
+    *winner_attr_val     = ADCL_function_get_attrval ( tmp_funcs[winner], attr_pos );
+    *winner_attr_val_pos = ADCL_attribute_get_pos ( attr, *winner_attr_val );
 
-    free ( tmp_active_attr_list );
-    free ( tmp_stats );
-    free ( tmp_fncts );
-    free ( blength );
-
-return ADCL_SUCCESS;
+ exit:
+    /* Reset the value for the attribute to be analysed to its base value, 
+       in order to avoid confusion */
+    attr_values[attr_pos] = ADCL_attribute_get_val ( attr, 0 );    
+    return count;
 }
 
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
 
 /* cnt:           number of currently handled attributes 
  *                Please note: cnt does not have to be equal to attrset->as_maxnum;
@@ -307,172 +290,9 @@ static int next_attr_combination ( int cnt, ADCL_attrset_t *attrset,
     
     return ADCL_EVAL_DONE;
 }
-
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static int get_num_methods_and_blocks ( ADCL_emethod_t *e, int *nummethods, 
-					int *numblocks)
-{
-    int tmpnblocks, i, j;
-    int nm, nb=0;
-    ADCL_hypothesis_t *hypo=&(e->em_hypo);
-
-    for ( nm=hypo->h_num_active_attrs, i=0; i<hypo->h_num_active_attrs; i++) {
-	for ( tmpnblocks=1, j=0; j < hypo->h_num_active_attrs; j++ ) {
-	    if ( j == i ) {
-		continue;
-	    }
-	    tmpnblocks *= hypo->h_active_attr_list[j]->a_maxnvalues;
-	}
-	nb += tmpnblocks;
-	nm *= hypo->h_active_attr_list[i]->a_maxnvalues;
-    }
-
-    *nummethods = nm;
-    *numblocks  = nb;
-    
-    return ADCL_SUCCESS;
-}
-
-/****************************************************************************/
-/****************************************************************************/
-/****************************************************************************/
-#ifdef V3
-/* 
-** This routines takes the statistical data of functions which have been already
-** tested, but which did not yet go through the evaluation proces. 
-*/
-int ADCL_hypothesis_eval_meas_series ( ADCL_emethod_t *e, int nummethods )
-{
-    ADCL_hypothesis_t *hypo=&(e->em_hypo);
-    ADCL_statistics_t **tmp_stats;
-    int i;
-
-    tmp_stats = (ADCL_statistics_t **) malloc (nummethods * sizeof(ADCL_statistics_t*)); 
-    if ( NULL==tmp_stats ) {
-	return ADCL_NO_MEMORY;
-    }
-
-    for ( i=0; i<nummethods; i++ ) {
-      tmp_stats[i] = e->em_stats[hypo->h_noneval[i]];
-    }
-
-    /* Determine now the winners across all provided measurement lists */
-    ADCL_statistics_filter_timings  ( tmp_stats, nummethods, e->em_topo->t_rank);
-    ADCL_statistics_global_max_v3 ( tmp_stats, nummethods, e->em_topo->t_comm, 
-				    e->em_topo->t_rank );
-
-    /* Clear the list of not evaluated functions on the performance hypothesis
-       object */
-    for ( i=0; i < e->em_fnctset.fs_maxnum; i++ ) {
-      hypo->h_noneval[i] = -1;
-    }
-
-    return ADCL_SUCCESS;
-}
-/****************************************************************************/
-/****************************************************************************/
-/****************************************************************************/
-int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr_values,
-				    ADCL_attribute_t * attr, int attr_pos, int max_attr_vals,
-				    int *winner_attr_val_pos, int *winner_attr_val, 
-				    ADCL_statistics_t **tmp_stats, ADCL_function_t **tmp_funcs ) 
-{
-    int ret, i, winner, count;
-
-    for ( count=0, i=0; i<max_attr_vals; i++ ) {
-	attr_values[attr_pos] = ADCL_attribute_get_val ( attr, i ) ;
-	ret = ADCL_emethod_get_stats_by_attrs ( e, attr_values, 
-						&tmp_stats[count], 
-						&tmp_funcs[count]);
-
-	if ( ADCL_SUCCESS != ret ) {
-	    /* There is no function with this particular combination of attribute values */
-	    continue;
-	}
-	if (!(ADCL_STAT_IS_FILTERED(tmp_stats[count]) )){
-	  /* this function does exist, has however not yet been evaluated */
-	  *winner_attr_val_pos = ADCL_ATTR_NOT_SET;
-	  return 0;
-	}
-	count++;
-    }
-    
-    /* 
-    ** Assuming that the data is filtered at this point already, 
-    ** and the global max per series has been determined 
-    */
-    ADCL_statistics_get_winner_v3 ( tmp_stats, count, &winner );
-    *winner_attr_val     = ADCL_function_get_attrval ( tmp_funcs[winner], attr_pos );
-    *winner_attr_val_pos = ADCL_attribute_get_pos ( attr, *winner_attr_val );
-
-    return count;
-}
-
-/****************************************************************************/
-/****************************************************************************/
-/****************************************************************************/
-
-int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
-{
-    int i, loop, ret, winner_attr_val_pos, winner_attr_val, done=0;
-    int maxdim, *attrval_list=NULL;
-    ADCL_hypothesis_t *hypo=&(e->em_hypo);
-    ADCL_attrset_t *attrset=e->em_fnctset.fs_attrset;
-
-    ADCL_statistics_t **tmp_stats;
-    ADCL_function_t **tmp_funcs;
-
-    maxdim = get_max_attr_vals ( attrset );
-    tmp_stats = (ADCL_statistics_t **) malloc ( maxdim * sizeof (ADCL_statistics_t *));
-    tmp_funcs = (ADCL_function_t **) malloc ( maxdim * sizeof (ADCL_function_t *));
-    if ( NULL == tmp_stats || NULL == tmp_funcs ) {
-	return ADCL_NO_MEMORY;
-    }
-
-    /* Reset the confidence values to 0 and all performance 
-       hypothesis to NOT SET for all attributes */
-    for ( i=0; i< attrset->as_maxnum; i++ ) {
-      hypo->h_attr_confidence[i] = 0 ;
-      hypo->h_attr_hypothesis[i] = ADCL_ATTR_NOT_SET;
-    }
-     
-    for ( loop=0; loop<attrset->as_maxnum; loop++ ){
-      /* Initialize the attribute value list to the base values */
-      for ( i = 0; i < attrset->as_maxnum; i++ ) {
-	attrval_list[i] = attrset->as_attrs_baseval[i];
-      }
-
-      
-      while (!done) {
-	ret = next_attr_combination_excluding_active_attr ( attrset, attrval_list, loop );
-	if ( ADCL_SUCCESS != ret ) {
-	  break;
-	}
-	ADCL_hypothesis_eval_one_attr ( e, attrset->as_maxnum, 
-					attrval_list, attrset->as_attrs[loop], loop, 
-					attrset->as_attrs[loop]->a_maxnvalues, 
-					&winner_attr_val_pos, &winner_attr_val, 
-					tmp_stats, tmp_funcs );
-	if ( winner_attr_val_pos != ADCL_ATTR_NOT_SET ) {
-	  ADCL_hypothesis_set ( e, loop, winner_attr_val );
-	}
-      }
-    }
-
-    /* Now the shrink the emethods list if we reached a threshold */
-    for ( loop=0; loop<attrset->as_maxnum; loop++ ){
-      if ( hypo->h_attr_confidence[loop] >= ADCL_hypo_req_confidence ) {
-	ADCL_hypothesis_shrinklist_byattr( e, loop, 
-					   hypo->h_attr_hypothesis[loop]);
-      }
-    }
-
-    free ( tmp_stats );
-    free ( tmp_funcs );
-    return ADCL_SUCCESS;
-}
 
 static int next_attr_combination_excluding_active_attr ( ADCL_attrset_t *attrset, 
 							 int *attr_val_list, 
@@ -495,7 +315,6 @@ static int next_attr_combination_excluding_active_attr ( ADCL_attrset_t *attrset
 	}
 	else if ( thisval == attrset->as_attrs_maxval[i] ){
 	    attr_val_list[i] = attrset->as_attrs_baseval[i];
-	    ret = ADCL_ATTR_NEW_BLOCK;
 	}
 	else {
 	    /* Bug, should not happen */
@@ -504,6 +323,9 @@ static int next_attr_combination_excluding_active_attr ( ADCL_attrset_t *attrset
     
     return ADCL_EVAL_DONE;
 }
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 
 static int get_max_attr_vals ( ADCL_attrset_t *attrset )
 {
@@ -517,5 +339,5 @@ static int get_max_attr_vals ( ADCL_attrset_t *attrset )
 
     return max;
 }
-#endif
+
 

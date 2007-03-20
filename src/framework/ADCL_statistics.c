@@ -95,69 +95,6 @@ int ADCL_statistics_filter_timings (ADCL_statistics_t **statistics, int count,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_statistics_global_max ( ADCL_statistics_t **statistics, int count,
- 				 MPI_Comm comm, int num_blocks, int *blength, 
-				 int *winners, int rank )
-{
-    int i, j, c;
-    double *lpts, *gpts;
-    struct lininf tline_filtered, tline_unfiltered;
-
-    lpts = (double *) malloc ( 2 * 3 * count * sizeof(double) );
-    if ( NULL == lpts ) {
-	return ADCL_NO_MEMORY;
-    }
-    gpts = &(lpts[3 * count]);    
-
-    for ( i = 0; i < count; i++ ) {
-	lpts[3*i]   = statistics[i]->s_lpts[0];
-	lpts[3*i+1] = statistics[i]->s_lpts[1];
-	lpts[3*i+2] = statistics[i]->s_lpts[2];
-    }
-
-    if  ( ADCL_STATISTIC_MAX == ADCL_statistic_method ) {
-	MPI_Allreduce ( lpts, gpts, 3 * count, MPI_DOUBLE, MPI_MAX, comm);
-
-#if 0      
-	ADCL_printf("#%d: number of blocks %d \n", rank, num_blocks );
-#endif
-
-	for ( c=0, j = 0; j < num_blocks; j++) {
-	    TLINE_INIT ( tline_unfiltered );
-	    TLINE_INIT ( tline_filtered );
-	    for ( i = c; i < (c+blength[j]); i++ ) {
-#if 0
-		if ( rank == 0 ) {
-		    ADCL_printf("#%d: %lf %lf %lf\n", i, gpts[3*i], 
-				gpts[3*i+1], gpts[3*i+2]);
-		}
-#endif
-		TLINE_MIN ( tline_unfiltered, gpts[3*i],  i );
-		TLINE_MIN ( tline_filtered, gpts[3*i+1],  i );
-	    }
-
-	    if ( gpts[ 3 * tline_filtered.minloc + 2]<ADCL_OUTLIER_FRACTION){
-		winners[j] = tline_filtered.minloc;
-		ADCL_printf("#%d: block %d winner is %d (filtered) \n", 
-			    rank, j, winners[j]);
-	    }
-	    else {
-		winners[j] = tline_unfiltered.minloc;
-		ADCL_printf("#%d: block %d winner is %d (unfiltered) \n", 
-			    rank, j, winners[j]);
-	    }
-
-	    c+=blength[j];
-	}
-    }
-
-    free ( lpts );
-    return ADCL_SUCCESS;
-}    
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
 double ADCL_statistics_time (void) 
 { 
     struct timeval tp; 
@@ -167,7 +104,6 @@ double ADCL_statistics_time (void)
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-#ifdef V3
 int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
 				    MPI_Comm comm, int rank )
 {
@@ -232,4 +168,3 @@ int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count,
 
     return ADCL_SUCCESS;
 }
-#endif
