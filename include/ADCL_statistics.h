@@ -37,7 +37,7 @@ struct ADCL_statistics_s{
     int          s_flags;  /* Has this data set already been filtered? */
     double      s_lpts[3]; /* local no. of pts by this function */
 #ifdef V3
-    double      g_lpts[3]; /* global no. of pts for this function */
+    double      s_gpts[3]; /* global no. of pts for this function */
 #endif
 };
 typedef struct ADCL_statistics_s ADCL_statistics_t;
@@ -53,7 +53,7 @@ double ADCL_statistics_time(void);
 int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
 				    MPI_Comm comm, int rank );
 int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count, 
-				    int rank, int *winner );
+				    int *winner );
 #endif
 
 struct ADCL_hypothesis_s {
@@ -73,10 +73,6 @@ struct ADCL_hypothesis_s {
 };
 typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
 
-#ifdef V3
-int ADCL_hypothesis_eval_meas_series ( ADCL_emethod_t *e, int nummethods);
-int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e ); 
-#endif
 
 
 

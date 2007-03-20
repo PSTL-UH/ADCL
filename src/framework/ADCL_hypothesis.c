@@ -4,8 +4,12 @@ int ADCL_hypo_req_confidence=2;
 
 static int next_attr_combination ( int cnt, ADCL_attrset_t *attrset, 
 				   ADCL_attribute_t  **attr_list, int *attr_val_list );
+static int next_attr_combination_excluding_active_attr ( ADCL_attrset_t *attrset, 
+							 int *attr_val_list, 
+							 int active_attr_pos );
 static int get_num_methods_and_blocks ( ADCL_emethod_t *e, int *nummethods, 
 					int *numblocks);
+static int get_max_attr_vals ( ADCL_attrset_t *attrset );
 
 extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
 
@@ -361,7 +365,7 @@ int ADCL_hypothesis_eval_meas_series ( ADCL_emethod_t *e, int nummethods )
 
     /* Clear the list of not evaluated functions on the performance hypothesis
        object */
-    for ( i=0; i < e->em_fnctset->fs_maxnum; i++ ) {
+    for ( i=0; i < e->em_fnctset.fs_maxnum; i++ ) {
       hypo->h_noneval[i] = -1;
     }
 
@@ -372,32 +376,25 @@ int ADCL_hypothesis_eval_meas_series ( ADCL_emethod_t *e, int nummethods )
 /****************************************************************************/
 int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr_values,
 				    ADCL_attribute_t * attr, int attr_pos, int max_attr_vals,
-				    int *winner_attr_val_pos, int *winner_attr_val ) 
+				    int *winner_attr_val_pos, int *winner_attr_val, 
+				    ADCL_statistics_t **tmp_stats, ADCL_function_t **tmp_funcs ) 
 {
-    ADCL_statistics_t **tmp_stats=NULL;;
-    ADCL_function_t **tmp_funcs=NULL;
-    int i, winner, count;
-
-    tmp_stats = (ADCL_statistics_t **) malloc (max_attr_vals * sizeof(ADCL_statistics_t*)); 
-    tmp_fncts = (ADCL_function_t **)   malloc (nummethods * sizeof(ADCL_function_t*)); 
-    if ( NULL == tmp_stats || NULL == tmp_funcs ) {
-	return ADCL_NO_MEMORY;
-    }
+    int ret, i, winner, count;
 
     for ( count=0, i=0; i<max_attr_vals; i++ ) {
 	attr_values[attr_pos] = ADCL_attribute_get_val ( attr, i ) ;
-	ret = ADCL_emethod_get_stats_by_attrs ( e, attrval_list, 
+	ret = ADCL_emethod_get_stats_by_attrs ( e, attr_values, 
 						&tmp_stats[count], 
 						&tmp_funcs[count]);
 
-	if ( ADCL_SUCESS != ret ) {
+	if ( ADCL_SUCCESS != ret ) {
 	    /* There is no function with this particular combination of attribute values */
 	    continue;
 	}
 	if (!(ADCL_STAT_IS_FILTERED(tmp_stats[count]) )){
 	  /* this function does exist, has however not yet been evaluated */
 	  *winner_attr_val_pos = ADCL_ATTR_NOT_SET;
-	  goto exit;
+	  return 0;
 	}
 	count++;
     }
@@ -406,13 +403,10 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
     ** Assuming that the data is filtered at this point already, 
     ** and the global max per series has been determined 
     */
-    ADCL_statistics_get_winner_v3 ( tmp_stats, count, winner );
+    ADCL_statistics_get_winner_v3 ( tmp_stats, count, &winner );
     *winner_attr_val     = ADCL_function_get_attrval ( tmp_funcs[winner], attr_pos );
     *winner_attr_val_pos = ADCL_attribute_get_pos ( attr, *winner_attr_val );
 
- exit:
-    free ( tmp_stats );
-    free ( tmp_funcs );
     return count;
 }
 
@@ -422,10 +416,20 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
 
 int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
 {
-    int i, loop, ret, done=0;
-    int *attrval_list=NULL;
+    int i, loop, ret, winner_attr_val_pos, winner_attr_val, done=0;
+    int maxdim, *attrval_list=NULL;
     ADCL_hypothesis_t *hypo=&(e->em_hypo);
-    ADCL_attrset_t *attrset=&(e->em_fnctset.fs_attrset);
+    ADCL_attrset_t *attrset=e->em_fnctset.fs_attrset;
+
+    ADCL_statistics_t **tmp_stats;
+    ADCL_function_t **tmp_funcs;
+
+    maxdim = get_max_attr_vals ( attrset );
+    tmp_stats = (ADCL_statistics_t **) malloc ( maxdim * sizeof (ADCL_statistics_t *));
+    tmp_funcs = (ADCL_function_t **) malloc ( maxdim * sizeof (ADCL_function_t *));
+    if ( NULL == tmp_stats || NULL == tmp_funcs ) {
+	return ADCL_NO_MEMORY;
+    }
 
     /* Reset the confidence values to 0 and all performance 
        hypothesis to NOT SET for all attributes */
@@ -446,12 +450,13 @@ int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
 	if ( ADCL_SUCCESS != ret ) {
 	  break;
 	}
-	ADCL_hypothesis_eval_one_attr ( e, e->em_fnctset->fs_attrset->as_maxnum, 
+	ADCL_hypothesis_eval_one_attr ( e, attrset->as_maxnum, 
 					attrval_list, attrset->as_attrs[loop], loop, 
-					attrset->as_attrs[loop]->a_maxnum, 
-					&winner_attr_val_pos, &winner_attr_val );
+					attrset->as_attrs[loop]->a_maxnvalues, 
+					&winner_attr_val_pos, &winner_attr_val, 
+					tmp_stats, tmp_funcs );
 	if ( winner_attr_val_pos != ADCL_ATTR_NOT_SET ) {
-	  ADCL_hypothesis_set ( e, pos, winner_attr_val );
+	  ADCL_hypothesis_set ( e, loop, winner_attr_val );
 	}
       }
     }
@@ -464,7 +469,54 @@ int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
       }
     }
 
+    free ( tmp_stats );
+    free ( tmp_funcs );
     return ADCL_SUCCESS;
 }
 
+static int next_attr_combination_excluding_active_attr ( ADCL_attrset_t *attrset, 
+							 int *attr_val_list, 
+							 int active_attr_pos )
+{
+    int i, ret=ADCL_SUCCESS;
+    int thisval, thispos;
+    ADCL_attribute_t *thisattr;
+
+    for ( i = 0; i < attrset->as_maxnum; i++ ) {
+	if ( i == active_attr_pos ) {
+	    continue;
+	}
+
+	thisval = attr_val_list[i];
+	
+	if ( thisval < attrset->as_attrs_maxval[i] ) {
+	    attr_val_list[i] = ADCL_attribute_get_nextval (attrset->as_attrs[i], 
+							   attr_val_list[i]);
+	    return ret;
+	}
+	else if ( thisval == attrset->as_attrs_maxval[i] ){
+	    attr_val_list[i] = attrset->as_attrs_baseval[i];
+	    ret = ADCL_ATTR_NEW_BLOCK;
+	}
+	else {
+	    /* Bug, should not happen */
+	}
+    }
+    
+    return ADCL_EVAL_DONE;
+}
+
+static int get_max_attr_vals ( ADCL_attrset_t *attrset )
+{
+    int i, max=attrset->as_attrs_numval[0] ; 
+
+    for ( i=1; i < attrset->as_maxnum; i++ ) {
+	if ( attrset->as_attrs_numval[i] > max ) {
+	    max = attrset->as_attrs_numval[i];
+	}
+    }
+
+    return max;
+}
 #endif
+

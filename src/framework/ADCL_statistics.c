@@ -207,13 +207,14 @@ int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
 int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count, 
 				    int *winner ) 
 {
+    int i;
     struct lininf tline_filtered, tline_unfiltered;
     TLINE_INIT ( tline_unfiltered );
     TLINE_INIT ( tline_filtered );
 
-    for ( i = 0; j < count; i++) {
+    for ( i = 0; i < count; i++) {
 #if 0
-	ADCL_printf("#%d: %lf %lf %lf\n", i, statistics[i]->s_gpts[0], 
+	ADCL_printf("#%d %lf %lf %lf\n", i, statistics[i]->s_gpts[0], 
 		    statistics[i]->s_gpts[1], statistics[i]->s_gpts[2]);
 #endif
 	TLINE_MIN ( tline_unfiltered, statistics[i]->s_gpts[0],  i );
@@ -222,11 +223,11 @@ int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count,
 
     if ( statistics[tline_filtered.minloc]->s_gpts[2] < ADCL_OUTLIER_FRACTION){
         *winner = tline_filtered.minloc;
-	ADCL_printf("#%d: winner is %d (filtered) \n", rank, *winner);
+	ADCL_printf("# winner is %d (filtered) \n", *winner);
     }
     else {
         *winner = tline_unfiltered.minloc;
-	ADCL_printf("#%d: winner is %d (unfiltered) \n",  rank, *winner );
+	ADCL_printf("# winner is %d (unfiltered) \n",   *winner );
     }
 
     return ADCL_SUCCESS;
