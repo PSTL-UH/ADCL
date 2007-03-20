@@ -27,9 +27,15 @@ int ADCL_Papi_leave ( ADCL_Papi papi )
 
 int ADCL_Papi_free ( ADCL_Papi *papi)
 {
-    if ( NULL == papi ) {
+    ADCL_papi_t *ppapi = *papi;
+
+    if ( NULL == papi  ) {
+	return ADCL_INVALID_ARG;
+    }
+    if ( ppapi->t_id < 0 ) {
 	return ADCL_INVALID_PAPI;
     }
+
     return ADCL_papi_free (papi);
 }
 
