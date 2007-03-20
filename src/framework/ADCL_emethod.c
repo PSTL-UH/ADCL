@@ -385,8 +385,15 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     }
 
     if ( e->em_perfhypothesis ) {
+#ifdef V3
+	ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1, e->em_topo->t_rank );
+#endif
 	if ( hypo->h_num_avail_meas == hypo->h_num_required_meas ) {
+#ifdef V3
+	    ADCL_hypothesis_eval_v3 ( e );
+#else
 	    ADCL_hypothesis_eval_v2 ( e );
+#endif
 	}
 
 	for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){

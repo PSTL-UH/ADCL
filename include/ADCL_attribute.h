@@ -24,6 +24,9 @@ int ADCL_attribute_create ( int maxnvalues, int *array_of_values,
 int ADCL_attribute_free   ( ADCL_attribute_t **attribute);
 int ADCL_attribute_dup ( ADCL_attribute_t *org, ADCL_attribute_t **copy );
 int ADCL_attribute_get_nextval ( ADCL_attribute_t *attr, int val );
+int ADCL_attribute_get_val ( ADCL_attribute_t *attr, int attrval_pos );
+int ADCL_attribute_get_pos ( ADCL_attribute_t *attr, int attrval ); 
+ 
 
 struct ADCL_attrset_s{
     int                   as_id; /* id of the object */

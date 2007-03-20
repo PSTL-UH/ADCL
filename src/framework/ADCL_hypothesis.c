@@ -479,8 +479,7 @@ static int next_attr_combination_excluding_active_attr ( ADCL_attrset_t *attrset
 							 int active_attr_pos )
 {
     int i, ret=ADCL_SUCCESS;
-    int thisval, thispos;
-    ADCL_attribute_t *thisattr;
+    int thisval;
 
     for ( i = 0; i < attrset->as_maxnum; i++ ) {
 	if ( i == active_attr_pos ) {
