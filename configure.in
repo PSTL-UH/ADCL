@@ -174,11 +174,11 @@ dnl ==================================================
     papi_dir="${withval}", papi_dir="")
     if test "x$papi_dir" = "x" ; then 
        papi_dir=$PWD
-       adcl_papi_o = ""
-       adcl_Papi_o = ""
+       adcl_papi_o=""
+       adcl_Papi_o=""
     else
-       adcl_papi_o = "ADCL_papi.o"
-       adcl_Papi_o = "ADCL_Papi.o"	       
+       adcl_papi_o="ADCL_papi.o"
+       adcl_Papi_o="ADCL_Papi.o"	       
     fi
     AC_MSG_RESULT(${papi_dir})
   dnl ==================================================	
