@@ -25,6 +25,7 @@
 /* Dump printf statements to a file? */
 #undef ADCL_FILE_PER_PROC 
 
+#undef ADCL_PAPI 
 
 
 #endif

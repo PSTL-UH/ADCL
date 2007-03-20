@@ -3782,6 +3782,10 @@ echo $ECHO_N "checking whether to enable the usage of papi... $ECHO_C" >&6; }
 echo "${ECHO_T}${ADCL_PAPI}" >&6; }
 
 if test "$ADCL_PAPI" = "yes" ; then
+   cat >>confdefs.h <<\_ACEOF
+#define ADCL_PAPI 1
+_ACEOF
+
 
   { echo "$as_me:$LINENO: checking for PAPI main directory" >&5
 echo $ECHO_N "checking for PAPI main directory... $ECHO_C" >&6; }
@@ -3869,10 +3873,6 @@ echo "${ECHO_T}${papi_lib_name}" >&6; }
    adcl_papi_ld_flag="-L${papi_lib_dir} -l${papi_lib_name}"
 
 fi
-
-cat >>confdefs.h <<\_ACEOF
-#define ADCL_PAPI 1
-_ACEOF
 
 
 

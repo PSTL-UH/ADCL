@@ -166,6 +166,7 @@ AC_MSG_CHECKING([whether to enable the usage of papi])
 AC_MSG_RESULT(${ADCL_PAPI})
 
 if test "$ADCL_PAPI" = "yes" ; then 
+   AC_DEFINE(ADCL_PAPI)
 
 dnl ==================================================
   AC_MSG_CHECKING(for PAPI main directory)
@@ -229,7 +230,6 @@ dnl ==================================================
 
 fi
 
-AC_DEFINE(ADCL_PAPI)
 AC_SUBST(adcl_papi_inc_flag)
 AC_SUBST(adcl_papi_ld_flag)
 AC_SUBST(adcl_papi_o)
