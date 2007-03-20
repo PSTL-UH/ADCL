@@ -9,8 +9,6 @@
         integer NIT, i, rank, size, ierror
         external test_func1, test_func2, test_func3
 
-        external test_fun1, test_fun2, test_fun3
-
         NIT = 200
 
         call MPI_Init ( ierror )
@@ -19,11 +17,11 @@
 
         call ADCL_Init ( ierror )
 
-        call ADCL_Function_create ( test_fun1, ADCL_ATTRSET_NULL, 0, &
+        call ADCL_Function_create ( test_func1, ADCL_ATTRSET_NULL, 0, &
              "test_fun1", funcs(1), ierror ) 
-        call ADCL_Function_create ( test_fun2, ADCL_ATTRSET_NULL, 0, &
+        call ADCL_Function_create ( test_func2, ADCL_ATTRSET_NULL, 0, &
              "test_fun2", funcs(2), ierror ) 
-        call ADCL_Function_create ( test_fun3, ADCL_ATTRSET_NULL, 0, &
+        call ADCL_Function_create ( test_func3, ADCL_ATTRSET_NULL, 0, &
              "test_fun3", funcs(3), ierror ) 
         
         
@@ -58,7 +56,6 @@
         include 'ADCL.inc'
 
         integer request
-        integer comm, tag, i, rank, size, ierror, TopoType
         integer comm, rank, size, ierror
 
 
@@ -74,7 +71,6 @@
         include 'ADCL.inc'
 
         integer request
-        integer comm, tag, i, rank, size, ierror, TopoType
         integer comm, rank, size, ierror
 
         call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
@@ -88,7 +84,6 @@
         include 'ADCL.inc'
 
         integer request
-        integer comm, tag, i, rank, size, ierror, TopoType
         integer comm, rank, size, ierror
 
         call ADCL_Request_get_comm ( request, comm, rank, size, ierror )

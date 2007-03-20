@@ -52,7 +52,7 @@ three-dim-f: three-dim-f.f90
 three-dim-large: three-dim-large.f90
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/three-dim-large three-dim-large.f90 $(FLDFLAGS)
 
-test-fnctset-noattrs_f: System_module.f90 test-fnctset-noattrs_f.f90 	
+test-fnctset-noattrs_f:  test-fnctset-noattrs_f.f90 	
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-noattrs_f test-fnctset-noattrs_f.f90 $(FLDFLAGS)
 
 clean:
