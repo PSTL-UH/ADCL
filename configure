@@ -3833,7 +3833,7 @@ else
 fi
 
     if test "x$papi_lib_dir" = "x" ; then
-       papi_lib_dir=${papi_dir}/lib
+       papi_lib_dir=${papi_dir}/lib64
     fi
     { echo "$as_me:$LINENO: result: ${papi_lib_dir}" >&5
 echo "${ECHO_T}${papi_lib_dir}" >&6; }
