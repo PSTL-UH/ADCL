@@ -1,6 +1,84 @@
 \section{Functions and Function-sets}
 
-An {\tt ADCL\_Function} is the equivalent to an actual implementation of a particular communication pattern. An ADCL Function can have an attribute-set attached to it, in which case the values for each of the attributes in the attribute-set for this particular function have to be defined.
-
+An {\tt ADCL\_Function} is the equivalent to an actual implementation of a particular communication pattern. An ADCL Function can have an attribute-set attached to it, in which case the values for each of the attributes in the attribute-set for this particular function have to be defined. A user can however also decide not to attach an attribute-set to a function by passing in {\tt ADCL\_ATTRSET\_NULL} at the particular argument.
 
 An {\tt ADCL\_Fnctset} is a collection of ADCL functions providing the same functionality. All Functions in a function-set have to have the same attribute-set. ADCL provides pre-defined function sets, such as for neighborhood communication ({\tt ADCL\_FNCTSET\_NEIGHBORHOOD}) or for shift operations ({\tt ADCL\_FNCTSET\_SHIFT}). The user can however also register its own functions in order to utilize the ADCL runtime selection logic.
+
+\begin{verbatim}
+typedef void ADCL_work_fnct_ptr ( ADCL_Request req );
+int ADCL_Function_create ( ADCL_work_fnct_ptr *fnctp, ADCL_Attrset attrset, 
+				 int *array_of_attrvalues,  char *name, ADCL_Function *fnct);
+
+
+subroutine ADCL_Function_create ( fnctp, attrset, array_of_attrvalues, name, 
+	                                fnct, ierror )
+external fnctp
+integer attrset, fnct, ierror
+integer array_of_attrvalues(*)
+char name (*)	                                
+
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt fnctp}(IN): function pointer to the actual implementation. The prototype has
+     to be of type {\tt ADCL\_work\_fnct\_ptr}.
+\item {\tt attrset}(IN): valid ADCL attribute-set handle, or {\tt ADCL\_ATTRSET\_NULL}
+\item {\tt array\_of\_attrvalues}(IN): if an attribute-set has been specified, this array of
+ integers has to provide the values for each attribute in the attribute-set. 
+\item {\tt name}(IN): name for the function. The maximum length of the character string has to be 
+  {\tt ADCL\_MAX\_NAMELEN}. It is legal to not pass in a NULL pointer instead of a string.
+\item {\tt fnct}(OUT): handle to the ADCL function object.
+\end{itemize}
+
+\begin{verbatim}
+int ADCL_Function_create_async ( ADCL_work_fnct_ptr *init_fnct, 
+				 ADCL_work_fnct_ptr *wait_fnct, 
+				 ADCL_Attrset attrset, 
+				 int *array_of_attrvalues, char *name,  
+				 ADCL_Function *fnct);
+
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt init\_fnct}(IN): function pointer to the actual implementation of the initiation function. The prototype has
+     to be of type {\tt ADCL\_work\_fnct\_ptr}.
+\item {\tt wait\_fnct}(IN): function pointer to the actual implementation of the completion function. The prototype has
+     to be of type {\tt ADCL\_work\_fnct\_ptr}.
+\item {\tt attrset}(IN): valid ADCL attribute-set handle, or {\tt ADCL\_ATTRSET\_NULL}
+\item {\tt array\_of\_attrvalues}(IN): if an attribute-set has been specified, this array of
+ integers has to provide the values for each attribute in the attribute-set. 
+\item {\tt name}(IN): name for the function. The maximum length of the character string has to be 
+  {\tt ADCL\_MAX\_NAMELEN}. It is legal to not pass in a NULL pointer instead of a string.
+\item {\tt fnct}(OUT): handle to the ADCL function object.
+\end{itemize}
+
+
+\begin{verbatim}
+int ADCL_Function_free  ADCL_Function *fnct );
+
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt fnct}(INOUT): valid handle to an ADCL function. Upon return, the handle is set to {\tt ADCL\_FUNCTION\_NULL}
+\end{itemize}
+
+
+\begin{verbatim}
+int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name, 
+			  ADCL_Fnctset *fnctset );
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt maxnum}(IN):
+\item {\tt fncts}(IN):
+\item {\tt name}(IN):
+\item {\tt fnctset}(OUT):
+\end{itemize}
+
+\begin{verbatim}
+int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt fnctset}(INOUT):
+\end{itemize}
