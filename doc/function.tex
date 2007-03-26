@@ -1,0 +1,6 @@
+\section{Functions and Function-sets}
+
+An {\tt ADCL\_Function} is the equivalent to an actual implementation of a particular communication pattern. An ADCL Function can have an attribute-set attached to it, in which case the values for each of the attributes in the attribute-set for this particular function have to be defined.
+
+
+An {\tt ADCL\_Fnctset} is a collection of ADCL functions providing the same functionality. All Functions in a function-set have to have the same attribute-set. ADCL provides pre-defined function sets, such as for neighborhood communication ({\tt ADCL\_FNCTSET\_NEIGHBORHOOD}) or for shift operations ({\tt ADCL\_FNCTSET\_SHIFT}). The user can however also register its own functions in order to utilize the ADCL runtime selection logic.

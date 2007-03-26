@@ -1,0 +1,25 @@
+\section{Environmental control functions}
+
+This section discusses the general functions required to establish the ADCL environment and to shut it down.
+All ADCL functions return error codes, it is up to the application to take the appropriate actions, the library does not abort in case of an internal error such as system exhaustion. The only exception to that rule is if an error occurs within an MPI function called by ADCL, since MPI's default error behavior is to abort in case of an error. In case the user would like to have an MPI error code in this case, the default error handler to {\tt MPI\_COMM\_WORLD} has to be set to {\tt MPI\_ERRORS\_RETURN}. See also section x.z in the MPI-1 specification.
+
+\subsection{Initializing ADCL}
+\begin{verbatim}
+
+int ADCL_Init ( void );
+subroutine ADCL_Init ()
+
+\end{verbatim}
+
+{\tt ADCL\_Init} initializes the ADCL execution environment. The function allocates internal data structures required for ADCL, and has to be therefore called before any other ADCL function. Upon success, ADCL returns {\tt ADCL\_SUCCESS}. It is recommended to call {\tt ADCL\_Init) right after {\tt MPI\_Init}. It is erroneous to call {\tt ADCL\_Init} multiple times.
+
+\subsection{Shutting down ADCL}
+
+\begin{verbatim}
+
+int ADCL_Finalize ( void );
+subroutine ADCL_Finalize ();
+
+\end{verbatim}
+
+{\tt ADCL\_Finalize} deallocates internal data structures. Since the function deallocates internal structures and since the function does not check for ongoing communication, the function should be called at the very end of the application, but before {\tt MPI\_Finalize}. It is erroneous to call {\tt ADCL\_Finalize} multiple times.
