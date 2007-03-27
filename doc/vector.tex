@@ -1,3 +1,157 @@
 \section{Vectors and Vector-sets}
 
 An {\tt ADCL\_Vectors} specifies the data structures to be used during the communication and the actual data. The user can for example {\it register} a data structure such as a vector or a matrix with the ADCL library, detailing how many dimensions the object has, the extent of each dimension, the number of halo-cells, the basic datatype of the object, and the pointer to the data array of the object.
+
+ADCL distinguishes between allocating a vector and registering a vector. The difference is, that in the first case, the library allocates the memory for the object as specified by the user, while in the second case the memory has to be allocated by the application. 
+
+\begin{verbatim}
+int ADCL_Vector_allocate ( int ndims, int *dims, int nc, 
+    int hwidth, MPI_Datatype dat, void *data, 
+    ADCL_Vector *vec );
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt ndims}(IN): number of dimension of the data structure excluding the {\tt nc} argument detailed below.
+\item {\tt dims}(IN): array of dimension {\tt ndims} containing the extent of each dimension including the halo-cells.
+\item {\tt nc}(IN): number of elements per entry. Since many scientific codes have matrices where each entry of the 
+	matrix is a submatrix itself, this argument gives the possibility to specify the dimension of the submatrix.
+\item {\tt hwidth}(IN): number of halo-cells included in the data structure.
+\item {\tt dat}(IN): basic MPI datatype describing the data type of the matrix
+\item {\tt data}(OUT): pointer to the buffer allocated. This pointer will be required for calculations within the user code, since the buffer has been allocated by ADCL. ADCL guarantees, that a contiguous memory location has been allocated for multi-dimensional arrays. Please note, that the buffer pointer is {\bf not} the beginning of the data array, but the pointer to the multi-dimensional matrix itself. As an example if {\tt ndims}=2 and the temporary variable used within ADCL to allocate the 2-D array is called {\tt tmp\_matrix}, then the buffer pointer returned in this argument is {\tt data = tmp\_matrix},  which is not equal to {\tt data = \&(tmp\_matrix[0][0])} in C!
+\item {\tt vec}(OUT): handle to ADCL vector object.
+\end{itemize}
+There is no Fortran interface defined for this routine. For a discussion, why no Fortran interface is provided for this routine, please refer to the discussion of {\tt MPI\_Alloc\_mem} in the MPI-2 specification section x.y.
+
+\hspace{1cm}
+\begin{verbatim}
+int ADCL_Vector_register ( int ndims, int *dims, int nc, 
+    int hwidth, MPI_Datatype dat, void *data, 
+    ADCL_Vector *vec );
+
+
+subroutine ADCL_Vector_register ( ndims,  dims, nc, 
+    hwidth, dat, data, vec, ierror )
+integer ndims, nc, hwidth, dat, vec, ierror
+integer dims(*)
+TYPE data(*)
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt ndims}(IN): number of dimension of the data structure excluding the {\tt nc} argument detailed below.
+\item {\tt dims}(IN): array of dimension {\tt ndims} containing the extent of each dimension including the halo-cells.
+\item {\tt nc}(IN): number of elements per entry. Since many scientific codes have matrices where each entry of the 
+	matrix is a submatrix itself, this argument gives the possibility to specify the dimension of the submatrix.
+\item {\tt hwidth}(IN): number of halo-cells included in the data structure.
+\item {\tt dat}(IN): basic MPI datatype describing the data type of the matrix
+\item {\tt data}(IN): pointer to the data array. Please note, that the buffer pointer has to be the pointer to the multi-dimensional matrix itself, and {\bf not} the beginning of the data array. As an example if {\tt ndims}=2 and the variable used within application is defined as {\tt double tmp\_matrix[10][10]}, the buffer pointer passed to ADCL has to be {\tt tmp\_matrix}, which is not equal to {\tt \&(tmp\_matrix[0][0])} in C!
+\item {\tt vec}(OUT): handle to ADCL vector object.
+\end{itemize}
+
+\hspace{1cm}
+
+\begin{verbatim}
+int ADCL_Vector_free ( ADCL_Vector *vec );
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt vec}(INOUT): handle to the vector object allocated with {\tt ADCL\_Vector\-\_allocate}. It is illegal to call 
+ this function with a vector object registered with {\tt ADCL\_Vector\_register}. Upon successful completion, the handle will be set to {\tt ADCL\_VECTOR\_NULL}.
+\end{itemize}
+There is no Fortran interface defined for this routine. For a discussion, why no Fortran interface is provided for this routine, please refer to the discussion of {\tt MPI\_Alloc\_mem} in the MPI-2 specification section x.y.
+\hspace{1cm}
+
+\begin{verbatim}
+int ADCL_Vector_deregister ( ADCL_Vector *vec );
+
+subroutine ADCL_Vector_deregister ( vec, ierror )
+integer vec, ierror
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt vec}(INOUT): handle to the vector object registered with {\tt ADCL\_Vector\-\_register}. It is illegal to call 
+ this function with a vector object allocated with {\tt ADCL\_Vector\_allocate}. Upon successful completion, the handle will be set to {\tt ADCL\_VECTOR\_NULL}.
+\end{itemize}
+
+\subsection{Examples}
+In the following we show three examples on how to allocate or register ADCL vector objects. The first example allocates a 2-D vector object, assuming that the entries of the matrix are {\bf not } submatrices.
+
+\begin{verbatim}
+#include <stdio.h>
+#include "ADCL.h"
+#include "mpi.h"
+
+/* Dimensions of the data matrix per process */
+#define DIM0  8
+#define DIM1  4
+
+int main ( int argc, char ** argv ) 
+{
+    int dims[2];
+    int hwidth=1;
+    double **data;
+    ADCL_Vector vec;
+    
+    MPI_Init ( &argc, &argv );
+    ADCL_Init ();
+    
+    dims[0] = DIM0 + 2*hwidth;
+    dims[1] = DIM1 + 2*hwidth;
+    ADCL_Vector_allocate ( 2,  dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
+    
+    /* now you can access the elements of the vector in order to perform 
+       computations, e.g */
+    for ( i=1; i<DIM0; i++ ) {
+       for ( j=1; j<DIM1; j++) {
+         data[i][j] = ...
+       }
+    }
+    
+    ADCL_Vector_free ( &vec );        
+    ADCL_Finalize ();
+    MPI_Finalize ();
+    return 0;
+}
+\end{verbatim}
+
+The second example assumes, that the each entry of this vector contains of five elements. The difference between 
+allocating/registering a two-dimensional matrix using the {\tt nc} argument still matches a 2-D process topology, while allocating/registering as a three-dimensional matrix setting the {\tt nc} argument to zero matches a 3-D process topology. Thus, setting the {\tt nc} argument  to a non-negative, non-zero value is equivalent to a data decomposition of one dimension lower than the data object, where the last dimension is not distributed across the processes. Please note in the example below the change in the dimension of the {\tt data} matrix.
+
+\begin{verbatim}
+#include <stdio.h>
+#include "ADCL.h"
+#include "mpi.h"
+
+/* Dimensions of the data matrix per process */
+#define DIM0  8
+#define DIM1  4
+
+int main ( int argc, char ** argv ) 
+{
+    int dims[2];
+    int nc=5, hwidth=1;
+    double ***data;
+    ADCL_Vector vec;
+    
+    MPI_Init ( &argc, &argv );
+    ADCL_Init ();
+    
+    dims[0] = DIM0 + 2*hwidth;
+    dims[1] = DIM1 + 2*hwidth;
+    ADCL_Vector_allocate ( 2,  dims, nc, hwidth, MPI_DOUBLE, &data, &vec );
+    
+    /* now you can access the elements of the vector in order to perform 
+       computations, e.g */
+    for ( i=1; i<DIM0; i++ ) {
+       for ( j=1; j<DIM1; j++) {
+         for ( k=0; k < nc; k++ ) {
+           data[i][j][k] = ...
+       }
+    }
+    
+    ADCL_Vector_free ( &vec );        
+    ADCL_Finalize ();
+    MPI_Finalize ();
+    return 0;
+}
+\end{verbatim}
+

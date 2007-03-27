@@ -15,7 +15,7 @@ integer ierror
 
 \end{verbatim}
 
-{\tt ADCL\_Init} initializes the ADCL execution environment. The function allocates internal data structures required for ADCL, and has to be therefore called before any other ADCL function. Upon success, ADCL returns {\tt ADCL\_SUCCESS}. It is recommended to call {\tt ADCL\_Init) right after {\tt MPI\_Init}. It is erroneous to call {\tt ADCL\_Init} multiple times.
+{\tt ADCL\_Init} initializes the ADCL execution environment. The function allocates internal data structures required for ADCL, and has to be therefore called before any other ADCL function. Upon success, ADCL returns {\tt ADCL\_SUCCESS}. It is recommended to call {\tt ADCL\_Init} right after {\tt MPI\_Init}. It is erroneous to call {\tt ADCL\_Init} multiple times.
 
 \subsection{Shutting down ADCL}
 
@@ -65,3 +65,35 @@ program ADCLskeleton
    call MPI_Finalize ( ierror )
 end program ADCLskeleton
 \end{verbatim}
+
+\subsection{ADCL error codes}
+
+The following is a list of error codes as defined by ADCL.
+
+\begin{itemize}
+\item {\tt ADCL\_SUCCESS} : no error
+\item {\tt ADCL\_NO\_MEMORY}: internal memory allocation failed
+\item {\tt ADCL\_ERROR\_INTERNAL} : internal ADCL error
+\item {\tt ADCL\_USER\_ERROR}: generic user error
+\item {\tt ADCL\_UNDEFINED}: undefined behavior
+\item {\tt ADCL\_NOT\_FOUND} : object not found
+
+\item {\tt ADCL\_INVALID\_ARG} : invalid argument passed by user to an ADCL function. Generic error code, only used if one of the codes below do not match.
+\item {\tt ADCL\_INVALID\_NDIMS} : invalid number of dimension passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_DIMS} : invalid dimension passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_HWIDTH} : invalid number of halo-cells passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_DAT}: invalid MPI datatype passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_DATA}: invalid buffer pointer passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_COMM}: invalid MPI communicator passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_REQUEST}: invalid ADCL request passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_NC} : invalid NC argument passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_TYPE}: ?
+\item {\tt ADCL\_INVALID\_TOPOLOGY}: invalid ADCL topology passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_ATTRIBUTE}: invalid ADCL attribute passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_ATTRSET}: invalid ADCL attribute-set passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_FUNCTION}: invalid ADCL function passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_WORK\_FUNCTION\_PTR}: invalid ADCL function pointer passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_FNCTSET}: invalid ADCL function-set passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_VECTOR}: invalid ADCL vector passed by user to an ADCL function.
+\item {\tt ADCL\_INVALID\_DIRECTION}: invalid direction argument passed by user to an ADCL function.
+\end{itemize}

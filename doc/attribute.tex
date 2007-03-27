@@ -7,7 +7,8 @@ In the following, we present the constructors and destructors for both ADCL obje
 int ADCL_Attribute_create ( int maxnvalues, int *array_of_values, 
 			    ADCL_Attribute *attr );
 
-subroutine ADCL_Attribute_create ( maxnvalues, array_of_values, attr, ierror )
+subroutine ADCL_Attribute_create ( maxnvalues, array_of_values, 
+          attr, ierror )
 integer maxnvalues, attr, ierr
 integer array_of_values (*)
 \end{verbatim}
@@ -20,7 +21,7 @@ with
 \item {\tt attr}(OUT): handle to the attribute object
 \end{itemize} 	
 
-
+\hspace{1cm}
 \begin{verbatim}
 int ADCL_Attribute_free   ( ADCL_Attribute *attr );
 
@@ -34,23 +35,24 @@ with
 \end{itemize}
 
 
-
+\hspace{1cm}
 \begin{verbatim}
-int ADCL_Attrset_create ( int maxnum, ADCL_Attribute *array_of_attributes, 
-			    ADCL_Attrset *attrset );
+int ADCL_Attrset_create ( int maxnum, 
+     ADCL_Attribute *array_of_attrs, ADCL_Attrset *attrset );
 
-subroutine ADCL_Attrset_create ( maxnum, array_of_attributes, attrset, ierror )
+subroutine ADCL_Attrset_create ( maxnum, array_of_attrs, 
+     attrset, ierror )
 integer maxnum, attrset, ierror
-integer array_of_attributes (*)
+integer array_of_attrs (*)
 \end{verbatim}
 with
 \begin{itemize}
 \item {\tt maxnum}(IN): number of attributes to be grouped
-\item {\tt array\_of\_attributes}(IN): array of attributes. Each entry of the array has to be a 
+\item {\tt array\_of\_attrs}(IN): array of attributes. Each entry of the array has to be a 
 	valid ADCL attribute created with {\tt ADCL\_Attribute\_create}.
 \item {\tt attrset}(OUT): handle to the attribute-set object
 \end{itemize}
-
+\hspace{1cm}
 \begin{verbatim}
 int ADCL_Attrset_free ( ADCL_Attrset *attrset );
 
