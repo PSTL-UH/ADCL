@@ -1,6 +1,6 @@
 \section{Attributes and Attribute-sets}
 
-An {\tt ADCL\_Attribute} is an abstraction for a particular characteristic of a function/implementation. Each attribute is represented by the set of possible values for this characteristic.  An {\tt ADCL\_Attrset} is a collection of ADCL attributes.
+An {\tt ADCL\_Attribute} is an abstraction for a particular characteristic of a function/implementation. Each attribute is represented by a set of possible values.  An {\tt ADCL\_Attrset} is a group of ADCL attributes.
 In the following, we present the constructors and destructors for both ADCL objects.
 
 \begin{verbatim}
@@ -15,9 +15,8 @@ integer array_of_values (*)
 with
 \begin{itemize}
 \item {\tt maxnvalues}(IN): number of possible values for this attribute
-\item {\tt array\_of\_values}(IN): array of possible values for this attribute. The 
-	value of an attribute is represented by an integer value. The values have to be 
-	monotony increasing. However, they do not have to be contiguous.
+\item {\tt array\_of\_values}(IN): integer array of size {\tt maxnvalues} containing the possible values for this 
+  attribute. The values in this array have to be monotony increasing. However, they do not have to be contiguous.
 \item {\tt attr}(OUT): handle to the attribute object
 \end{itemize} 	
 
@@ -48,8 +47,7 @@ integer array_of_attrs (*)
 with
 \begin{itemize}
 \item {\tt maxnum}(IN): number of attributes to be grouped
-\item {\tt array\_of\_attrs}(IN): array of attributes. Each entry of the array has to be a 
-	valid ADCL attribute created with {\tt ADCL\_Attribute\_create}.
+\item {\tt array\_of\_attrs}(IN): array of size {\tt maxnum} containing the handles to attributes. Each entry of the array has to be a valid ADCL attribute created with {\tt ADCL\_Attribute\_create}.
 \item {\tt attrset}(OUT): handle to the attribute-set object
 \end{itemize}
 \hspace{1cm}

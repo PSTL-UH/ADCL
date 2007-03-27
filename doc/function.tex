@@ -27,8 +27,8 @@ with
    object in forces ADCL to use the brute-force runtime search algorithm.
 \item {\tt array\_of\_attrvalues}(IN): if an attribute-set has been specified, this array of
  integers has to provide the values for each attribute in the attribute-set. 
-\item {\tt name}(IN): name for the function. The maximum length of the character string has to be 
-  {\tt ADCL\_MAX\_NAMELEN}. It is legal to not pass in a NULL pointer instead of a string.
+\item {\tt name}(IN): name for the function. The length of the character string can not exceed 
+   {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a NULL pointer instead of a string.
 \item {\tt fnct}(OUT): handle to the ADCL function object.
 \end{itemize}
 
@@ -56,14 +56,14 @@ with
    object in forces ADCL to use the brute-force runtime search algorithm.
 \item {\tt array\_of\_attrvalues}(IN): if an attribute-set has been specified, this array of
  integers has to provide the values for each attribute in the attribute-set. 
-\item {\tt name}(IN): name for the function. The maximum length of the character string has to be 
-  {\tt ADCL\_MAX\_NAMELEN}. It is legal to not pass in a NULL pointer instead of a string.
+\item {\tt name}(IN): name for the function. The length of the character string can not exceed 
+  {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a NULL pointer instead of a string.
 \item {\tt fnct}(OUT): handle to the ADCL function object.
 \end{itemize}
 
 \hspace{1cm}
 \begin{verbatim}
-int ADCL_Function_free  ADCL_Function *fnct );
+int ADCL_Function_free ( ADCL_Function *fnct );
 
 subroutine ADCL_Function_free ( fnct, ierror )
 integer fnct, ierror
@@ -87,9 +87,9 @@ char name (*)
 with
 \begin{itemize}
 \item {\tt maxnum}(IN): number of ADCL functions to be bundled to a function set
-\item {\tt fncts}(IN): array of ADCL functions to be bundled. All functions have to provide
+\item {\tt fncts}(IN): array of size {\tt maxnum} containing the handles to the ADCL functions. All functions have to provide
 	  the same attribute-set.
-\item {\tt name}(IN): name of the function set. It is legal to pass in a NULL pointer as a name.
+\item {\tt name}(IN): name of the function set. It is allowed to pass in a NULL pointer instead of a name. The length of the character string can not exceed {\tt ADCL\_MAX\_NAMELEN}.
 \item {\tt fnctset}(OUT): handle for the ADCL function-set.
 \end{itemize}
 

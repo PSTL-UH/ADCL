@@ -1,8 +1,6 @@
 \section{Vectors and Vector-sets}
 
-An {\tt ADCL\_Vectors} specifies the data structures to be used during the communication and the actual data. The user can for example {\it register} a data structure such as a vector or a matrix with the ADCL library, detailing how many dimensions the object has, the extent of each dimension, the number of halo-cells, the basic datatype of the object, and the pointer to the data array of the object.
-
-ADCL distinguishes between allocating a vector and registering a vector. The difference is, that in the first case, the library allocates the memory for the object as specified by the user, while in the second case the memory has to be allocated by the application. 
+An {\tt ADCL\_Vectors} specifies the data structures to be used during the communication and the actual data. ADCL distinguishes between allocating a vector and registering a vector. The difference is, that in the first case, the library allocates the memory for the object as specified by the user, while in the second case the memory has to be allocated by the application. 
 
 \begin{verbatim}
 int ADCL_Vector_allocate ( int ndims, int *dims, int nc, 
@@ -20,7 +18,7 @@ with
 \item {\tt data}(OUT): pointer to the buffer allocated. This pointer will be required for calculations within the user code, since the buffer has been allocated by ADCL. ADCL guarantees, that a contiguous memory location has been allocated for multi-dimensional arrays. Please note, that the buffer pointer is {\bf not} the beginning of the data array, but the pointer to the multi-dimensional matrix itself. As an example if {\tt ndims}=2 and the temporary variable used within ADCL to allocate the 2-D array is called {\tt tmp\_matrix}, then the buffer pointer returned in this argument is {\tt data = tmp\_matrix},  which is not equal to {\tt data = \&(tmp\_matrix[0][0])} in C!
 \item {\tt vec}(OUT): handle to ADCL vector object.
 \end{itemize}
-There is no Fortran interface defined for this routine. For a discussion, why no Fortran interface is provided for this routine, please refer to the discussion of {\tt MPI\_Alloc\_mem} in the MPI-2 specification section x.y.
+There is no Fortran interface defined for this routine. For a discussion, why no Fortran interface is provided for this routine, please refer to the discussion of {\tt MPI\_Alloc\_mem} in the MPI-2~\cite{mpi2} specification section 4.1.1.
 
 \hspace{1cm}
 \begin{verbatim}
@@ -57,7 +55,7 @@ with
 \item {\tt vec}(INOUT): handle to the vector object allocated with {\tt ADCL\_Vector\-\_allocate}. It is illegal to call 
  this function with a vector object registered with {\tt ADCL\_Vector\_register}. Upon successful completion, the handle will be set to {\tt ADCL\_VECTOR\_NULL}.
 \end{itemize}
-There is no Fortran interface defined for this routine. For a discussion, why no Fortran interface is provided for this routine, please refer to the discussion of {\tt MPI\_Alloc\_mem} in the MPI-2 specification section x.y.
+There is no Fortran interface defined for this routine. For a discussion, why no Fortran interface is provided for this routine, please refer to the discussion of {\tt MPI\_Alloc\_mem} in the MPI-2~\cite{mpi2} specification section 4.1.1.
 \hspace{1cm}
 
 \begin{verbatim}
@@ -113,8 +111,8 @@ int main ( int argc, char ** argv )
 }
 \end{verbatim}
 
-The second example assumes, that the each entry of this vector contains of five elements. The difference between 
-allocating/registering a two-dimensional matrix using the {\tt nc} argument still matches a 2-D process topology, while allocating/registering as a three-dimensional matrix setting the {\tt nc} argument to zero matches a 3-D process topology. Thus, setting the {\tt nc} argument  to a non-negative, non-zero value is equivalent to a data decomposition of one dimension lower than the data object, where the last dimension is not distributed across the processes. Please note in the example below the change in the dimension of the {\tt data} matrix.
+The second example assumes, that each entry of this matrix contains of a vector with five elements. The difference between 
+allocating/registering a two-dimensional matrix using the {\tt nc} argument and allocating/registering a three-dimensional matrix setting the {\tt nc} argument to zero is, that the first approach  matches a 2-D process topology, while  the second approach matches a 3-D process topology. Thus, setting the {\tt nc} argument  to a non-negative, non-zero value is equivalent to a data decomposition of one dimension lower than the data object, where the last dimension is not distributed across the processes. Please note in the example below the change in the dimension of the {\tt data} matrix.
 
 \begin{verbatim}
 #include <stdio.h>
@@ -155,3 +153,4 @@ int main ( int argc, char ** argv )
 }
 \end{verbatim}
 
+Definitions of Vector-sets to follow.
