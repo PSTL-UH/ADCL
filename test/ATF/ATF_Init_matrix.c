@@ -159,9 +159,9 @@ int ATF_Init_matrix(int px, int py, int pz)
     ADCL_Topology_create( ADCL_Cart_comm, &ADCL_topo );
     
     /*Generate now the ADC_Request object for dq*/
-    ADCL_Request_create( adcl_Vec_dq, ADCL_topo, &adcl_Req_dq );
-    ADCL_Request_create( adcl_Vec_loes, ADCL_topo, &adcl_Req_loes );
-    ADCL_Request_create( adcl_Vec_rhs, ADCL_topo, &adcl_Req_rhs );
+    ADCL_Request_create( adcl_Vec_dq, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_dq );
+    ADCL_Request_create( adcl_Vec_loes, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_loes );
+    ADCL_Request_create( adcl_Vec_rhs, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_rhs );
       
     /* Initiate timing variables */
     ATF_solv_ende   = 0.0 ;

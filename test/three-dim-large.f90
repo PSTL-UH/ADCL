@@ -41,7 +41,8 @@
         nc     = 1
         call ADCL_Vector_register ( 3, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
                                     data2, vec, ierror)
-        call ADCL_Request_create ( vec, topo, request, ierror )
+        call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
+             request, ierror )
 
         call set_data_4D ( data2, rank, dims, hwidth, nc ) 
 

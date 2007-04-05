@@ -54,7 +54,7 @@ int main ( int argc, char ** argv )
 
     /* Match the data type description and the process topology 
        to each other */
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
 
     /* Initiate matrix to zero including halo-cells */
     matrix_init ( dims, cdims, matrix, cart_comm );

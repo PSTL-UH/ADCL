@@ -44,14 +44,15 @@
                                cart_comm, ierror )
         call ADCL_Topology_create ( cart_comm, topo, ierror )
 
-        call ADCL_Request_create ( vec, topo, request, ierror )
+        call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
+             request, ierror )
 
         call init_matrix ( dims, data, cdims, cart_comm )
 !        do i=0, NIT 
            call ADCL_Request_start( request, ierror )
 !        end do
 
-        call dump_matrix ( dims, data, "After the communication", cart_comm )
+!        call dump_matrix ( dims, data, "After the communication", cart_comm )
 
         call ADCL_Request_free ( request, ierror )
         call ADCL_Topology_free ( topo, ierror )

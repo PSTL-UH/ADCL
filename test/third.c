@@ -31,9 +31,9 @@ int main ( int argc, char ** argv )
     MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, &cart_comm);
     ADCL_Topology_create ( cart_comm, &topo );
 
-    ADCL_Request_create ( vec1, topo, &request1 );
-    ADCL_Request_create ( vec2, topo, &request2 );
-    ADCL_Request_create ( vec3, topo, &request3 );
+    ADCL_Request_create ( vec1, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request1 );
+    ADCL_Request_create ( vec2, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request2 );
+    ADCL_Request_create ( vec3, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request3 );
 
     for ( i=0; i<NIT; i++ ) {
 	ADCL_Request_start( request1 );

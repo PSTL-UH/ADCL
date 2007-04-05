@@ -141,24 +141,20 @@ void ADCL_TOPOLOGY_FREE   (int *topo, int *ierror);
 
 /* ADCL Request functions */
 
-void adcl_request_create   ( int *vec, int *topo, int *req, int *ierror ); 
-void adcl_request_create_  ( int *vec, int *topo, int *req, int *ierror ); 
-void adcl_request_create__ ( int *vec, int *topo, int *req, int *ierror ); 
-void ADCL_REQUEST_CREATE   ( int *vec, int *topo, int *req, int *ierror ); 
+void adcl_request_create   ( int *vec, int *topo, int *fnctset, int *req, int *ierror ); 
+void adcl_request_create_  ( int *vec, int *topo, int *fnctset, int *req, int *ierror ); 
+void adcl_request_create__ ( int *vec, int *topo, int *fnctset, int *req, int *ierror ); 
+void ADCL_REQUEST_CREATE   ( int *vec, int *topo, int *fnctset, int *req, int *ierror ); 
 
-void adcl_request_create_fnctset   (int * topo, int *fnctset, int *req, int *ierr);
-void adcl_request_create_fnctset_  (int * topo, int *fnctset, int *req, int *ierr);
-void adcl_request_create_fnctset__ (int * topo, int *fnctset, int *req, int *ierr);
-void ADCL_REQUEST_CREATE_FNCTSET   (int * topo, int *fnctset, int *req, int *ierr);
 
 void adcl_request_create_generic   ( int *svecsarr, int *rvecsarr, int *topo, 
-				     int *req, int *ierror );
+				     int *fnctset, int *req, int *ierror );
 void adcl_request_create_generic_  ( int *svecsarr, int *rvecsarr, int *topo, 
-				     int *req, int *ierror );
+				     int *fnctset, int *req, int *ierror );
 void adcl_request_create_generic__ ( int *svecsarr, int *rvecsarr, int *topo, 
-				     int *req, int *ierror );
+				     int *fnctset, int *req, int *ierror );
 void ADCL_REQUEST_CREATE_GENERIC   ( int *svecsarr, int *rvecsarr, int *topo, 
-				     int *req, int *ierror );
+				     int *fnctset, int *req, int *ierror );
 
 void adcl_request_get_comm   ( int *req, int *comm, int *rank, int *size, int *ierr);
 void adcl_request_get_comm_  ( int *req, int *comm, int *rank, int *size, int *ierr);

@@ -44,7 +44,8 @@
                                cart_comm, ierror )
         call ADCL_Topology_create ( cart_comm, topo, ierror )
 
-        call ADCL_Request_create ( vec, topo, request, ierror )
+        call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
+            request, ierror )
 
         do i=0, NIT 
            call ADCL_Request_start( request, ierror )

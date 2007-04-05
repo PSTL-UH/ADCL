@@ -31,7 +31,7 @@
         call ADCL_Topology_create_generic ( 0, 0, 0, 0, ADCL_DIRECTION_BOTH, &
              MPI_COMM_WORLD, topo, ierror )
 
-        call ADCL_Request_create_fnctset ( topo, fnctset, request, ierror )
+        call ADCL_Request_create( ADCL_VECTOR_NULL, topo, fnctset, request, ierror )
 
         do i=0, NIT 
            call ADCL_Request_start( request, ierror )

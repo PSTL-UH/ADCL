@@ -63,3 +63,8 @@
        parameter ( ADCL_DIRECTION_LEFT_TO_RIGHT = 2 )
        parameter ( ADCL_DIRECTION_RIGHT_TO_LEFT = 3 )
 
+       integer ADCL_FNCTSET_NEIGHBORHOOD, ADCL_FNCTSET_SHIFT_LTOR
+       integer ADCL_FNCTSET_SHIFT_RTOL
+       parameter ( ADCL_FNCTSET_NEIGHBORHOOD = 0 )
+       parameter ( ADCL_FNCTSET_SHIFT_RTOL = 0 )
+       parameter ( ADCL_FNCTSET_SHIFT_LTOR = 0 )

@@ -52,10 +52,8 @@ extern ADCL_array_t * ADCL_request_farray;
 int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs, 
 				  ADCL_vector_t **array_of_recv_vecs, 
 				  ADCL_topology_t *topo, 
+				  ADCL_fnctset_t *fnctset, 
 				  ADCL_request_t **req, int order );
-int ADCL_request_create_fnctset ( ADCL_topology_t *topo, ADCL_fnctset_t *fnctset, 
-				  ADCL_request_t **req );
-
 
 int ADCL_request_free ( ADCL_request_t **req );
 int ADCL_request_init ( ADCL_request_t *req, int *db );

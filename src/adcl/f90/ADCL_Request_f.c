@@ -7,10 +7,6 @@
 #pragma weak adcl_request_create__ = adcl_request_create
 #pragma weak ADCL_REQUEST_CREATE   = adcl_request_create
 
-#pragma weak adcl_request_create_fnctset_   = adcl_request_create_fnctset
-#pragma weak adcl_request_create_fnctset__  = adcl_request_create_fnctset
-#pragma weak ADCL_REQUEST_CREATE_FNCTSET    = adcl_request_create_fnctset
-
 #pragma weak adcl_request_create_generic_   = adcl_request_create_generic
 #pragma weak adcl_request_create_generic__  = adcl_request_create_generic
 #pragma weak ADCL_REQUEST_CREATE_GENERIC    = adcl_request_create_generic
@@ -40,90 +36,86 @@
 #pragma weak ADCL_REQUEST_GET_COMM   = adcl_request_get_comm
 
 
-void adcl_request_create ( int *vec, int *topo, int *req, int *ierror ) 
+void adcl_request_create ( int *vec, int *topo, int *fnctset, int *req, int *ierror ) 
 {
     ADCL_vector_t *cvec, **svecs, **rvecs;
     ADCL_request_t *creq;
     ADCL_topology_t *ctopo;
+    ADCL_fnctset_t *cfnctset;
     int i;
     
-    if ( ( NULL == vec )   || 
-	 ( NULL == topo )  ||
+    if ( ( NULL == vec )     || 
+	 ( NULL == topo )    ||
+	 ( NULL == fnctset)  ||
 	 ( NULL == req  )  ){
 	*ierror = ADCL_INVALID_ARG;
 	return;
     }
     
-    ctopo = (ADCL_topology_t *) ADCL_array_get_ptr_by_pos ( ADCL_topology_farray,
-							    *topo );
-    if ( NULL == ctopo ) {
-	*ierror = ADCL_INVALID_TOPOLOGY;
-	return;
+    if ( ADCL_FTOPOLOGY_NULL != *topo ) {
+	ctopo = (ADCL_topology_t *) ADCL_array_get_ptr_by_pos ( ADCL_topology_farray,
+								*topo );
+	if ( NULL == ctopo ) {
+	    *ierror = ADCL_INVALID_TOPOLOGY;
+	    return;
+	}
+    }
+    else {
+	ctopo = ADCL_TOPOLOGY_NULL;
+    }
+    
+    if ( ADCL_FFNCTSET_NULL != *fnctset ) {
+	cfnctset = (ADCL_fnctset_t *) ADCL_array_get_ptr_by_pos ( ADCL_fnctset_farray,
+								  *fnctset );
+	if ( NULL == cfnctset ) {
+	    *ierror = ADCL_INVALID_FNCTSET;
+	    return;
+	}
+    }
+    else {
+	cfnctset = ADCL_FNCTSET_NULL;
     }
 
-    cvec = (ADCL_vector_t *) ADCL_array_get_ptr_by_pos ( ADCL_vector_farray, 
-							 *vec );
-    if ( NULL == cvec ) {
-	*ierror = ADCL_INVALID_VECTOR;
-	return;
-    }
-    svecs = ( ADCL_vector_t **) malloc ( 4 * ctopo->t_ndims * sizeof(ADCL_vector_t *));
-    if ( NULL == svecs ) {
-	*ierror = ADCL_NO_MEMORY;
-	return;
-    }
-    rvecs = &svecs[2*ctopo->t_ndims];
 
-    for ( i=0; i<2*ctopo->t_ndims; i++ ) {
-	svecs[i] = cvec;
-	rvecs[i] = cvec;
+    if ( ADCL_FVECTOR_NULL != *vec ) {
+	cvec = (ADCL_vector_t *) ADCL_array_get_ptr_by_pos ( ADCL_vector_farray, 
+							     *vec );
+	if ( NULL == cvec ) {
+	    *ierror = ADCL_INVALID_VECTOR;
+	    return;
+	}
+	svecs = ( ADCL_vector_t **) malloc ( 4 * ctopo->t_ndims * sizeof(ADCL_vector_t *));
+	if ( NULL == svecs ) {
+	    *ierror = ADCL_NO_MEMORY;
+	    return;
+	}
+	rvecs = &svecs[2*ctopo->t_ndims];
+	
+	for ( i=0; i<2*ctopo->t_ndims; i++ ) {
+	    svecs[i] = cvec;
+	    rvecs[i] = cvec;
+	}
+	*ierror = ADCL_request_create_generic ( svecs, rvecs, ctopo, cfnctset, &creq, 
+						MPI_ORDER_FORTRAN );
+	free ( svecs );
+    }
+    else {
+	*ierror = ADCL_request_create_generic ( NULL, NULL, 
+						ctopo, cfnctset, &creq, 
+						MPI_ORDER_FORTRAN );
     }
 
-    *ierror = ADCL_request_create_generic ( svecs, rvecs, ctopo, &creq, MPI_ORDER_FORTRAN );
+
     if ( *ierror == ADCL_SUCCESS ) {
 	*req = creq->r_findex;
     }
-    free ( svecs );
 
     return;
 }
 
-void adcl_request_create_fnctset ( int * topo, int *fnctset, int *req, int *ierror )
-{
-    ADCL_topology_t *ctopo;
-    ADCL_request_t * creq;
-    ADCL_fnctset_t *cfnctset;
-
-    if ( ( NULL == fnctset )   || 
-	 ( NULL == topo    )  ||
-	 ( NULL == req     )  ){
-	*ierror = ADCL_INVALID_ARG;
-	return;
-    }
-    
-    ctopo = (ADCL_topology_t *) ADCL_array_get_ptr_by_pos ( ADCL_topology_farray,
-							    *topo );
-    if ( NULL == ctopo ) {
-	*ierror = ADCL_INVALID_TOPOLOGY;
-	return;
-    }
-    cfnctset = (ADCL_fnctset_t *) ADCL_array_get_ptr_by_pos ( ADCL_fnctset_farray,
-							      *fnctset );
-    if ( NULL == cfnctset ) {
-	*ierror = ADCL_INVALID_FNCTSET;
-	return;
-    }
-
-    *ierror = ADCL_request_create_fnctset ( ctopo, cfnctset, &creq );
-    if ( ADCL_SUCCESS == *ierror ) {
-	*req = creq->r_findex;
-    }
-
-    return;
-}
 
 void adcl_request_create_generic ( int *array_of_svecs, int *array_of_rvecs, int *topo, 
-				   int *req, int *ierror )
+				   int *fnctset, int *req, int *ierror )
 {
     return;
 }

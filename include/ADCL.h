@@ -68,6 +68,16 @@ typedef struct ADCL_fnctset_s*   ADCL_Fnctset;
 typedef struct ADCL_papi_s*      ADCL_Papi;
 #endif
 
+
+/* define predefined functionsets */
+extern struct ADCL_fnctset_s *ADCL_neighborhood_fnctset; 
+extern struct ADCL_fnctset_s *ADCL_fnctset_rtol; 
+extern struct ADCL_fnctset_s *ADCL_fnctset_ltor; 
+
+#define ADCL_FNCTSET_NEIGHBORHOOD ADCL_neighborhood_fnctset
+#define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
+#define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
+
 /* Prototypes of the User level interface functions */
 
 /* ADCL environment functions */
@@ -131,12 +141,12 @@ int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
 
 /* ADCL Request functions */
 int ADCL_Request_create         ( ADCL_Vector vec, ADCL_Topology topo, 
-				  ADCL_Request *req );
+				  ADCL_Fnctset fnctset,  ADCL_Request *req );
 int ADCL_Request_create_generic ( ADCL_Vector *array_of_send_vecs, 
 				  ADCL_Vector *array_of_recv_vecs, 
 				  ADCL_Topology topo, 
+				  ADCL_Fnctset fnctset,
 				  ADCL_Request *req );
-int ADCL_Request_create_fnctset ( ADCL_Topology topo, ADCL_Fnctset fnctset, ADCL_Request *req );
 
 int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm, int *rank, int *size );
 int ADCL_Request_free      ( ADCL_Request *req );

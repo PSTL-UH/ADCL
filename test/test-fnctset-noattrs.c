@@ -39,7 +39,7 @@ int main ( int argc, char ** argv )
 
     ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
 				   MPI_COMM_WORLD, &topo );
-    ADCL_Request_create_fnctset ( topo, fnctset, &request );
+    ADCL_Request_create ( ADCL_VECTOR_NULL, topo, fnctset, &request );
     
 
     for ( i=0; i<NIT; i++ ) {

@@ -9,6 +9,9 @@ ADCL_attrset_t *ADCL_neighborhood_attrset;
 ADCL_function_t *ADCL_neighborhood_functions[ADCL_METHOD_TOTAL_NUM];
 ADCL_fnctset_t *ADCL_neighborhood_fnctset; 
 
+ADCL_fnctset_t *ADCL_fnctset_rtol; 
+ADCL_fnctset_t *ADCL_fnctset_ltor; 
+
 
 const int ADCL_attr_mapping_aao=100;
 const int ADCL_attr_mapping_pair=101;

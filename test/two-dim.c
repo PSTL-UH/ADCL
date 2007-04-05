@@ -55,7 +55,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     ADCL_Vector_allocate ( 2,  dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_2D ( data, rank, dims, hwidth );
 #ifdef VERBOSE
@@ -74,7 +74,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     ADCL_Vector_allocate ( 2,  dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_2D ( data, rank, dims, hwidth );
 #ifdef VERBOSE
@@ -93,7 +93,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     ADCL_Vector_allocate ( 2,  dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data2, rank, dims, hwidth, 1 );
 #ifdef VERBOSE
@@ -112,7 +112,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     ADCL_Vector_allocate ( 2,  dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data2, rank, dims, hwidth, 1 );
 #ifdef VERBOSE
@@ -131,7 +131,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     ADCL_Vector_allocate ( 2,  dims, 2, hwidth, MPI_DOUBLE, &data2, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data2, rank, dims, hwidth, 2 );
 #ifdef VERBOSE

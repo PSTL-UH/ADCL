@@ -42,7 +42,8 @@
         hwidth = 1
         call ADCL_Vector_register ( 3, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
                                     data, vec, ierror)
-        call ADCL_Request_create ( vec, topo, request, ierror )
+        call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
+             request, ierror )
 
         call set_data_3D ( data, rank, dims, hwidth ) 
         call ADCL_Request_start( request, ierror )
@@ -59,7 +60,8 @@
         nc   = 0
         call ADCL_Vector_register ( 3, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
                                     data1, vec, ierror)
-        call ADCL_Request_create ( vec, topo, request, ierror )
+        call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
+             request, ierror )
 
         call set_data_3D ( data1, rank, dims, hwidth ) 
         call ADCL_Request_start( request, ierror )
@@ -76,7 +78,8 @@
         nc     = 1
         call ADCL_Vector_register ( 3, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
                                     data2, vec, ierror)
-        call ADCL_Request_create ( vec, topo, request, ierror )
+        call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
+             request, ierror )
 
         call set_data_4D ( data2, rank, dims, hwidth, nc ) 
         call ADCL_Request_start( request, ierror )
@@ -93,7 +96,8 @@
         nc     = 1
         call ADCL_Vector_register ( 3, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
                                     data3, vec, ierror)
-        call ADCL_Request_create ( vec, topo, request, ierror )
+        call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
+             request, ierror )
 
         call set_data_4D ( data3, rank, dims, hwidth, nc ) 
         call ADCL_Request_start( request, ierror )
@@ -110,7 +114,8 @@
         nc     = 2
         call ADCL_Vector_register ( 3, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
                                     data4, vec, ierror)
-        call ADCL_Request_create ( vec, topo, request, ierror )
+        call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
+             request, ierror )
 
         call set_data_4D ( data4, rank, dims, hwidth, nc ) 
         call ADCL_Request_start( request, ierror )

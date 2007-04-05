@@ -61,7 +61,7 @@ int main ( int argc, char ** argv )
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
     ADCL_Vector_allocate ( 3,  dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data, rank, dims, hwidth );
 #ifdef VERBOSE
@@ -82,7 +82,7 @@ int main ( int argc, char ** argv )
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
     ADCL_Vector_allocate ( 3,  dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data, rank, dims, hwidth );
 #ifdef VERBOSE
@@ -102,7 +102,7 @@ int main ( int argc, char ** argv )
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
     ADCL_Vector_allocate ( 3,  dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_4D ( data2, rank, dims, hwidth, 1 );
 #ifdef VERBOSE
@@ -122,7 +122,7 @@ int main ( int argc, char ** argv )
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
     ADCL_Vector_allocate ( 3,  dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_4D ( data2, rank, dims, hwidth, 1 );
 #ifdef VERBOSE
@@ -142,7 +142,7 @@ int main ( int argc, char ** argv )
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
     ADCL_Vector_allocate ( 3,  dims, 2, hwidth, MPI_DOUBLE, &data2, &vec );
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_4D ( data2, rank, dims, hwidth, 2 );
 #ifdef VERBOSE
@@ -300,8 +300,6 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for ( i=0; i<hwidth; i++ ) {
 		if ( data[i][j][k] != should_be ){
 		    lres = 0;
-		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
-			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -313,8 +311,6 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for ( i=dim[0]-hwidth; i<dim[0]; i++ ) {
 		if ( data[i][j][k] != should_be ) {
 		    lres = 0;
-		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
-			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -326,8 +322,6 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (j=0; j<hwidth; j++ ){
 		if ( data[i][j][k] != should_be ) {
 		    lres = 0;
-		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
-			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -339,8 +333,6 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (j=dim[1]-hwidth; j<dim[1]; j++ ) {
 		if ( data[i][j][k] != should_be) {
 		    lres = 0;
-		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
-			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -353,8 +345,6 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (k=0; k<hwidth; k++ ) {
 		if ( data[i][j][k] != should_be ) {
 		    lres = 0;
-		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
-			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -366,8 +356,6 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (k=dim[2]-hwidth; k<dim[2]; k++ ) {
 		if ( data[i][j][k] != should_be) {
 		    lres = 0;
-		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
-			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}
@@ -379,8 +367,6 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 	    for (k=hwidth; k<dim[2]-hwidth; k++ ){
 		if ( data[i][j][k] != rank ) {
 		    lres = 0;
-		    printf("Rank %d: element [%d][%d][%d] should be %d is %d\n", 
-			   rank, i, j, k, should_be, data[i][j][k]);
 		}
 	    }
 	}

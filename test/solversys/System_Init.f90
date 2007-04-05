@@ -143,8 +143,10 @@
            loes, adcl_vec_loes, ierror )
 
 !...Generate now the ADCL-Request object for dq
-      call ADCL_Request_create (adcl_vec_dq, adcl_topo, adcl_req_dq, ierror)
-      call ADCL_Request_create (adcl_vec_loes,adcl_topo,adcl_req_loes,ierror)
+      call ADCL_Request_create (adcl_vec_dq, adcl_topo, & 
+           ADCL_FNCTSET_NEIGHBORHOOD, adcl_req_dq, ierror)
+      call ADCL_Request_create (adcl_vec_loes,adcl_topo,&
+           ADCL_FNCTSET_NEIGHBORHOOD, adcl_req_loes,ierror)
 
 
 

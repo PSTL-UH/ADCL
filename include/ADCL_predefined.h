@@ -90,6 +90,5 @@ extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
 extern ADCL_attrset_t *ADCL_neighborhood_attrset;
 
 extern ADCL_function_t *ADCL_neighborhood_functions[ADCL_METHOD_TOTAL_NUM];
-extern ADCL_fnctset_t *ADCL_neighborhood_fnctset; 
 
 #endif

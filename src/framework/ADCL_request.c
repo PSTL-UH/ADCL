@@ -13,6 +13,7 @@ extern ADCL_fnctset_t *ADCL_neighborhood_fnctset;
 int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs, 
 				  ADCL_vector_t **array_of_recv_vecs,
 				  ADCL_topology_t *topo, 
+				  ADCL_fnctset_t *fnctset, 
 				  ADCL_request_t **req, int order )
 {
     int i, ret = ADCL_SUCCESS;
@@ -25,7 +26,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
     ** emethod_init function, since these functions are only interested in 
     ** the  number of dimensions and the extent of each dimension    
     */
-    ADCL_vector_t *vec = array_of_send_vecs[0];
+    ADCL_vector_t *vec=ADCL_VECTOR_NULL;
 
     /* Alloacte the general ADCL_request structure */
     newreq = (ADCL_request_t *) calloc ( 1, sizeof(ADCL_request_t));
@@ -42,24 +43,92 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
 			     newreq );
     
     newreq->r_comm_state = ADCL_COMM_AVAIL;
-    /* In this constructor, all send are request buffers are the same, 
-       thus all vector objects point to vec. */
-    newreq->r_svecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
-    newreq->r_rvecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
-    if ( NULL == newreq->r_rvecs || NULL == newreq->r_svecs ) {
-	ret = ADCL_NO_MEMORY;
-	goto exit;
-    }
-    for ( i=0; i < 2* topo->t_ndims; i++ ) {
-	newreq->r_svecs[i] = array_of_send_vecs[i];
-	newreq->r_rvecs[i] = array_of_recv_vecs[i];
-    }
+    if ( NULL != array_of_send_vecs && NULL != array_of_recv_vecs ) {
+	vec =  array_of_send_vecs[0];
+
+	newreq->r_svecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
+	newreq->r_rvecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
+	if ( NULL == newreq->r_rvecs || NULL == newreq->r_svecs ) {
+	    ret = ADCL_NO_MEMORY;
+	    goto exit;
+	}
+	for ( i=0; i < 2* topo->t_ndims; i++ ) {
+	    newreq->r_svecs[i] = array_of_send_vecs[i];
+	    newreq->r_rvecs[i] = array_of_recv_vecs[i];
+	}
     
+	/* 
+	** Generate the derived datatypes describing which parts of this
+	** vector are going to be sent/received from which process
+	*/
+	if ( vec->v_ndims == 1 || (vec->v_ndims == 2 && vec->v_nc > 0 )) {
+	    ret = ADCL_indexed_1D_init ( vec->v_dims[0],
+					 vec->v_hwidth,
+					 vec->v_nc, 
+					 order, 
+					 vec->v_dat,
+					 &(newreq->r_sdats), 
+					 &(newreq->r_rdats) );
+	}
+	else if ( (vec->v_ndims == 2 && vec->v_nc == 0) ||
+		  (vec->v_ndims == 3 && vec->v_nc > 0 )) {
+	    ret = ADCL_indexed_2D_init ( vec->v_dims,
+					 vec->v_hwidth,
+					 vec->v_nc, 
+					 order, 
+					 vec->v_dat,
+					 &(newreq->r_sdats), 
+					 &(newreq->r_rdats) );
+	}
+	else if ( (vec->v_ndims == 3 && vec->v_nc == 0) ||
+		  (vec->v_ndims == 4 && vec->v_nc > 0 )){
+	    ret = ADCL_indexed_3D_init ( vec->v_dims,
+					 vec->v_hwidth,
+					 vec->v_nc, 
+					 order, 
+					 vec->v_dat,
+					 &(newreq->r_sdats), 
+					 &(newreq->r_rdats) );
+	}   
+	else {
+	    if ( ADCL_TOPOLOGY_NULL != topo ) {
+		ret = ADCL_subarray_init ( topo->t_ndims, 
+					   vec->v_ndims, 
+					   vec->v_dims, 
+					   vec->v_hwidth, 
+					   vec->v_nc,
+					   order, 
+					   vec->v_dat,
+					   &(newreq->r_sdats), 
+					   &(newreq->r_rdats ) );
+	    }
+	}
+	if ( ret != ADCL_SUCCESS ) {
+	    goto exit;
+	}
+
+	/* Initialize temporary buffer(s) for Pack/Unpack operations */
+	ret = ADCL_packunpack_init ( topo->t_ndims * 2, 
+				     topo->t_neighbors,
+				     topo->t_comm, 
+				     &(newreq->r_sbuf), 
+				     newreq->r_sdats,
+				     &(newreq->r_spsize),
+				     &(newreq->r_rbuf), 
+				     newreq->r_rdats, 
+				     &(newreq->r_rpsize) );
+	if ( ADCL_SUCCESS != ret ) {
+	    goto exit;
+	}
+	
+    }
+
+
     /* Initialize the emethod data structures required for evaluating
        the different communication methods. 
     */
     newreq->r_function = NULL;
-    newreq->r_emethod  = ADCL_emethod_init ( topo, vec, ADCL_neighborhood_fnctset );
+    newreq->r_emethod  = ADCL_emethod_init ( topo, vec, fnctset );
     
     /* 
     ** Increase the reference count on the topology object
@@ -86,53 +155,6 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
     newreq->r_group      = MPI_GROUP_NULL; /* TBD: unused for right now! */
 #endif
     
-    /* 
-    ** Generate the derived datatypes describing which parts of this
-    ** vector are going to be sent/received from which process
-    */
-    if ( vec->v_ndims == 1 || (vec->v_ndims == 2 && vec->v_nc > 0 )) {
-	ret = ADCL_indexed_1D_init ( vec->v_dims[0],
-				     vec->v_hwidth,
-				     vec->v_nc, 
-				     order, 
-				     vec->v_dat,
-				     &(newreq->r_sdats), 
-				     &(newreq->r_rdats) );
-    }
-    else if ( (vec->v_ndims == 2 && vec->v_nc == 0) ||
-	      (vec->v_ndims == 3 && vec->v_nc > 0 )) {
-	ret = ADCL_indexed_2D_init ( vec->v_dims,
-				     vec->v_hwidth,
-				     vec->v_nc, 
-				     order, 
-				     vec->v_dat,
-				     &(newreq->r_sdats), 
-				     &(newreq->r_rdats) );
-    }
-    else if ( (vec->v_ndims == 3 && vec->v_nc == 0) ||
-	      (vec->v_ndims == 4 && vec->v_nc > 0 )){
-	ret = ADCL_indexed_3D_init ( vec->v_dims,
-				     vec->v_hwidth,
-				     vec->v_nc, 
-				     order, 
-				     vec->v_dat,
-				     &(newreq->r_sdats), 
-				     &(newreq->r_rdats) );
-    }   
-    else {
-	ret = ADCL_subarray_init ( topo->t_ndims, 
-				   vec->v_ndims, 
-				   vec->v_dims, 
-				   vec->v_hwidth, 
-				   vec->v_nc,
-				   order, 
-				   vec->v_dat,
-				   &(newreq->r_sdats), 
-				   &(newreq->r_rdats ) );
-    }
-    if ( ret != ADCL_SUCCESS ) {
-	goto exit;
-    }
     
     /* Allocate the request arrays, 2 for each neighboring process */
     newreq->r_sreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
@@ -144,19 +166,6 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
 	goto exit;
     }
     
-    /* Initialize temporary buffer(s) for Pack/Unpack operations */
-    ret = ADCL_packunpack_init ( topo->t_ndims * 2, 
-				 topo->t_neighbors,
-				 topo->t_comm, 
-				 &(newreq->r_sbuf), 
-				 newreq->r_sdats,
-				 &(newreq->r_spsize),
-				 &(newreq->r_rbuf), 
-				 newreq->r_rdats, 
-				 &(newreq->r_rpsize) );
-    if ( ADCL_SUCCESS != ret ) {
-	goto exit;
-    }
     
     
  exit:
@@ -174,11 +183,13 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
 	if ( NULL != newreq->r_rreqs ) {
 	    free ( newreq->r_rreqs );
 	}
-	ADCL_subarray_free ( 2 * topo->t_ndims, &(newreq->r_sdats), 
-			     &(newreq->r_rdats) );
-	ADCL_packunpack_free ( 2 * topo->t_ndims, &(newreq->r_rbuf),
-			       &(newreq->r_sbuf), &(newreq->r_spsize), 
-			       &(newreq->r_rpsize) );
+	if ( NULL != vec ) {
+	    ADCL_subarray_free ( 2 * topo->t_ndims, &(newreq->r_sdats), 
+				 &(newreq->r_rdats) );
+	    ADCL_packunpack_free ( 2 * topo->t_ndims, &(newreq->r_rbuf),
+				   &(newreq->r_sbuf), &(newreq->r_spsize), 
+				   &(newreq->r_rpsize) );
+	}
 	
 	if ( MPI_WIN_NULL != newreq->r_win ) {
 	    MPI_Win_free ( &(newreq->r_win) );
@@ -243,44 +254,6 @@ int ADCL_request_free ( ADCL_request_t **req )
     }
     
     *req = ADCL_REQUEST_NULL;
-    return ADCL_SUCCESS;
-}
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-int ADCL_request_create_fnctset ( ADCL_topology_t *topo, ADCL_fnctset_t *fnctset, 
-				  ADCL_request_t **req )
-{
-    ADCL_request_t *newreq;
-
-    /* Alloacte the general ADCL_request structure */
-    newreq = (ADCL_request_t *) calloc ( 1, sizeof(ADCL_request_t));
-    if ( NULL == newreq ) {
-	return ADCL_NO_MEMORY;
-    }
-    
-    /* Fill in the according elements, start with the simple ones */
-    newreq->r_id         = ADCL_local_id_counter++;
-    ADCL_array_get_next_free_pos ( ADCL_request_farray, &(newreq->r_findex) );
-    ADCL_array_set_element ( ADCL_request_farray, 
-			     newreq->r_findex, 
-			     newreq->r_id,
-			     newreq );
-    
-    newreq->r_comm_state = ADCL_COMM_AVAIL;
-    
-    /* 
-    ** Please note, that there are no vectors, data types, temporary 
-    ** buffers and MPI requests associated to this type of request. 
-    */
-    
-    newreq->r_function = NULL;
-    newreq->r_win      = MPI_WIN_NULL; /* TBD: unused for right now! */
-    newreq->r_group    = MPI_GROUP_NULL; /* TBD: unused for right now! */
-
-    newreq->r_emethod = ADCL_emethod_init ( topo, ADCL_VECTOR_NULL, fnctset );
-    
-    *req = newreq;
     return ADCL_SUCCESS;
 }
 /**********************************************************************/

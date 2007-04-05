@@ -40,7 +40,7 @@ int main ( int argc, char ** argv )
     //ADCL_Topology_create (cart_comm, &topology);
     ADCL_Topology_create ( cart_comm, &topo );
 
-    ADCL_Request_create ( vec, topo, &request );
+    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
 
     for ( i=0; i<NIT; i++ ) {
