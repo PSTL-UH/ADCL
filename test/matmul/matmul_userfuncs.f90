@@ -84,9 +84,17 @@ subroutine SetMatrix(nProcs, MyRank)
 
   88 format (i8)
 
+<<<<<<< .mine
+    ! Read Problme size from Values.conf file
+    open(unit=101, FILE = "Values.conf", STATUS = "OLD")
+    88 format (i8)
+    read(101,88), nProSize
+    !write(*,*), "Problem size =", nProSize
+=======
   open(unit=101, FILE = "Values.conf", STATUS = "OLD")
   read(101,88), nProSize
   write(*,*), "Problem size =", nProSize
+>>>>>>> .r921
 
   ! Allocate memory to matrix
   if( mod(nProSize,nProcs) .NE. 0) then
@@ -96,7 +104,11 @@ subroutine SetMatrix(nProcs, MyRank)
 
   nXSize = nProSize/nProcs
 
+<<<<<<< .mine
+    !write(*, *) nXSize
+=======
   write(*, *) nXSize
+>>>>>>> .r921
 
   allocate(colA(nProSize, nXSize))
   allocate(colB(nProSize, nXSize))
@@ -195,6 +207,77 @@ subroutine PMatmulSych ( request )
 
 end subroutine PMatmulSych
 
+<<<<<<< .mine
+        call ADCL_Finalize ( ierror )
+        call MPI_Finalize ( ierror )
+      end program FirstTest
+
+
+      subroutine PMatmulSych ( request ) 
+      use Matrix
+      use MMultiply
+        implicit none
+        include 'ADCL.inc'
+
+        integer request
+        integer comm, tag, i, rank, size, ierror, TopoType
+        integer :: direction, disp, right,left
+        integer :: rowreqs(2), rowstatus (MPI_STATUS_SIZE, 2)
+
+        double precision, dimension(nProSize,nXSize),target :: ColTemp
+        double precision, dimension(:,:), pointer:: pColA, pColTemp
+
+
+        call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
+       ! write (*,*) rank, ": In PMatmulSych, size = ", size
+
+        call MPI_Topo_test (comm, TopoType, ierror)
+
+        if(TopoType .ne. MPI_CART) then
+          write(*,*) "Error! Communicator topology is not set!"
+          ierror = 1
+        end if
+
+        direction = 1
+        disp = 1
+
+        call MPI_Cart_shift ( comm, direction, disp, left, right, ierror )
+
+        pColA => ColA
+        pColTemp => ColTemp
+
+        tag = 100
+
+        do i=size, 1, -1
+
+          call MPI_Irecv ( pColTemp(1,1), nProSize*nXSize, MPI_DOUBLE_PRECISION, left, tag, comm, rowreqs(1), ierror )
+          call MPI_ISend ( pColA(1,1), nProSize*nXSize, MPI_DOUBLE_PRECISION, right, tag, comm, rowreqs(2),ierror )
+          call MPI_Waitall(2, rowreqs, rowstatus, ierror)
+          call Multiply(ColC, pColA, ColB, nProSize, nXSize, mod((i+rank),size))
+
+          if ( mod(i,2) .eq. 0 )then 
+            pColA => ColTemp
+            pColTemp => ColA
+          else
+
+          pColA => ColA
+          pColTemp => ColTemp
+          endif
+        enddo
+
+        pColA => ColA
+        pColTemp => ColTemp
+
+       call MPI_Irecv ( pColTemp(1,1), nProSize*nXSize, MPI_DOUBLE_PRECISION, left, tag, comm, rowreqs(1), ierror )
+       call MPI_ISend ( pColA(1,1), nProSize*nXSize, MPI_DOUBLE_PRECISION, right, tag, comm, rowreqs(2),ierror )
+       call MPI_Waitall (2, rowreqs, rowstatus, ierror)
+
+
+      end subroutine PMatmulSych
+
+
+=======
+>>>>>>> .r921
 subroutine PMatmulOverLap ( request ) 
   use Matrix
   use MMultiply
@@ -212,11 +295,16 @@ subroutine PMatmulOverLap ( request )
 
   call MPI_Topo_test (comm, TopoType, ierror)
 
+<<<<<<< .mine
+        call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
+       ! write (*,*) rank, ": In PMatmulOverLap, size = ", size
+=======
   if(TopoType .ne. MPI_CART) then
     write(*,*) "Error! Communicator topology is not set!"
     ierror = 1
   !return error code!	
   end if
+>>>>>>> .r921
 
   direction = 1
   disp = 1
@@ -250,6 +338,7 @@ subroutine PMatmulOverLap ( request )
   call MPI_ISend ( pColA(1,1), nProSize*nXSize, MPI_DOUBLE_PRECISION, right, tag, comm, rowreqs(2),ierror )
   call MPI_Waitall (2, rowreqs, rowstatus, ierror)
 
+
 end subroutine PMatmulOverLap
 
 subroutine PMatmulBcast ( request ) 
@@ -262,8 +351,13 @@ subroutine PMatmulBcast ( request )
   double precision, dimension(nProSize,nXSize),target :: ColTemp
   double precision, dimension(:,:), pointer:: pColA, pColTemp
 
+<<<<<<< .mine
+        call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
+       ! write (*,*) rank, ": In PMatmulBcast, size = ", size
+=======
   call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
   write (*,*) rank, ": In PMatmulBcast, size = ", size
+>>>>>>> .r921
 
   call MPI_Topo_test (Comm, TopoType, ierror)
 
@@ -285,5 +379,6 @@ subroutine PMatmulBcast ( request )
       call Multiply(ColC, pColA, ColB, nProSize, nXSize, i)
     endif
   enddo
+
 
 end subroutine PMatmulBcast
