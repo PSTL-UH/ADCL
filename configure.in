@@ -4,7 +4,7 @@ AC_PREREQ(2.53)
 AC_CONFIG_HEADER(include/ADCL_config.h)
 dnl First step for the cross compiling ...
 AC_CANONICAL_TARGET
-AC_PREFIX_DEFAULT(.)
+AC_PREFIX_DEFAULT(${HOME}/ADCL)
 
 dnl 
 dnl The idea behind that it's to have a way to load architecture specific

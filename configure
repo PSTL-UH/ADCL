@@ -561,7 +561,7 @@ PACKAGE_VERSION=
 PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
-ac_default_prefix=.
+ac_default_prefix=${HOME}/ADCL
 ac_subst_vars='SHELL
 PATH_SEPARATOR
 PACKAGE_NAME
