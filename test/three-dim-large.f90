@@ -198,7 +198,8 @@
 
         integer rank,  dims(3), hwidth, nc, neighbors(6)
         double precision data(dims(1),dims(2),dims(3), nc)
-        integer lres, gres, i, j, k, l, ierr, should_be
+        integer lres, gres, i, j, k, l, ierr
+        double precision should_be
         
         lres = 1
 

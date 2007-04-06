@@ -270,7 +270,8 @@
 
         integer rank, size, dims(3), hwidth, nc, neighbors(6)
         double precision data(dims(1),dims(2),dims(3), nc)
-        integer lres, gres, i, j, k, l, ierr, should_be
+        integer lres, gres, i, j, k, l, ierr
+        double precision should_be
         
         lres = 1
 
@@ -283,8 +284,10 @@
            do j = hwidth+1, dims(2)-hwidth
               do k = hwidth+1, dims(3)-hwidth
                  do l = 1, nc 
-                    if ( data(i,j,k, l) .ne. should_be ) then
+                    if ( data(i,j,k, l) .ne. should_be ) then                       
                        lres = 0 
+                       write (*,99) rank, ' : ', i,j,k,l, 'is ', &
+                            data(i,j,k,l), ' should be ', should_be
                     endif
                  end do
               end do
@@ -302,6 +305,8 @@
                  do l = 1, nc 
                     if ( data(i, j, k, l) .ne. should_be ) then 
                        lres = 0
+                       write (*,99) rank, ' : ', i,j,k,l, 'is ', &
+                            data(i,j,k,l), ' should be ', should_be
                     end if
                  end do
               end do
@@ -320,6 +325,8 @@
                  do l = 1, nc 
                     if ( data(i,j, k, l) .ne. should_be ) then
                        lres = 0                    
+                       write (*,99) rank, ' : ', i,j,k,l, 'is ', &
+                            data(i,j,k,l), ' should be ', should_be
                     endif
                  end do
               end do
@@ -337,6 +344,8 @@
                  do l = 1, nc 
                     if ( data(i, j, k, l) .ne. should_be ) then 
                        lres = 0
+                       write (*,99) rank, ' : ', i,j,k,l, 'is ', &
+                            data(i,j,k,l), ' should be ', should_be
                     endif
                  end do
               end do
@@ -354,6 +363,8 @@
                  do l = 1, nc 
                     if ( data(i,j, k, l) .ne. should_be ) then
                        lres = 0                    
+                       write (*,99) rank, ' : ', i,j,k,l, 'is ', &
+                            data(i,j,k,l), ' should be ', should_be
                     endif
                  end do
               end do
@@ -371,6 +382,8 @@
                  do l = 1, nc 
                     if ( data(i, j, k, l) .ne. should_be ) then 
                        lres = 0
+                       write (*,99) rank, ' : ', i,j,k,l, ' is ', &
+                            data(i,j,k,l), ' should be ', should_be
                     endif
                  end do
               end do
@@ -384,6 +397,8 @@
                  do l = 1, nc 
                     if ( data(i,j,k,l) .ne. rank ) then 
                        lres = 0
+                       write (*,99) rank, ' : ', i,j,k,l, 'is ', &
+                            data(i,j,k,l), ' should be ', should_be
                     endif
                  end do
               end do
@@ -405,6 +420,7 @@
            end if
         end if
 
+99      format (i1,a3,4i3,a4,f12.5,a11,f12.5)
 
         return
       end subroutine check_data_4D
@@ -518,7 +534,8 @@
 
         integer rank, size, dims(3), hwidth, neighbors(6)
         double precision data(dims(1),dims(2),dims(3))
-        integer lres, gres, i, j, k, ierr, should_be
+        integer lres, gres, i, j, k, ierr
+        double precision should_be
         
         lres = 1
       

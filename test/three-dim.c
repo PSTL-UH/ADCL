@@ -172,7 +172,7 @@ static void check_data_4D ( double ****data, int rank, int *dim,
 			    int hwidth, int nc, int *neighbors ) 
 {
     int i, j, k, l, lres=1, gres;
-    int should_be;
+    double should_be;
 
     should_be = neighbors[0]==MPI_PROC_NULL ? -1 : neighbors[0];
     for ( j=hwidth; j<dim[1]-hwidth; j++ ) {
@@ -292,7 +292,7 @@ static void check_data_3D ( double ***data, int rank, int *dim, int hwidth,
 			    int *neighbors)
 {
     int i, j, k, lres=1, gres;
-    int should_be;
+    double should_be;
 
     should_be = neighbors[0]==MPI_PROC_NULL ? -1 : neighbors[0];
     for ( j=hwidth; j<dim[1]-hwidth; j++ ) {

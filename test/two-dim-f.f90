@@ -220,7 +220,8 @@
 
         integer rank, size, dims(2), hwidth, nc, neighbors(4)
         double precision data(dims(1),dims(2), nc)
-        integer lres, gres, i, j, k, ierr, should_be
+        integer lres, gres, i, j, k, ierr
+        double precision should_be
         
         lres = 1
       
@@ -234,6 +235,8 @@
               do k=1,nc 
                  if ( data(i,j,k) .ne. should_be ) then
                     lres = 0 
+                    write (*,99) rank, ' : ', i,j,k, 'is ', &
+                         data(i,j,k), ' should be ', should_be
                  endif
               end do
            end do
@@ -249,6 +252,8 @@
               do k = 1, nc
                  if ( data(i, j, k) .ne. should_be ) then 
                     lres = 0
+                    write (*,99) rank, ' : ', i,j,k, 'is ', &
+                         data(i,j,k), ' should be ', should_be
                  endif
               end do
            end do
@@ -265,6 +270,8 @@
               do k = 1, nc
                  if ( data(i,j,k) .ne. should_be ) then
                     lres = 0
+                    write (*,99) rank, ' : ', i,j,k, 'is ', &
+                         data(i,j,k), ' should be ', should_be
                  endif
               end do
            end do
@@ -280,6 +287,8 @@
               do k = 1, nc 
                  if ( data(i, j, k) .ne. should_be ) then 
                     lres = 0
+                    write (*,99) rank, ' : ', i,j,k, 'is ', &
+                         data(i,j,k), ' should be ', should_be
                  endif
               end do
            end do
@@ -291,16 +300,19 @@
               do k = 1, nc
                  if ( data(i,j, k) .ne. rank ) then 
                     lres = 0
+                    write (*,99) rank, ' : ', i,j,k, 'is ', &
+                         data(i,j,k), ' should be ', should_be
                  endif
               end do
            end do
         end do
 
+99      format (i1,a3,3i3,a4,f12.5,a11,f12.5)
 
 
         call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierr)
         if ( gres .eq. 0 ) then
-           call dump_vector_2D ( data, rank, dims )
+!           call dump_vector_2D ( data, rank, dims )
            if ( rank .eq. 0 ) then
               write (*,*) '2-D Fortran testsuite hwidth =', hwidth, &
                    'nc = ', nc, ' failed'  
@@ -394,7 +406,8 @@
 
         integer rank, size, dims(2), hwidth, neighbors(4)
         double precision data(dims(1),dims(2))
-        integer lres, gres, i, j, ierr, should_be
+        integer lres, gres, i, j, ierr
+        double precision should_be
         
         lres = 1
       
