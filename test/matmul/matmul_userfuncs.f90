@@ -1,6 +1,6 @@
   module Matrix
     implicit none
-    integer :: nDims, nProSize, nXSize, OneDirection_Row=2, MPI_CART_ERROR = 1
+    integer :: NIT, nDims, nProSize, nXSize, OneDirection_Row=2, MPI_CART_ERROR = 1
     integer, dimension(2)::Dims
     double precision, dimension(:,:), pointer:: colA, colB, colC, C
   end module Matrix
@@ -22,6 +22,7 @@
       ! Read Problme size from Values.conf file
       open(unit=101, FILE = "Values.conf", STATUS = "OLD")
       read(101,88), nProSize
+      read(101,88), NIT
       !write(*,*), "Problem size =", nProSize
       
       ! Allocate memory to matrix
@@ -82,7 +83,7 @@ program FirstTest
     
     integer :: topo, request, fnctset
     integer funcs(3)
-    integer NIT, i, rank, size, NewComm, ierror
+    integer :: i, rank, size, NewComm, ierror
     logical :: Periods(1), Reorder(1)
     
     external PMatmulSych, PMatmulOverLap, PMatmulBcast
