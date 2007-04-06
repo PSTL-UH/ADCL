@@ -14,7 +14,8 @@ struct ADCL_emethod_s {
     int                 em_findex; /* index of this object in the fortran array */
     int                  em_state; /* state of the object */
     int                   em_last; /* last element given out */
-    int         em_perfhypothesis; /* use performance hypothesis for the runtime optimization? */
+    int         em_perfhypothesis; /* use performance hypothesis for the runtime 
+				      optimization? */
     ADCL_topology_t      *em_topo; /* pointer to topology object */
     ADCL_vector_t         *em_vec; /* pointer to vector object. Only the size of the 
 				      data array is really required, not the buffer 
@@ -49,7 +50,7 @@ void ADCL_emethods_update ( ADCL_emethod_t *ermethods, int pos,
 
 int  ADCL_emethods_get_next ( ADCL_emethod_t *emethods, int mode, int *flag);
 ADCL_function_t *  ADCL_emethod_get_function ( ADCL_emethod_t *emethod, int pos);
-ADCL_function_t*   ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *erm, int *attr);
+int ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *erm, int *attr, int *pos);
 int ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval, 
 				      ADCL_statistics_t **stat, ADCL_function_t **func );
 

@@ -2,8 +2,10 @@
 
 int ADCL_hypo_req_confidence=2;
 
-static int next_attr_combination ( int cnt, ADCL_attrset_t *attrset, 
-				   ADCL_attribute_t  **attr_list, int *attr_val_list );
+static int next_attr_combination ( ADCL_attrset_t *attrset, 
+				   ADCL_attribute_t  *active_attr, 
+				   int *attr_val_list );
+
 static int next_attr_combination_excluding_active_attr ( ADCL_attrset_t *attrset, 
 							 int *attr_val_list, 
 							 int active_attr_pos );
@@ -167,41 +169,6 @@ int ADCL_hypothesis_set ( ADCL_emethod_t *e, int attrpos, int attrval )
   return ADCL_SUCCESS;
 }
 
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-
-/* 
-** This routines takes the statistical data of functions which have been already
-** tested, but which did not yet go through the evaluation proces. 
-*/
-int ADCL_hypothesis_eval_meas_series ( ADCL_emethod_t *e, int nummethods )
-{
-    ADCL_hypothesis_t *hypo=&(e->em_hypo);
-    ADCL_statistics_t **tmp_stats;
-    int i;
-
-    tmp_stats = (ADCL_statistics_t **) malloc (nummethods * sizeof(ADCL_statistics_t*)); 
-    if ( NULL==tmp_stats ) {
-	return ADCL_NO_MEMORY;
-    }
-
-    for ( i=0; i<nummethods; i++ ) {
-      tmp_stats[i] = e->em_stats[hypo->h_noneval[i]];
-    }
-
-    /* Determine now the winners across all provided measurement lists */
-    ADCL_statistics_global_max_v3 ( tmp_stats, nummethods, e->em_topo->t_comm, 
-				    e->em_topo->t_rank );
-
-    /* Clear the list of not evaluated functions on the performance hypothesis
-       object */
-    for ( i=0; i < e->em_fnctset.fs_maxnum; i++ ) {
-      hypo->h_noneval[i] = -1;
-    }
-
-    return ADCL_SUCCESS;
-}
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
@@ -248,44 +215,88 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
     attr_values[attr_pos] = ADCL_attribute_get_val ( attr, 0 );    
     return count;
 }
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+#ifdef V3
+int ADCL_hypothesis_get_next ( ADCL_emethod_t *e)
+{
+    int done=1; /* false */
+    int ret, next=ADCL_EVAL_DONE;
+    ADCL_hypothesis_t *hypo=&(e->em_hypo);
+
+    while (!done ) {
+	ret = ADCL_next_attr_combination ( e->em_fnctset.fs_attrset, 
+					   hypo->h_active_attr, 
+					   hypo->h_curr_attrvals);
+	if ( ADCL_SUCCESS == ret ) {
+	    ret = ADCL_emethod_get_function_by_attrs ( e, 
+						       hypo->h_curr_attrvals,
+						       &next );
+	    if ( ADCL_NOT_FOUND == ret ) {
+		/* 
+		** there is no function with this particular
+		** combination of attribute values 
+		*/
+		continue;
+	    }							   
+	}
+	else if ( ADCL_ATTR_NEW_BLOCK == ret ) {
+	    ADCL_hypothesis_eval_v3 ( e );
+	    /* 
+	    ** check whether the optimal value for the currently investigated
+	    ** attribute has been determined, by looking at whether it
+	    ** has more than one possible value 
+	    */
+	    if  ( 1 == hypo->h_active_attr->a_maxnvalues ) {
+		/* yes it, has  */
+	    }
+
+	}
+	else if ( ADCL_EVAL_DONE == ret ) {
+	    break;
+	}
+    }
+
+    return next;
+}
+#endif
 
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
 
-/* cnt:           number of currently handled attributes 
- *                Please note: cnt does not have to be equal to attrset->as_maxnum;
+/* 
  * attrset:       attribute set which we are working with.
- * attr_list:     list of attributes currently being handled. An array of length cnt.
- *                Please note: the order of the attributes here might not be equal
- *                to the order of the attributes in attrset or in the hypo->h_active_attr_list;
+ * active_attr: position of the attribute currently being investigated
  * attr_val_list: array of dimension ADCL_ATTR_TOTAL_NUM containg the last used 
  *                combination of attributes 
  */
 
-static int next_attr_combination ( int cnt, ADCL_attrset_t *attrset, 
-				   ADCL_attribute_t  **attr_list, int *attr_val_list )
+int next_attr_combination ( ADCL_attrset_t *attrset, 
+			    ADCL_attribute_t  *active_attr, 
+			    int *attr_val_list )
 {
-    int i, ret=ADCL_SUCCESS;
+    int ret=ADCL_SUCCESS;
     int thisval, thispos;
     ADCL_attribute_t *thisattr;
 
-    for ( i = 0; i < cnt; i++ ) {
-	thisattr = attr_list[i];
-	thispos = ADCL_attrset_get_pos ( attrset, thisattr );
-	thisval = attr_val_list[thispos];
-	
-	if ( thisval < attrset->as_attrs_maxval[thispos] ) {
-	    attr_val_list[thispos] = ADCL_attribute_get_nextval (thisattr, thisval);
-	    return ret;
-	}
-	else if ( thisval == attrset->as_attrs_maxval[thispos] ){
-	    attr_val_list[thispos] = attrset->as_attrs_baseval[thispos];
-	    ret = ADCL_ATTR_NEW_BLOCK;
-	}
-	else {
-	    /* BUg, should not happen */
-	}
+    thisattr = active_attr;
+    thispos = ADCL_attrset_get_pos ( attrset, thisattr );
+    thisval = attr_val_list[thispos];
+    
+    if ( thisval < attrset->as_attrs_maxval[thispos] ) {
+	attr_val_list[thispos] = ADCL_attribute_get_nextval (thisattr, thisval);
+	return ret;
+    }
+    else if ( thisval == attrset->as_attrs_maxval[thispos] ){
+	attr_val_list[thispos] = attrset->as_attrs_baseval[thispos];
+	next_attr_combination_excluding_active_attr ( attrset, attr_val_list, 
+						      thispos );
+	ret = ADCL_ATTR_NEW_BLOCK;
+    }
+    else {
+	/* Bug, should not happen */
     }
     
     return ADCL_EVAL_DONE;

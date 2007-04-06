@@ -53,9 +53,14 @@ struct ADCL_hypothesis_s {
     int                *h_attr_confidence; /* List of confidence values */
     int                  h_num_avail_meas; /* Counter keeping track of how many 
 					       methods have already been tested*/
+
+#ifndef V3
     int               h_num_required_meas;  
-    int                        *h_noneval; /* list of executed but not evaluated 
-					      functions */
+#else
+    int                  *h_curr_attrvals; /* list of attribute values currently
+					      being evaluated */
+    ADCL_attribute_t       *h_active_attr; /* attribute currently being optimezed */    
+#endif
 };
 typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
 

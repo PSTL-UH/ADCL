@@ -146,10 +146,8 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     if ( f->fs_attrset != ADCL_ATTRSET_NULL ) {
 	hypo->h_attr_hypothesis  = (int *) malloc (f->fs_attrset->as_maxnum * sizeof(int));
 	hypo->h_attr_confidence  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
-	hypo->h_noneval  = (int *) calloc (1, f->fs_maxnum * sizeof(int));
 	if ( NULL == hypo->h_attr_hypothesis ||
-	     NULL == hypo->h_attr_confidence || 
-	     NULL == hypo->h_noneval         ) {
+	     NULL == hypo->h_attr_confidence ) {
 	    ret = ADCL_NO_MEMORY;
 	    goto exit;
 	}
@@ -189,9 +187,6 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	if ( NULL != hypo->h_attr_confidence ) {
 	    free ( hypo->h_attr_confidence );
 	}
-	if ( NULL != hypo->h_noneval ) {
-	    free ( hypo->h_noneval );
-	}
 	
 	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
 	free ( e );
@@ -230,9 +225,6 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
 	if ( NULL != hypo->h_attr_confidence ) {
 	    free ( hypo->h_attr_confidence );
 	}
-	if ( NULL != hypo->h_noneval ) {
-	    free ( hypo->h_noneval );
-	}
 
 	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
 	free ( e );
@@ -251,12 +243,13 @@ ADCL_function_t* ADCL_emethod_get_function ( ADCL_emethod_t *e, int pos)
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-ADCL_function_t* ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *em, 
-						      int *attrval)
+int ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *em, 
+					 int *attrval, 
+					 int *pos )
 {
   int i, j, found;
   ADCL_fnctset_t* fnctset;
-  ADCL_function_t *result=NULL;
+  int ret=ADCL_NOT_FOUND;
 
   fnctset = &(em->em_fnctset);
   for ( i=0; i< fnctset->fs_maxnum; i++ ) {
@@ -267,13 +260,13 @@ ADCL_function_t* ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *em,
 	  }
       }
       if ( found ) {
-	  result = fnctset->fs_fptrs[i];
+	  *pos = i;
 	  break;
       }
   }
 	 
   
-  return result;
+  return ret;
 }
 /**********************************************************************/
 /**********************************************************************/
@@ -282,7 +275,7 @@ int ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval,
 				      ADCL_statistics_t **stat, 
 				      ADCL_function_t **func )
 {
-  int i, j, found;
+  int i, j, found=0;
   ADCL_fnctset_t* fnctset;
 
   *stat = NULL;
@@ -381,19 +374,22 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     }
 
     if ( e->em_perfhypothesis ) {
-	/* hypo->h_noneval[]=last; */
 	ADCL_statistics_global_max_v3 ( &(e->em_stats[last]), 1, 
 					e->em_topo->t_comm, 
 					e->em_topo->t_rank );
+#ifdef V3
+	next = ADCL_hypothesis_get_next ( e )
+#else
 	hypo->h_num_avail_meas++;
 	if ( hypo->h_num_avail_meas == hypo->h_num_required_meas ) {
 	    /* ADCL_hypothesis_eval_meas_series ( e, hypo->h_num_avail_meas ); */
 	    ADCL_hypothesis_eval_v3 ( e );
 	}
 
+	/* After we have potentially shrinked the list of available
+	   functions, we have to reevaluate how many of the remaining 
+	   ones are already tested */
 	for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){
-	    /* increase er_num_available_measurements every time 
-	       a method has the em_tested flag set to true; */
 	    if ( !(ADCL_STAT_IS_TESTED (e->em_stats[i]))  ) {
 		next = i;
 		e->em_last=next;
@@ -402,6 +398,8 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
 	    }
 	    hypo->h_num_avail_meas++;
 	}
+#endif
+
     }
     else {
 	if ( last <  ( e->em_fnctset.fs_maxnum -1  ) ){
