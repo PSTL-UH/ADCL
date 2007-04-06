@@ -33,3 +33,9 @@ clean:
 	rm -rf *~ ./include/*~ 
 	rm -rf ./lib/libadcl.a
 
+install:
+	test -z "@prefix@/lib" || mkdir -p "@prefix@/lib"	
+	install -c -m 644 $(ADCL_LIB_DIR)/libadcl.a  @prefix@/lib/
+	test -z "@prefix@/include" || mkdir -p "@prefix@/include"	
+	install -c -m 644 $(ADCL_INC_DIR)/ADCL.h  @prefix@/include/	
+	install -c -m 644 $(ADCL_INC_DIR)/ADCL.inc @prefix@/include/
