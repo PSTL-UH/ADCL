@@ -23,6 +23,7 @@ int ADCL_papi_create ( ADCL_papi_t **papi )
 			     newpapi );
 
     newpapi->p_num_events = 0;
+    newpapi->p_hwinfo = NULL;
 
     if ( (code = PAPI_library_init(PAPI_VER_CURRENT)) != PAPI_VER_CURRENT)
 	ADCL_handle_error(code,"library_init");
@@ -64,6 +65,7 @@ int ADCL_papi_enter ( ADCL_papi_t *papi )
 	ADCL_handle_error(code,"start_counters");
     
     papi->p_time_stamp = PAPI_get_real_usec();
+    papi->p_hwinfo = PAPI_get_hardware_info();
     
     return ADCL_SUCCESS;
 }
@@ -100,6 +102,7 @@ int ADCL_papi_print ( ADCL_papi_t *papi)
     int i;
 
     printf("Execution time: %lld\n", papi->p_exec_time);
+    printf("%d CPUS with %f MHz\n",papi->p_hwinfo->totalcpus, papi->p_hwinfo->mhz);
     for (i=0 ; i<papi->p_num_events ; i++) {
 	PAPI_event_code_to_name(papi->p_events[i],event_name);
 	printf("Event %s : %lld\n" , event_name , papi->p_values[i]);

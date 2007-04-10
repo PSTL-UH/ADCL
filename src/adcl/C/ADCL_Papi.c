@@ -32,7 +32,7 @@ int ADCL_Papi_free ( ADCL_Papi *papi)
     if ( NULL == papi  ) {
 	return ADCL_INVALID_ARG;
     }
-    if ( ppapi->t_id < 0 ) {
+    if ( ppapi->p_id < 0 ) {
 	return ADCL_INVALID_PAPI;
     }
 
