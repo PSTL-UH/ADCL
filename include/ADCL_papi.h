@@ -13,6 +13,7 @@ struct ADCL_papi_s{
     long_long p_exec_time;   /* total execution time */
     unsigned int *p_events;  /* the Event set */
     long_long *p_values;     /* values of each event in the event set */
+    const PAPI_hw_info_t *p_hwinfo; /* Hardware Information */
 };
 typedef struct ADCL_papi_s ADCL_papi_t;
 extern ADCL_array_t *ADCL_papi_farray;

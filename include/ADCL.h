@@ -1,8 +1,8 @@
 #ifndef __ADCL_H__
 #define __ADCL_H__
 
+#include "ADCL_config.h"
 #include "mpi.h"
-
 
 /* define constants and error codes */
 #define ADCL_SUCCESS        0
