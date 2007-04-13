@@ -47,15 +47,14 @@ int ADCL_hypothesis_init ( ADCL_emethod_t *e  )
 		e->em_state = ADCL_STATE_REGULAR;
 		e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_selection );
 	    }
-	    
-#ifdef V3
-	    /* ADCL_ATTR_MAPPING */
-	    hypo->h_active_attr = f->fs_attrset->as_attrs[0];
-	    hypo->h_active_attrpos = 0;
-#else
+#ifndef V3
 	    hypo->h_num_required_meas = 4;
 #endif
-	}
+	}	    
+#ifdef V3
+	hypo->h_active_attr = f->fs_attrset->as_attrs[0];
+	hypo->h_active_attrpos = 0;
+#endif
     }
 
     return ADCL_SUCCESS;

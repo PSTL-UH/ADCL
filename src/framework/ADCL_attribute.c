@@ -78,7 +78,7 @@ int ADCL_attribute_free ( ADCL_attribute_t **attribute)
 	if ( tattribute->a_findex != -1 ) {
 	    ADCL_array_remove_element ( ADCL_attribute_farray, tattribute->a_findex);
 	}
-	free ( attribute );
+	free ( tattribute );
     }
 
     *attribute = ADCL_ATTRIBUTE_NULL;
