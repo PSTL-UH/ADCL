@@ -25,7 +25,7 @@ int main ( int argc, char ** argv )
     sprintf(outname, "%s.gnuplot", basefname );
     outfd = fopen ( outname, "w" );
     if ( NULL == outfd ) {
-	exit -1;
+	return -1;
     }
 
     fprintf( outfd, "set term post eps\n");
@@ -60,7 +60,7 @@ char * get_winner ( char * filename )
 
     fd = fopen ( filename, "r");
     if ( NULL == fd ) {
-	exit -2;
+	exit ( 1 );
     }
 
 
@@ -70,7 +70,7 @@ char * get_winner ( char * filename )
 	   for line */
     }
   basestr = strstr ( line, "(" );
-  sscanf ( basestr, "%s %f", reqstr, &tmp );
+  sscanf ( basestr, "%s %lf", reqstr, &tmp );
   
   winner = strdup (reqstr);
   return winner;
