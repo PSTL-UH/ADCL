@@ -2,13 +2,15 @@
 #include <stdarg.h>
 
 
+#ifdef ADCL_FILE_PER_PROC
 static FILE *fd=NULL;
+static char buffer[MAXLINE][128];
+static int bufcnt=0;
+#endif
 int ADCL_printf_silence=0;
 
 
 #define MAXLINE 2048
-static char buffer[MAXLINE][128];
-static int bufcnt=0;
 
 int ADCL_printf_init ( void )
 {

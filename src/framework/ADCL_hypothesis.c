@@ -22,23 +22,16 @@ int ADCL_hypothesis_init ( ADCL_emethod_t *e  )
     if ( f->fs_attrset != ADCL_ATTRSET_NULL ) {
 	hypo->h_attr_hypothesis  = (int *) malloc (f->fs_attrset->as_maxnum * sizeof(int));
 	hypo->h_attr_confidence  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
-#ifdef V3
 	hypo->h_curr_attrvals    = (int *) malloc (f->fs_attrset->as_maxnum * sizeof(int));
-#endif
 	if ( NULL == hypo->h_attr_hypothesis ||
-	     NULL == hypo->h_attr_confidence 
-#ifdef V3
-            ||	NULL == hypo->h_curr_attrvals   
-#endif
-	    ) {
+	     NULL == hypo->h_attr_confidence ||	
+	     NULL == hypo->h_curr_attrvals   ) {
 	    return ADCL_NO_MEMORY;
 	}
 	
 	for ( i=0; i< e->em_fnctset.fs_attrset->as_maxnum; i++ ) {
 	    hypo->h_attr_hypothesis[i] = ADCL_ATTR_NOT_SET;
-#ifdef V3
 	    hypo->h_curr_attrvals[i]   = f->fs_attrset->as_attrs_baseval[i];
-#endif
 	}
 	
 	/* Initialize the attribute list if we are dealing with a predefined functionset */
@@ -47,14 +40,9 @@ int ADCL_hypothesis_init ( ADCL_emethod_t *e  )
 		e->em_state = ADCL_STATE_REGULAR;
 		e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_selection );
 	    }
-#ifndef V3
-	    hypo->h_num_required_meas = 4;
-#endif
 	}	    
-#ifdef V3
 	hypo->h_active_attr = f->fs_attrset->as_attrs[0];
 	hypo->h_active_attrpos = 0;
-#endif
     }
 
     return ADCL_SUCCESS;
@@ -268,7 +256,6 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-#ifdef V3
 int ADCL_hypothesis_get_next ( ADCL_emethod_t *e)
 {
     int done=0; /* false */
@@ -363,7 +350,6 @@ int ADCL_hypothesis_get_next ( ADCL_emethod_t *e)
 
     return next;
 }
-#endif
 
 /****************************************************************************/
 /****************************************************************************/

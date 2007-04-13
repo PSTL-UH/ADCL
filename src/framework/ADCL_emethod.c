@@ -165,11 +165,9 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	if ( NULL != hypo->h_attr_confidence ) {
 	    free ( hypo->h_attr_confidence );
 	}
-#ifdef V3
 	if ( NULL != hypo->h_curr_attrvals ) {
 	    free ( hypo->h_curr_attrvals );
 	}
-#endif
 	
 	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
 	free ( e );
@@ -208,12 +206,9 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
 	if ( NULL != hypo->h_attr_confidence ) {
 	    free ( hypo->h_attr_confidence );
 	}
-#ifdef V3
 	if ( NULL != hypo->h_curr_attrvals ) {
 	    free ( hypo->h_curr_attrvals );
 	}
-#endif 
-
 
 	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
 	free ( e );
@@ -340,10 +335,6 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
 {
     int next=ADCL_EVAL_DONE;
     int last = e->em_last;
-#ifndef V3
-    int i;
-    ADCL_hypothesis_t *hypo=&(e->em_hypo);
-#endif    
 
     if ( e->em_stats[last]->s_count < ADCL_emethod_numtests ) {
         *flag = ADCL_FLAG_PERF;
@@ -370,33 +361,12 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
 	ADCL_statistics_global_max_v3 ( &(e->em_stats[last]), 1, 
 					e->em_topo->t_comm, 
 					e->em_topo->t_rank );
-#ifdef V3
 	next = ADCL_hypothesis_get_next ( e );
 	if ( next != ADCL_EVAL_DONE ) {
 	    e->em_last=next;
 	    e->em_stats[next]->s_count++;
 	}
-#else
-	hypo->h_num_avail_meas++;
-	if ( hypo->h_num_avail_meas == hypo->h_num_required_meas ) {
-	    /* ADCL_hypothesis_eval_meas_series ( e, hypo->h_num_avail_meas ); */
-	    ADCL_hypothesis_eval_v3 ( e );
-	}
-
-	/* After we have potentially shrinked the list of available
-	   functions, we have to reevaluate how many of the remaining 
-	   ones are already tested */
-	for ( hypo->h_num_avail_meas=0,i=0;i<e->em_fnctset.fs_maxnum;i++){
-	    if ( !(ADCL_STAT_IS_TESTED (e->em_stats[i]))  ) {
-		next = i;
-		e->em_last=next;
-		e->em_stats[next]->s_count++;
-		break;
-	    }
-	    hypo->h_num_avail_meas++;
-	}
-#endif
-
+	
     }
     else {
 	if ( last <  ( e->em_fnctset.fs_maxnum -1  ) ){
