@@ -45,8 +45,8 @@ int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order, MPI_Dataty
     }
     else {
         /* MPI_ORDER_FORTRAN */
-        int *sdspl, *rdspl;
-	int i, *bl;
+        int *sdspl=NULL, *rdspl=NULL;
+	int i, *bl=NULL;
 	
 	if ( nc > 1 ) {
 	    bl    = (int * ) malloc ( nc * sizeof(int));

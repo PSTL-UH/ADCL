@@ -141,32 +141,10 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     }
     
     /* initiate the performance hypothesis structure */
-    hypo = &(e->em_hypo);
-    hypo->h_num_avail_meas = 0;
-    if ( f->fs_attrset != ADCL_ATTRSET_NULL ) {
-	hypo->h_attr_hypothesis  = (int *) malloc (f->fs_attrset->as_maxnum * sizeof(int));
-	hypo->h_attr_confidence  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
-	if ( NULL == hypo->h_attr_hypothesis ||
-	     NULL == hypo->h_attr_confidence ) {
-	    ret = ADCL_NO_MEMORY;
-	    goto exit;
-	}
-	
-	for ( i=0; i< e->em_fnctset.fs_attrset->as_maxnum; i++ ) {
-	    hypo->h_attr_hypothesis[i] = ADCL_ATTR_NOT_SET;
-	}
-	
-	/* Initialize the attribute list if we are dealing with a predefined functionset */
-	if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
-	    hypo->h_num_required_meas = 4;
-	    /* ADCL_ATTR_MAPPING */
-	    
-	    if ( -1 != ADCL_emethod_selection ) {
-		e->em_state = ADCL_STATE_REGULAR;
-		e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_selection );
-	    }
-	}
-    }
+    
+    if ( e->em_perfhypothesis ) {
+	ADCL_hypothesis_init ( e );
+    } 
 	
  exit:
     if ( ret != ADCL_SUCCESS  ) {
@@ -187,6 +165,11 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	if ( NULL != hypo->h_attr_confidence ) {
 	    free ( hypo->h_attr_confidence );
 	}
+#ifdef V3
+	if ( NULL != hypo->h_curr_attrvals ) {
+	    free ( hypo->h_curr_attrvals );
+	}
+#endif
 	
 	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
 	free ( e );
@@ -225,6 +208,12 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
 	if ( NULL != hypo->h_attr_confidence ) {
 	    free ( hypo->h_attr_confidence );
 	}
+#ifdef V3
+	if ( NULL != hypo->h_curr_attrvals ) {
+	    free ( hypo->h_curr_attrvals );
+	}
+#endif 
+
 
 	ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
 	free ( e );
@@ -261,6 +250,7 @@ int ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *em,
       }
       if ( found ) {
 	  *pos = i;
+	  ret = ADCL_SUCCESS;
 	  break;
       }
   }
@@ -348,10 +338,13 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
 /**********************************************************************/
 int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
 {
-    int i, next=ADCL_EVAL_DONE;
+    int next=ADCL_EVAL_DONE;
     int last = e->em_last;
+#ifndef V3
+    int i;
     ADCL_hypothesis_t *hypo=&(e->em_hypo);
-    
+#endif    
+
     if ( e->em_stats[last]->s_count < ADCL_emethod_numtests ) {
         *flag = ADCL_FLAG_PERF;
         e->em_stats[last]->s_count++;
@@ -378,7 +371,11 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
 					e->em_topo->t_comm, 
 					e->em_topo->t_rank );
 #ifdef V3
-	next = ADCL_hypothesis_get_next ( e )
+	next = ADCL_hypothesis_get_next ( e );
+	if ( next != ADCL_EVAL_DONE ) {
+	    e->em_last=next;
+	    e->em_stats[next]->s_count++;
+	}
 #else
 	hypo->h_num_avail_meas++;
 	if ( hypo->h_num_avail_meas == hypo->h_num_required_meas ) {

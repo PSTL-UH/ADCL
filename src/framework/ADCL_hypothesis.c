@@ -10,6 +10,57 @@ static int next_attr_combination_excluding_active_attr ( ADCL_attrset_t *attrset
 							 int *attr_val_list, 
 							 int active_attr_pos );
 static int get_max_attr_vals ( ADCL_attrset_t *attrset );
+extern int ADCL_emethod_selection;
+
+int ADCL_hypothesis_init ( ADCL_emethod_t *e  )
+{
+    ADCL_hypothesis_t *hypo=&(e->em_hypo);
+    ADCL_fnctset_t *f = &(e->em_fnctset);
+    int i;
+
+    hypo->h_num_avail_meas = 0;
+    if ( f->fs_attrset != ADCL_ATTRSET_NULL ) {
+	hypo->h_attr_hypothesis  = (int *) malloc (f->fs_attrset->as_maxnum * sizeof(int));
+	hypo->h_attr_confidence  = (int *) calloc (1, f->fs_attrset->as_maxnum * sizeof(int));
+#ifdef V3
+	hypo->h_curr_attrvals    = (int *) malloc (f->fs_attrset->as_maxnum * sizeof(int));
+#endif
+	if ( NULL == hypo->h_attr_hypothesis ||
+	     NULL == hypo->h_attr_confidence 
+#ifdef V3
+            ||	NULL == hypo->h_curr_attrvals   
+#endif
+	    ) {
+	    return ADCL_NO_MEMORY;
+	}
+	
+	for ( i=0; i< e->em_fnctset.fs_attrset->as_maxnum; i++ ) {
+	    hypo->h_attr_hypothesis[i] = ADCL_ATTR_NOT_SET;
+#ifdef V3
+	    hypo->h_curr_attrvals[i]   = f->fs_attrset->as_attrs_baseval[i];
+#endif
+	}
+	
+	/* Initialize the attribute list if we are dealing with a predefined functionset */
+	if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
+	    if ( -1 != ADCL_emethod_selection ) {
+		e->em_state = ADCL_STATE_REGULAR;
+		e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_selection );
+	    }
+	    
+#ifdef V3
+	    /* ADCL_ATTR_MAPPING */
+	    hypo->h_active_attr = f->fs_attrset->as_attrs[0];
+	    hypo->h_active_attrpos = 0;
+#else
+	    hypo->h_num_required_meas = 4;
+#endif
+	}
+    }
+
+    return ADCL_SUCCESS;
+}
+
 
 /**********************************************************************/
 /**********************************************************************/
@@ -221,41 +272,94 @@ int ADCL_hypothesis_eval_one_attr ( ADCL_emethod_t *e, int num_attrs,  int *attr
 #ifdef V3
 int ADCL_hypothesis_get_next ( ADCL_emethod_t *e)
 {
-    int done=1; /* false */
-    int ret, next=ADCL_EVAL_DONE;
+    int done=0; /* false */
+    int i, ret, ret2, next=ADCL_EVAL_DONE;
+    int just_evaluated=0; /* false */
     ADCL_hypothesis_t *hypo=&(e->em_hypo);
+    ADCL_attrset_t *attrset= (&(e->em_fnctset))->fs_attrset;
 
     while (!done ) {
-	ret = ADCL_next_attr_combination ( e->em_fnctset.fs_attrset, 
-					   hypo->h_active_attr, 
-					   hypo->h_curr_attrvals);
-	if ( ADCL_SUCCESS == ret ) {
-	    ret = ADCL_emethod_get_function_by_attrs ( e, 
-						       hypo->h_curr_attrvals,
-						       &next );
-	    if ( ADCL_NOT_FOUND == ret ) {
-		/* 
-		** there is no function with this particular
-		** combination of attribute values 
-		*/
-		continue;
-	    }							   
+	ret = next_attr_combination ( e->em_fnctset.fs_attrset, 
+				      hypo->h_active_attr, 
+				      hypo->h_curr_attrvals);
+	if ( ret == ADCL_EVAL_DONE ) {
+	    /* All possible attribute value combinations have been tested */
+	    break;
 	}
-	else if ( ADCL_ATTR_NEW_BLOCK == ret ) {
+	ret2 = ADCL_emethod_get_function_by_attrs ( e, 
+						    hypo->h_curr_attrvals,
+						    &next );
+	if ( ADCL_NOT_FOUND == ret2 ) {
+	    /* 
+	    ** there is no function with this particular
+	    ** combination of attribute values 
+	    */
+	    continue;
+	    }							   
+	if ( ADCL_STAT_IS_TESTED ( e->em_stats[next]) ) {
+	    /* this function has already been evaluated */
+	    continue;
+	}
+	    
+
+	if ( ADCL_ATTR_NEW_BLOCK == ret && !just_evaluated ) {
 	    ADCL_hypothesis_eval_v3 ( e );
+	    just_evaluated = 1;
 	    /* 
 	    ** check whether the optimal value for the currently investigated
 	    ** attribute has been determined, by looking at whether it
 	    ** has more than one possible value 
 	    */
 	    if  ( 1 == hypo->h_active_attr->a_maxnvalues ) {
-		/* yes it, has  */
-	    }
+		/* yes it, has. Determine the next active attribute  */
 
+		for ( ; hypo->h_active_attrpos < attrset->as_maxnum; hypo->h_active_attrpos++ ) {
+		    hypo->h_active_attr = attrset->as_attrs[hypo->h_active_attrpos];
+		    if ( hypo->h_active_attr->a_maxnvalues != 1 ) {
+			/* this attribute has not been optimized yet */
+			break;
+		    }
+		}
+		if ( hypo->h_active_attrpos == attrset->as_maxnum ) {
+		    /* the system has determined the optimal values for all
+		       attributes. So we are done and can return */
+		    next = ADCL_EVAL_DONE;
+		    break;
+		}
+
+		/* Reset all attributes to its base values */
+		for ( i=0; i< attrset->as_maxnum; i++  ) {
+		    hypo->h_curr_attrvals[i] = attrset->as_attrs_baseval[i];
+		}
+		
+		/* Get the according function pointer */
+		ret2 = ADCL_emethod_get_function_by_attrs ( e, 
+							    hypo->h_curr_attrvals,
+							    &next );
+		if ( ADCL_NOT_FOUND == ret2 ) {
+		    /* 
+		    ** there is no function with this particular
+		    ** combination of attribute values 
+		    */
+		    continue;
+		}							   
+		if ( ADCL_STAT_IS_TESTED ( e->em_stats[next]) ) {
+		    /* this function has already been evaluated */
+		    continue;
+		}
+		break;
+	    }
+	    else {
+		/* 
+		** This path should be executed, if we have a new attribute combination
+		** we had to do an evaluation but the evaluation did not lead to an  
+		** an optimal value for the currently optimized attribute. So we just
+		** keep going on.
+		*/
+		break;
+	    }
 	}
-	else if ( ADCL_EVAL_DONE == ret ) {
-	    break;
-	}
+	done=1;
     }
 
     return next;
@@ -291,9 +395,11 @@ int next_attr_combination ( ADCL_attrset_t *attrset,
     }
     else if ( thisval == attrset->as_attrs_maxval[thispos] ){
 	attr_val_list[thispos] = attrset->as_attrs_baseval[thispos];
-	next_attr_combination_excluding_active_attr ( attrset, attr_val_list, 
+	ret = next_attr_combination_excluding_active_attr ( attrset, attr_val_list, 
 						      thispos );
-	ret = ADCL_ATTR_NEW_BLOCK;
+	if ( ret != ADCL_EVAL_DONE ) {
+	    return ADCL_ATTR_NEW_BLOCK;
+	}
     }
     else {
 	/* Bug, should not happen */

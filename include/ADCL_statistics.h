@@ -60,6 +60,8 @@ struct ADCL_hypothesis_s {
     int                  *h_curr_attrvals; /* list of attribute values currently
 					      being evaluated */
     ADCL_attribute_t       *h_active_attr; /* attribute currently being optimezed */    
+    int                  h_active_attrpos; /* position of the current actively investigated
+					      attribute in the attrset */
 #endif
 };
 typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
