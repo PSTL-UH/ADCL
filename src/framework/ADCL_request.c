@@ -157,13 +157,15 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
     
     
     /* Allocate the request arrays, 2 for each neighboring process */
-    newreq->r_sreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
-					  sizeof(MPI_Request));
-    newreq->r_rreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
-					  sizeof(MPI_Request));
-    if ( NULL == newreq->r_rreqs|| NULL == newreq->r_sreqs ) {
-	ret = ADCL_NO_MEMORY;
-	goto exit;
+    if ( 0 != topo->t_ndims ) {
+	newreq->r_sreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
+					      sizeof(MPI_Request));
+	newreq->r_rreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
+					      sizeof(MPI_Request));
+	if ( NULL == newreq->r_rreqs|| NULL == newreq->r_sreqs ) {
+	    ret = ADCL_NO_MEMORY;
+	    goto exit;
+	}
     }
     
     
