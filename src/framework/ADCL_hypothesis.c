@@ -55,7 +55,8 @@ int ADCL_hypothesis_init ( ADCL_emethod_t *e  )
 
 int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
 {
-    int i, loop, ret, winner_attr_val_pos, winner_attr_val, done=0;
+    int i, loop, winner_attr_val_pos, winner_attr_val;
+    int done=0, ret=ADCL_SUCCESS;
     int maxdim, *attrval_list=NULL;
     ADCL_hypothesis_t *hypo=&(e->em_hypo);
     ADCL_attrset_t *attrset=e->em_fnctset.fs_attrset;
@@ -112,6 +113,7 @@ int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
     /* Now the shrink the emethods list if we reached a threshold */
     for ( loop=0; loop<attrset->as_maxnum; loop++ ){
 	if ( hypo->h_attr_confidence[loop] >= ADCL_hypo_req_confidence ) {
+	    ret = ADCL_CHANGE_OCCURED;
 	    ADCL_hypothesis_shrinklist_byattr( e, loop, 
 					       hypo->h_attr_hypothesis[loop]);
 	}
@@ -120,7 +122,9 @@ int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
     free ( tmp_stats );
     free ( tmp_funcs );
     free ( attrval_list );
-    return ADCL_SUCCESS;
+
+
+    return ret;
 }
 
 /**********************************************************************/
@@ -289,30 +293,31 @@ int ADCL_hypothesis_get_next ( ADCL_emethod_t *e)
 	    
 
 	if ( ADCL_ATTR_NEW_BLOCK == ret && !just_evaluated ) {
-	    ADCL_hypothesis_eval_v3 ( e );
+	    ret = ADCL_hypothesis_eval_v3 ( e );
 	    just_evaluated = 1;
 	    /* 
 	    ** check whether the optimal value for the currently investigated
 	    ** attribute has been determined, by looking at whether it
 	    ** has more than one possible value 
 	    */
-	    if  ( 1 == hypo->h_active_attr->a_maxnvalues ) {
-		/* yes it, has. Determine the next active attribute  */
+	    if ( ret == ADCL_CHANGE_OCCURED ) {
+		if  ( 1 == hypo->h_active_attr->a_maxnvalues ) {
+		    /* yes it, has. Determine the next active attribute  */
 
-		for ( ; hypo->h_active_attrpos < attrset->as_maxnum; hypo->h_active_attrpos++ ) {
-		    hypo->h_active_attr = attrset->as_attrs[hypo->h_active_attrpos];
-		    if ( hypo->h_active_attr->a_maxnvalues != 1 ) {
-			/* this attribute has not been optimized yet */
+		    for ( ; hypo->h_active_attrpos<attrset->as_maxnum; hypo->h_active_attrpos++){
+			hypo->h_active_attr = attrset->as_attrs[hypo->h_active_attrpos];
+			if ( hypo->h_active_attr->a_maxnvalues != 1 ) {
+			    /* this attribute has not been optimized yet */
+			    break;
+			}
+		    }
+		    if ( hypo->h_active_attrpos == attrset->as_maxnum ) {
+			/* the system has determined the optimal values for all
+			   attributes. So we are done and can return */
+			next = ADCL_EVAL_DONE;
 			break;
 		    }
 		}
-		if ( hypo->h_active_attrpos == attrset->as_maxnum ) {
-		    /* the system has determined the optimal values for all
-		       attributes. So we are done and can return */
-		    next = ADCL_EVAL_DONE;
-		    break;
-		}
-
 		/* Reset all attributes to its base values */
 		for ( i=0; i< attrset->as_maxnum; i++  ) {
 		    hypo->h_curr_attrvals[i] = attrset->as_attrs_baseval[i];
@@ -333,7 +338,7 @@ int ADCL_hypothesis_get_next ( ADCL_emethod_t *e)
 		    /* this function has already been evaluated */
 		    continue;
 		}
-		break;
+		return ADCL_CHANGE_OCCURED;
 	    }
 	    else {
 		/* 
