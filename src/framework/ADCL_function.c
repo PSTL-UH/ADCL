@@ -88,10 +88,6 @@ int ADCL_function_free ( ADCL_function_t **fnct )
 /********************************************************************************/
 int ADCL_function_get_attrval ( ADCL_function_t *func, int attr_pos ) 
 {
-    if ( attr_pos > func->f_attrset->as_attrs_numval[attr_pos]) {
-	return ADCL_ERROR_INTERNAL;
-    }
-
     return func->f_attrvals[attr_pos];
 }
 

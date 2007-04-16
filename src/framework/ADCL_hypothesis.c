@@ -112,7 +112,9 @@ int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
     
     /* Now the shrink the emethods list if we reached a threshold */
     for ( loop=0; loop<attrset->as_maxnum; loop++ ){
-	if ( hypo->h_attr_confidence[loop] >= ADCL_hypo_req_confidence ) {
+	if ( hypo->h_attr_confidence[loop] >= ADCL_hypo_req_confidence && 
+	     hypo->h_attr_hypothesis[loop] != ADCL_ATTR_NOT_SET        && 
+	     attrset->as_attrs[loop]->a_maxnvalues > 1 ) {
 	    ret = ADCL_CHANGE_OCCURED;
 	    ADCL_hypothesis_shrinklist_byattr( e, loop, 
 					       hypo->h_attr_hypothesis[loop]);
