@@ -1,7 +1,7 @@
 include ../Makefile.defs
 LOCALCFLAGS = -O0 -g -Wall
 
-all: eval-slurm minmax genscript gentex split
+all: eval-slurm minmax genscript gentex split attr_test_generator
 
 split: 	split.c
 	$(CC) $(LOCALCFLAGS) -o split split.c 
@@ -23,6 +23,9 @@ minmax: minmax.c
 
 iterations: iterations.c
 	$(CC) $(LOCALCFLAGS) -o iterations iterations.c 
+
+attr_test_generator: attr_test_generator.c
+	$(CC) $(LOCALCFLAGS) -o attr_test_generator attr_test_generator.c
 
 
 clean:

@@ -230,6 +230,7 @@ int attr_test_gen_func_prototypes ( FILE *outf, int numfuncs )
 	fprintf(outf, "void test_func_%d ( ADCL_Request req );\n", i );
 	fprintf(outf, "#define TIME%d %d\n", i, 1000*i);
     } 
+    fprintf(outf, "\n");
 
     return 0;
 }
