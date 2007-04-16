@@ -1,6 +1,7 @@
 #include "ADCL_internal.h"
 #include <stdarg.h>
 
+#define MAXLINE 2048
 
 #ifdef ADCL_FILE_PER_PROC
 static FILE *fd=NULL;
@@ -10,7 +11,6 @@ static int bufcnt=0;
 int ADCL_printf_silence=0;
 
 
-#define MAXLINE 2048
 
 int ADCL_printf_init ( void )
 {

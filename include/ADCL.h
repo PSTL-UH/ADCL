@@ -11,6 +11,7 @@
 #define ADCL_USER_ERROR     -3
 #define ADCL_UNDEFINED      -4
 #define ADCL_NOT_FOUND      -5
+#define ADCL_CHANGE_OCCURED -6
 
 #define ADCL_INVALID_ARG       10
 #define ADCL_INVALID_NDIMS     11
