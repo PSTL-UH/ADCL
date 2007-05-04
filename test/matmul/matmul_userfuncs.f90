@@ -1,6 +1,6 @@
   module Matrix
     implicit none
-    integer :: NIT, nDims, nProSize, nXSize, OneDirection_Row=2, MPI_CART_ERROR = 1
+    integer :: Pattern, NIT, nDims, nProSize, nXSize, OneDirection_Row=2, MPI_CART_ERROR = 1
     integer, dimension(2)::Dims
     double precision, dimension(:,:), pointer:: colA, colB, colC, C
   end module Matrix
@@ -9,28 +9,99 @@
   module InitMatrix
     use Matrix
   contains
+
+    subroutine ReadConf()
+    use Matrix   
+    integer :: anfang, ende, line, i,err,end, punkt
+    integer, dimension (7) :: iarraz
+    logical :: ex, belegt
+    logical, save :: isallocated
+    character *80 :: s 
+    character*11 :: s_chen
+
+    inquire ( file = 'Values.conf', exist = ex )
+    if ( ex ) then
+      open ( unit=10, file = 'Values.conf' )
+100   continue
+      anfang = 0
+      ende   = 0
+      belegt = .false.
+
+99 format(a)
+
+      read ( 10, 99, err=130, end=120 ) s
+      line = line + 1
+
+      if ( s(1:1).eq.'#') then
+        goto 100
+      end if
     
+      punkt = index ( s, ':' ) 
+
+      i = punkt 
+110   continue
+      
+      i = i + 1
+      if ( s(i:i).ne.' '.and.( s(i-1:i-1).eq.' '.or. &
+           s(i-1:i-1).eq.':')) then 
+           anfang = i
+      end if
+
+      if ( s(i:i).eq.' '.and.s(i-1:i-1).ne.' '.and.&
+           s(i-1:i-1).ne.':' ) then
+           ende = i
+           belegt = .true.
+      end if
+
+      if ( .not.belegt ) goto 110
+        read( s(1:punkt), 991 ) s_chen
+      
+     ! write(*,*) s_chen   
+
+      select case ( s_chen )
+        case ( 'MatrixSize:' )
+          read ( s(anfang:ende), 992 ) nProSize
+         ! write(*,*) nProSize
+        case ( 'IterNumber:' )
+          read ( s(anfang:ende), 992 ) NIT
+         ! write(*,*) NIT
+         case ('PatternNO :')
+          read( s(anfang:ende), 992) Pattern 
+
+        case default
+          write (*,*) 'Unknown keqword in System.config, line :',line
+      end select
+
+      goto 100
+130 continue
+      write (*,*) 'Error reading the configuration file'
+120 continue
+    close ( 10 )
+
+  else
+    write (*,*) 'No File Values.conf in this directory'
+  end if
+!end if
+991 format(a11)
+992 format(i5)
+    end subroutine ReadConf 
+    
+    
+
     subroutine SetMatrix(nProcs, MyRank)
       use Matrix
       implicit none
       
       integer, intent(IN) :: nProcs, MyRank
       integer :: i,j,dimy
-      
-88    format (i8)
-      
-      ! Read Problme size from Values.conf file
-      open(unit=101, FILE = "Values.conf", STATUS = "OLD")
-      read(101,88), nProSize
-      read(101,88), NIT
-      !write(*,*), "Problem size =", nProSize
-      
+
       ! Allocate memory to matrix
       if( mod(nProSize,nProcs) .NE. 0) then
          write(*,*) "Error:Process number must be devided by Problem size"
          return
       end if
-      
+     
+    
       nXSize = nProSize/nProcs
       
       !write(*, *) nXSize
@@ -81,12 +152,13 @@ program FirstTest
     implicit none
     include 'ADCL.inc'
     
+    integer :: front, endl
     integer :: topo, request, fnctset
     integer funcs(3)
     integer :: i, rank, size, NewComm, ierror
-    logical :: Periods(1), Reorder(1)
+    logical :: Periods(1), Reorder(1), EndConf
     
-    external PMatmulSych, PMatmulOverLap, PMatmulBcast
+    external PMatmulSynch, PMatmulOverLap, PMatmulBcast
     
     NIT = 200
     
@@ -96,13 +168,15 @@ program FirstTest
     
     call ADCL_Init ( ierror )
     
-    call ADCL_Function_create ( PMatmulSych, ADCL_ATTRSET_NULL, 0, &
-         "PMatmulSych", funcs(1), ierror ) 
+    call ADCL_Function_create ( PMatmulSynch, ADCL_ATTRSET_NULL, 0, &
+         "PMatmulSynch", funcs(1), ierror ) 
     call ADCL_Function_create ( PMatmulOverLap, ADCL_ATTRSET_NULL, 0, &
          "PMatmulOverLap", funcs(2), ierror ) 
     call ADCL_Function_create ( PMatmulBcast, ADCL_ATTRSET_NULL, 0, &
          "PMatmulBcast", funcs(3), ierror ) 
-    
+    call ReadConf()
+
+    write(*,*) "ProSie=", nProSize, "iter=", NIT
     call SetMatrix( size, rank )
     
     nDims = 2
@@ -113,15 +187,31 @@ program FirstTest
     Reorder(1) = .false.
     
     call MPI_Cart_create ( MPI_COMM_WORLD, nDims, Dims, Periods, Reorder, NewComm, ierror )
-    
-    call ADCL_Fnctset_create ( 3, funcs, "trivial fortran funcs", fnctset, &
-         ierror)
+   
+
+    select case ( Pattern )
+      case(-1)
+        call ADCL_Fnctset_create ( 3, funcs, "trivial fortran funcs", fnctset, &
+           ierror)
+      case(1)
+        call ADCL_Fnctset_create (1, funcs(1), "Synchronize", fnctset, &
+           ierror)
+      case(2)
+        call ADCL_Fnctset_create(1, funcs(2), "Overlap", fnctset, &
+           ierror)
+      case(3)
+        call ADCL_Fnctset_create(1, funcs(3), "Broadcast", fnctset, &
+           ierror)    
+      case default
+        write(*,*) "Unknown pattern number,error! " 
+    end select     
     
     call ADCL_Topology_create_generic ( 0, 0, 0, 0, ADCL_DIRECTION_BOTH, &
          NewComm, topo, ierror )
     
     call ADCL_Request_create ( ADCL_VECTOR_NULL, topo, fnctset, request, ierror )
-    
+
+
     do i=0, NIT 
        call ADCL_Request_start( request, ierror )
     end do
@@ -139,10 +229,8 @@ program FirstTest
     
   end program FirstTest
 
-
-
-  
-  subroutine PMatmulSych ( request ) 
+ 
+  subroutine PMatmulSynch ( request ) 
     use Matrix
     use MMultiply
     implicit none
@@ -158,7 +246,7 @@ program FirstTest
     
     
     call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
-    ! write (*,*) rank, ": In PMatmulSych, size = ", size
+    ! write (*,*) rank, ": In PMatmulSynch, size = ", size
     
     call MPI_Topo_test (comm, TopoType, ierror)
     
@@ -202,7 +290,7 @@ program FirstTest
     call MPI_Waitall (2, rowreqs, rowstatus, ierror)
     
     
-  end subroutine PMatmulSych
+  end subroutine PMatmulSynch
   
   
   subroutine PMatmulOverLap ( request ) 
@@ -218,7 +306,7 @@ program FirstTest
     double precision, dimension(:,:), pointer:: pColA, pColTemp
     
     call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
-    write (*,*) rank, ": In PMatmulOverLap, size = ", size
+   ! write (*,*) rank, ": In PMatmulOverLap, size = ", size
     
     call MPI_Topo_test (comm, TopoType, ierror)
     

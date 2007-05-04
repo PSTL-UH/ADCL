@@ -2,7 +2,7 @@ include ../../Makefile.defs
 
 all: matmul_userfuncs
 
-matmul_userfuncs: matmul_userfuncs.f90
+matmul_userfuncs: matmul_userfuncs.f90 
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/matmul_userfuncs matmul_userfuncs.f90 $(FLDFLAGS)
 
 clean:
