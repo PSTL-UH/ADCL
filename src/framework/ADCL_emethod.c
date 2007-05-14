@@ -145,6 +145,13 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     if ( e->em_perfhypothesis ) {
 	ADCL_hypothesis_init ( e );
     } 
+
+    if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
+	if ( -1 != ADCL_emethod_selection ) {
+	    e->em_state = ADCL_STATE_REGULAR;
+	    e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_selection );
+	}
+    }	    
 	
  exit:
     if ( ret != ADCL_SUCCESS  ) {

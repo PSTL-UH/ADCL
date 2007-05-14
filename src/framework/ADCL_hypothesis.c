@@ -34,13 +34,7 @@ int ADCL_hypothesis_init ( ADCL_emethod_t *e  )
 	    hypo->h_curr_attrvals[i]   = f->fs_attrset->as_attrs_baseval[i];
 	}
 	
-	/* Initialize the attribute list if we are dealing with a predefined functionset */
-	if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
-	    if ( -1 != ADCL_emethod_selection ) {
-		e->em_state = ADCL_STATE_REGULAR;
-		e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_selection );
-	    }
-	}	    
+	/* Initialize the attribute list  */
 	hypo->h_active_attr = f->fs_attrset->as_attrs[0];
 	hypo->h_active_attrpos = 0;
     }
