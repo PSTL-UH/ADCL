@@ -1,5 +1,5 @@
 include ../Makefile.defs
-LOCALCFLAGS = -O0 -g -Wall
+LOCALCFLAGS = -O0 -g -Wall -I/usr/local/include/gsl
 
 all: eval-slurm minmax genscript gentex split attr_test_generator
 
@@ -19,7 +19,8 @@ gentex: gentex.c
 	$(CC) $(LOCALCFLAGS) -o gentex gentex.c 
 
 minmax: minmax.c
-	$(CC) $(LOCALCFLAGS) -o minmax minmax.c 
+	$(CC) $(LOCALCFLAGS) -c robust.c 
+	$(CC) $(LOCALCFLAGS) -o minmax minmax.c robust.o -L/usr/local/lib/ -lgsl -lgslcblas
 
 iterations: iterations.c
 	$(CC) $(LOCALCFLAGS) -o iterations iterations.c 

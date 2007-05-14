@@ -42,4 +42,9 @@ struct emethod{
 		_t.max = _time;     \
 		_t.maxloc =_i;}}
 
+
+int ml(const int ndata,  double* const data, 
+       double* nu, double *mu, double *sigma, double *val);
+
+
 #endif

@@ -22,7 +22,7 @@ void minmax_calc_per_iteration ( struct emethod **em, char *filename );
 void minmax_calc_statistics    ( struct emethod **em, char *filename );
 void minmax_clear_poison_field ( struct emethod **em);
 void minmax_calc_decision      ( struct emethod **em, int outlier_fraction ); 
-void minmax_sort               ( struct emethod **em );
+void minmax_calc_robust ( struct emethod **em, char *filename );
 
 static int tcompare ( const void*, const void* );
 /**********************************************************************/
@@ -41,9 +41,10 @@ int main (int argc, char **argv )
 	minmax_calc_per_iteration ( emethods, "minmax.out" );
     }
 
-    minmax_filter_timings     ( emethods, outlier_factor);
-    minmax_calc_decision      ( emethods, outlier_fraction );
-    minmax_calc_statistics    ( emethods, NULL);
+    minmax_filter_timings   ( emethods, outlier_factor);
+    minmax_calc_decision    ( emethods, outlier_fraction );
+    minmax_calc_statistics  ( emethods, NULL );
+    minmax_calc_robust      ( emethods, NULL );
     if ( output_files ) {
 //	minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
     }
@@ -364,6 +365,7 @@ void minmax_calc_statistics ( struct emethod **em, char *filename )
 	printf("Standard formula winner is %d\n", tline2.minloc );
     }
 
+    free ( tline );
     return;
 }
 /**********************************************************************/
@@ -560,5 +562,59 @@ void minmax_finalize ( struct emethod ***emethods )
     }
 
     *emethods = NULL;
+    return;
+}
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+void minmax_calc_robust ( struct emethod **em, char *filename ) 
+{
+    FILE *outf=NULL;
+    struct lininf *tline, tline2;
+    int i, j;
+    double nu, sigma, val;
+
+    tline  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
+    if ( NULL == tline ) {
+	printf("calc_robust: could not allocate memory\n");
+    }
+    
+    if ( NULL != filename ) {
+	outf = fopen(filename, "a");
+	if ( NULL == outf ) {
+	    printf("calc_robust: could not open %s for writing\n", filename );
+	    exit (-1);
+	}
+	fprintf(outf, "\n");
+    }
+    
+    /* Calculate the median of all measurement series */
+    nu = 0.0;
+    for (i=0; i < numprocs; i++ ) {
+	for ( j=0; j< nummethods; j++ ) {
+	    ml ( em[i][j].em_rescount, em[i][j].em_time, &nu, &(em[i][j].em_avg_filtered) , 
+		 &sigma, &val );
+	    
+	}
+    }
+    
+    TLINE_INIT ( tline2 );
+    for (j=0; j< nummethods; j++ ) {
+	TLINE_INIT(tline[i]);
+	for (i=0; i< numprocs; i++ ) {
+	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
+	}
+	TLINE_MIN (tline2, tline[j].max, j );
+    }
+    
+    if ( NULL != filename ) {
+	fprintf(outf, "Robust formula winner is %d\n", tline2.minloc );
+	fclose (outf);
+    }
+    else {
+	printf("Robust formula winner is %d\n", tline2.minloc );
+    }
+    
+    free ( tline );
     return;
 }
