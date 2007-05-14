@@ -22,7 +22,9 @@ void minmax_calc_per_iteration ( struct emethod **em, char *filename );
 void minmax_calc_statistics    ( struct emethod **em, char *filename );
 void minmax_clear_poison_field ( struct emethod **em);
 void minmax_calc_decision      ( struct emethod **em, int outlier_fraction ); 
+void minmax_sort               ( struct emethod **em );
 
+static int tcompare ( const void*, const void* );
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -41,9 +43,9 @@ int main (int argc, char **argv )
 
     minmax_filter_timings     ( emethods, outlier_factor);
     minmax_calc_decision      ( emethods, outlier_fraction );
+    minmax_calc_statistics    ( emethods, NULL);
     if ( output_files ) {
-	minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
-	minmax_calc_statistics    ( emethods, "minmax-median.out");
+//	minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
     }
 
 
@@ -269,45 +271,99 @@ static int tcompare ( const void *p, const void* q )
 void minmax_calc_statistics ( struct emethod **em, char *filename ) 
 {
     FILE *outf=NULL;
-    struct lininf tline, tline2, tline3;
-    int i, j;
+    struct lininf *tline, tline2;
+    int i, j, k;
 
-    outf = fopen(filename, "a");
-    if ( NULL == outf ) {
-	printf("calc_statistics: could not open %s for writing\n", filename );
-	exit (-1);
+    tline  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
+    if ( NULL == tline ) {
+	printf("calc_statistics: could not allocate memory\n");
     }
-    fprintf(outf, "\n");
     
+    if ( NULL != filename ) {
+	outf = fopen(filename, "a");
+	if ( NULL == outf ) {
+	    printf("calc_statistics: could not open %s for writing\n", filename );
+	    exit (-1);
+	}
+	fprintf(outf, "\n");
+    }
+    
+    minmax_clear_poison_field ( em);
+	
     /* Calculate the median of all measurement series */
     for (i=0; i < numprocs; i++ ) {
 	for ( j=0; j< nummethods; j++ ) {
 	    qsort ( em[i][j].em_time, em[i][j].em_rescount, sizeof(double), 
 		    tcompare );
-	    em[i][j].em_median = em[i][j].em_time[ (em[i][j].em_rescount/2)];
+	    if ( em[i][j].em_rescount % 2 == 0 ) {
+		em[i][j].em_median = ( em[i][j].em_time[ em[i][j].em_rescount/2 ]  + 
+				       em[i][j].em_time[(em[i][j].em_rescount/2) + 1 ] ) /2; 
+	    }
+	    else {
+		em[i][j].em_median = em[i][j].em_time[ (em[i][j].em_rescount/2)+1];
+	    }
+	    
+	    em[i][j].em_1stquartile = em[i][j].em_time[ em[i][j].em_rescount / 4 ];
+	    em[i][j].em_3rdquartile = em[i][j].em_time[ em[i][j].em_rescount * 3 / 4 ];
+	    em[i][j].em_iqr = em[i][j].em_3rdquartile - em[i][j].em_1stquartile; 
+	    em[i][j].em_llimit = em[i][j].em_1stquartile  - (1.5 * em[i][j].em_iqr);
+	    em[i][j].em_ulimit = em[i][j].em_3rdquartile  + (1.5 * em[i][j].em_iqr);
+	    
+	    em[i][j].em_num_outliers = 0;
+	    em[i][j].em_sum_filtered = 0;
+	    em[i][j].em_cnt_filtered = 0;
+	    em[i][j].em_avg_filtered = 0;
+	    em[i][j].em_perc_filtered = 0;
+	    
+	    for ( k=0; k< em[i][j].em_1stquartile; k++ ) {
+		if ( em[i][j].em_time[k] < em[i][j].em_llimit ) {
+		    em[i][j].em_poison[k] = 1;
+		}
+		else {
+		    break;
+		}
+	    }
+	    
+	    for ( k=em[i][j].em_3rdquartile;  k< em[i][j].em_rescount;  k++ ) {
+		if ( em[i][j].em_time[k] > em[i][j].em_ulimit ) {
+		    em[i][j].em_poison[k] = 1;
+		}
+		else {
+		    break;
+		}
+	    }
+	    
+	    for ( k=0; k < em[i][j].em_rescount; k++ ) {
+		if ( em[i][j].em_poison[k] == 0 ) {
+		    em[i][j].em_sum_filtered += em[i][j].em_time[k];
+		    em[i][j].em_cnt_filtered ++;
+		}
+		else {
+		    em[i][j].em_num_outliers++;
+		}
+	    }
+	    em[i][j].em_perc_filtered = 100 * em[i][j].em_cnt_filtered/em[i][j].em_rescount;	    
+	    em[i][j].em_avg_filtered  = em[i][j].em_sum_filtered / em[i][j].em_cnt_filtered;
 	}	
     }
     
+    TLINE_INIT ( tline2 );
     for (j=0; j< nummethods; j++ ) {
-	TLINE_INIT(tline);
-	TLINE_INIT(tline2);
-	TLINE_INIT(tline3);
+	TLINE_INIT(tline[i]);
 	for (i=0; i< numprocs; i++ ) {
-	    TLINE_MIN(tline, em[i][j].em_median, i);
-	    TLINE_MAX(tline, em[i][j].em_median, i);
-	    TLINE_MIN(tline2, em[i][j].em_avg, i);
-	    TLINE_MAX(tline2, em[i][j].em_avg, i);
-	    TLINE_MIN(tline3, em[i][j].em_avg_filtered, i);
-	    TLINE_MAX(tline3, em[i][j].em_avg_filtered, i);
+	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
 	}
-	fprintf (outf, "%3d %12.3lf %3d %12.3lf %3d %12.3lf %3d %12.3lf %3d "
-		 " %12.3lf %3d %12.3lf %3d \n", 
-		 j, tline.min, tline.minloc, tline.max, tline.maxloc,
-		 tline2.min, tline2.minloc, tline2.max, tline2.maxloc,
-		 tline3.min, tline3.minloc, tline3.max, tline3.maxloc );
+	TLINE_MIN (tline2, tline[j].max, j );
+    }
+    
+    if ( NULL != filename ) {
+	fprintf(outf, "Standard formula winner is %d\n", tline2.minloc );
+	fclose (outf);
+    }
+    else {
+	printf("Standard formula winner is %d\n", tline2.minloc );
     }
 
-    fclose (outf);
     return;
 }
 /**********************************************************************/

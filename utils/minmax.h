@@ -20,6 +20,11 @@ struct emethod{
     int     em_num_outliers;
     double  em_avg;
     double  em_median;
+    double  em_1stquartile;
+    double  em_3rdquartile;
+    double  em_iqr;
+    double  em_llimit;
+    double  em_ulimit;
     double  em_sum_filtered;
     int     em_cnt_filtered;
     double  em_avg_filtered;
