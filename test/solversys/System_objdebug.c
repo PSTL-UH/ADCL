@@ -2,6 +2,17 @@
 #include <unistd.h>
 #include "mpi.h"
 
+void system_gethostname_ (int *rank )
+{
+  char hostname[1024];
+  int len=1024;
+
+  gethostname ( hostname, len );
+  printf ( "Proces %d  is on host %s\n", *rank, hostname );
+
+  return;
+}
+
 void system_sleep_ ( int * time ) 
 {
     sleep ( (unsigned) *time);
