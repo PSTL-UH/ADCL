@@ -24,6 +24,12 @@ void minmax_clear_poison_field ( struct emethod **em);
 void minmax_calc_decision      ( struct emethod **em, int outlier_fraction ); 
 void minmax_calc_robust ( struct emethod **em, char *filename );
 
+   int HierarchicalClusterAnalysis(char metric, int transpose, char method, 
+   double* avg, int* nfilt);
+   void init_cluster_vars(const int ndata, double *data);
+   void minmax_calc_cluster ( struct emethod **em, char *filename ); 
+
+
 static int tcompare ( const void*, const void* );
 /**********************************************************************/
 /**********************************************************************/
@@ -45,6 +51,7 @@ int main (int argc, char **argv )
     minmax_calc_decision    ( emethods, outlier_fraction );
     minmax_calc_statistics  ( emethods, NULL );
     minmax_calc_robust      ( emethods, NULL );
+    minmax_calc_cluster     ( emethods, NULL );
     if ( output_files ) {
 //	minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
     }
@@ -600,25 +607,7 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
 	}
     }
     
-    TLINE_INIT ( tline2 );
-    for (j=0; j< nummethods; j++ ) {
-	TLINE_INIT(tline[j]);
-	for (i=0; i< numprocs; i++ ) {
-	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
-	}
-	TLINE_MIN (tline2, tline[j].max, j );
-    }
-    
-    if ( NULL != filename ) {
-	fprintf(outf, "Robust formula nu = 6 winner is %d\n", tline2.minloc );
-	fclose (outf);
-    }
-    else {
-	printf("Robust formula nu = 6 winner is %d\n", tline2.minloc );
-    }
-
-    
-    /* Calculate the median of all measurement series */
+    /* Caculate ML-estimate of mu and sigma for t model */
     /* 30 measurements are not enough to estimate nu from set (nu=0 as input),
        so choose some reasonable value for nu, which is 4.0 or 6.0 */
     nu = 4.0;
@@ -649,6 +638,62 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
 
 
 
+    
+    free ( tline );
+    return;
+}
+
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+void minmax_calc_cluster ( struct emethod **em, char *filename ) 
+{
+    FILE *outf=NULL;
+    struct lininf *tline, tline2;
+    int i, j, nfilt;
+    char  genemetric = 'e'; 
+    //arraymetric = getmetric(e);
+    //jobname = setjobname(argv[i],0);
+    char method = 'a';
+
+    tline  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
+    if ( NULL == tline ) {
+	printf("calc_robust: could not allocate memory\n");
+    }
+    
+    if ( NULL != filename ) {
+	outf = fopen(filename, "a");
+	if ( NULL == outf ) {
+	    printf("calc_robust: could not open %s for writing\n", filename );
+	    exit (-1);
+	}
+	fprintf(outf, "\n");
+    }
+    
+
+    for (i=0; i < numprocs; i++ ) {
+	for ( j=0; j< nummethods; j++ ) {
+            init_cluster_vars(em[i][j].em_rescount, em[i][j].em_time);
+	    HierarchicalClusterAnalysis(genemetric, 0, method, &(em[i][j].em_avg_filtered), &nfilt);
+	}
+    }
+    
+    TLINE_INIT ( tline2 );
+    for (j=0; j< nummethods; j++ ) {
+	TLINE_INIT(tline[j]);
+	for (i=0; i< numprocs; i++ ) {
+	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
+	}
+	TLINE_MIN (tline2, tline[j].max, j );
+    }
+    
+    if ( NULL != filename ) {
+	fprintf(outf, "Cluster analysis winner is %d\n", tline2.minloc );
+	fclose (outf);
+    }
+    else {
+	printf("Cluster analysis winner is %d\n", tline2.minloc );
+    }
     
     free ( tline );
     return;

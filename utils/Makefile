@@ -18,9 +18,12 @@ genscript: genscript.c
 gentex: gentex.c
 	$(CC) $(LOCALCFLAGS) -o gentex gentex.c 
 
-minmax: minmax.c robust.c
-	$(CC) $(LOCALCFLAGS) -c robust.c 
-	$(CC) $(LOCALCFLAGS) -o minmax minmax.c robust.o -L/usr/local/lib/ -lgsl -lgslcblas
+minmax: minmax.c robust.c cluster.c cluster_data.c cluster_cluster.c data.h cluster.h 
+	$(CC) $(LOCALCFLAGS) -c robust.c
+	$(CC) $(LOCALCFLAGS) -c cluster.c
+	$(CC) $(LOCALCFLAGS) -c cluster_data.c
+	$(CC) $(LOCALCFLAGS) -c cluster_cluster.c
+	$(CC) $(LOCALCFLAGS) -o minmax minmax.c robust.o cluster_data.o cluster_cluster.o cluster.o -L/usr/local/lib/ -lgsl -lgslcblas -lefence 
 
 iterations: iterations.c
 	$(CC) $(LOCALCFLAGS) -o iterations iterations.c 
