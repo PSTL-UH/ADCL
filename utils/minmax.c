@@ -589,7 +589,9 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
     }
     
     /* Calculate the median of all measurement series */
-    nu = 0.0;
+    /* 30 measurements are not enough to estimate nu from set (nu=0 as input),
+       so choose some reasonable value for nu, which is 4.0 or 6.0 */
+    nu = 4.0;
     for (i=0; i < numprocs; i++ ) {
 	for ( j=0; j< nummethods; j++ ) {
 	    ml ( em[i][j].em_rescount, em[i][j].em_time, &nu, &(em[i][j].em_avg_filtered) , 

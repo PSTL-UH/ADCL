@@ -18,7 +18,7 @@ genscript: genscript.c
 gentex: gentex.c
 	$(CC) $(LOCALCFLAGS) -o gentex gentex.c 
 
-minmax: minmax.c
+minmax: minmax.c robust.c
 	$(CC) $(LOCALCFLAGS) -c robust.c 
 	$(CC) $(LOCALCFLAGS) -o minmax minmax.c robust.o -L/usr/local/lib/ -lgsl -lgslcblas
 

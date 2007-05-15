@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <gsl_math.h>
+#include <gsl_sort.h>
 #include <gsl_sf_gamma.h>
 #include <gsl_sf_log.h>
 #include <gsl_multimin.h>
@@ -31,6 +32,7 @@ double loglikelihood(const gsl_vector *x, void *params){
       nu = gsl_vector_get(x,2);
       g =  gsl_sf_lngamma((nu+1)/2) - gsl_sf_lngamma(nu/2)
            - 0.5 * gsl_sf_log(M_PI*nu);
+      g = n*g;
    }
    else { /* life's simpler */
       g = 0.0;
@@ -47,6 +49,7 @@ double loglikelihood(const gsl_vector *x, void *params){
         y = y + 100;
         printf("Not good. Modify step size and tolerance\n");
      }
+     //printf("-- sigma2=%f.5, delta=%f.5\n", sigma2, delta);
    }
 
    //printf("mu=%f.5, sigma2=%f.5, y=%f.5\n", mu, sigma2, y);
@@ -77,16 +80,17 @@ int  minimize_loglikelihood(gsl_multimin_fminimizer *s,
       if (status) break;
 
       size   = gsl_multimin_fminimizer_size(s);
-      status = gsl_multimin_test_size(size, 1e-4); /* ???? */
+      status = gsl_multimin_test_size(size, 1e-3); /* ???? */
 
-      if (status == GSL_SUCCESS)
+      /* if (status == GSL_SUCCESS){
          printf("Maximum found after %d iterations at:\n", iter);
 
-      /*printf("%5d %.5f %.5f", iter, 
+         printf("%5d %15.5f %15.5f", iter, 
          gsl_vector_get(s->x, 0),
          sqrt(gsl_vector_get(s->x, 1)));
-      if (*nu == 0.0) printf("%.5f", gsl_vector_get(s->x, 2));
-      printf("%10.5f\n", -gsl_multimin_fminimizer_minimum(s));*/
+         if (*nu == 0.0) printf("%15.5f", gsl_vector_get(s->x, 2));
+            printf("%15.5f\n", -gsl_multimin_fminimizer_minimum(s));
+      } */
       iter++;
 
    } while (status == GSL_CONTINUE && iter < maxiter);
@@ -96,7 +100,7 @@ int  minimize_loglikelihood(gsl_multimin_fminimizer *s,
    if (*nu == 0.0)  /* return optimized value */ 
       *nu = gsl_vector_get(s->x, 2);
    *val   = -gsl_multimin_fminimizer_minimum(s);
-   printf("%.5f %.5f %.5f %.5f\n", *nu, *mu, *sigma, *val);
+   //printf("%.5f %.5f %.5f %.5f\n", *nu, *mu, *sigma, *val);
 
    return 0;
 }
@@ -120,20 +124,40 @@ int ml(const int ndata,  double* const data,
    gsl_vector *x0;                   /* starting point */
    gsl_vector *stepsize;
    gsl_multimin_function my_func;
-   double mean, variance, median, nustart=4.0;
+   //double mean, variance;
+   double median, *madv, mad;
+   double nustart=4.0;
    double *params;
 
    /* init starting point */
    if (*nu != 0.0)   x0 = gsl_vector_alloc(2);
    else              x0 = gsl_vector_alloc(3);
-   mean = gsl_stats_mean(data, (size_t) 1,(size_t) ndata);
-   /*gsl_sort(data, 1, ndata);
-   median = gsl_stats_median_from_sorted_data(data, (size_t) 1, (size_t) ndata);
-   mean = median; */
+
+   /* Possiblity I: Use mean and variance as starting value
+                    this is probably going to crash when outliers are present */   
+   /*mean = gsl_stats_mean(data, (size_t) 1,(size_t) ndata);
    variance = gsl_stats_variance_with_fixed_mean(data, 
       (size_t) 1, (size_t) ndata, mean);
+   //printf("mean  : %20.5f, variance: %20.5f\n", mean, variance); 
    gsl_vector_set(x0, 0, mean);
-   gsl_vector_set(x0, 1, variance);
+   gsl_vector_set(x0, 1, variance); */
+   
+   /* Possiblity II: Use median and 1.483*MAD as starting value
+                     Absolute Deviatons MAD(x) = med_i {|x_i - med_j (x_j)|} */
+   gsl_sort(data, 1, ndata);
+   median = gsl_stats_median_from_sorted_data(data, (size_t) 1, (size_t) ndata);
+   madv = (double*) malloc(ndata * sizeof(double));
+   for (i=0; i<ndata; i++){
+       madv[i] = abs(data[i] - median);
+   }
+   gsl_sort(madv, 1, ndata);
+   mad = 1.483 * gsl_stats_median_from_sorted_data(madv, (size_t) 1, (size_t) ndata);
+   //printf("median: %20.5f, mad     : %20.5f\n", median, mad);
+   free(madv);
+   gsl_vector_set(x0, 0, median);
+   gsl_vector_set(x0, 1, mad);
+
+   /* continue */
    if (*nu == 0.0)   gsl_vector_set(x0, 2, nustart);
 
    /* init parameters */
@@ -147,9 +171,9 @@ int ml(const int ndata,  double* const data,
    /* set stepsize */
    if (*nu != 0.0)   stepsize = gsl_vector_alloc(2);
    else              stepsize = gsl_vector_alloc(3);
-   gsl_vector_set(stepsize, 0, 0.001);
-   gsl_vector_set(stepsize, 1, 0.001);
-   if (*nu == 0.0)   gsl_vector_set(stepsize, 2, 0.0001);
+   gsl_vector_set(stepsize, 0, 0.01);
+   gsl_vector_set(stepsize, 1, 1);
+   if (*nu == 0.0)   gsl_vector_set(stepsize, 2, 0.01);
 
    /* set up solver */
    T = gsl_multimin_fminimizer_nmsimplex;
