@@ -350,7 +350,7 @@ void minmax_calc_statistics ( struct emethod **em, char *filename )
     
     TLINE_INIT ( tline2 );
     for (j=0; j< nummethods; j++ ) {
-	TLINE_INIT(tline[i]);
+	TLINE_INIT(tline[j]);
 	for (i=0; i< numprocs; i++ ) {
 	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
 	}
@@ -587,6 +587,36 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
 	}
 	fprintf(outf, "\n");
     }
+
+    /* Calculate the median of all measurement series */
+    /* 30 measurements are not enough to estimate nu from set (nu=0 as input),
+       so choose some reasonable value for nu, which is 4.0 or 6.0 */
+    nu = 6.0;
+    for (i=0; i < numprocs; i++ ) {
+	for ( j=0; j< nummethods; j++ ) {
+	    ml ( em[i][j].em_rescount, em[i][j].em_time, &nu, &(em[i][j].em_avg_filtered) , 
+		 &sigma, &val );
+	    
+	}
+    }
+    
+    TLINE_INIT ( tline2 );
+    for (j=0; j< nummethods; j++ ) {
+	TLINE_INIT(tline[j]);
+	for (i=0; i< numprocs; i++ ) {
+	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
+	}
+	TLINE_MIN (tline2, tline[j].max, j );
+    }
+    
+    if ( NULL != filename ) {
+	fprintf(outf, "Robust formula nu = 6 winner is %d\n", tline2.minloc );
+	fclose (outf);
+    }
+    else {
+	printf("Robust formula nu = 6 winner is %d\n", tline2.minloc );
+    }
+
     
     /* Calculate the median of all measurement series */
     /* 30 measurements are not enough to estimate nu from set (nu=0 as input),
@@ -602,7 +632,7 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
     
     TLINE_INIT ( tline2 );
     for (j=0; j< nummethods; j++ ) {
-	TLINE_INIT(tline[i]);
+	TLINE_INIT(tline[j]);
 	for (i=0; i< numprocs; i++ ) {
 	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
 	}
@@ -610,12 +640,15 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
     }
     
     if ( NULL != filename ) {
-	fprintf(outf, "Robust formula winner is %d\n", tline2.minloc );
+	fprintf(outf, "Robust formula nu = 4 winner is %d\n", tline2.minloc );
 	fclose (outf);
     }
     else {
-	printf("Robust formula winner is %d\n", tline2.minloc );
+	printf("Robust formula nu = 4 winner is %d\n", tline2.minloc );
     }
+
+
+
     
     free ( tline );
     return;
