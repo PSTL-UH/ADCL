@@ -45,7 +45,8 @@ extern char** _genename;
 extern char** _arrayname;
 extern double** _data;
 extern int** _mask;
-
+extern double tol;
+extern int nmaxOutlier;
 
 /*============================================================================*/
 /* Function declaration                                                       */

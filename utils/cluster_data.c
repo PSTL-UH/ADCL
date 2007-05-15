@@ -50,24 +50,7 @@
 #include "cluster.h" /* The C clustering library */
 #include "data.h"
 
-/*============================================================================*/
-/* Data declaration                                                           */
-/*============================================================================*/
 
-static int _rows = 0;
-static int _columns = 0;
-static double* _geneweight = NULL;
-static double* _arrayweight = NULL;
-static double* _geneorder = NULL;  /* Saves gene order in the data file */
-static double* _arrayorder = NULL; /* Saves array order in the data file */
-static int* _geneindex = NULL;   /* Set by clustering methods for file output */
-static int* _arrayindex = NULL;  /* Set by clustering methods for file output */
-static char* _uniqID = NULL;     /* Stores UNIQID identifier in the data file */
-static char** _geneuniqID = NULL;
-static char** _genename = NULL;
-static char** _arrayname = NULL;
-static double** _data = NULL;
-static int** _mask = NULL;
 
 /*============================================================================*/
 /* Utility routines                                                           */
@@ -1078,12 +1061,10 @@ int HierarchicalCluster(FILE* file, char metric, int transpose, char method)
     nodeorder[i] = (counts1*order1 + counts2*order2) / (counts1 + counts2);
   }
   
-  { double tol;
+  {
     int j, k, *filtered, nfiltered, *outliers, npoints1, npoints2, npoints, 
-       nremoved, nmaxOutlier, node, node1, node2, idx, idx1, idx2;
+       nremoved, node, node1, node2, idx, idx1, idx2;
 
-    tol = 0.01;
-    nmaxOutlier = 0.4*30;
     nfiltered = 0;
 
     filtered = malloc((nNodes)*sizeof(int));

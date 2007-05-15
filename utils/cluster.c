@@ -9,6 +9,10 @@
 #include "data.h"      /* Includes data handling and file reading/writing */
                        /* The routines in the C Clustering Library are called */
                        /* from data.c. */
+extern int outlier_fraction;
+
+int nmaxOutlier;
+double tol;
 
 /*============================================================================*/
 /* Data declaration                                                           */
@@ -107,12 +111,10 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
     nodeorder[i] = (counts1*order1 + counts2*order2) / (counts1 + counts2);
   }
   
-  { double tol;
+  { 
     int j, k, *filtered, nfiltered, *outliers, npoints1, npoints2, npoints, 
-       nremoved, nmaxOutlier, node, idx, idx1, idx2; //node1, node2, 
+       nremoved,  node, idx, idx1, idx2; //node1, node2, 
 
-    tol = 0.01;
-    nmaxOutlier = 0.4*30;
     nfiltered = 0;
 
     filtered = malloc((nNodes)*sizeof(int));
@@ -223,6 +225,10 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
 
    void init_cluster_vars(const int ndata, double *data){
    int row, column, n;
+   
+
+   nmaxOutlier = outlier_fraction * ndata / 100 ;
+   tol = 0.01;
 
    _rows = ndata;
    _columns = 1;
