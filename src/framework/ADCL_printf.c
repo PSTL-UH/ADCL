@@ -62,7 +62,7 @@ int ADCL_printf ( const char* format, ... )
 	    */
 	    int i;
 
-	    for (i=0; i< 1024; i++ ) {
+	    for (i=0; i< MAXLINE; i++ ) {
 		fprintf(fd, "%s", buffer[i] );
 	    }
 	    bufcnt = 0;
