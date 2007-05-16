@@ -34,6 +34,40 @@ double** _data = NULL;
 int** _mask = NULL;
 
 
+int get_index(int node){
+   /* returns array index to nodecounts, etc. */
+   int idx;
+   if (node < 0) /* cluster */
+      idx = -node-1;
+   else
+      idx =  node;
+   return idx;
+}
+
+int get_points(int node, int idx, int* nodecounts){
+   /* returns number of points/genes of node */
+   int npoints;
+   if (node < 0) /* cluster */
+      npoints = nodecounts[idx];
+   else
+      npoints = 1;
+   return npoints;
+}
+
+void filter_out(const int node, const int idx, int* filtered, int* outliers, int* cnt){
+   /* - marks nodes for filtering
+      - filters out points / genes and increments cnt */
+   if (node < 0){  /* node */
+      filtered[idx] = -1;
+      //printf("Node %d marked to be filtered out.\n", -node1);
+   }
+   else {
+      (*cnt)++;
+      outliers[node] = 1;
+      //printf("Point %d filtered out.\n", node1);
+   }
+}
+
 int HierarchicalClusterAnalysis(char metric, int transpose, char method, 
    double* avg, int* nfilt)
 { int i;
@@ -100,9 +134,9 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
       ID2 = MakeID (keyword, min2);
     }
 
-    /*printf ("%s\t%s\t%s\t%d\t%d\t%d", nodeID[i], ID1, ID2, counts1+counts2, counts1, counts2);
-    printf ("%s\t%s\t%d\t%s\t%d\t%d\t", nodeID[i], ID1, counts1, ID2, counts2, counts1+counts2);
-    printf ("%f\n", 1.0-tree[i].distance);*/
+    ////printf ("%s\t%s\t%s\t%d\t%d\t%d", nodeID[i], ID1, ID2, counts1+counts2, counts1, counts2);
+    //printf ("%s\t%s\t%d\t%s\t%d\t%d\t", nodeID[i], ID1, counts1, ID2, counts2, counts1+counts2);
+    //printf ("%f\n", 1.0-tree[i].distance);
 
     if (min1>=0) free(ID1);
     if (min2>=0) free(ID2);
@@ -113,9 +147,12 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
   
   { 
     int j, k, *filtered, nfiltered, *outliers, npoints1, npoints2, npoints, 
-       nremoved,  node, idx, idx1, idx2; //node1, node2, 
+       nremoved,  node, idx, idx1, idx2, node1, node2;
 
     nfiltered = 0;
+
+    //printf("nmaxOutlier:%d\n", nmaxOutlier); 
+
 
     filtered = malloc((nNodes)*sizeof(int));
     for (k=0; k < nNodes; k++) filtered[k] = 0;
@@ -135,14 +172,22 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
        if (filtered[k]) continue;
 
        /* check which cluster is smaller */
-       idx1 = tree[k].left - signum(tree[k].left);
+/*       idx1 = tree[k].left - signum(tree[k].left);
        npoints1 = nodecounts[signum(idx1)*idx1];
-
+       if (tree[k].left > 0) npoints1 = 1;
        idx2 = tree[k].right - signum(tree[k].right);
-       npoints2 = nodecounts[signum(idx2)*idx2];
+       npoints2 = nodecounts[signum(idx2)*idx2]; */
+       //if (tree[k].right > 0) npoints1 = 1;
 
-       if (npoints1 < npoints2) {  npoints = npoints1; idx = idx1; node = tree[k].left;   }
-       else                     {  npoints = npoints2; idx = idx2; node = tree[k].right;  }
+       node1 = tree[k].left;
+       node2 = tree[k].right;
+       idx1     = get_index (node1);
+       npoints1 = get_points(node1, idx1, nodecounts);
+       idx2     = get_index (node2);
+       npoints2 = get_points(node2, idx2, nodecounts);
+
+       if (npoints1 < npoints2) {  npoints = npoints1; idx = idx1; node = node1;  }
+       else                     {  npoints = npoints2; idx = idx2; node = node2;  }
 
        /* too many outliers? */
        if (npoints + nfiltered > nmaxOutlier){
@@ -152,17 +197,8 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
           break;
        }
 
-       /* filter out node */
-       if (node < 0){  /* node */
-          filtered[-idx] = -1; /* mark for filtering */
-          //printf("Node %d marked to be filtered out.\n", -node);
-       }
-       else { /* point */
-          nfiltered++;
-          outliers[node] = 1;
-          //printf("Point %d filtered out.\n", node);
-          continue;
-       }
+       filter_out(node, idx, filtered, outliers, &nfiltered);
+       if (node >= 0) continue;
 
        /* filter out node and sons*/
        nremoved = 0;
@@ -173,26 +209,13 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
              filtered[j] = 1;
 
              int node1, node2, idx1, idx2;
-             node1 = tree[j].left;  idx1 = node1 - signum(node1);
-             node2 = tree[j].right; idx2 = node2 - signum(node2);
-             if (node1 < 0){  /* node */
-                filtered[-idx1] = -1;
-                //printf("Node %d marked to be filtered out.\n", -node1);
-             }
-             else {
-               nremoved++;
-               outliers[node1] = 1;
-               //printf("Point %d filtered out.\n", node1);
-             }
-             if (node2 < 0){
-               filtered[-idx2] = -1;
-               //printf("Node %d marked to be filtered out.\n", -node2);
-             }
-             else {
-               nremoved++;
-               outliers[node2] = 1;
-               //printf("Point %d filtered out.\n", node2);
-             }
+             node1 = tree[j].left;  
+             idx1  = get_index(node1);
+             node2 = tree[j].right; 
+             idx2  = get_index(node2);
+
+             filter_out(node1, idx1, filtered, outliers, &nremoved);
+             filter_out(node2, idx2, filtered, outliers, &nremoved);
           }
        }
        nfiltered += npoints;
@@ -223,9 +246,8 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
   return 1;
 }
 
-   void init_cluster_vars(const int ndata, double *data){
+void init_cluster_vars(const int ndata, double *data){
    int row, column, n;
-   
 
    nmaxOutlier = outlier_fraction * ndata / 100 ;
    tol = 0.01;
@@ -281,4 +303,37 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
    sort (_rows, _geneorder, _geneindex);
    sort (_columns, _arrayorder, _arrayindex);
 
+}
+
+
+void free_cluster_vars(){
+   int row;
+
+   /* Allocate space for array weights */
+   free(_arrayweight);
+   free(_arrayorder);
+   free(_arrayindex);
+
+   free(_geneweight);
+   free(_geneorder);
+   free(_geneindex);
+
+   free(_uniqID);
+   free(_genename);
+
+   for (row = 0; row < _rows; row++) {
+      free(_geneuniqID[row]);
+   }
+   free(_geneuniqID);
+
+   free(_arrayname[0]);
+   free(_arrayname);
+
+   for (row = 0; row < _rows; row++) { 
+      free(_data[row]);
+      free(_mask[row]);
+   }
+
+   free(_data);
+   free(_mask);
 }

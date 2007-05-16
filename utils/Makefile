@@ -23,7 +23,8 @@ minmax: minmax.c robust.c cluster.c cluster_data.c cluster_cluster.c data.h clus
 	$(CC) $(LOCALCFLAGS) -c cluster.c
 	$(CC) $(LOCALCFLAGS) -c cluster_data.c
 	$(CC) $(LOCALCFLAGS) -c cluster_cluster.c
-	$(CC) $(LOCALCFLAGS) -o minmax minmax.c robust.o cluster_data.o cluster_cluster.o cluster.o -L/usr/local/lib/ -lgsl -lgslcblas
+	$(CC) $(LOCALCFLAGS) -o minmax minmax.c robust.o cluster_data.o \
+            cluster_cluster.o cluster.o -L/usr/local/lib/ -lgsl -lgslcblas -lefence
 
 iterations: iterations.c
 	$(CC) $(LOCALCFLAGS) -o iterations iterations.c 

@@ -28,7 +28,7 @@ void minmax_calc_robust ( struct emethod **em, char *filename );
    double* avg, int* nfilt);
    void init_cluster_vars(const int ndata, double *data);
    void minmax_calc_cluster ( struct emethod **em, char *filename ); 
-
+   void free_cluster_vars();
 
 static int tcompare ( const void*, const void* );
 /**********************************************************************/
@@ -673,8 +673,11 @@ void minmax_calc_cluster ( struct emethod **em, char *filename )
 
     for (i=0; i < numprocs; i++ ) {
 	for ( j=0; j< nummethods; j++ ) {
+            //printf("proc %d, method=%d\n", i,j);
+ 
             init_cluster_vars(em[i][j].em_rescount, em[i][j].em_time);
 	    HierarchicalClusterAnalysis(genemetric, 0, method, &(em[i][j].em_avg_filtered), &nfilt);
+            free_cluster_vars();
 	}
     }
     
