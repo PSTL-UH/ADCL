@@ -108,7 +108,7 @@ int ADCL_attribute_get_nextval ( ADCL_attribute_t *attr, int val )
 /********************************************************************************/
 int ADCL_attribute_get_val ( ADCL_attribute_t *attr, int attrval_pos ) 
 {
-    if ( attrval_pos < 0 || attrval_pos > attr->a_maxnvalues ) {
+    if ( attrval_pos < 0 || attrval_pos >= attr->a_maxnvalues ) {
 	return ADCL_ERROR_INTERNAL;
     }
 
