@@ -82,7 +82,6 @@ int ADCL_topology_create ( MPI_Comm cart_comm, ADCL_topology_t **topo )
 			 &(newtopo->t_neighbors[2*i+1]) );
     }
 
-
     *topo = newtopo;
     return ADCL_SUCCESS;
 }
@@ -91,13 +90,16 @@ int ADCL_topology_free ( ADCL_topology_t **topo)
 {
     ADCL_topology_t *ttopo=*topo;
 
-    
-    ADCL_array_remove_element ( ADCL_topology_farray, ttopo->t_findex);
-    if ( NULL != ttopo->t_coords ) {
-	free ( ttopo->t_coords);
-    }
-    if ( NULL != ttopo->t_neighbors ) {
-	free ( ttopo->t_neighbors );
+    if ( NULL != ttopo )
+    {
+        ADCL_array_remove_element ( ADCL_topology_farray, ttopo->t_findex);
+        if ( NULL != ttopo->t_coords ) {
+            free ( ttopo->t_coords);
+        }
+        if ( NULL != ttopo->t_neighbors ) {
+            free ( ttopo->t_neighbors );
+        }
+        free(ttopo);
     }
 
     *topo = ADCL_TOPOLOGY_NULL;
