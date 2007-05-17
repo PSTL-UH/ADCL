@@ -279,11 +279,12 @@ static int tcompare ( const void *p, const void* q )
 void minmax_calc_statistics ( struct emethod **em, char *filename ) 
 {
     FILE *outf=NULL;
-    struct lininf *tline, tline2;
+    struct lininf *tline, *tline_perc, tline2;
     int i, j, k;
 
     tline  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
-    if ( NULL == tline ) {
+    tline_perc  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
+    if ( NULL == tline || NULL == tline_perc ) {
 	printf("calc_statistics: could not allocate memory\n");
     }
     
@@ -350,7 +351,7 @@ void minmax_calc_statistics ( struct emethod **em, char *filename )
 		    em[i][j].em_num_outliers++;
 		}
 	    }
-	    em[i][j].em_perc_filtered = 100 * em[i][j].em_cnt_filtered/em[i][j].em_rescount;	    
+	    em[i][j].em_perc_filtered = 100 * em[i][j].em_num_outliers/em[i][j].em_rescount;	    
 	    em[i][j].em_avg_filtered  = em[i][j].em_sum_filtered / em[i][j].em_cnt_filtered;
 	}	
     }
@@ -358,10 +359,13 @@ void minmax_calc_statistics ( struct emethod **em, char *filename )
     TLINE_INIT ( tline2 );
     for (j=0; j< nummethods; j++ ) {
 	TLINE_INIT(tline[j]);
+	TLINE_INIT(tline_perc[j]);
 	for (i=0; i< numprocs; i++ ) {
 	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
+	    TLINE_MAX(tline_perc[j], em[i][j].em_perc_filtered, i);
 	}
 	TLINE_MIN (tline2, tline[j].max, j );
+	printf("%d : avg. filtered %lf perc. filtered %lf\n", j, tline[j].max, tline_perc[j].max );
     }
     
     if ( NULL != filename ) {
@@ -373,6 +377,7 @@ void minmax_calc_statistics ( struct emethod **em, char *filename )
     }
 
     free ( tline );
+    free ( tline_perc );
     return;
 }
 /**********************************************************************/
@@ -598,6 +603,7 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
     /* Calculate the median of all measurement series */
     /* 30 measurements are not enough to estimate nu from set (nu=0 as input),
        so choose some reasonable value for nu, which is 4.0 or 6.0 */
+#ifdef NU6
     nu = 6.0;
     for (i=0; i < numprocs; i++ ) {
 	for ( j=0; j< nummethods; j++ ) {
@@ -606,18 +612,25 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
 	    
 	}
     }
-    
+#endif    
     /* Caculate ML-estimate of mu and sigma for t model */
     /* 30 measurements are not enough to estimate nu from set (nu=0 as input),
        so choose some reasonable value for nu, which is 4.0 or 6.0 */
     nu = 4.0;
-    for (i=0; i < numprocs; i++ ) {
-	for ( j=0; j< nummethods; j++ ) {
-	    ml ( em[i][j].em_rescount, em[i][j].em_time, &nu, &(em[i][j].em_avg_filtered) , 
+    double avg, avgmin = 1e10, romin, romax ;
+    for ( j=0; j< nummethods; j++ ) {
+        avg = 0.0; romin=1e10; romax=0;
+        for (i=0; i < numprocs; i++ ) {
+	    ml ( nummeas, em[i][j].em_time, &nu, &(em[i][j].em_avg_filtered) , 
 		 &sigma, &val );
-	    
+            avg = avg + em[i][j].em_avg_filtered;
+            if (em[i][j].em_avg_filtered < romin) romin = em[i][j].em_avg_filtered;
+            if (em[i][j].em_avg_filtered > romax) romax = em[i][j].em_avg_filtered;
 	}
+        //printf("min: %lf avg %lf max %lf\n", romin, avg/numprocs, romax);
+        if (avg < avgmin) avgmin=avg;
     }
+	//printf("Robust formula winner has minimum avg %fl\n", avgmin / nummeas);
     
     TLINE_INIT ( tline2 );
     for (j=0; j< nummethods; j++ ) {
@@ -625,6 +638,7 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
 	for (i=0; i< numprocs; i++ ) {
 	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
 	}
+	printf("%d: average: %lf \n", j, tline[j].max);
 	TLINE_MIN (tline2, tline[j].max, j );
     }
     
@@ -649,7 +663,7 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
 void minmax_calc_cluster ( struct emethod **em, char *filename ) 
 {
     FILE *outf=NULL;
-    struct lininf *tline, tline2;
+    struct lininf *tline, *tline_perc, tline2;
     int i, j, nfilt;
     char  genemetric = 'e'; 
     //arraymetric = getmetric(e);
@@ -657,7 +671,8 @@ void minmax_calc_cluster ( struct emethod **em, char *filename )
     char method = 'a';
 
     tline  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
-    if ( NULL == tline ) {
+    tline_perc  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
+    if ( NULL == tline || NULL == tline_perc ) {
 	printf("calc_robust: could not allocate memory\n");
     }
     
@@ -671,12 +686,14 @@ void minmax_calc_cluster ( struct emethod **em, char *filename )
     }
     
 
-    for (i=0; i < numprocs; i++ ) {
-	for ( j=0; j< nummethods; j++ ) {
+    for ( j=0; j< nummethods; j++ ) {
+        TLINE_INIT ( tline_perc[j] );
+        for (i=0; i < numprocs; i++ ) {
             //printf("proc %d, method=%d\n", i,j);
  
-            init_cluster_vars(em[i][j].em_rescount, em[i][j].em_time);
+            init_cluster_vars(nummeas, em[i][j].em_time);
 	    HierarchicalClusterAnalysis(genemetric, 0, method, &(em[i][j].em_avg_filtered), &nfilt);
+	    TLINE_MAX ( tline_perc[j], nfilt, i );
             free_cluster_vars();
 	}
     }
@@ -687,6 +704,8 @@ void minmax_calc_cluster ( struct emethod **em, char *filename )
 	for (i=0; i< numprocs; i++ ) {
 	    TLINE_MAX(tline[j], em[i][j].em_avg_filtered, i);
 	}
+	printf("%d: filtered: %lf  perc filtered %lf \n", j, tline[j].max, 
+                                                          (tline_perc[j].max/nummeas)*100) ;
 	TLINE_MIN (tline2, tline[j].max, j );
     }
     
@@ -699,5 +718,6 @@ void minmax_calc_cluster ( struct emethod **em, char *filename )
     }
     
     free ( tline );
+    free ( tline_perc );
     return;
 }
