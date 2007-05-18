@@ -415,18 +415,21 @@ void minmax_calc_decision ( struct emethod **em, int outlier_fraction )
     TLINE_INIT (tline_filtered_avg);
     TLINE_INIT (tline_new);
     for ( j=0; j<nummethods; j++  ) {
-	printf("%d: unfiltered: %lf filtered: %lf perc: %lf\n", 
-	       j, tline_unf[j].max, tline_filt[j].max, tline_perc[j].max );
 	TLINE_MIN (tline_avg, tline_unf[j].max, j);
 	TLINE_MIN (tline_filtered_avg, tline_filt[j].max, j);
 
+	printf("%d: result: ", j);
 	if ( tline_perc[j].max > outlier_fraction ) {
 	    meth[j] = tline_unf[j].max;
+	    printf("%lf :uf: ", tline_unf[j].max );
 	}
 	else {
 	    meth[j] = tline_filt[j].max;
+	    printf("%lf : f: ", tline_filt[j].max );
 	}
 	TLINE_MIN(tline_new, meth[j], j);
+        printf (" unfiltered: %lf filtered: %lf perc: %lf\n", 
+	       tline_unf[j].max, tline_filt[j].max, tline_perc[j].max );
     }
 
 
@@ -621,15 +624,30 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
     for ( j=0; j< nummethods; j++ ) {
         avg = 0.0; romin=1e10; romax=0;
         for (i=0; i < numprocs; i++ ) {
-	    ml ( nummeas, em[i][j].em_time, &nu, &(em[i][j].em_avg_filtered) , 
+            /* brute force 2 */
+            /*  if (i==23 && j == 7) {
+                em[i][j].em_avg_filtered=40837.784755;  continue;
+              }
+              else if (i==61 && j==7){
+                 em[i][j].em_avg_filtered=38184.112130; continue;
+              }*/
+
+            /*if (i==24 && j == 3) {
+                em[i][j].em_avg_filtered = 88684.864138;
+                continue;
+            }*/
+	    ml ( em[i][j].em_rescount, em[i][j].em_time, &nu, &(em[i][j].em_avg_filtered) , 
 		 &sigma, &val );
             avg = avg + em[i][j].em_avg_filtered;
             if (em[i][j].em_avg_filtered < romin) romin = em[i][j].em_avg_filtered;
             if (em[i][j].em_avg_filtered > romax) romax = em[i][j].em_avg_filtered;
+            // printf("proc=%d, method=%d, mu=%lf, sigma=%lf\n", i, j, em[i][j].em_avg_filtered, sigma);
+            
 	}
         //printf("min: %lf avg %lf max %lf\n", romin, avg/numprocs, romax);
         if (avg < avgmin) avgmin=avg;
     }
+
 	//printf("Robust formula winner has minimum avg %fl\n", avgmin / nummeas);
     
     TLINE_INIT ( tline2 );
@@ -691,7 +709,7 @@ void minmax_calc_cluster ( struct emethod **em, char *filename )
         for (i=0; i < numprocs; i++ ) {
             //printf("proc %d, method=%d\n", i,j);
  
-            init_cluster_vars(nummeas, em[i][j].em_time);
+            init_cluster_vars(em[i][j].em_rescount, em[i][j].em_time);
 	    HierarchicalClusterAnalysis(genemetric, 0, method, &(em[i][j].em_avg_filtered), &nfilt);
 	    TLINE_MAX ( tline_perc[j], nfilt, i );
             free_cluster_vars();

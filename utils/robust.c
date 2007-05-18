@@ -10,6 +10,7 @@
 #include <gsl_multimin.h>
 #include <gsl_statistics_double.h>
 
+static int converged;
 
 double loglikelihood(const gsl_vector *x, void *params){
    double mu, sigma2;
@@ -46,8 +47,9 @@ double loglikelihood(const gsl_vector *x, void *params){
               - 0.5 * (nu + 1) * gsl_sf_log(1+delta) + g;
      }
      else { /* dirty */
+        converged = 0;
         y = y + 100;
-        printf("Not good. Modify step size and tolerance\n");
+        //printf("Not good. Modify step size and tolerance\n");
      }
      //printf("-- sigma2=%f.5, delta=%f.5\n", sigma2, delta);
    }
@@ -80,20 +82,23 @@ int  minimize_loglikelihood(gsl_multimin_fminimizer *s,
       if (status) break;
 
       size   = gsl_multimin_fminimizer_size(s);
-      status = gsl_multimin_test_size(size, 1e-3); /* ???? */
+      status = gsl_multimin_test_size(size, 0.07); /* ???? */
 
       /* if (status == GSL_SUCCESS){
          printf("Maximum found after %d iterations at:\n", iter);
-
+      */
+      if (iter > maxiter){
          printf("%5d %15.5f %15.5f", iter, 
          gsl_vector_get(s->x, 0),
-         sqrt(gsl_vector_get(s->x, 1)));
+         sqrt(gsl_vector_get(s->x, 0.1)));
          if (*nu == 0.0) printf("%15.5f", gsl_vector_get(s->x, 2));
             printf("%15.5f\n", -gsl_multimin_fminimizer_minimum(s));
-      } */
+      } 
+
       iter++;
 
    } while (status == GSL_CONTINUE && iter < maxiter);
+   //printf("iter=%d\n", iter);
 
    *mu    = gsl_vector_get(s->x, 0);
    *sigma = sqrt(gsl_vector_get(s->x, 1));
@@ -120,7 +125,7 @@ int ml(const int ndata,  double* const data,
                     function*/
    const gsl_multimin_fminimizer_type *T;
    gsl_multimin_fminimizer *s;
-   int i, maxiter=200;
+   int i, maxiter=500;
    gsl_vector *x0;                   /* starting point */
    gsl_vector *stepsize;
    gsl_multimin_function my_func;
@@ -128,6 +133,7 @@ int ml(const int ndata,  double* const data,
    double median, *madv, mad;
    double nustart=4.0;
    double *params;
+
 
    /* init starting point */
    if (*nu != 0.0)   x0 = gsl_vector_alloc(2);
@@ -153,9 +159,10 @@ int ml(const int ndata,  double* const data,
    gsl_sort(madv, 1, ndata);
    mad = 1.483 * gsl_stats_median_from_sorted_data(madv, (size_t) 1, (size_t) ndata);
    //printf("median: %20.5f, mad     : %20.5f\n", median, mad);
+   //mad = 2 * median; //5.25 * gsl_stats_median_from_sorted_data(madv, (size_t) 1, (size_t) ndata);
    free(madv);
    gsl_vector_set(x0, 0, median);
-   gsl_vector_set(x0, 1, mad);
+   gsl_vector_set(x0, 1, 0.7*mad*mad);
 
    /* continue */
    if (*nu == 0.0)   gsl_vector_set(x0, 2, nustart);
@@ -172,6 +179,7 @@ int ml(const int ndata,  double* const data,
    if (*nu != 0.0)   stepsize = gsl_vector_alloc(2);
    else              stepsize = gsl_vector_alloc(3);
    gsl_vector_set(stepsize, 0, 0.01);
+   // for shark: gsl_vector_set(stepsize, 1, 1);
    gsl_vector_set(stepsize, 1, 1);
    if (*nu == 0.0)   gsl_vector_set(stepsize, 2, 0.01);
 
@@ -188,7 +196,20 @@ int ml(const int ndata,  double* const data,
 
    /* call minimizer */
    gsl_multimin_fminimizer_set(s, &my_func, x0, stepsize);
-   minimize_loglikelihood(s, maxiter, nu, mu, sigma, val);
+   //converged = 0; 
+    int itcnt = 0;
+   double start=0.4;
+   do {//while (!converged && itcnt < 10){
+      converged = 1;
+      minimize_loglikelihood(s, maxiter, nu, mu, sigma, val);
+      start = start + 0.5;
+      gsl_vector_set(x0, 0, median);
+      gsl_vector_set(x0, 1, start*mad*mad);
+      gsl_multimin_fminimizer_set(s, &my_func, x0, stepsize);
+      itcnt = itcnt + 1; 
+      //printf("-- it=%d, sigma=%lf\n", itcnt, *sigma);
+   } while (isnan(*sigma) && itcnt < 10);
+    if (isnan(*sigma)) printf("nan\n");
 
    /* clean up */
    gsl_multimin_fminimizer_free(s);
