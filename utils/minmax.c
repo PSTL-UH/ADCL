@@ -9,7 +9,7 @@
 int outlier_factor=3, outlier_fraction=50;
 int output_files=0; /* false */
 int numprocs=-1, nummethods=-1, nummeas=-1;
-int deconly=0;
+int deconly=1;
 int filter=0;             
 
 /* Prototypes */
