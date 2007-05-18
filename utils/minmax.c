@@ -6,7 +6,7 @@
 #include "minmax.h"
 
 /* Parameters of the application */
-int outlier_factor=3, outlier_fraction=50;
+int outlier_factor=3, outlier_fraction=20;
 int output_files=0; /* false */
 int numprocs=-1, nummethods=-1, nummeas=-1;
 int deconly=1;
