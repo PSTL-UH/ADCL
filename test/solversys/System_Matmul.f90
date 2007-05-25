@@ -1,3 +1,11 @@
+!
+! Copyright (c) 2006-2007      University of Houston. All rights reserved.
+! $COPYRIGHT$
+!
+! Additional copyrights may follow
+!
+! $HEADER$
+!
            subroutine System_Matmul ( adcl_req, vect, res_vect, ierror )
        
            USE constants

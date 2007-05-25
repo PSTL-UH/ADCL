@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
 #include "ATF.h"
 #include "ATF_Display_Result.h"
 /*#include "ATF_Matmul.h"*/

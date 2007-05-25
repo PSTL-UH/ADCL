@@ -1,4 +1,12 @@
 /*
+ * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
+/*
 Function:		Initiate the matrix, rhs and dq				
 Aurthor: 		Eric Huang							
 Time:			15/April/2006						

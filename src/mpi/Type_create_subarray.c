@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
 /* Implementation of the MPI_Type_create_subarray in case 
    the library does not provide this. Based on the implementation of Open MPI.
    Modified by Edgar Gabriel in order to work on arbitrary MPI libraries.

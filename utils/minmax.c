@@ -437,7 +437,7 @@ void minmax_calc_decision ( struct emethod **em, int outlier_fraction )
     if ( tline_perc[tline_filtered_avg.minloc].max < outlier_fraction ) 
 	printf ("Prev. decision winner is %d (filtered)\n",  tline_filtered_avg.minloc );
     else
-	printf ("Prev. decision Winner is %d (unfiltered)\n",  tline_avg.minloc );
+	printf ("Prev. decision winner is %d (unfiltered)\n",  tline_avg.minloc );
 	
 
     free ( tline_perc );

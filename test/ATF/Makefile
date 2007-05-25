@@ -1,3 +1,11 @@
+#
+# Copyright (c) 2006-2007      University of Houston. All rights reserved.
+# $COPYRIGHT$
+#
+# Additional copyrights may follow
+#
+# $HEADER$
+#
 include ../../Makefile.defs
 
 OBJ =  	ATF_Main.o 		\
@@ -16,7 +24,6 @@ OBJ =  	ATF_Main.o 		\
 	ATF_tfqmr.Cal.o         \
 	ATF_Display_result.o    \
 	ATF_Free_matrix.o       \
-	
 
 HEADER = ATF.h ATF_Adcl_global.h 
 

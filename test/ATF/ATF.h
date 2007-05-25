@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
 #ifndef __ATF_H__
 #define __ATF_H__
 

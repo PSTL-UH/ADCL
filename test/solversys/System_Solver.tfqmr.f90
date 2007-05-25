@@ -1,3 +1,11 @@
+!
+! Copyright (c) 2006-2007      University of Houston. All rights reserved.
+! $COPYRIGHT$
+!
+! Additional copyrights may follow
+!
+! $HEADER$
+!
         subroutine System_Solver_tfqmr ( nreal, ierror )
 
 !...Implementierung eines QMR-Algorithmuses, basierend auf dem original

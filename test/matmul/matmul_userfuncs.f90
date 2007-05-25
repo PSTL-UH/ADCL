@@ -1,3 +1,11 @@
+!
+! Copyright (c) 2006-2007      University of Houston. All rights reserved.
+! $COPYRIGHT$
+!
+! Additional copyrights may follow
+!
+! $HEADER$
+!
   module Matrix
     implicit none
     integer :: Pattern, NIT, nDims, nProSize, nXSize, OneDirection_Row=2, MPI_CART_ERROR = 1

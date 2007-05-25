@@ -1,3 +1,11 @@
+!
+! Copyright (c) 2006-2007      University of Houston. All rights reserved.
+! $COPYRIGHT$
+!
+! Additional copyrights may follow
+!
+! $HEADER$
+!
         MODULE globale_daten
 
 !...n1g, n2g, n3g are the number of total gridpoints

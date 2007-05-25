@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
 #include "ADCL_internal.h"
 
 ADCL_array_t *ADCL_attribute_farray;

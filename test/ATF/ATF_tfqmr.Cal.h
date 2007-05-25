@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
 #ifndef _ATF_TFQMR_CAL_H_
 #define _ATF_TFQMR_CAL_H_
 

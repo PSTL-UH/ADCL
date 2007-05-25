@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
 #ifndef ADCL_GLOBAL_H
 #define ADCL_GLOBAL_H
 #include "ADCL.h"

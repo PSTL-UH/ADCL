@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
+
 #ifndef __ADCL_ARRAY_H__
 #define __ADCL_ARRAY_H__
 

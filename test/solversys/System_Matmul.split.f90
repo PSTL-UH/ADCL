@@ -1,3 +1,11 @@
+!
+! Copyright (c) 2006-2007      University of Houston. All rights reserved.
+! $COPYRIGHT$
+!
+! Additional copyrights may follow
+!
+! $HEADER$
+!
          subroutine System_Matmul_init ( vekt, erg_vekt, ierror )
 
 !....Diese Routine fuehrt eine Matrix-Vektor Multiplikation aus.

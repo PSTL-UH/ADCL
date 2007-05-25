@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
 /* Utility routines to convert a fortran string into a C string.
    The source code is taken from Open MPI, which is allowed according 
    to the Open MPI license. The Copyrights for the file remain as indicated 
