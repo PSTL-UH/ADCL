@@ -352,7 +352,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     ADCL_STAT_SET_TESTED ( e->em_stats[last]);
     ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1, 
 				     e->em_topo->t_rank );
-    MPI_Barrier ( e->em_topo->t_comm );
+
     if ( e->em_stats[last]->s_rescount < ADCL_emethod_numtests ) {
         /* 
         ** ok, some data is still outstanding. So we 

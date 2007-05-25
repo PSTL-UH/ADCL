@@ -1063,7 +1063,7 @@ int HierarchicalCluster(FILE* file, char metric, int transpose, char method)
   
   {
     int j, k, *filtered, nfiltered, *outliers, npoints1, npoints2, npoints, 
-       nremoved, node, node1, node2, idx, idx1, idx2;
+       nremoved, node, idx, idx1, idx2;
 
     nfiltered = 0;
 

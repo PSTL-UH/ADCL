@@ -91,9 +91,12 @@ int ADCL_Request_start ( ADCL_Request req )
     int ret=ADCL_SUCCESS;
     int db;
     TIME_TYPE t1, t2;
+    MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
 
     /* Check validity of the request  */
-
+    if ( req->r_emethod->em_state == ADCL_STATE_TESTING )   {
+	MPI_Barrier ( comm );
+    }
     t1 = TIME;
     ret = ADCL_request_init ( req, &db );
     if ( ADCL_SUCCESS != ret ) {
@@ -102,6 +105,9 @@ int ADCL_Request_start ( ADCL_Request req )
     
     if ( db ) {
 	ret = ADCL_request_wait ( req );
+    }
+    if ( req->r_emethod->em_state == ADCL_STATE_TESTING )   {
+	MPI_Barrier ( comm );
     }
     t2 = TIME;
     ADCL_request_update ( req, t1, t2 );
@@ -114,8 +120,12 @@ int ADCL_Request_init ( ADCL_Request req )
     TIME_TYPE t1, t2;
     int ret=ADCL_SUCCESS;
     int db;
+    MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
 
     /* Check validity of the request  */
+    if ( req->r_emethod->em_state == ADCL_STATE_TESTING )   {
+	MPI_Barrier ( comm );
+    }
     t1 = TIME;
     ret = ADCL_request_init ( req, &db );
     t2 = TIME;
@@ -129,10 +139,14 @@ int ADCL_Request_wait ( ADCL_Request req )
 {
     int ret=ADCL_SUCCESS;
     TIME_TYPE t1, t2;
+    MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
 
     /* Check validity of the request  */
     t1 = TIME;
     ret = ADCL_request_wait ( req );
+    if ( req->r_emethod->em_state == ADCL_STATE_TESTING )   {
+	MPI_Barrier ( comm );
+    }
     t2 = TIME;
     ADCL_request_update ( req, t1, (t2+req->r_time));
 
@@ -147,9 +161,13 @@ int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
     TIME_TYPE t1, t2;
     int ret=ADCL_SUCCESS;
     int db;
+    MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
 
     /* Check validity of the request  */
 
+    if ( req->r_emethod->em_state == ADCL_STATE_TESTING )   {
+	MPI_Barrier ( comm );
+    }
     t1 = TIME;
     ret = ADCL_request_init ( req, &db );
     if ( ADCL_SUCCESS != ret ) {
@@ -169,6 +187,9 @@ int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
 	if ( ADCL_NULL_FNCT_PTR != endfctn ) {
 	    totalfctn (req );
 	}
+    }
+    if ( req->r_emethod->em_state == ADCL_STATE_TESTING )   {
+	MPI_Barrier ( comm );
     }
     t2 = TIME;
     ADCL_request_update ( req, t1, t2 );
