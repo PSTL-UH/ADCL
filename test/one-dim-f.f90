@@ -37,7 +37,7 @@
         dims   = 10
         nc     = 0
         hwidth = 1
-        call ADCL_Vector_register ( 1, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
+        call ADCL_Vector_register ( 1, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
                                     data, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
@@ -53,7 +53,7 @@
         dims = 12
         hwidth = 2
         nc   = 0
-        call ADCL_Vector_register ( 1, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
+        call ADCL_Vector_register ( 1, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
                                     data1, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
@@ -69,7 +69,7 @@
         dims   = 10
         hwidth = 1
         nc     = 1
-        call ADCL_Vector_register ( 1, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
+        call ADCL_Vector_register ( 1, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
                                     data2, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
@@ -85,7 +85,7 @@
         dims   = 12
         hwidth = 2
         nc     = 1
-        call ADCL_Vector_register ( 1, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
+        call ADCL_Vector_register ( 1, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
                                     data3, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
@@ -101,7 +101,7 @@
         dims   = 12
         hwidth = 2
         nc     = 2
-        call ADCL_Vector_register ( 1, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
+        call ADCL_Vector_register ( 1, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
                                     data4, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )

@@ -36,28 +36,28 @@ void ADCL_FINALIZE   ( int *ierror );
 
 
 /* ADCL attribute and attribute set functions */
-void adcl_attribute_create   ( int* maxnvalues, int *array_of_values, 
-			       int *attr, int *ierr );
-void adcl_attribute_create_  ( int* maxnvalues, int *array_of_values, 
-			       int *attr, int *ierr );
-void adcl_attribute_create__ ( int* maxnvalues, int *array_of_values, 
-			     int *attr, int *ierr );
-void ADCL_ATTRIBUTE_CREATE   ( int* maxnvalues, int *array_of_values, 
-			       int *attr, int *ierr );
+void adcl_attribute_create   ( int* maxnvalues, int *array_of_values,
+                   int *attr, int *ierr );
+void adcl_attribute_create_  ( int* maxnvalues, int *array_of_values,
+                   int *attr, int *ierr );
+void adcl_attribute_create__ ( int* maxnvalues, int *array_of_values,
+                 int *attr, int *ierr );
+void ADCL_ATTRIBUTE_CREATE   ( int* maxnvalues, int *array_of_values,
+                   int *attr, int *ierr );
 
 void adcl_attribute_free    ( int *attr, int *ierr );
 void adcl_attribute_free_   ( int *attr, int *ierr );
 void adcl_attribute_free__  ( int *attr, int *ierr );
 void ADCL_ATTRIBUTE_FREE    ( int *attr, int *ierr );
 
-void adcl_attrset_create   ( int* maxnum, int *array_of_attributes, 
-			     int *attrset, int *ierr );
-void adcl_attrset_create_  ( int* maxnum, int *array_of_attributes, 
-			     int *attrset, int *ierr );
-void adcl_attrset_create__ ( int* maxnum, int *array_of_attributes, 
-			     int *attrset, int *ierr );
-void ADCL_ATTRSET_CREATE   ( int* maxnum, int *array_of_attributes, 
-			     int *attrset, int *ierr );
+void adcl_attrset_create   ( int* maxnum, int *array_of_attributes,
+                 int *attrset, int *ierr );
+void adcl_attrset_create_  ( int* maxnum, int *array_of_attributes,
+                 int *attrset, int *ierr );
+void adcl_attrset_create__ ( int* maxnum, int *array_of_attributes,
+                 int *attrset, int *ierr );
+void ADCL_ATTRSET_CREATE   ( int* maxnum, int *array_of_attributes,
+                 int *attrset, int *ierr );
 
 void adcl_attrset_free   ( int *attrset, int *ierr );
 void adcl_attrset_free_  ( int *attrset, int *ierr );
@@ -66,28 +66,28 @@ void ADCL_ATTRSET_FREE   ( int *attrset, int *ierr );
 
 
 /* ADCL Function and functionsets */
-void adcl_function_create   ( void *iptr, int *attrset, int *array_of_attrvals, char *name, 
-			      int *fnct, int *ierr, int name_len );
-void adcl_function_create_  ( void *iptr, int *attrset, int *array_of_attrvals, char *name, 
-			      int *fnct, int *ierr, int name_len  );
-void adcl_function_create__ ( void *iptr, int *attrset, int *array_of_attrvals, char *name, 
-			      int *fnct, int *ierr, int name_len  );
-void ADCL_FUNCTION_CREATE   ( void *iptr, int *attrset, int *array_of_attrvals, char *name, 
-			      int *fnct, int *ierr, int name_len  );
+void adcl_function_create   ( void *iptr, int *attrset, int *array_of_attrvals, char *name,
+                  int *fnct, int *ierr, int name_len );
+void adcl_function_create_  ( void *iptr, int *attrset, int *array_of_attrvals, char *name,
+                  int *fnct, int *ierr, int name_len  );
+void adcl_function_create__ ( void *iptr, int *attrset, int *array_of_attrvals, char *name,
+                  int *fnct, int *ierr, int name_len  );
+void ADCL_FUNCTION_CREATE   ( void *iptr, int *attrset, int *array_of_attrvals, char *name,
+                  int *fnct, int *ierr, int name_len  );
 
 
-void adcl_function_create_async   ( void *iptr, void *wptr, int *attrset, 
-				    int *array_of_attrvals, char *name, 
-				    int *fnct, int *ierr, int name_len  );
-void adcl_function_create_async_  ( void *iptr, void *wptr, int *attrset, 
-				    int *array_of_attrvals, char *name, 
-				    int *fnct, int *ierr , int name_len );
-void adcl_function_create_async__ ( void *iptr, void *wptr, int *attrset, 
-				    int *array_of_attrvals, char *name, 
-				    int *fnct, int *ierr, int name_len  );
-void ADCL_FUNCTION_CREATE_ASYNC   ( void *iptr, void *wptr, int *attrset, 
-				    int *array_of_attrvals, char *name, 
-				    int *fnct, int *ierr, int name_len  );
+void adcl_function_create_async   ( void *iptr, void *wptr, int *attrset,
+                    int *array_of_attrvals, char *name,
+                    int *fnct, int *ierr, int name_len  );
+void adcl_function_create_async_  ( void *iptr, void *wptr, int *attrset,
+                    int *array_of_attrvals, char *name,
+                    int *fnct, int *ierr , int name_len );
+void adcl_function_create_async__ ( void *iptr, void *wptr, int *attrset,
+                    int *array_of_attrvals, char *name,
+                    int *fnct, int *ierr, int name_len  );
+void ADCL_FUNCTION_CREATE_ASYNC   ( void *iptr, void *wptr, int *attrset,
+                    int *array_of_attrvals, char *name,
+                    int *fnct, int *ierr, int name_len  );
 
 
 void adcl_function_free ( int *fnct, int *ierr  );
@@ -96,13 +96,13 @@ void adcl_function_free__ ( int *fnct, int *ierr  );
 void ADCL_FUNCTION_FREE ( int *fnct, int *ierr  );
 
 void adcl_fnctset_create   ( int* maxnum, int *array_of_fncts, char *name,
-			     int *fctset, int *ierr, int name_len  );
+                 int *fctset, int *ierr, int name_len  );
 void adcl_fnctset_create_  ( int* maxnum, int *array_of_fncts, char *name,
-			     int *fctset, int *ierr, int name_len  );
+                 int *fctset, int *ierr, int name_len  );
 void adcl_fnctset_create__ ( int* maxnum, int *array_of_fncts, char *name,
-			     int *fctset, int *ierr, int name_len  );
+                 int *fctset, int *ierr, int name_len  );
 void ADCL_FNCTSET_CREATE   ( int* maxnum, int *array_of_fncts, char *name,
-			     int *fctset, int *ierr, int name_len  );
+                 int *fctset, int *ierr, int name_len  );
 
 void adcl_fnctset_free   ( int *fctset, int *ierr );
 void adcl_fnctset_free_  ( int *fctset, int *ierr );
@@ -111,14 +111,14 @@ void ADCL_FNCTSET_FREE   ( int *fctset, int *ierr );
 
 /* ADCL vector functions */
 
-void adcl_vector_register   ( int *ndims, int *dims, int *nc, int *hwidth, 
-			      int *dat, void *data, int *vec, int *ierror);
-void adcl_vector_register_  ( int *ndims, int *dims, int *nc, int *hwidth, 
-			      int *dat, void *data, int *vec, int *ierror);
-void adcl_vector_register__ ( int *ndims, int *dims, int *nc, int *hwidth, 
-			      int *dat, void *data, int *vec, int *ierror);
-void ADCL_VECTOR_REGISTER   ( int *ndims, int *dims, int *nc, int *hwidth, 
-			      int *dat, void *data, int *vec, int *ierror);
+void adcl_vector_register   ( int *ndims, int *dims, int *nc, int *comtype,
+                 int *hwidth,int *dat, void *data, int *vec, int *ierror);
+void adcl_vector_register_  ( int *ndims, int *dims, int *nc, int *comtype,
+                 int *hwidth,int *dat, void *data, int *vec, int *ierror);
+void adcl_vector_register__ ( int *ndims, int *dims, int *nc, int *comtype,
+                 int *hwidth,int *dat, void *data, int *vec, int *ierror);
+void ADCL_VECTOR_REGISTER   ( int *ndims, int *dims, int *nc, int *comtype,
+                 int *hwidth,int *dat, void *data, int *vec, int *ierror);
 
 void adcl_vector_deregister   ( int *vec, int *ierror );
 void adcl_vector_deregister_  ( int *vec, int *ierror );
@@ -128,14 +128,14 @@ void ADCL_VECTOR_DEREGISTER   ( int *vec, int *ierror );
 
 /* ADCL Process topology functions */
 
-void adcl_topology_create_generic   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-				      int *dir, int *comm, int *topo, int *ierror );
-void adcl_topology_create_generic_  ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-				      int *dir, int *comm, int *topo, int *ierror );
-void adcl_topology_create_generic__ ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-				      int *dir, int *comm, int *topo, int *ierror );
-void ADCL_TOPOLOGY_CREATE_GENERIC   ( int *ndims, int *lneighb, int *rneighb, int *coords, 
-				      int *dir, int *comm, int *topo, int *ierror );
+void adcl_topology_create_generic   ( int *ndims, int *lneighb, int *rneighb, int *coords,
+                      int *dir, int *comm, int *topo, int *ierror );
+void adcl_topology_create_generic_  ( int *ndims, int *lneighb, int *rneighb, int *coords,
+                      int *dir, int *comm, int *topo, int *ierror );
+void adcl_topology_create_generic__ ( int *ndims, int *lneighb, int *rneighb, int *coords,
+                      int *dir, int *comm, int *topo, int *ierror );
+void ADCL_TOPOLOGY_CREATE_GENERIC   ( int *ndims, int *lneighb, int *rneighb, int *coords,
+                      int *dir, int *comm, int *topo, int *ierror );
 
 void adcl_topology_create   ( int* cart_comm, int *topo, int *ierror );
 void adcl_topology_create_  ( int* cart_comm, int *topo, int *ierror );
@@ -149,20 +149,20 @@ void ADCL_TOPOLOGY_FREE   (int *topo, int *ierror);
 
 /* ADCL Request functions */
 
-void adcl_request_create   ( int *vec, int *topo, int *fnctset, int *req, int *ierror ); 
-void adcl_request_create_  ( int *vec, int *topo, int *fnctset, int *req, int *ierror ); 
-void adcl_request_create__ ( int *vec, int *topo, int *fnctset, int *req, int *ierror ); 
-void ADCL_REQUEST_CREATE   ( int *vec, int *topo, int *fnctset, int *req, int *ierror ); 
+void adcl_request_create   ( int *vec, int *topo, int *fnctset, int *req, int *ierror );
+void adcl_request_create_  ( int *vec, int *topo, int *fnctset, int *req, int *ierror );
+void adcl_request_create__ ( int *vec, int *topo, int *fnctset, int *req, int *ierror );
+void ADCL_REQUEST_CREATE   ( int *vec, int *topo, int *fnctset, int *req, int *ierror );
 
 
-void adcl_request_create_generic   ( int *svecsarr, int *rvecsarr, int *topo, 
-				     int *fnctset, int *req, int *ierror );
-void adcl_request_create_generic_  ( int *svecsarr, int *rvecsarr, int *topo, 
-				     int *fnctset, int *req, int *ierror );
-void adcl_request_create_generic__ ( int *svecsarr, int *rvecsarr, int *topo, 
-				     int *fnctset, int *req, int *ierror );
-void ADCL_REQUEST_CREATE_GENERIC   ( int *svecsarr, int *rvecsarr, int *topo, 
-				     int *fnctset, int *req, int *ierror );
+void adcl_request_create_generic   ( int *svecsarr, int *rvecsarr, int *topo,
+                     int *fnctset, int *req, int *ierror );
+void adcl_request_create_generic_  ( int *svecsarr, int *rvecsarr, int *topo,
+                     int *fnctset, int *req, int *ierror );
+void adcl_request_create_generic__ ( int *svecsarr, int *rvecsarr, int *topo,
+                     int *fnctset, int *req, int *ierror );
+void ADCL_REQUEST_CREATE_GENERIC   ( int *svecsarr, int *rvecsarr, int *topo,
+                     int *fnctset, int *req, int *ierror );
 
 void adcl_request_get_comm   ( int *req, int *comm, int *rank, int *size, int *ierr);
 void adcl_request_get_comm_  ( int *req, int *comm, int *rank, int *size, int *ierr);
@@ -190,21 +190,21 @@ void adcl_request_wait__ ( int *req, int *ierror );
 void ADCL_REQUEST_WAIT   ( int *req, int *ierror );
 
 void adcl_request_start_overlap ( int *req, ADCL_work_fnct_ptr *mid,
-				  ADCL_work_fnct_ptr *end, 
-				  ADCL_work_fnct_ptr *total, 
-				  int *ierror );
+                  ADCL_work_fnct_ptr *end,
+                  ADCL_work_fnct_ptr *total,
+                  int *ierror );
 void adcl_request_start_overlap_ ( int *req, ADCL_work_fnct_ptr *mid,
-				   ADCL_work_fnct_ptr *end, 
-				   ADCL_work_fnct_ptr *total, 
-				   int *ierror );
+                   ADCL_work_fnct_ptr *end,
+                   ADCL_work_fnct_ptr *total,
+                   int *ierror );
 void adcl_request_start_overlap__ ( int *req, ADCL_work_fnct_ptr *mid,
-				    ADCL_work_fnct_ptr *end, 
-				    ADCL_work_fnct_ptr *total, 
-				    int *ierror );
+                    ADCL_work_fnct_ptr *end,
+                    ADCL_work_fnct_ptr *total,
+                    int *ierror );
 void ADCL_REQUEST_START_OVERLAP   ( int *req, ADCL_work_fnct_ptr *mid,
-				    ADCL_work_fnct_ptr *end, 
-				    ADCL_work_fnct_ptr *total, 
-				    int *ierror );
+                    ADCL_work_fnct_ptr *end,
+                    ADCL_work_fnct_ptr *total,
+                    int *ierror );
 
 
 

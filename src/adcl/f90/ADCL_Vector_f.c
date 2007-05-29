@@ -21,8 +21,8 @@
 #pragma weak adcl_vector_deregister__ = adcl_vector_deregister
 #pragma weak ADCL_VECTOR_DEREGISTER   = adcl_vector_deregister
 
-void adcl_vector_register ( int *ndims, int *dims, int *nc, int *hwidth, 
-			    int *dat, void *data, int *vec, int *ierror)
+void adcl_vector_register ( int *ndims, int *dims, int *nc, int *comtype, int *hwidth,
+			                int *dat, void *data, int *vec, int *ierror)
 {
     ADCL_vector_t *cvec;
     MPI_Datatype cdat;
@@ -34,30 +34,30 @@ void adcl_vector_register ( int *ndims, int *dims, int *nc, int *hwidth,
 	 ( NULL == dat )   ||
 	 ( NULL == data )  ||
 	 ( NULL == vec )   ) {
-	*ierror = ADCL_INVALID_ARG;
-	return;
+	    *ierror = ADCL_INVALID_ARG;
+	    return;
     }
 
     cdat = MPI_Type_f2c (*dat);
     if ( cdat == MPI_DATATYPE_NULL ) {
-	*ierror = ADCL_INVALID_TYPE;
-	return;
+	    *ierror = ADCL_INVALID_TYPE;
+	    return;
     }
 
     if ( cdat == MPI_DOUBLE_PRECISION ) {
-	cdat = MPI_DOUBLE;
+	    cdat = MPI_DOUBLE;
     }
     else if ( cdat == MPI_REAL ) {
-	cdat = MPI_FLOAT;
+	    cdat = MPI_FLOAT;
     }
     else if ( cdat == MPI_INTEGER ) {
-	cdat = MPI_INT;
+	    cdat = MPI_INT;
     }
 
-    *ierror = ADCL_vector_register (*ndims, dims, *nc, *hwidth, cdat, 
-				    data, &cvec );
+    *ierror = ADCL_vector_register (*ndims, dims, *nc, *comtype, *hwidth,
+                                    cdat, data, &cvec );
     if ( *ierror == ADCL_SUCCESS ) {
-	*vec = cvec->v_findex;
+	    *vec = cvec->v_findex;
     } 
 
     return;

@@ -10,21 +10,21 @@
 #define __ADCL_PREDEFINED_H__
 
 /*=================================================================*/
-/* List of currently supported attributes 
+/* List of currently supported attributes
    Each attribute consists of an attribute ID( given by the define statement),
-   a name (for debugging purposes), the possible values (integer) and 
+   a name (for debugging purposes), the possible values (integer) and
    the maximum number of values supported right now.
 */
 
 /* Total number of attributes */
 #define ADCL_ATTR_TOTAL_NUM  3  /* ignoring numblocks for right now */
 #define ADCL_ATTR_NOT_SET   -1  /* attributes not set*/
-#define ADCL_ATTR_NEW_BLOCK -2  /* signal that we start a new block. 
-				   Used in the performance hypothesis v2 */
+#define ADCL_ATTR_NEW_BLOCK -2  /* signal that we start a new block.
+                   Used in the performance hypothesis v2 */
 
 /* Store for each attribute the maximum number of possible values */
 /*=================================================================*/
-/* 
+/*
 ** The mapping step
 ** Possible values: aao, pair, hierarch
 */
@@ -37,7 +37,7 @@ extern const int ADCL_attr_mapping_pair;
 extern const int ADCL_attr_mapping_hierarch;
 
 /*=================================================================*/
-/* 
+/*
 ** Methods for non-contiguous data transfer
 ** Possible values: derived datatypes, pack/unpack, individual
 */
@@ -49,7 +49,7 @@ extern const int ADCL_attr_noncont_pack;
 extern const int ADCL_attr_noncont_individual;
 
 /*=================================================================*/
-/* 
+/*
 ** Data transfer primitives
 ** Possible values: IsendIrecv, SendIrecv, SendRecv, Sendrecv,
 **                  FenceGet, FencePut, PostStartGet, PostStartPut
@@ -75,7 +75,7 @@ extern const int ADCL_attr_transfer_StartPostPut;
 
 /*=================================================================*/
 
-/* 
+/*
 ** indicate whether single or dual block method/operation
 ** (required for the overlap later on)
 ** Possible values: single, dual

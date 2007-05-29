@@ -31,9 +31,9 @@ int main ( int argc, char ** argv )
     MPI_Comm_size ( MPI_COMM_WORLD, &size );
 
     ADCL_Init ();
-    ADCL_Vector_allocate ( 3,  dims, 0, 1, MPI_DOUBLE, &data1, &vec1 );
-    ADCL_Vector_allocate ( 3,  dims, 0, 1, MPI_DOUBLE, &data2, &vec2 );
-    ADCL_Vector_allocate ( 3,  dims, 0, 1, MPI_DOUBLE, &data3, &vec3 );
+    ADCL_Vector_allocate ( 3,  dims, 0, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &data1, &vec1 );
+    ADCL_Vector_allocate ( 3,  dims, 0, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &data2, &vec2 );
+    ADCL_Vector_allocate ( 3,  dims, 0, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &data3, &vec3 );
 
     MPI_Dims_create ( size, 3, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, &cart_comm);

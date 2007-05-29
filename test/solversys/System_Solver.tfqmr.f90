@@ -74,17 +74,17 @@
         dims(1) = n1+2
         dims(2) = n2+2
         dims(3) = n3+2
-        call ADCL_Vector_register ( 3, dims, nc, 1, MPI_DOUBLE_PRECISION, &
+        call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE_PRECISION, &
              tfqmr_y, adcl_vec_tfqmr_y, ierror )
         call ADCL_Request_create ( adcl_vec_tfqmr_y, adcl_topo, &
              ADCL_FNCTSET_NEIGHBORHOOD, adcl_tfqmr_y, ierror )
 
-        call ADCL_Vector_register ( 3, dims, nc, 1, MPI_DOUBLE_PRECISION, &
+        call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE_PRECISION, &
              tfqmr_y_old, adcl_vec_tfqmr_y_old, ierror )
         call ADCL_Request_create ( adcl_vec_tfqmr_y_old, adcl_topo, &
              ADCL_FNCTSET_NEIGHBORHOOD, adcl_tfqmr_y_old, ierror )
 
-        call ADCL_Vector_register ( 3, dims, nc, 1, MPI_DOUBLE_PRECISION, &
+        call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE_PRECISION, &
              tfqmr_y_old_1, adcl_vec_tfqmr_y_old_1, ierror )
         call ADCL_Request_create ( adcl_vec_tfqmr_y_old_1, adcl_topo, &
              ADCL_FNCTSET_NEIGHBORHOOD, adcl_tfqmr_y_old_1, ierror )

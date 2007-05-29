@@ -37,10 +37,10 @@ int ADCL_Init (void )
     return ret;
 }
 
-int ADCL_Finalize ( void ) 
+int ADCL_Finalize ( void )
 {
     int ret;
-    
+
     /* Initialize the request and vector fortran pointer arrays */
     ADCL_array_free ( &(ADCL_vector_farray));
     ADCL_array_free ( &(ADCL_emethod_array));

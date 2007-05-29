@@ -20,7 +20,7 @@
 
        integer ADCL_INVALID_ARG, ADCL_INVALID_NDIMS
        integer ADCL_INVALID_HWIDTH, ADCL_INVALID_DAT
-       integer ADCL_INVALID_DATA, ADCL_INVALID_COMM
+       integer ADCL_INVALID_DATA, ADCL_INVALID_COMTYPE, ADCL_INVALID_COMM
        integer ADCL_INVALID_DIMS, ADCL_INVALID_REQUEST
        integer ADCL_INVALID_NC, ADCL_INVALID_TYPE
        integer ADCL_INVALID_TOPOLOGY, ADCL_INVALID_ATTRIBUTE
@@ -34,18 +34,19 @@
        parameter ( ADCL_INVALID_HWIDTH  = 13)
        parameter ( ADCL_INVALID_DAT     = 14)
        parameter ( ADCL_INVALID_DATA    = 15)
-       parameter ( ADCL_INVALID_COMM    = 16)
-       parameter ( ADCL_INVALID_REQUEST = 17)
-       parameter ( ADCL_INVALID_NC      = 18)
-       parameter ( ADCL_INVALID_TYPE    = 19)
-       parameter ( ADCL_INVALID_TOPOLOGY = 20)
-       parameter ( ADCL_INVALID_ATTRIBUTE = 21)
-       parameter ( ADCL_INVALID_ATTRSET   = 22)
-       parameter ( ADCL_INVALID_FUNCTION  = 23)
-       parameter ( ADCL_INVALID_WORK_FUNCTION_PTR = 24)
-       parameter ( ADCL_INVALID_FNCTSET    = 25)
-       parameter ( ADCL_INVALID_VECTOR     = 26)
-       parameter ( ADCL_INVALID_DIRECTION  = 27)
+       parameter ( ADCL_INVALID_COMTYPE = 16)
+       parameter ( ADCL_INVALID_COMM    = 17)
+       parameter ( ADCL_INVALID_REQUEST = 18)
+       parameter ( ADCL_INVALID_NC      = 19)
+       parameter ( ADCL_INVALID_TYPE    = 20)
+       parameter ( ADCL_INVALID_TOPOLOGY = 21)
+       parameter ( ADCL_INVALID_ATTRIBUTE = 22)
+       parameter ( ADCL_INVALID_ATTRSET   = 23)
+       parameter ( ADCL_INVALID_FUNCTION  = 24)
+       parameter ( ADCL_INVALID_WORK_FUNCTION_PTR = 25)
+       parameter ( ADCL_INVALID_FNCTSET    = 26)
+       parameter ( ADCL_INVALID_VECTOR     = 27)
+       parameter ( ADCL_INVALID_DIRECTION  = 28)
        
        integer ADCL_VECTOR_NULL, ADCL_REQUEST_NULL
        integer ADCL_TOPOLOGY_NULL, ADCL_ATTRIBUTE_NULL
@@ -70,6 +71,13 @@
        parameter ( ADCL_DIRECTION_BOTH = 1 )
        parameter ( ADCL_DIRECTION_LEFT_TO_RIGHT = 2 )
        parameter ( ADCL_DIRECTION_RIGHT_TO_LEFT = 3 )
+
+       integer ADCL_VECTOR_HALO, ADCL_VECTOR_ALL
+       integer ADCL_VECTOR_UP_TRIANG, ADCL_VECTOR_LO_TRIANG
+       parameter ( ADCL_VECTOR_HALO = 1 )
+       parameter ( ADCL_VECTOR_ALL = 2 )
+       parameter ( ADCL_VECTOR_UP_TRIANG = 3 )
+       parameter ( ADCL_VECTOR_LO_TRIANG = 4 )
 
        integer ADCL_FNCTSET_NEIGHBORHOOD, ADCL_FNCTSET_SHIFT_LTOR
        integer ADCL_FNCTSET_SHIFT_RTOL

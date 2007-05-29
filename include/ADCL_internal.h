@@ -60,15 +60,15 @@ int ADCL_readenv( void );
 int ADCL_predefined_init ( void );
 
 int ADCL_hypothesis_init ( ADCL_emethod_t *e );
-int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_t *e, int attr_pos, 
-					int required_value );
+int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_t *e, int attr_pos,
+                    int required_value );
 int ADCL_hypothesis_set     ( ADCL_emethod_t *er, int attr, int attrval );
-int ADCL_hypothesis_eval_one_attr    ( ADCL_emethod_t *e, int num_attrs,  
-				       int *attr_values, ADCL_attribute_t * attr, 
-				       int attr_pos, int max_attr_vals, 
-				       int *winner_attr_val_pos, int *winner_attr_val, 
-				       ADCL_statistics_t **tmp_stats, 
-				       ADCL_function_t **tmp_funcs );
+int ADCL_hypothesis_eval_one_attr    ( ADCL_emethod_t *e, int num_attrs,
+                       int *attr_values, ADCL_attribute_t * attr,
+                       int attr_pos, int max_attr_vals,
+                       int *winner_attr_val_pos, int *winner_attr_val,
+                       ADCL_statistics_t **tmp_stats,
+                       ADCL_function_t **tmp_funcs );
 int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e );
 int ADCL_hypothesis_get_next ( ADCL_emethod_t *e );
 

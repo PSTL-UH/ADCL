@@ -44,7 +44,7 @@
         end if
 
         call ADCL_Init ( ierror )
-        call ADCL_Vector_register ( 3, dims, 1, 1, MPI_DOUBLE_PRECISION,&
+        call ADCL_Vector_register ( 3, dims, 1, ADCL_VECTOR_HALO, 1, MPI_DOUBLE_PRECISION,&
                                     data, vec, ierror)
 
         call MPI_Dims_create ( size, 3, cdims, ierror)

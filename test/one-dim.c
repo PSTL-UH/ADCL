@@ -48,7 +48,7 @@ int main ( int argc, char ** argv )
     /* Test 1: hwidth=1, nc=0 */
     hwidth=1;
     dims = DIM0+2*hwidth;
-    ADCL_Vector_allocate ( 1,  &dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vector_allocate ( 1,  &dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
 
     set_data_1D ( data, rank, DIM0+2*hwidth, hwidth);
@@ -67,7 +67,7 @@ int main ( int argc, char ** argv )
     /* Test 2: hwidth=2, nc=0 */
     hwidth=2;
     dims = DIM0+2*hwidth;
-    ADCL_Vector_allocate ( 1,  &dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vector_allocate ( 1,  &dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
 
     set_data_1D ( data, rank, DIM0+2*hwidth, hwidth);
@@ -86,7 +86,7 @@ int main ( int argc, char ** argv )
     /* Test 3: hwidth=1, nc=1 */
     hwidth=1;
     dims = DIM0+2*hwidth;
-    ADCL_Vector_allocate ( 1,  &dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
+    ADCL_Vector_allocate ( 1,  &dims, 1, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data2, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
 
     set_data_2D ( data2, rank, dims, hwidth, 1 );
@@ -104,7 +104,7 @@ int main ( int argc, char ** argv )
     /* Test 4: hwidth=2, nc=1 */
     hwidth=2;
     dims = DIM0+2*hwidth;
-    ADCL_Vector_allocate ( 1,  &dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
+    ADCL_Vector_allocate ( 1,  &dims, 1, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data2, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
 
     set_data_2D ( data2, rank, dims, hwidth, 1 );
@@ -123,7 +123,7 @@ int main ( int argc, char ** argv )
     /* Test 5: hwidth=2, nc=2 */
     hwidth=2;
     dims = DIM0+2*hwidth;
-    ADCL_Vector_allocate ( 1,  &dims, 2, hwidth, MPI_DOUBLE, &data2, &vec );
+    ADCL_Vector_allocate ( 1,  &dims, 2, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data2, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
 
     set_data_2D ( data2, rank, dims, hwidth, 2 );

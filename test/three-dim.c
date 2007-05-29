@@ -68,7 +68,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
-    ADCL_Vector_allocate ( 3,  dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vector_allocate ( 3,  dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data, rank, dims, hwidth );
@@ -89,7 +89,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
-    ADCL_Vector_allocate ( 3,  dims, 0, hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vector_allocate ( 3,  dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data, rank, dims, hwidth );
@@ -109,7 +109,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
-    ADCL_Vector_allocate ( 3,  dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
+    ADCL_Vector_allocate ( 3,  dims, 1, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data2, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_4D ( data2, rank, dims, hwidth, 1 );
@@ -129,7 +129,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
-    ADCL_Vector_allocate ( 3,  dims, 1, hwidth, MPI_DOUBLE, &data2, &vec );
+    ADCL_Vector_allocate ( 3,  dims, 1, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data2, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_4D ( data2, rank, dims, hwidth, 1 );
@@ -149,7 +149,7 @@ int main ( int argc, char ** argv )
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
     dims[2] = DIM2 + 2*hwidth;
-    ADCL_Vector_allocate ( 3,  dims, 2, hwidth, MPI_DOUBLE, &data2, &vec );
+    ADCL_Vector_allocate ( 3,  dims, 2, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data2, &vec );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_4D ( data2, rank, dims, hwidth, 2 );

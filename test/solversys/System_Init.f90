@@ -145,9 +145,9 @@
       dims(1) = n1+2
       dims(2) = n2+2
       dims(3) = n3+2
-      call ADCL_Vector_register ( 3, dims, nc, 1, MPI_DOUBLE_PRECISION, &
+      call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE_PRECISION, &
            dq, adcl_vec_dq, ierror )
-      call ADCL_Vector_register ( 3, dims, nc, 1, MPI_DOUBLE_PRECISION, &
+      call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE_PRECISION, &
            loes, adcl_vec_loes, ierror )
 
 !...Generate now the ADCL-Request object for dq

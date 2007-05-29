@@ -48,24 +48,24 @@ struct ADCL_statistics_s{
 };
 typedef struct ADCL_statistics_s ADCL_statistics_t;
 
-int ADCL_statistics_filter_timings  ( ADCL_statistics_t **stats, int count, 
-				      int rank );
+int ADCL_statistics_filter_timings  ( ADCL_statistics_t **stats, int count,
+                    int rank );
 double ADCL_statistics_time(void);
 int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
-				    MPI_Comm comm, int rank );
-int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count, 
-				    int *winner );
+                    MPI_Comm comm, int rank );
+int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count,
+                    int *winner );
 
 struct ADCL_hypothesis_s {
     int                *h_attr_hypothesis; /* List of performance hypothesis*/
     int                *h_attr_confidence; /* List of confidence values */
-    int                  h_num_avail_meas; /* Counter keeping track of how many 
-					       methods have already been tested*/
+    int                  h_num_avail_meas; /* Counter keeping track of how many
+                          methods have already been tested*/
     int                  *h_curr_attrvals; /* list of attribute values currently
-					      being evaluated */
-    ADCL_attribute_t       *h_active_attr; /* attribute currently being optimezed */    
-    int                  h_active_attrpos; /* position of the current actively 
-					      investigated attribute in the attrset */
+                          being evaluated */
+    ADCL_attribute_t       *h_active_attr; /* attribute currently being optimized */
+    int                  h_active_attrpos; /* position of the current actively
+                          investigated attribute in the attrset */
 };
 typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
 

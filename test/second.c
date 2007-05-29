@@ -53,7 +53,7 @@ int main ( int argc, char ** argv )
 
     /* Initiate the ADCL library and register a 2D vector with ADCL */
     ADCL_Init ();
-    ADCL_Vector_register ( 2,  dims, 0, 1, MPI_DOUBLE, matrix, &vec );
+    ADCL_Vector_register ( 2,  dims, 0, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, matrix, &vec );
 
     /* Describe the neighborhood relations */
     MPI_Dims_create ( size, 2, cdims );

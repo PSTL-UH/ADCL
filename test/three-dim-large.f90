@@ -47,7 +47,7 @@
         dims(3) = 66
         hwidth = 1
         nc     = 1
-        call ADCL_Vector_register ( 3, dims, nc, hwidth, MPI_DOUBLE_PRECISION,&
+        call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
                                     data2, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
