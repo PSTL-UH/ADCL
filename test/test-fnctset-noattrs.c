@@ -35,33 +35,32 @@ int main ( int argc, char ** argv )
     ADCL_Init ();
 
     ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_1, ADCL_ATTRSET_NULL, NULL, 
-			   "test_func_1", &(funcs[0]));
+			                "test_func_1", &(funcs[0]));
 
     ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_2, ADCL_ATTRSET_NULL, NULL, 
-			   "test_func_2", &(funcs[1]));
+			                "test_func_2", &(funcs[1]));
 
     ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_3, ADCL_ATTRSET_NULL, NULL, 
-			   "test_func_3", &(funcs[2]));
+			                "test_func_3", &(funcs[2]));
 
     ADCL_Fnctset_create ( 3, funcs, "trivial functions", &fnctset );
 
     ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
-				   MPI_COMM_WORLD, &topo );
+				                   MPI_COMM_WORLD, &topo );
     ADCL_Request_create ( ADCL_VECTOR_NULL, topo, fnctset, &request );
     
 
     for ( i=0; i<NIT; i++ ) {
-	ADCL_Request_start( request );
+	    ADCL_Request_start( request );
     }
 
     ADCL_Request_free ( &request );
     ADCL_Fnctset_free ( &fnctset );
     
     for ( i=0; i<3; i++ ) {
-	ADCL_Function_free ( &funcs[i] );
+	    ADCL_Function_free ( &funcs[i] );
     }
 
-    
     ADCL_Finalize ();
     MPI_Finalize ();
     return 0;

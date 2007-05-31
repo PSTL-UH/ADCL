@@ -57,18 +57,18 @@ typedef struct ADCL_request_s ADCL_request_t;
 
 extern ADCL_array_t * ADCL_request_farray;
 
-int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
-                  ADCL_vector_t **array_of_recv_vecs,
-                  ADCL_topology_t *topo,
-                  ADCL_fnctset_t *fnctset,
-                  ADCL_request_t **req, int order );
+int ADCL_request_create_generic ( ADCL_vector_t **svecs,
+                                  ADCL_vector_t **rvecs,
+                                  ADCL_topology_t *topo,
+                                  ADCL_fnctset_t *fnctset,
+                                  ADCL_request_t **req, int order );
 
 int ADCL_request_free ( ADCL_request_t **req );
 int ADCL_request_init ( ADCL_request_t *req, int *db );
 int ADCL_request_wait ( ADCL_request_t *req );
 
 int ADCL_request_update ( ADCL_request_t *req,
-              TIME_TYPE t1, TIME_TYPE t2 );
+                          TIME_TYPE t1, TIME_TYPE t2 );
 int ADCL_request_get_comm ( ADCL_request_t *req, MPI_Comm *comm, int *rank, int *size);
 
 #endif /* __ADCL_REQUEST_H__ */

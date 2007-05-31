@@ -58,7 +58,7 @@ extern ADCL_array_t *ADCL_vector_farray;
    @retval ADCL_INVALID_DAT      invalid dat input parameter
 */
 int ADCL_vector_allocate ( int ndims, int *dims, int nc, int comtype, int hwidth,
-               MPI_Datatype dat, ADCL_vector_t **vec );
+                           MPI_Datatype dat, ADCL_vector_t **vec );
 
 
 
@@ -107,7 +107,7 @@ int ADCL_vector_free  ( ADCL_vector_t **vec );
    @retval ADCL_INVALID_DATA     invalid data pointer input parameter
 */
 int ADCL_vector_register ( int ndims, int *dims, int nc, int comtype, int hwidth,
-               MPI_Datatype dat, void *data, ADCL_vector_t **vec );
+                           MPI_Datatype dat, void *data, ADCL_vector_t **vec );
 
 
 
@@ -130,5 +130,22 @@ int ADCL_vector_deregister  ( ADCL_vector_t **vec );
 
 
 void* ADCL_vector_get_data_ptr ( ADCL_vector_t *vec );
+
+struct ADCL_vectset_s{
+    int                    vs_id; /* id of the object */
+    int                vs_findex; /* index of this object in the fortran array */
+    int                vs_maxnum; /* no. of vector objects in this vector-group */
+    ADCL_vector_t     **vs_svecs; /* ptr to the vectors describing send data items */
+    ADCL_vector_t     **vs_rvecs; /* ptr to the vectors describing recv data items */
+};
+typedef struct ADCL_vectset_s ADCL_vectset_t;
+extern ADCL_array_t *ADCL_vectset_farray;
+
+int ADCL_vectset_create ( int maxnum,
+                          ADCL_vector_t **svecs,
+                          ADCL_vector_t **rvecs,
+                          ADCL_vectset_t **vectset );
+
+int ADCL_vectset_free   ( ADCL_vectset_t **vectset );
 
 #endif /* __ADCL_VECTOR_H__ */

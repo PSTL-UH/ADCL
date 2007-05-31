@@ -10,8 +10,7 @@
 #include "ADCL_internal.h"
 
 int ADCL_Function_create ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset attrset,
-               int *array_of_values, char *name,
-               ADCL_Function *fnct )
+                           int *array_of_values, char *name, ADCL_Function *fnct )
 {
     if ( NULL == iptr ) {
         return ADCL_INVALID_WORK_FUNCTION_PTR;
@@ -21,7 +20,6 @@ int ADCL_Function_create ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset attrset,
         if ( attrset->as_id < 0 ) {
             return ADCL_INVALID_ATTRSET;
         }
-
         if ( NULL == array_of_values ) {
             return ADCL_INVALID_ARG;
         }
@@ -78,7 +76,7 @@ int ADCL_Function_free ( ADCL_Function *fnct )
 }
 
 int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts,
-              char *name, ADCL_Fnctset *fctset )
+                          char *name, ADCL_Fnctset *fctset )
 {
     int i;
 

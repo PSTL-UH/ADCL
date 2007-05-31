@@ -11,7 +11,7 @@
         implicit none
         include 'ADCL.inc'
 
-        integer i, rank, size, ierror, NIT, allocstat
+        integer rank, size, ierror, NIT, allocstat
         integer dims(3), cdims(2), periods(2)
         integer vec;
         integer topo;
@@ -126,9 +126,9 @@
         call MPI_Comm_rank ( comm, rank, ierror )
         call MPI_Comm_size ( comm, size, ierror ) 
 
-!        if ( rank .eq. 0 ) then
-!           write (*,*) msg
-!        end if
+        if ( rank .eq. 0 ) then
+           write (*,*) msg
+        end if
 
         do k = 0, size-1
            if ( rank .eq. k) then

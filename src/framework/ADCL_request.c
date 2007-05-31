@@ -18,11 +18,11 @@ extern ADCL_fnctset_t *ADCL_neighborhood_fnctset;
 #define CHECK_COMM_STATE(state1,state2) if (state1!=state2) return ADCL_SUCCESS
 
 
-int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
-                  ADCL_vector_t **array_of_recv_vecs,
-                  ADCL_topology_t *topo,
-                  ADCL_fnctset_t *fnctset,
-                  ADCL_request_t **req, int order )
+int ADCL_request_create_generic ( ADCL_vector_t **svecs,
+                                  ADCL_vector_t **rvecs,
+                                  ADCL_topology_t *topo,
+                                  ADCL_fnctset_t *fnctset,
+                                  ADCL_request_t **req, int order )
 {
     int i, ret = ADCL_SUCCESS;
     ADCL_request_t *newreq;
@@ -51,8 +51,8 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
                  newreq );
 
     newreq->r_comm_state = ADCL_COMM_AVAIL;
-    if ( NULL != array_of_send_vecs && NULL != array_of_recv_vecs ) {
-        vec =  array_of_send_vecs[0];
+    if ( NULL != svecs && NULL != rvecs ) {
+        vec =  svecs[0];
 
         newreq->r_svecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
         newreq->r_rvecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
@@ -61,8 +61,8 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
             goto exit;
         }
         for ( i=0; i < 2* topo->t_ndims; i++ ) {
-            newreq->r_svecs[i] = array_of_send_vecs[i];
-            newreq->r_rvecs[i] = array_of_recv_vecs[i];
+            newreq->r_svecs[i] = svecs[i];
+            newreq->r_rvecs[i] = rvecs[i];
         }
 
         /*
@@ -71,45 +71,43 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
         */
         if ( vec->v_ndims == 1 || (vec->v_ndims == 2 && vec->v_nc > 0 )) {
             ret = ADCL_indexed_1D_init ( vec->v_dims[0],
-                         vec->v_hwidth,
-                         vec->v_nc,
-                         order,
-                         vec->v_dat,
-                         &(newreq->r_sdats),
-                         &(newreq->r_rdats) );
+                                         vec->v_hwidth,
+                                         vec->v_nc,
+                                         order,
+                                         vec->v_dat,
+                                         &(newreq->r_sdats),
+                                         &(newreq->r_rdats) );
         }
         else if ( (vec->v_ndims == 2 && vec->v_nc == 0) ||
                   (vec->v_ndims == 3 && vec->v_nc > 0) ) {
             ret = ADCL_indexed_2D_init ( vec->v_dims,
-                         vec->v_hwidth,
-                         vec->v_nc,
-                         order,
-                         vec->v_dat,
-                         &(newreq->r_sdats),
-                         &(newreq->r_rdats) );
+                                         vec->v_hwidth,
+                                         vec->v_nc,
+                                         order,
+                                         vec->v_dat,
+                                         &(newreq->r_sdats),
+                                         &(newreq->r_rdats) );
         }
         else if ( (vec->v_ndims == 3 && vec->v_nc == 0) ||
                   (vec->v_ndims == 4 && vec->v_nc > 0 )){
             ret = ADCL_indexed_3D_init ( vec->v_dims,
-                         vec->v_hwidth,
-                         vec->v_nc,
-                         order,
-                         vec->v_dat,
-                         &(newreq->r_sdats),
-                         &(newreq->r_rdats) );
+                                         vec->v_hwidth,
+                                         vec->v_nc,
+                                         order,
+                                         vec->v_dat,
+                                         &(newreq->r_sdats),
+                                         &(newreq->r_rdats) );
         }
-        else {
-            if ( ADCL_TOPOLOGY_NULL != topo ) {
-                ret = ADCL_subarray_init ( topo->t_ndims,
-                           vec->v_ndims,
-                           vec->v_dims,
-                           vec->v_hwidth,
-                           vec->v_nc,
-                           order,
-                           vec->v_dat,
-                           &(newreq->r_sdats),
-                           &(newreq->r_rdats) );
-            }
+        else if ( ADCL_TOPOLOGY_NULL != topo ) {
+            ret = ADCL_subarray_init   ( topo->t_ndims,
+                                         vec->v_ndims,
+                                         vec->v_dims,
+                                         vec->v_hwidth,
+                                         vec->v_nc,
+                                         order,
+                                         vec->v_dat,
+                                         &(newreq->r_sdats),
+                                         &(newreq->r_rdats) );
         }
         if ( ret != ADCL_SUCCESS ) {
             goto exit;
@@ -117,14 +115,14 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
 
         /* Initialize temporary buffer(s) for Pack/Unpack operations */
         ret = ADCL_packunpack_init ( topo->t_ndims * 2,
-                         topo->t_neighbors,
-                         topo->t_comm,
-                         &(newreq->r_sbuf),
-                         newreq->r_sdats,
-                         &(newreq->r_spsize),
-                         &(newreq->r_rbuf),
-                         newreq->r_rdats,
-                         &(newreq->r_rpsize) );
+                                     topo->t_neighbors,
+                                     topo->t_comm,
+                                     &(newreq->r_sbuf),
+                                     newreq->r_sdats,
+                                     &(newreq->r_spsize),
+                                     &(newreq->r_rbuf),
+                                     newreq->r_rdats,
+                                     &(newreq->r_rpsize) );
         if ( ADCL_SUCCESS != ret ) {
             goto exit;
         }
@@ -168,9 +166,9 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
     /* Allocate the request arrays, 2 for each neighboring process */
     if ( 0 != topo->t_ndims ) {
         newreq->r_sreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
-                              sizeof(MPI_Request));
+                         sizeof(MPI_Request));
         newreq->r_rreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
-                              sizeof(MPI_Request));
+                         sizeof(MPI_Request));
         if ( NULL == newreq->r_rreqs || NULL == newreq->r_sreqs ) {
             ret = ADCL_NO_MEMORY;
             goto exit;
@@ -197,10 +195,10 @@ int ADCL_request_create_generic ( ADCL_vector_t **array_of_send_vecs,
 
         if ( NULL != vec ) {
             ADCL_subarray_free ( 2 * topo->t_ndims, &(newreq->r_sdats),
-                     &(newreq->r_rdats) );
+                                 &(newreq->r_rdats) );
             ADCL_packunpack_free ( 2 * topo->t_ndims, &(newreq->r_rbuf),
-                       &(newreq->r_sbuf), &(newreq->r_spsize),
-                       &(newreq->r_rpsize) );
+                                   &(newreq->r_sbuf), &(newreq->r_spsize),
+                                   &(newreq->r_rpsize) );
         }
 
         if ( MPI_WIN_NULL != newreq->r_win ) {

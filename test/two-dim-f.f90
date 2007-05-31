@@ -12,7 +12,7 @@
         include 'ADCL.inc'
 
         integer rank, size, ierror 
-        integer nc, hwidth, i
+        integer nc, hwidth
         integer vec, topo, request
         integer cart_comm
         integer, dimension(2) :: dims, cdims, periods
@@ -226,7 +226,7 @@
         implicit none
         include 'ADCL.inc'
 
-        integer rank, size, dims(2), hwidth, nc, neighbors(4)
+        integer rank, dims(2), hwidth, nc, neighbors(4)
         double precision data(dims(1),dims(2), nc)
         integer lres, gres, i, j, k, ierr
         double precision should_be
@@ -412,7 +412,7 @@
         implicit none
         include 'ADCL.inc'
 
-        integer rank, size, dims(2), hwidth, neighbors(4)
+        integer rank, dims(2), hwidth, neighbors(4)
         double precision data(dims(1),dims(2))
         integer lres, gres, i, j, ierr
         double precision should_be

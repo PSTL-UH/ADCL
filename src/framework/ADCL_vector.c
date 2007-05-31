@@ -9,12 +9,14 @@
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
-
-static int ADCL_local_id_counter=0;
 static int ADCL_vector_get_realdim ( int ndims, int *dims, int nc,
                      int *rndims, int **rdims );
 
 ADCL_array_t* ADCL_vector_farray=NULL;
+static int ADCL_local_vector_counter=0;
+
+ADCL_array_t* ADCL_vectset_farray=NULL;
+static int ADCL_local_vectset_counter=0;
 
 /**********************************************************************/
 /**********************************************************************/
@@ -34,7 +36,7 @@ int ADCL_vector_allocate ( int ndims, int *dims, int nc, int comtype, int hwidth
     }
 
     /* Set the according elements of the structure */
-    tvec->v_id     = ADCL_local_id_counter++;
+    tvec->v_id     = ADCL_local_vector_counter++;
     tvec->v_rfcnt  = 1;
     
     ADCL_array_get_next_free_pos ( ADCL_vector_farray, &(tvec->v_findex) );
@@ -138,7 +140,7 @@ int ADCL_vector_register ( int ndims, int *dims, int nc, int comtype, int hwidth
     }
     
     /* Set the according elements of the structure */
-    tvec->v_id     = ADCL_local_id_counter++;
+    tvec->v_id     = ADCL_local_vector_counter++;
     tvec->v_rfcnt  = 1;
     tvec->v_alloc  = FALSE;
     
@@ -255,5 +257,89 @@ static int ADCL_vector_get_realdim ( int ndims, int *dims, int nc,
 
     *rndims = lndims;
     *rdims = ldims;
+    return ADCL_SUCCESS;
+}
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+int ADCL_vectset_create ( int maxnum,
+                          ADCL_vector_t **svecs,
+                          ADCL_vector_t **rvecs,
+                          ADCL_vectset_t **vectset )
+{
+    int i, ret = ADCL_SUCCESS;
+    ADCL_vectset_t *newvectset = NULL;
+
+    newvectset = ( ADCL_vectset_t *) calloc (1, sizeof (ADCL_vectset_t));
+    if ( NULL == newvectset ) {
+        return ADCL_NO_MEMORY;
+    }
+
+    newvectset->vs_id = ADCL_local_vectset_counter++;
+    ADCL_array_get_next_free_pos ( ADCL_vectset_farray, &(newvectset->vs_findex));
+    ADCL_array_set_element ( ADCL_vectset_farray, newvectset->vs_findex,
+                             newvectset->vs_id, newvectset );
+    /* Make sure all vectors have the same comtype */
+    for (i=0; i<maxnum; i++ ) {
+        if ( svecs[i]->v_comtype != svecs[0]->v_comtype ||
+             rvecs[i]->v_comtype != svecs[0]->v_comtype ) {
+            ADCL_printf("Error Generating a vector set: inconsistent comtype across "
+                        "multiple vectors ");
+            ret = ADCL_USER_ERROR;
+            goto exit;
+        }
+    }
+    
+    newvectset->vs_maxnum = maxnum;
+    
+    newvectset->vs_svecs = (ADCL_vector_t **) calloc ( 1, maxnum*sizeof (ADCL_vector_t *));
+    newvectset->vs_rvecs = (ADCL_vector_t **) calloc ( 1, maxnum*sizeof (ADCL_vector_t *));
+
+    if ( NULL == newvectset->vs_svecs || NULL == newvectset->vs_rvecs ) {
+        ret = ADCL_NO_MEMORY;
+        goto exit;
+    }
+
+    memcpy ( newvectset->vs_svecs, svecs, maxnum * sizeof (ADCL_vector_t *));
+    memcpy ( newvectset->vs_rvecs, rvecs, maxnum * sizeof (ADCL_vector_t *));
+
+    exit:
+    if ( ret != ADCL_SUCCESS ) {
+        
+        ADCL_array_remove_element ( ADCL_vectset_farray, newvectset->vs_findex );
+        
+        if ( NULL != newvectset->vs_svecs ) {
+            free ( newvectset->vs_svecs );
+        }
+        if ( NULL != newvectset->vs_rvecs ) {
+            free ( newvectset->vs_rvecs );
+        }
+        
+        free ( newvectset );
+    }
+
+    *vectset = newvectset;
+    return ret;
+}
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+int ADCL_vectset_free ( ADCL_vectset_t **vectset )
+{
+    ADCL_vectset_t *tvectset=*vectset;
+
+    if ( NULL != tvectset ) {
+        if ( NULL != tvectset->vs_svecs ) {
+            free ( tvectset->vs_svecs );
+        }
+        if ( NULL != tvectset->vs_rvecs ) {
+            free ( tvectset->vs_rvecs );
+        }
+        free ( tvectset );
+    }
+
+    *vectset = ADCL_VECTSET_NULL;
     return ADCL_SUCCESS;
 }

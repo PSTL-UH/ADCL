@@ -18,14 +18,15 @@ int ADCL_Init (void )
     ret = ADCL_printf_init();
 
     /* Initialize the request, topology and vector fortran pointer arrays */
-    ADCL_array_init ( &(ADCL_vector_farray),    "ADCL_Vector",   32 );
+    ADCL_array_init ( &(ADCL_vector_farray),    "ADCL_Vector",    32 );
+    ADCL_array_init ( &(ADCL_vectset_farray),   "ADCL_Vectset",   32 );
     ADCL_array_init ( &(ADCL_emethod_array),    "ADCL_emethod",   32 );
-    ADCL_array_init ( &(ADCL_request_farray),   "ADCL_Request",  32 );
-    ADCL_array_init ( &(ADCL_topology_farray),  "ADCL_Topology", 32 );
-    ADCL_array_init ( &(ADCL_attribute_farray), "ADCL_Attribute",32 );
-    ADCL_array_init ( &(ADCL_attrset_farray),   "ADCL_Attrset",  32 );
+    ADCL_array_init ( &(ADCL_request_farray),   "ADCL_Request",   32 );
+    ADCL_array_init ( &(ADCL_topology_farray),  "ADCL_Topology",  32 );
+    ADCL_array_init ( &(ADCL_attribute_farray), "ADCL_Attribute", 32 );
+    ADCL_array_init ( &(ADCL_attrset_farray),   "ADCL_Attrset",   32 );
     ADCL_array_init ( &(ADCL_function_farray),  "ADCL_Function",  32 );
-    ADCL_array_init ( &(ADCL_fnctset_farray),   "ADCL_Fnctgrp",  32 );
+    ADCL_array_init ( &(ADCL_fnctset_farray),   "ADCL_Fnctgrp",   32 );
 
 #ifdef ADCL_PAPI
     ADCL_array_init ( &(ADCL_papi_farray),      "ADCL_Papi", 32 );
@@ -43,6 +44,7 @@ int ADCL_Finalize ( void )
 
     /* Initialize the request and vector fortran pointer arrays */
     ADCL_array_free ( &(ADCL_vector_farray));
+    ADCL_array_free ( &(ADCL_vectset_farray));
     ADCL_array_free ( &(ADCL_emethod_array));
     ADCL_array_free ( &(ADCL_request_farray));
     ADCL_array_free ( &(ADCL_topology_farray));

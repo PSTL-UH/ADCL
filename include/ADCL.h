@@ -39,23 +39,25 @@
 #define ADCL_INVALID_WORK_FUNCTION_PTR  25
 #define ADCL_INVALID_FNCTSET   26
 #define ADCL_INVALID_VECTOR    27
-#define ADCL_INVALID_DIRECTION 28
+#define ADCL_INVALID_VECTSET   28
+#define ADCL_INVALID_DIRECTION 29
 
 #ifdef ADCL_PAPI
-#define ADCL_INVALID_PAPI      29
+#define ADCL_INVALID_PAPI      30
 #endif
 
 #define ADCL_VECTOR_NULL    (void*) -1
-#define ADCL_REQUEST_NULL   (void*) -2
-#define ADCL_TOPOLOGY_NULL  (void*) -3
-#define ADCL_ATTRIBUTE_NULL (void*) -4
-#define ADCL_ATTRSET_NULL   (void*) -5
-#define ADCL_FUNCTION_NULL  (void*) -6
-#define ADCL_FNCTSET_NULL   (void*) -7
-#define ADCL_NULL_FNCT_PTR  (void*) -8
+#define ADCL_VECTSET_NULL   (void*) -2
+#define ADCL_REQUEST_NULL   (void*) -3
+#define ADCL_TOPOLOGY_NULL  (void*) -4
+#define ADCL_ATTRIBUTE_NULL (void*) -5
+#define ADCL_ATTRSET_NULL   (void*) -6
+#define ADCL_FUNCTION_NULL  (void*) -7
+#define ADCL_FNCTSET_NULL   (void*) -8
+#define ADCL_NULL_FNCT_PTR  (void*) -9
 
 #ifdef ADCL_PAPI
-#define ADCL_PAPI_NULL      (void*) -9
+#define ADCL_PAPI_NULL      (void*) -10
 #endif
 
 #define ADCL_MAX_ATTRLEN 32
@@ -73,6 +75,7 @@
 
 /* define the object types visible to the user */
 typedef struct ADCL_vector_s*    ADCL_Vector;
+typedef struct ADCL_vectset_s*   ADCL_Vectset;
 typedef struct ADCL_request_s*   ADCL_Request;
 typedef struct ADCL_topology_s*  ADCL_Topology;
 typedef struct ADCL_attribute_s* ADCL_Attribute;
@@ -99,20 +102,27 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 int ADCL_Init (void );
 int ADCL_Finalize (void );
 
-/* ADCL Vector functions */
-int ADCL_Vector_allocate ( int ndims, int *dims, int nc, int comtype, int hwidth,
-                           MPI_Datatype dat, void *data, ADCL_Vector *vec );
-int ADCL_Vector_free     ( ADCL_Vector *vec );
-int ADCL_Vector_register ( int ndims, int *dims, int nc, int comtype, int hwidth,
-                           MPI_Datatype dat, void *data, ADCL_Vector *vec );
+/* ADCL Vector functions and ADCL Vectorset functions */
+int ADCL_Vector_allocate   ( int ndims, int *dims, int nc, int comtype, int hwidth,
+                             MPI_Datatype dat, void *data, ADCL_Vector *vec );
+int ADCL_Vector_free       ( ADCL_Vector *vec );
+int ADCL_Vector_register   ( int ndims, int *dims, int nc, int comtype, int hwidth,
+                             MPI_Datatype dat, void *data, ADCL_Vector *vec );
 int ADCL_Vector_deregister ( ADCL_Vector *vec );
+
+int ADCL_Vectset_create ( int maxnum,
+                          ADCL_Vector  *svecs,
+                          ADCL_Vector  *rvecs,
+                          ADCL_Vectset *vectset );
+
+int ADCL_Vectset_free   ( ADCL_Vectset *vectset );
 
 /* ADCL Topology functions */
 int ADCL_Topology_create  ( MPI_Comm cart_comm, ADCL_Topology *topo);
 int ADCL_Topology_free    ( ADCL_Topology *topo );
 int ADCL_Topology_create_generic ( int ndims, int *lneighbors,
-                   int *rneighbors, int *coords, int direction,
-                   MPI_Comm comm, ADCL_Topology *topo);
+                                   int *rneighbors, int *coords, int direction,
+                                   MPI_Comm comm, ADCL_Topology *topo);
 
 #ifdef ADCL_PAPI
 /* ADCL PAPI functions */
@@ -125,42 +135,41 @@ int ADCL_Papi_print  (ADCL_Papi papi);
 
 /* ADCL Attributes and Attributeset fucntions */
 int ADCL_Attribute_create ( int maxnvalues, int *array_of_values,
-                ADCL_Attribute *attr );
+                            ADCL_Attribute *attr );
 int ADCL_Attribute_free   ( ADCL_Attribute *attr );
 
 int ADCL_Attrset_create   ( int maxnum, ADCL_Attribute *array_of_attributes,
-                ADCL_Attrset *attrset );
+                            ADCL_Attrset *attrset );
 int ADCL_Attrset_free     ( ADCL_Attrset *attrset );
 
-/* ADCL Function and ADCL Functiongroup functions */
+/* ADCL Function and ADCL Functionset functions */
 typedef void ADCL_work_fnct_ptr ( ADCL_Request req );
 
 int ADCL_Function_create       ( ADCL_work_fnct_ptr *fnctp,
-                 ADCL_Attrset attrset,
-                 int *array_of_attrvalues,
-                 char *name,
-                 ADCL_Function *fnct);
+                                 ADCL_Attrset attrset,
+                                 int *array_of_attrvalues,
+                                 char *name,
+                                 ADCL_Function *fnct);
 int ADCL_Function_create_async ( ADCL_work_fnct_ptr *init_fnct,
-                 ADCL_work_fnct_ptr *wait_fnct,
-                 ADCL_Attrset attrset,
-                 int *array_of_attrvalues, char *name,
-                 ADCL_Function *fnct);
+                                 ADCL_work_fnct_ptr *wait_fnct,
+                                 ADCL_Attrset attrset,
+                                 int *array_of_attrvalues, char *name,
+                                 ADCL_Function *fnct);
 
 int ADCL_Function_free         ( ADCL_Function *fnct );
 
 int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name,
-              ADCL_Fnctset *fnctset );
+                          ADCL_Fnctset *fnctset );
 int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
 
 
 /* ADCL Request functions */
 int ADCL_Request_create         ( ADCL_Vector vec, ADCL_Topology topo,
                   ADCL_Fnctset fnctset,  ADCL_Request *req );
-int ADCL_Request_create_generic ( ADCL_Vector *array_of_send_vecs,
-                  ADCL_Vector *array_of_recv_vecs,
-                  ADCL_Topology topo,
-                  ADCL_Fnctset fnctset,
-                  ADCL_Request *req );
+int ADCL_Request_create_generic (ADCL_Vectset vectset,
+                                 ADCL_Topology topo,
+                                 ADCL_Fnctset fnctset,
+                                 ADCL_Request *req );
 
 int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm, int *rank, int *size );
 int ADCL_Request_free      ( ADCL_Request *req );
@@ -170,8 +179,8 @@ int ADCL_Request_init  ( ADCL_Request req );
 int ADCL_Request_wait  ( ADCL_Request req );
 
 int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
-                 ADCL_work_fnct_ptr *endfcnt,
-                 ADCL_work_fnct_ptr *totalfcnt );
+                                 ADCL_work_fnct_ptr *endfcnt,
+                                 ADCL_work_fnct_ptr *totalfcnt );
 
 
 #endif /* __ADCL_H__ */

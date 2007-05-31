@@ -10,23 +10,33 @@
 #include "ADCL_internal.h"
 
 int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
-              ADCL_Fnctset fnctset, ADCL_Request *req )
+                          ADCL_Fnctset fnctset, ADCL_Request *req )
 {
     int i, ret;
     ADCL_vector_t **svecs, **rvecs;
 
+    if ( ( NULL == vec ) ||
+         ( NULL == topo )    ||
+         ( NULL == fnctset ) ||
+         ( NULL == req ) ){
+        return ADCL_INVALID_ARG;
+    }
     if ( ADCL_VECTOR_NULL != vec ) {
-        if ( vec->v_id < 0 ) {
+        if ( 0 > vec->v_id ) {
             return ADCL_INVALID_VECTOR;
         }
     }
     if ( ADCL_TOPOLOGY_NULL != topo ) {
-        if ( topo->t_id < 0 ) {
+        if ( 0 > topo->t_id ) {
             return ADCL_INVALID_TOPOLOGY;
         }
     }
-
-    if ( vec != ADCL_VECTOR_NULL ) {
+    if ( ADCL_FNCTSET_NULL != fnctset ) {
+        if ( 0 > fnctset->fs_id ) {
+            return ADCL_INVALID_FNCTSET;
+        }
+    }
+    if ( ADCL_VECTOR_NULL != vec ) {
         svecs = (ADCL_vector_t **) malloc ( 4 * topo->t_ndims * sizeof(ADCL_vector_t *));
         if ( NULL == svecs ) {
             return ADCL_NO_MEMORY;
@@ -37,43 +47,54 @@ int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
             svecs[i] = vec;
             rvecs[i] = vec;
         }
-        ret = ADCL_request_create_generic (svecs, rvecs, topo, fnctset,
-                           req, MPI_ORDER_C );
+        ret = ADCL_request_create_generic ( svecs, rvecs, topo, fnctset,
+                                            req, MPI_ORDER_C );
         free ( svecs );
     }
     else {
-        ret = ADCL_request_create_generic ( NULL, NULL,
-                            topo, fnctset, req, MPI_ORDER_C);
+        ret = ADCL_request_create_generic ( NULL, NULL, topo,
+                                            fnctset, req, MPI_ORDER_C);
     }
 
     return ret;
 }
 
 
-int ADCL_Request_create_generic ( ADCL_Vector *array_of_send_vectors,
-                  ADCL_Vector *array_of_recv_vectors,
-                  ADCL_Topology topo, ADCL_Fnctset fnctset,
-                  ADCL_Request *req )
+int ADCL_Request_create_generic ( ADCL_Vectset vectset,
+                                  ADCL_Topology topo, ADCL_Fnctset fnctset,
+                                  ADCL_Request *req )
 {
     int i;
 
-    if ( topo->t_id < 0 && ADCL_TOPOLOGY_NULL != topo ) {
-        return ADCL_INVALID_TOPOLOGY;
-    }
-    if ( NULL == array_of_send_vectors ||
-         NULL == array_of_recv_vectors ) {
+    if ( ( NULL == vectset ) ||
+         ( NULL == topo )    ||
+         ( NULL == fnctset ) ||
+         ( NULL == req ) ){
         return ADCL_INVALID_ARG;
     }
+    if ( ADCL_VECTSET_NULL == vectset ) {
+        if ( 0 > vectset->vs_id ) {
+            return ADCL_INVALID_VECTSET;
+        }
+    }
     for ( i=0; i< 2*topo->t_ndims; i++ ) {
-        if ( 0 > array_of_send_vectors[i]->v_id ||
-             0 > array_of_recv_vectors[i]->v_id ) {
+        if ( 0 > vectset->vs_svecs[i]->v_id ||
+             0 > vectset->vs_svecs[i]->v_id ) {
             return ADCL_INVALID_VECTOR;
         }
     }
-
-    return ADCL_request_create_generic ( array_of_send_vectors,
-                     array_of_recv_vectors,
-                     topo, fnctset, req, MPI_ORDER_C );
+    if ( ADCL_TOPOLOGY_NULL != topo ) {
+        if ( 0 > topo->t_id ) {
+            return ADCL_INVALID_TOPOLOGY;
+        }
+    }
+    if ( ADCL_FNCTSET_NULL != fnctset ) {
+        if ( 0 > fnctset->fs_id ) {
+            return ADCL_INVALID_FNCTSET;
+        }
+    }
+    return ADCL_request_create_generic ( vectset->vs_svecs, vectset->vs_rvecs, 
+                                         topo, fnctset, req, MPI_ORDER_C );
 }
 
 
@@ -162,8 +183,8 @@ int ADCL_Request_wait ( ADCL_Request req )
 }
 
 int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
-                 ADCL_work_fnct_ptr *endfctn,
-                 ADCL_work_fnct_ptr *totalfctn )
+                                 ADCL_work_fnct_ptr *endfctn,
+                                 ADCL_work_fnct_ptr *totalfctn )
 
 {
     TIME_TYPE t1, t2;

@@ -19,14 +19,15 @@
        parameter ( ADCL_NOT_FOUND      = -5)
 
        integer ADCL_INVALID_ARG, ADCL_INVALID_NDIMS
-       integer ADCL_INVALID_HWIDTH, ADCL_INVALID_DAT
-       integer ADCL_INVALID_DATA, ADCL_INVALID_COMTYPE, ADCL_INVALID_COMM
-       integer ADCL_INVALID_DIMS, ADCL_INVALID_REQUEST
-       integer ADCL_INVALID_NC, ADCL_INVALID_TYPE
-       integer ADCL_INVALID_TOPOLOGY, ADCL_INVALID_ATTRIBUTE
-       integer ADCL_INVALID_ATTRSET, ADCL_INVALID_FUNCTION
-       integer ADCL_INVALID_WORK_FUNCTION_PTR, ADCL_INVALID_FNCTSET
-       integer ADCL_INVALID_VECTOR, ADCL_INVALID_DIRECTION
+       integer ADCL_INVALID_DIMS, ADCL_INVALID_HWIDTH
+       integer ADCL_INVALID_DAT, ADCL_INVALID_DATA
+       integer ADCL_INVALID_COMTYPE, ADCL_INVALID_COMM
+       integer ADCL_INVALID_REQUEST, ADCL_INVALID_NC
+       integer ADCL_INVALID_TYPE, ADCL_INVALID_TOPOLOGY
+       integer ADCL_INVALID_ATTRIBUTE, ADCL_INVALID_ATTRSET
+       integer ADCL_INVALID_FUNCTION, ADCL_INVALID_WORK_FUNCTION_PTR
+       integer ADCL_INVALID_FNCTSET, ADCL_INVALID_VECTOR
+       integer ADCL_INVALID_VECTSET, ADCL_INVALID_DIRECTION
 
        parameter ( ADCL_INVALID_ARG     = 10)
        parameter ( ADCL_INVALID_NDIMS   = 11)
@@ -46,21 +47,23 @@
        parameter ( ADCL_INVALID_WORK_FUNCTION_PTR = 25)
        parameter ( ADCL_INVALID_FNCTSET    = 26)
        parameter ( ADCL_INVALID_VECTOR     = 27)
-       parameter ( ADCL_INVALID_DIRECTION  = 28)
+       parameter ( ADCL_INVALID_VECTSET    = 28)
+       parameter ( ADCL_INVALID_DIRECTION  = 29)
        
-       integer ADCL_VECTOR_NULL, ADCL_REQUEST_NULL
-       integer ADCL_TOPOLOGY_NULL, ADCL_ATTRIBUTE_NULL
-       integer ADCL_ATTRSET_NULL, ADCL_FUNCTION_NULL
-       integer ADCL_FNCTSET_NULL, ADCL_NULL_FNCT_PTR 
+       integer ADCL_VECTOR_NULL, ADCL_VECTSET_NULL
+       integer ADCL_REQUEST_NULL, ADCL_TOPOLOGY_NULL
+       integer ADCL_ATTRIBUTE_NULL, ADCL_ATTRSET_NULL
+       integer ADCL_FUNCTION_NULL, ADCL_FNCTSET_NULL, ADCL_NULL_FNCT_PTR 
 
        parameter ( ADCL_VECTOR_NULL    = -1)
-       parameter ( ADCL_REQUEST_NULL   = -2)
-       parameter ( ADCL_TOPOLOGY_NULL  = -3)
-       parameter ( ADCL_ATTRIBUTE_NULL = -4)
-       parameter ( ADCL_ATTRSET_NULL   = -5)
-       parameter ( ADCL_FUNCTION_NULL  = -6)
-       parameter ( ADCL_FNCTSET_NULL   = -7)
-       parameter ( ADCL_NULL_FNCT_PTR  = -8)
+       parameter ( ADCL_VECTSET_NULL   = -2)
+       parameter ( ADCL_REQUEST_NULL   = -3)
+       parameter ( ADCL_TOPOLOGY_NULL  = -4)
+       parameter ( ADCL_ATTRIBUTE_NULL = -5)
+       parameter ( ADCL_ATTRSET_NULL   = -6)
+       parameter ( ADCL_FUNCTION_NULL  = -7)
+       parameter ( ADCL_FNCTSET_NULL   = -8)
+       parameter ( ADCL_NULL_FNCT_PTR  = -9)
 
        integer ADCL_MAX_ATTRLEN, ADCL_MAX_NAMELEN
        parameter ( ADCL_MAX_ATTRLEN = 32 ) 

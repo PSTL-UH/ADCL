@@ -138,3 +138,39 @@ int ADCL_Vector_deregister  ( ADCL_Vector *vec )
 
     return ADCL_vector_deregister ( vec );
 }
+
+int ADCL_Vectset_create ( int maxnum,
+                          ADCL_Vector  *svecs,
+                          ADCL_Vector  *rvecs,
+                          ADCL_Vectset *vectset )
+{
+    int i;
+
+    if ( 0 >= maxnum ) {
+        return ADCL_INVALID_ARG;
+    }
+    if ( NULL == svecs || NULL == rvecs ) {
+        return ADCL_INVALID_ARG;
+    }
+    for ( i = 0; i < maxnum; i++ ) {
+        if ( 0 > svecs[i]->v_id ||
+             0 > rvecs[i]->v_id) {
+            return ADCL_INVALID_VECTOR;
+        }
+    }
+
+    return ADCL_vectset_create ( maxnum, svecs, rvecs, vectset );
+}
+
+int ADCL_Vectset_free ( ADCL_Vectset *vectset )
+{
+    if ( NULL == vectset ) {
+        return ADCL_INVALID_ARG;
+    }
+
+    if ( 0 > (*vectset)->vs_id ) {
+        return ADCL_INVALID_VECTSET;
+    }
+
+    return ADCL_vectset_free ( vectset );
+}
