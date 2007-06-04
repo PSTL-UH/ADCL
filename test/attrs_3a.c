@@ -98,18 +98,18 @@ int main ( int argc, char ** argv )
     attrvals[2]=2;
     attrvals[3]=3;
     attrvals[4]=4;
-    ADCL_Attribute_create ( 5, attrvals, &(attrs[0]));
+    ADCL_Attribute_create ( 5, attrvals, NULL, NULL, &(attrs[0]));
 
     /* Generate attribute 1 */
     attrvals[0]=5;
     attrvals[1]=6;
-    ADCL_Attribute_create ( 2, attrvals, &(attrs[1]));
+    ADCL_Attribute_create ( 2, attrvals, NULL, NULL, &(attrs[1]));
 
     /* Generate attribute 2 */
     attrvals[0]=7;
     attrvals[1]=8;
     attrvals[2]=9;
-    ADCL_Attribute_create ( 3, attrvals, &(attrs[2]));
+    ADCL_Attribute_create ( 3, attrvals, NULL, NULL, &(attrs[2]));
 
     /* Create the attribute set */
     ADCL_Attrset_create ( 3, attrs, &attrset );

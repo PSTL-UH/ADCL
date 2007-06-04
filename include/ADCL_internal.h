@@ -57,6 +57,7 @@ int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);
 
 int ADCL_readenv( void );
+
 int ADCL_predefined_init ( void );
 
 int ADCL_hypothesis_init ( ADCL_emethod_t *e );

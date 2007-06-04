@@ -237,3 +237,15 @@ int ADCL_Request_get_comm ( ADCL_Request req, MPI_Comm *comm, int *rank, int *si
 
     return ADCL_request_get_comm ( req, comm, rank, size );
 }
+
+int ADCL_Request_get_curr_function ( ADCL_Request req, char **function_name,
+                                     char ***attrs_names, int *attrs_num ,
+                                     char ***attrs_values_names, int **attrs_values_num )
+{
+    if ( req->r_id < 0 ) {
+        return ADCL_INVALID_REQUEST;
+    }
+
+    return ADCL_request_get_curr_function ( req, function_name, attrs_names, attrs_num,
+                                            attrs_values_names, attrs_values_num );
+}

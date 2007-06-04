@@ -339,7 +339,7 @@ int ADCL_request_update ( ADCL_request_t *req,
 /**********************************************************************/
 /**********************************************************************/
 static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
-                             int mode )
+                                                     int mode )
 {
     int tmp, flag;
     ADCL_function_t *tfunc=NULL;
@@ -400,5 +400,68 @@ int ADCL_request_get_comm ( ADCL_request_t *req, MPI_Comm *comm, int *rank, int 
     *rank = topo->t_rank;
     *size = topo->t_size;
 
+    return ADCL_SUCCESS;
+}
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+int ADCL_request_get_curr_function ( ADCL_request_t *req, char **function_name,
+                                     char ***attrs_names, int *attrs_num,
+                                     char ***attrs_values_names, int **attrs_values_num )
+{
+    int i, k;
+    ADCL_function_t *curr_function = req->r_function;
+    /* Name of the function */
+    if ( NULL != function_name ) {
+        *function_name = strdup ( curr_function->f_name );
+    }
+    /* Memory allocation for attributes names and number */
+    if ( NULL != attrs_names ) {
+        (*attrs_names) = (char**)malloc(curr_function->f_attrset->as_maxnum*sizeof(char*));
+        if ( NULL == (*attrs_names) ) {
+            return ADCL_NO_MEMORY;
+        }
+
+    }
+    if ( NULL != attrs_num ) {
+        *attrs_num = curr_function->f_attrset->as_maxnum;
+    }
+    /* Memory allocation for values names and numbers */
+    if ( NULL != attrs_values_names ) {
+        (*attrs_values_names) = (char**)malloc(curr_function->f_attrset->as_maxnum*sizeof(char*));
+        if ( NULL == (*attrs_values_names) ) {
+            /*free*/
+            return ADCL_NO_MEMORY;
+        }
+    }
+    if ( NULL != attrs_values_num ) {
+        *attrs_values_num = (int *)malloc(curr_function->f_attrset->as_maxnum*sizeof(int));
+        if ( NULL == (*attrs_values_num) ) {
+            /*free*/
+            return ADCL_NO_MEMORY;
+        }
+    }
+    for ( i=0; i<curr_function->f_attrset->as_maxnum; i++ ) {
+        /* Name of the i th attribute */
+        if ( NULL != attrs_names ) {
+            (*attrs_names)[i] =
+                strdup ( curr_function->f_attrset->as_attrs[i]->a_attr_name );
+        }
+        if ( NULL !=  attrs_values_num ) {
+            (*attrs_values_num)[i] =  curr_function->f_attrvals[i];
+        }
+        if ( NULL != attrs_values_names ) {
+            for ( k=0; k<curr_function->f_attrset->as_attrs_numval[i]; k++ ) {
+                if ( curr_function->f_attrvals[i] ==
+                     curr_function->f_attrset->as_attrs[i]->a_values[k] ) {
+                    /* Name of the function attribute value in the i th attribute */
+                    (*attrs_values_names)[i] =
+                        strdup ( curr_function->f_attrset->as_attrs[i]->a_values_names[k] );
+                    break;
+                }
+            }
+        }
+    }
     return ADCL_SUCCESS;
 }

@@ -123,48 +123,47 @@ int main ( int argc, char ** argv )
 
     ADCL_Init ();
 
-
-    ADCL_Attribute_create ( 3, attr1vals, &(attrs[0]));
-    ADCL_Attribute_create ( 2, attr2vals, &(attrs[1]));
-    ADCL_Attribute_create ( 3, attr3vals, &(attrs[2]));
+    ADCL_Attribute_create ( 3, attr1vals, NULL, NULL, &(attrs[0]));
+    ADCL_Attribute_create ( 2, attr2vals, NULL, NULL, &(attrs[1]));
+    ADCL_Attribute_create ( 3, attr3vals, NULL, NULL, &(attrs[2]));
     ADCL_Attrset_create ( 3, attrs, &attrset );
 
 
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_0, attrset, funcvals0, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_0, attrset, funcvals0,
 			   "test_func_0", &(funcs[0]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_1, attrset, funcvals1, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_1, attrset, funcvals1,
 			   "test_func_1", &(funcs[1]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_2, attrset, funcvals2, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_2, attrset, funcvals2,
 			   "test_func_2", &(funcs[2]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_3, attrset, funcvals3, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_3, attrset, funcvals3,
 			   "test_func_3", &(funcs[3]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_4, attrset, funcvals4, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_4, attrset, funcvals4,
 			   "test_func_4", &(funcs[4]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_5, attrset, funcvals5, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_5, attrset, funcvals5,
 			   "test_func_5", &(funcs[5]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_6, attrset, funcvals6, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_6, attrset, funcvals6,
 			   "test_func_6", &(funcs[6]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_7, attrset, funcvals7, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_7, attrset, funcvals7,
 			   "test_func_7", &(funcs[7]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_8, attrset, funcvals8, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_8, attrset, funcvals8,
 			   "test_func_8", &(funcs[8]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_9, attrset, funcvals9, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_9, attrset, funcvals9,
 			   "test_func_9", &(funcs[9]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_10, attrset, funcvals10, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_10, attrset, funcvals10,
 			   "test_func_10", &(funcs[10]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_11, attrset, funcvals11, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_11, attrset, funcvals11,
 			   "test_func_11", &(funcs[11]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_12, attrset, funcvals12, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_12, attrset, funcvals12,
 			   "test_func_12", &(funcs[12]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_13, attrset, funcvals13, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_13, attrset, funcvals13,
 			   "test_func_13", &(funcs[13]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_14, attrset, funcvals14, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_14, attrset, funcvals14,
 			   "test_func_14", &(funcs[14]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_15, attrset, funcvals15, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_15, attrset, funcvals15,
 			   "test_func_15", &(funcs[15]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_16, attrset, funcvals16, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_16, attrset, funcvals16,
 			   "test_func_16", &(funcs[16]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_17, attrset, funcvals17, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_17, attrset, funcvals17,
 			   "test_func_17", &(funcs[17]));
 
     ADCL_Fnctset_create ( 18, funcs, "trivial functions", &fnctset );

@@ -52,6 +52,17 @@ int ADCL_predefined_init ( void )
     int ADCL_attr_noncont[ADCL_ATTR_NONCONT_MAX];
     int ADCL_attr_transfer[ADCL_ATTR_TRANSFER_MAX];
 
+    char *ADCL_attr_mapping_names[ADCL_ATTR_MAPPING_MAX] = { "aao ", "pair" };
+    char *ADCL_attr_noncont_names[ADCL_ATTR_NONCONT_MAX] = { "ddt ","pack" };
+#ifdef MPI_WIN
+    char *ADCL_attr_transfer_names[ADCL_ATTR_TRANSFER_MAX] = { "IsendIrecv", "SendIrecv",
+                                                               "SendRecv", "Sendrecv",
+                                                               "FenceGet", "FencePut",
+                                                               "StartPostGet","StartPostPut" };
+#else
+    char *ADCL_attr_transfer_names[ADCL_ATTR_TRANSFER_MAX] = { "IsendIrecv", "SendIrecv",
+                                                               "SendRecv", "Sendrecv" };
+#endif
 
     ADCL_attr_mapping[0] = ADCL_attr_mapping_aao;
     ADCL_attr_mapping[1] = ADCL_attr_mapping_pair;
@@ -73,14 +84,17 @@ int ADCL_predefined_init ( void )
     /* Define the attributes and the attributeset for the n-dimensional
        neighborhood communication */
     ADCL_attribute_create ( ADCL_ATTR_MAPPING_MAX, ADCL_attr_mapping,
-                &ADCL_neighborhood_attrs[0]);
+                            ADCL_attr_mapping_names , "mapping",
+                            &ADCL_neighborhood_attrs[0]);
     ADCL_attribute_create ( ADCL_ATTR_NONCONT_MAX, ADCL_attr_noncont,
-                &ADCL_neighborhood_attrs[1]);
+                            ADCL_attr_noncont_names , "non contiguous",
+                            &ADCL_neighborhood_attrs[1]);
     ADCL_attribute_create ( ADCL_ATTR_TRANSFER_MAX, ADCL_attr_transfer,
-                &ADCL_neighborhood_attrs[2]);
+                            ADCL_attr_transfer_names , "transfer primitive",
+                            &ADCL_neighborhood_attrs[2]);
 
     ADCL_attrset_create ( ADCL_ATTR_TOTAL_NUM, ADCL_neighborhood_attrs,
-              &ADCL_neighborhood_attrset);
+                          &ADCL_neighborhood_attrset);
 
 
 
@@ -90,9 +104,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_aao_IsendIrecv, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "IsendIrecv_aao",
-                 & ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "IsendIrecv_aao",
+                                 & ADCL_neighborhood_functions[count]);
 
     count++;
 
@@ -102,9 +116,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_IsendIrecv, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "IsendIrecv_pair",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "IsendIrecv_pair",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
     /* aao, pack, IsendIrecv */
@@ -113,9 +127,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_aao_IsendIrecv_pack, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "IsendIrecv_aao_pack",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "IsendIrecv_aao_pack",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
 
@@ -125,9 +139,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_IsendIrecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_IsendIrecv_pack, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "IsendIrecv_pair_pack",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "IsendIrecv_pair_pack",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
 
@@ -137,9 +151,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_aao_SendIrecv, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "SendIrecv_aao",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "SendIrecv_aao",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
     /* pair, ddt, SendIrecv */
@@ -148,9 +162,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_SendIrecv, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "SendIrecv_pair",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "SendIrecv_pair",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
     /* aao, pack, SendIrecv */
@@ -159,9 +173,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
     /*  m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_aao_SendIrecv_pack, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "SendIrecv_aao_pack",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "SendIrecv_aao_pack",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
     /* pair, pack, SendIrecv */
@@ -170,9 +184,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendIrecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_SendIrecv_pack, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "SendIrecv_pair_pack",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "SendIrecv_pair_pack",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
 
@@ -182,9 +196,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendRecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_SendRecv, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "SendRecv_pair",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "SendRecv_pair",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
 
@@ -194,9 +208,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_Sendrecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_Sendrecv, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "Sendrecv_pair",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "Sendrecv_pair",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
 
@@ -206,9 +220,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_SendRecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_SendRecv_pack, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "SendRecv_pair_pack",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "SendRecv_pair_pack",
+                                 &ADCL_neighborhood_functions[count]);
     count ++;
 
     /* pair, pack, Sendrecv */
@@ -217,9 +231,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_Sendrecv;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_Sendrecv_pack, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "Sendrecv_pair_pack",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "Sendrecv_pair_pack",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 
 #ifdef MPI_WIN
@@ -230,9 +244,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FencePut;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_aao_win_fence_put, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "WinFencePut_aao",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "WinFencePut_aao",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 #endif /* WINFENCEPUT */
 
@@ -255,9 +269,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartPut;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_aao_post_start_put, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "PostStartPut_aao",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "PostStartPut_aao",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 #endif /* POSTSTARTPUT */
 
@@ -267,9 +281,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartGet;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_aao_post_start_get, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "PostStartGet_aao",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "PostStartGet_aao",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 #endif /* POSTSTARTGET */
 
@@ -279,9 +293,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FencePut;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_win_fence_put, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "WinFencePut_pair",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "WinFencePut_pair",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 #  endif /* WINFENCEPUT */
 
@@ -291,9 +305,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FenceGet;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_win_fence_get, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "WinFenceGet_pair",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "WinFenceGet_pair",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 #  endif /* WINFENCEGET */
 
@@ -304,9 +318,9 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartPut;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_post_start_put, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "PostStartPut_pair",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "PostStartPut_pair",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 #  endif /* POSTSTARTPUT */
 
@@ -316,28 +330,26 @@ int ADCL_predefined_init ( void )
     m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_PostStartGet;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_pair_post_start_get, NULL,
-                 ADCL_neighborhood_attrset,
-                 m_attr, "PostStartGet_pair",
-                 &ADCL_neighborhood_functions[count]);
+                                 ADCL_neighborhood_attrset,
+                                 m_attr, "PostStartGet_pair",
+                                 &ADCL_neighborhood_functions[count]);
     count++;
 #  endif /* POSTSTARTGET */
 #endif /* MPI_WIN */
 
 
     ADCL_fnctset_create ( ADCL_METHOD_TOTAL_NUM,
-              ADCL_neighborhood_functions,
-              "Neighborhood communication",
-              &ADCL_neighborhood_fnctset );
+                          ADCL_neighborhood_functions,
+                          "Neighborhood communication",
+                          &ADCL_neighborhood_fnctset );
 
 
+    if ( count != ADCL_METHOD_TOTAL_NUM) {
+        ADCL_printf("Total Number wrong\n");
+        return ADCL_ERROR_INTERNAL;
+    }
 
-      if( count != ADCL_METHOD_TOTAL_NUM){
-      ADCL_printf("Total Number wrong\n");
-      return ADCL_ERROR_INTERNAL;
-      }
-
-      return ADCL_SUCCESS;
+    return ADCL_SUCCESS;
 }
-
 
 

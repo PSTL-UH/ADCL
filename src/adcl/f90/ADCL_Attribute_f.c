@@ -41,7 +41,7 @@ void adcl_attribute_create ( int* maxnvalues, int *array_of_values,
 	return;
     }
 	 
-    *ierr = ADCL_attribute_create ( *maxnvalues, array_of_values, &tattr );
+    *ierr = ADCL_attribute_create ( *maxnvalues, array_of_values, NULL, NULL, &tattr );
     if ( *ierr == ADCL_SUCCESS ) {
 	*attr = tattr->a_findex;
     }

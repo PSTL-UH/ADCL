@@ -18,10 +18,10 @@ static int ADCL_local_fnctset_counter=0;
 
 
 int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
-                 ADCL_work_fnct_ptr *wait_fnct,
-                 ADCL_attrset_t * attrset,
-                 int *array_of_attrvalues, char *name,
-                 ADCL_function_t **fnct)
+                                 ADCL_work_fnct_ptr *wait_fnct,
+                                 ADCL_attrset_t * attrset,
+                                 int *array_of_attrvalues, char *name,
+                                 ADCL_function_t **fnct)
 {
     ADCL_function_t *newfunction;
     int ret=ADCL_SUCCESS;
@@ -34,7 +34,7 @@ int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
     newfunction->f_id = ADCL_local_function_counter++;
     ADCL_array_get_next_free_pos ( ADCL_function_farray, &(newfunction->f_findex));
     ADCL_array_set_element ( ADCL_function_farray, newfunction->f_findex,
-                 newfunction->f_id, newfunction );
+                             newfunction->f_id, newfunction );
 
     newfunction->f_attrset = attrset;
     if (ADCL_ATTRSET_NULL != attrset ) {
@@ -106,7 +106,7 @@ int ADCL_function_get_attrval ( ADCL_function_t *func, int attr_pos )
 /********************************************************************************/
 
 int ADCL_fnctset_create( int maxnum, ADCL_function_t **fncts, char *name,
-             ADCL_fnctset_t **fnctset )
+                         ADCL_fnctset_t **fnctset )
 {
     int i, ret = ADCL_SUCCESS;
     ADCL_fnctset_t *newfnctset=NULL;
@@ -124,8 +124,8 @@ int ADCL_fnctset_create( int maxnum, ADCL_function_t **fncts, char *name,
     /* Make sure all functions have use the same attribute set */
     for (i=1; i<maxnum; i++ ) {
         if ( fncts[i]->f_attrset != fncts[0]->f_attrset ) {
-            ADCL_printf("Error Generating a function set: inconsistent attribute set across "
-                "multiple functions ");
+            ADCL_printf( "Error Generating a function set: inconsistent attribute set across "
+                         "multiple functions ");
             ret = ADCL_USER_ERROR;
             goto exit;
         }
@@ -153,6 +153,8 @@ int ADCL_fnctset_create( int maxnum, ADCL_function_t **fncts, char *name,
         if ( NULL != newfnctset->fs_name ) {
             free ( newfnctset->fs_name );
         }
+        ADCL_array_remove_element ( ADCL_fnctset_farray, newfnctset->fs_findex);
+        free ( newfnctset );
     }
 
     *fnctset = newfnctset;
@@ -171,34 +173,34 @@ int ADCL_fnctset_dup ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy )
     copy->fs_findex  = -1; /* not set */
 
     if ( ADCL_ATTRSET_NULL == org->fs_attrset ) {
-    copy->fs_attrset = ADCL_ATTRSET_NULL;
+        copy->fs_attrset = ADCL_ATTRSET_NULL;
     }
     else {
-    ADCL_attrset_dup ( org->fs_attrset, &copy->fs_attrset );
+        ADCL_attrset_dup ( org->fs_attrset, &copy->fs_attrset );
     }
 
 
     copy->fs_maxnum  = org->fs_maxnum;
     copy->fs_fptrs   = (ADCL_function_t**)calloc(1,org->fs_maxnum*sizeof(ADCL_function_t*));
     if ( NULL == copy->fs_fptrs ) {
-    ret = ADCL_NO_MEMORY;
-    goto exit;
+        ret = ADCL_NO_MEMORY;
+        goto exit;
     }
     memcpy ( copy->fs_fptrs, org->fs_fptrs, org->fs_maxnum * sizeof (ADCL_function_t *));
 
     if ( NULL != org->fs_name ) {
-    copy->fs_name = strdup ( org->fs_name );
+        copy->fs_name = strdup ( org->fs_name );
     }
 
  exit:
     if ( ret != ADCL_SUCCESS ) {
-    if ( NULL != copy->fs_fptrs ) {
-        free ( copy->fs_fptrs );
-    }
-
-    if ( NULL != copy->fs_name ) {
-        free ( copy->fs_name );
-    }
+        if ( NULL != copy->fs_fptrs ) {
+            free ( copy->fs_fptrs );
+        }
+        
+        if ( NULL != copy->fs_name ) {
+            free ( copy->fs_name );
+        }
     }
 
     return ret;
@@ -212,21 +214,21 @@ int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
     ADCL_fnctset_t *tfnctset=*fnctset;
 
     if ( NULL != tfnctset ) {
-    if ( NULL != tfnctset->fs_fptrs ) {
-        free (tfnctset->fs_fptrs );
-    }
-    if ( tfnctset->fs_findex != -1 ) {
-        ADCL_array_remove_element ( ADCL_fnctset_farray, tfnctset->fs_findex);
-    }
-    else {
-        /* Free the attrset generated during the fnctset_dup operation */
-        ADCL_attrset_free ( &tfnctset->fs_attrset );
-    }
-
-    if ( NULL != tfnctset->fs_name ) {
-        free ( tfnctset->fs_name );
-    }
-    free ( tfnctset );
+        if ( NULL != tfnctset->fs_fptrs ) {
+            free (tfnctset->fs_fptrs );
+        }
+        if ( tfnctset->fs_findex != -1 ) {
+            ADCL_array_remove_element ( ADCL_fnctset_farray, tfnctset->fs_findex);
+        }
+        else {
+            /* Free the attrset generated during the fnctset_dup operation */
+            ADCL_attrset_free ( &tfnctset->fs_attrset );
+        }
+        
+        if ( NULL != tfnctset->fs_name ) {
+            free ( tfnctset->fs_name );
+        }
+        free ( tfnctset );
     }
 
     *fnctset = ADCL_FNCTSET_NULL;

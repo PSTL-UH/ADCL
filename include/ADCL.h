@@ -134,8 +134,8 @@ int ADCL_Papi_print  (ADCL_Papi papi);
 #endif
 
 /* ADCL Attributes and Attributeset fucntions */
-int ADCL_Attribute_create ( int maxnvalues, int *array_of_values,
-                            ADCL_Attribute *attr );
+int ADCL_Attribute_create ( int maxnvalues, int *array_of_values, char **values_names,
+                            char *attr_name, ADCL_Attribute *attr );
 int ADCL_Attribute_free   ( ADCL_Attribute *attr );
 
 int ADCL_Attrset_create   ( int maxnum, ADCL_Attribute *array_of_attributes,
@@ -165,13 +165,12 @@ int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
 
 /* ADCL Request functions */
 int ADCL_Request_create         ( ADCL_Vector vec, ADCL_Topology topo,
-                  ADCL_Fnctset fnctset,  ADCL_Request *req );
+                                  ADCL_Fnctset fnctset,  ADCL_Request *req );
 int ADCL_Request_create_generic (ADCL_Vectset vectset,
                                  ADCL_Topology topo,
                                  ADCL_Fnctset fnctset,
                                  ADCL_Request *req );
 
-int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm, int *rank, int *size );
 int ADCL_Request_free      ( ADCL_Request *req );
 
 int ADCL_Request_start ( ADCL_Request req );
@@ -182,5 +181,10 @@ int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
                                  ADCL_work_fnct_ptr *endfcnt,
                                  ADCL_work_fnct_ptr *totalfcnt );
 
+int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm, int *rank, int *size );
+
+int ADCL_Request_get_curr_function ( ADCL_Request req, char **function_name,
+                                     char ***attrs_names, int *attrs_num,
+                                     char ***attrs_values_names, int **attrs_values_num );
 
 #endif /* __ADCL_H__ */

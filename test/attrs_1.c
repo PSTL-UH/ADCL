@@ -104,16 +104,15 @@ int main ( int argc, char ** argv )
 
     ADCL_Init ();
 
-
-    ADCL_Attribute_create ( 3, attr1vals, &(attrs[0]));
-    ADCL_Attribute_create ( 2, attr2vals, &(attrs[1]));
-    ADCL_Attribute_create ( 3, attr3vals, &(attrs[2]));
+    ADCL_Attribute_create ( 3, attr1vals, NULL, NULL, &(attrs[0]));
+    ADCL_Attribute_create ( 2, attr2vals, NULL, NULL, &(attrs[1]));
+    ADCL_Attribute_create ( 3, attr3vals, NULL, NULL, &(attrs[2]));
     ADCL_Attrset_create ( 3, attrs, &attrset );
 
 
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_0, attrset, funcvals0, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_0, attrset, funcvals0,
 			   "test_func_0", &(funcs[0]));
-    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_1, attrset, funcvals1, 
+    ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_1, attrset, funcvals1,
 			   "test_func_1", &(funcs[1]));
     ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_2, attrset, funcvals2, 
 			   "test_func_2", &(funcs[2]));
