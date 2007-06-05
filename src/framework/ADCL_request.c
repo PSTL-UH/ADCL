@@ -410,8 +410,9 @@ int ADCL_request_get_curr_function ( ADCL_request_t *req, char **function_name,
                                      char ***attrs_names, int *attrs_num,
                                      char ***attrs_values_names, int **attrs_values_num )
 {
-    int i, k;
+    int i, k, ret = ADCL_SUCCESS;
     ADCL_function_t *curr_function = req->r_function;
+
     /* Name of the function */
     if ( NULL != function_name ) {
         *function_name = strdup ( curr_function->f_name );
@@ -431,15 +432,15 @@ int ADCL_request_get_curr_function ( ADCL_request_t *req, char **function_name,
     if ( NULL != attrs_values_names ) {
         (*attrs_values_names) = (char**)malloc(curr_function->f_attrset->as_maxnum*sizeof(char*));
         if ( NULL == (*attrs_values_names) ) {
-            /*free*/
-            return ADCL_NO_MEMORY;
+            ret = ADCL_NO_MEMORY;
+            goto exit;
         }
     }
     if ( NULL != attrs_values_num ) {
         *attrs_values_num = (int *)malloc(curr_function->f_attrset->as_maxnum*sizeof(int));
         if ( NULL == (*attrs_values_num) ) {
-            /*free*/
-            return ADCL_NO_MEMORY;
+            ret = ADCL_NO_MEMORY;
+            goto exit;
         }
     }
     for ( i=0; i<curr_function->f_attrset->as_maxnum; i++ ) {
@@ -463,5 +464,15 @@ int ADCL_request_get_curr_function ( ADCL_request_t *req, char **function_name,
             }
         }
     }
+ exit:
+    if ( ADCL_SUCCESS != ret ) {
+        if ( NULL != (*attrs_names) ) {
+            free(*attrs_names);
+        }
+        if ( NULL != (*attrs_values_names) ) {
+            free(*attrs_values_names);
+        }
+    }
+
     return ADCL_SUCCESS;
 }

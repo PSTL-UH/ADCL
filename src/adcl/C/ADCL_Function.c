@@ -12,6 +12,7 @@
 int ADCL_Function_create ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset attrset,
                            int *array_of_values, char *name, ADCL_Function *fnct )
 {
+    int i, k ,found = 0;
     if ( NULL == iptr ) {
         return ADCL_INVALID_WORK_FUNCTION_PTR;
     }
@@ -25,14 +26,27 @@ int ADCL_Function_create ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset attrset,
         }
     }
     /*
-    ** Theoretically, we should check here whether each of the values is
+    ** We check here whether each of the values is
     ** within the registerd range of the according attributes
     */
-
+    if ( ADCL_ATTRSET_NULL != attrset ) {
+        for (i=0; i<attrset->as_maxnum; i++) {
+            for (k=0; k<attrset->as_attrs_numval[i] ; k++) {
+                if ( array_of_values[i] == attrset->as_attrs[i]->a_values[k] ) {
+                    found = 1;
+                }
+            }
+            if (found == 0) {
+                return ADCL_INVALID_ARG;
+            }
+            else {
+                found = 0;
+            }
+        }
+     }
     /* Note: name can be NULL, thus not checking that */
-
     return ADCL_function_create_async ( iptr, NULL, attrset, array_of_values,
-                    name, fnct);
+                                        name, fnct);
 }
 
 int ADCL_Function_create_async ( ADCL_work_fnct_ptr *iptr, ADCL_work_fnct_ptr *wptr,

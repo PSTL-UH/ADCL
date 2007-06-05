@@ -12,7 +12,7 @@ all: ctests ftests
 
 ctests: first second third fourth \
 	one-dim two-dim three-dim \
-	test-fnctset-noattrs attrs_1 attrs_2 attrs_3 attrs_3a
+	test-fnctset-noattrs attrs_1 attrs_2 attrs_3 attrs_3a attrs_4
 ftests: one-dim-f two-dim-f three-dim-f three-dim-large  \
 	first_f second_f                                 \
 	test-fnctset-noattrs_f
@@ -54,6 +54,8 @@ attrs_3: attrs_3.c
 attrs_3a: attrs_3a.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/attrs_3a attrs_3a.c $(LDFLAGS)
 
+attrs_4: attrs_4.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/attrs_4 attrs_4.c $(LDFLAGS)
 
 first_f: first_f.f90
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/first_f first_f.f90 $(FLDFLAGS)
