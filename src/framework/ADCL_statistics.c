@@ -15,7 +15,7 @@ int ADCL_OUTLIER_FACTOR=3;
 
 /* Percentage of outliers allowed such that we really
    treat them as outliers */
-int ADCL_OUTLIER_FRACTION=50;
+int ADCL_OUTLIER_FRACTION=20;
 
 /* what measure shall be used ? */
 int ADCL_statistic_method=ADCL_STATISTIC_MAX;
