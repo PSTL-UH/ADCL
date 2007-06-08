@@ -1,11 +1,14 @@
 \section{Attributes and Attribute-sets}
 
-An {\tt ADCL\_Attribute} is an abstraction for a particular characteristic of a function/implementation. Each attribute is represented by a set of possible values.  An {\tt ADCL\_Attrset} is a group of ADCL attributes.
-In the following, we present the constructors and destructors for both ADCL objects.
+An {\tt ADCL\_Attribute} is an abstraction for a particular characteristic of
+a function/implementation. Each attribute is represented by a set of possible
+values.  An {\tt ADCL\_Attrset} is a group of ADCL attributes.  In the
+following, we present the constructors and destructors for both ADCL objects.
 
 \begin{verbatim}
 int ADCL_Attribute_create ( int maxnvalues, int *array_of_values, 
-			    ADCL_Attribute *attr );
+           char ** array_of_value_names, char *attr_name, 
+           ADCL_Attribute *attr);
 
 subroutine ADCL_Attribute_create ( maxnvalues, array_of_values, 
           attr, ierror )
@@ -17,6 +20,10 @@ with
 \item {\tt maxnvalues}(IN): number of possible values for this attribute
 \item {\tt array\_of\_values}(IN): integer array of size {\tt maxnvalues} containing the possible values for this 
   attribute. The values in this array have to be monotony increasing. However, they do not have to be contiguous.
+\item {\tt array\_of\_value\_names}(IN): character array specifying a name for
+  each attribute value. Not available in the fortran interface as of now.
+\item {\tt attr\_name}(IN): name of the attribute. Not available in the
+  fortran interface as of now.
 \item {\tt attr}(OUT): handle to the attribute object
 \end{itemize} 	
 

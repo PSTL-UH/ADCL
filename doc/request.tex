@@ -1,6 +1,12 @@
 \section{Requests}
 
-An {\tt ADCL\_Request} object  combines a process topology, a function-set and a vector object to a single user-level handle. Using this handle, the application can initiate a communication by starting a particular ADCL request. In the following we will detail request constructors and destructors, the available functions for initiating a communication, and reflection functions in order to retrieve certain components of an ADCL request from a user level function.
+An {\tt ADCL\_Request} object combines a process topology, a function-set and
+a vector object to a single user-level handle. Using this handle, the
+application can initiate a communication by starting a particular ADCL
+request. In the following we will detail request constructors and destructors,
+the available functions for initiating a communication, and reflection
+functions in order to retrieve certain components of an ADCL request from a
+user level function.
 
 \subsection{Constructors and Destructors}
 
@@ -13,22 +19,43 @@ integer vec, topo, fnctset, req, ierror
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt vec}(IN): vector object identifying the data arrays used for the communication. The vector object can be {\tt ADCL\_VECTOR\_NULL} for a user defined function-set following the requirements and restrictions of the according function-set. However, for the predefined function-sets, the vector object has to be provided following the dimension matching rule explained below.
-\item {\tt topo}(IN): topology object identifying the neighboring processes. The topology object can be {\tt ADCL\_TOPOLOGY\_NULL} for user defined function-set following the requirements and restrictions of the according function-set. However, for the predefined function-sets, the topology object has to be provided following the dimension matching rule explained below.
+\item {\tt vec}(IN): vector object identifying the data arrays used for the
+  communication. The vector object can be {\tt ADCL\_VECTOR\_NULL} for a user
+  defined function-set following the requirements and restrictions of the
+  according function-set. However, for the predefined function-sets, the
+  vector object has to be provided following the dimension matching rule
+  explained below.
+\item {\tt topo}(IN): topology object identifying the neighboring processes.
+  The topology object can be {\tt ADCL\_TOPOLOGY\_NULL} for user defined
+  function-set following the requirements and restrictions of the according
+  function-set. However, for the predefined function-sets, the topology object
+  has to be provided following the dimension matching rule explained below.
 \item {\tt fnctset}(IN): ADCL function-set to be evaluated
 \item {\tt req}(OUT): handle to the newly created ADCL request object
 \end{itemize}
 \hspace{1cm}
 
-{\it Dimension matching rule}: The dimension of the vector object has to be equal to the dimension of the process topology. The user has one additional degree of freedom by using the {\tt nc} argument in vector creation, which allows to match a vector of dimension $n+1$ to a $n$ dimensional process topology, by not distributing the last dimension of the vector. 
+{\it Dimension matching rule}: The dimension of the vector object has to be
+equal to the dimension of the process topology. The user has one additional
+degree of freedom by using the {\tt nc} argument in vector creation, which
+allows to match a vector of dimension $n+1$ to a $n$ dimensional process
+topology, by not distributing the last dimension of the vector.
 
-{\it Remark on the dimension matching rule}: It is fairly straight forward to define a more generic vector object, where the user could define a multi-dimensional vector and assign to each of the dimensions a flag which indicats whether the data is distributed accordingly in this dimension or not. The solution applied so far restricts this approach by reducing the dimension of a matrix which is not distributed across the processes to the last dimension. This is due to our findings, that it is a common approach in the many codes. However, if an end-user faces a problem requiring the generic solution, please contact the authors of ADCL. In any case, the number of  dimension of the matrix distributed across the process has to match the number of dimensions of the process topology.
+{\it Remark on the dimension matching rule}: It is fairly straight forward to
+define a more generic vector object, where the user could define a
+multi-dimensional vector and assign to each of the dimensions a flag which
+indicats whether the data is distributed accordingly in this dimension or not.
+The solution applied so far restricts this approach by reducing the dimension
+of a matrix which is not distributed across the processes to the last
+dimension. This is due to our findings, that it is a common approach in the
+many codes. However, if an end-user faces a problem requiring the generic
+solution, please contact the authors of ADCL. In any case, the number of
+dimension of the matrix distributed across the process has to match the number
+of dimensions of the process topology.
 
-
-The following function is not yet implemented. Details to follow soon.
 
 \begin{verbatim}
-int ADCL_Request_create_generic ( ADCL_Vectorset vecset, 
+int ADCL_Request_create_generic ( ADCL_Vectset vecset, 
      ADCL_Topology topo, ADCL_Fnctset fnctset, 
      ADCL_Request *req );
       
@@ -38,10 +65,16 @@ integer vecset, topo, fnctset, req, ierror
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt vecsset}(IN):
-\item {\tt topo}(IN):
-\item {\tt fnctset}(IN):
-\item {\tt req}(OUT):
+\item {\tt vecsset}(IN): vector set to be used in the request. The extent of
+  the array of send vectors and receive vectors has to match the number of
+  dimensions of the topology object.
+\item {\tt topo}(IN): topology object identifying the neighboring processes.
+  The topology object can be {\tt ADCL\_TOPOLOGY\_NULL} for user defined
+  function-set following the requirements and restrictions of the according
+  function-set. However, for the predefined function-sets, the topology object
+  has to be provided following the dimension matching rule explained below.
+\item {\tt fnctset}(IN): ADCL function-set to be evaluated
+\item {\tt req}(OUT): handle to the newly created ADCL request object
 \end{itemize}
 \hspace{1cm}
 
@@ -53,7 +86,8 @@ integer req, ierror
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt req}(INOUT): valid ADCL request handle. After successful completion, the handle will be set to {\tt ADCL\_REQUEST\_NULL}.
+\item {\tt req}(INOUT): valid ADCL request handle. After successful
+  completion, the handle will be set to {\tt ADCL\_REQUEST\_NULL}.
 \end{itemize}
 \hspace{1cm}
 
@@ -72,8 +106,11 @@ with
 \end{itemize}
 \hspace{1cm}
 
-The following two functions represent a non-blocking version of {\tt ADCL\_Request\_start}.
-There are no restrictions in ADCL on how many ADCL requests can be ongoing simultaneously. However, for a single request a call to {\tt ADCL\_Request\_init} has to be followed by a call to {\tt ADCL\_Request\_wait}.
+The following two functions represent a non-blocking version of {\tt
+  ADCL\_Request\_start}.  There are no restrictions in ADCL on how many ADCL
+requests can be ongoing simultaneously. However, for a single request a call
+to {\tt ADCL\_Request\_init} has to be followed by a call to {\tt
+  ADCL\_Request\_wait}.
 \begin{verbatim}
 int ADCL_Request_init  ( ADCL_Request req );
 
@@ -98,7 +135,10 @@ with
 \end{itemize}
 \hspace{1cm}
 
-The following is an interface, where the user pass in additional function pointers in order to evaluate the effect of overlapping communication and computation. The proper interface is still being investigated and might change.
+The following is an interface, where the user pass in additional function
+pointers in order to evaluate the effect of overlapping communication and
+computation. The proper interface is still being investigated and might
+change.
 
 \begin{verbatim}
 int ADCL_Request_start_overlap ( ADCL_Request req, 
@@ -116,13 +156,18 @@ with
 \item {\tt req}(IN): valid ADCL request handle
 \item {\tt midfnct}(IN): function to be called after initiating communication
 \item {\tt endfnct}(IN): function to be called after communication is finished
-\item {\tt totalfnct}(IN): function to be called in case the communication is blocking. Typically, {\tt totalfnct} will be an integrated version of {\tt midfnct} plus {\tt endfnct}.
+\item {\tt totalfnct}(IN): function to be called in case the communication is
+  blocking. Typically, {\tt totalfnct} will be an integrated version of {\tt
+    midfnct} plus {\tt endfnct}.
 \end{itemize}
 \hspace{1cm}
 
 \subsection{Retrieving internal components}
 
-The following function helps to retrieve the communicator object assigned to a request. It is intended to be used by user registered ADCL functions internally. Similar functions for retrieving data pointers will be introduced soon
+The following function helps to retrieve the communicator object assigned to a
+request. It is intended to be used by user registered ADCL functions
+internally. Similar functions for retrieving data pointers will be introduced
+soon
 
 \begin{verbatim}
 int ADCL_Request_get_comm  ( ADCL_Request req, 
@@ -139,7 +184,32 @@ with
 \item {\tt rank}(OUT): rank of the process in the according communicator {\tt comm}.
 \item {\tt size}(OUT): size of the communicator {\tt comm}.
 \end{itemize}
-%\hspace{1cm}
+\hspace{1cm}
+
+
+\begin{verbatim}
+int ADCL_Request_get_curr_function ( ADCL_Request req, 
+   char **function_name, char ***attribute_names, 
+   int *num_of_attributes, char ***attribute_values_names, 
+   int **attribute_values );
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt req}(IN):
+\item {\tt function\_name}(OUT): Name of the function currently being
+  called. This string has to be freed by the user level function.
+\item {\tt attribute\_names}(OUT):
+\item {\tt num\_of\_attributes}(OUT): number of attributes. This value is equal
+  to the extent of the {\tt attribute\_names}, {\tt attribute\_values\_names}
+  and {\tt attribute\_values} arrays.
+\item {\tt attribute\_values\_names}(OUT): array of names for the attribute values
+  of the current function.
+\item {\tt attribute\_values}(OUT): array of integers containing the attribute
+  values of the current function.
+\end{itemize}
+
+  
+
 
 %\begin{verbatim}
 %int ADCL_Request_get_vec ( ADCL_Request req, 
