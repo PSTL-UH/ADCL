@@ -12,10 +12,10 @@ all: ctests ftests
 
 ctests: first second third fourth \
 	one-dim two-dim three-dim \
-	test-fnctset-noattrs attrs_1 attrs_2 attrs_3 attrs_3a attrs_4
+	test-fnctset-noattrs test-fnctset-single attrs_1 attrs_2 attrs_3 attrs_3a attrs_4
 ftests: one-dim-f two-dim-f three-dim-f three-dim-large  \
 	first_f second_f                                 \
-	test-fnctset-noattrs_f
+	test-fnctset-noattrs_f test-fnctset-single_f
 
 first: 	first.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/first first.c $(LDFLAGS) 
@@ -40,6 +40,10 @@ three-dim: three-dim.c
 
 test-fnctset-noattrs: test-fnctset-noattrs.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-noattrs test-fnctset-noattrs.c \
+	$(LDFLAGS)
+
+test-fnctset-single: test-fnctset-single.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-single test-fnctset-single.c \
 	$(LDFLAGS)
 
 attrs_1: attrs_1.c
@@ -78,13 +82,21 @@ three-dim-large: three-dim-large.f90
 test-fnctset-noattrs_f:  test-fnctset-noattrs_f.f90 	
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-noattrs_f test-fnctset-noattrs_f.f90 $(FLDFLAGS)
 
+test-fnctset-single_f:  test-fnctset-single_f.f90 	
+	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-single_f test-fnctset-single_f.f90 $(FLDFLAGS)
+
 clean:
 	rm -rf *.o *~ *.out
-	rm -f $(ADCL_BIN_DIR)/first $(ADCL_BIN_DIR)/second 
+	rm -rf $(ADCL_BIN_DIR)/*.out
+	rm -f $(ADCL_BIN_DIR)/attrs_1 $(ADCL_BIN_DIR)/attrs_2
+	rm -f $(ADCL_BIN_DIR)/attrs_3 $(ADCL_BIN_DIR)/attrs_3a
+	rm -f $(ADCL_BIN_DIR)/attrs_4 
+	rm -f $(ADCL_BIN_DIR)/first $(ADCL_BIN_DIR)/first_f
+	rm -f $(ADCL_BIN_DIR)/second $(ADCL_BIN_DIR)/second_f
 	rm -f $(ADCL_BIN_DIR)/third $(ADCL_BIN_DIR)/fourth
-	rm -f $(ADCL_BIN_DIR)/first_f $(ADCL_BIN_DIR)/second_f
-	rm -f $(ADCL_BIN_DIR)/one-dim $(ADCL_BIN_DIR)/two-dim 
-	rm -f $(ADCL_BIN_DIR)/one-dim-f $(ADCL_BIN_DIR)/two-dim-f
+	rm -f $(ADCL_BIN_DIR)/one-dim $(ADCL_BIN_DIR)/one-dim-f
+	rm -f $(ADCL_BIN_DIR)/two-dim $(ADCL_BIN_DIR)/two-dim-f
 	rm -f $(ADCL_BIN_DIR)/three-dim $(ADCL_BIN_DIR)/three-dim-f
-	rm -f $(ADCL_BIN_DIR)/three-dim-large $(ADCL_BIN_DIR)/test-fnctset-noattrs_f
-	rm -f $(ADCL_BIN_DIR)/test-fnctset-noattrs
+	rm -f $(ADCL_BIN_DIR)/three-dim-large
+	rm -f $(ADCL_BIN_DIR)/test-fnctset-noattrs $(ADCL_BIN_DIR)/test-fnctset-noattrs_f
+	rm -f $(ADCL_BIN_DIR)/test-fnctset-single $(ADCL_BIN_DIR)/test-fnctset-single_f

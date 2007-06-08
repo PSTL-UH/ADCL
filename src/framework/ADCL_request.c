@@ -474,5 +474,5 @@ int ADCL_request_get_curr_function ( ADCL_request_t *req, char **function_name,
         }
     }
 
-    return ADCL_SUCCESS;
+    return ret;
 }

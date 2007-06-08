@@ -50,8 +50,8 @@ int ADCL_Function_create ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset attrset,
 }
 
 int ADCL_Function_create_async ( ADCL_work_fnct_ptr *iptr, ADCL_work_fnct_ptr *wptr,
-                 ADCL_Attrset attrset, int *array_of_values,
-                 char *name, ADCL_Function *fnct )
+                                 ADCL_Attrset attrset, int *array_of_values,
+                                 char *name, ADCL_Function *fnct )
 {
     if ( NULL == iptr || NULL == wptr ) {
         return ADCL_INVALID_WORK_FUNCTION_PTR;
@@ -90,14 +90,14 @@ int ADCL_Function_free ( ADCL_Function *fnct )
 }
 
 int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts,
-                          char *name, ADCL_Fnctset *fctset )
+                          char *name, ADCL_Fnctset *fnctset )
 {
     int i;
 
     if ( 0 >= maxnum ) {
         return ADCL_INVALID_ARG;
     }
-    if ( NULL == fctset ) {
+    if ( NULL == fnctset ) {
         return ADCL_INVALID_ARG;
     }
     for ( i=0; i< maxnum; i++ ) {
@@ -106,21 +106,76 @@ int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts,
         }
     }
 
-    return ADCL_fnctset_create ( maxnum, fncts, name, fctset );
+    return ADCL_fnctset_create ( maxnum, fncts, name, fnctset );
 }
 
-int ADCL_Fnctset_free ( ADCL_Fnctset *fctset )
+int ADCL_Fnctset_create_single_fnct ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset attrset,
+                                      char *name, ADCL_Fnctset *fnctset )
 {
-    if ( NULL == fctset ) {
+    if ( NULL == iptr ) {
+        return ADCL_INVALID_WORK_FUNCTION_PTR;
+    }
+    if ( NULL == attrset ) {
+        return ADCL_INVALID_ATTRSET;
+    }
+    if ( attrset != ADCL_ATTRSET_NULL ) {
+        if ( attrset->as_id < 0 ) {
+            return ADCL_INVALID_ATTRSET;
+        }
+    }
+    else {
+        /* This constructor does not accept an ADCL_ATTRSET_NULL */
+        return ADCL_INVALID_ATTRSET;
+    }
+
+    if ( NULL == fnctset ) {
         return ADCL_INVALID_ARG;
     }
 
-    if ( (*fctset)->fs_id < 0 ) {
+    return ADCL_fnctset_create_single_fnct ( iptr, NULL, attrset , name, fnctset );
+}
+
+int ADCL_Fnctset_create_single_fnct_async ( ADCL_work_fnct_ptr *init_fnct,
+                                            ADCL_work_fnct_ptr *wait_fnct,
+                                            ADCL_Attrset attrset, char *name,
+                                            ADCL_Fnctset *fnctset )
+{
+    if ( NULL == init_fnct ) {
+        return ADCL_INVALID_WORK_FUNCTION_PTR;
+    }
+    if ( NULL == wait_fnct ) {
+        return ADCL_INVALID_WORK_FUNCTION_PTR;
+    }
+    if ( NULL == attrset ) {
+        return ADCL_INVALID_ATTRSET;
+    }
+    if ( attrset != ADCL_ATTRSET_NULL ) {
+        if ( attrset->as_id < 0 ) {
+            return ADCL_INVALID_ATTRSET;
+        }
+    }
+    else {
+        /* This constructor does not accept an ADCL_ATTRSET_NULL */
+        return ADCL_INVALID_ATTRSET;
+    }
+
+    if ( NULL == fnctset ) {
+        return ADCL_INVALID_ARG;
+    }
+
+    return ADCL_fnctset_create_single_fnct ( init_fnct, wait_fnct,
+                                             attrset , name, fnctset );
+}
+
+int ADCL_Fnctset_free ( ADCL_Fnctset *fnctset )
+{
+    if ( NULL == fnctset ) {
+        return ADCL_INVALID_ARG;
+    }
+
+    if ( (*fnctset)->fs_id < 0 ) {
         return ADCL_INVALID_FNCTSET;
     }
 
-    return ADCL_fnctset_free ( fctset );
+    return ADCL_fnctset_free ( fnctset );
 }
-
-
-

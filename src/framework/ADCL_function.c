@@ -15,8 +15,11 @@ static int ADCL_local_function_counter=0;
 ADCL_array_t *ADCL_fnctset_farray;
 static int ADCL_local_fnctset_counter=0;
 
+static int get_next_attr_combination ( ADCL_attrset_t *attrset, int *attr_val_list );
 
-
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
 int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
                                  ADCL_work_fnct_ptr *wait_fnct,
                                  ADCL_attrset_t * attrset,
@@ -205,6 +208,73 @@ int ADCL_fnctset_dup ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy )
 
     return ret;
 }
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
+                                      ADCL_work_fnct_ptr *wait_fnct,
+                                      ADCL_attrset_t * attrset, char *name,
+                                      ADCL_fnctset_t **fnctset )
+{
+    int ret=ADCL_SUCCESS, new_attrs=ADCL_SUCCESS, maxnum=1, i;
+    int *attr_vals;
+    ADCL_fnctset_t *newfnctset=NULL;
+    newfnctset = ( ADCL_fnctset_t *) calloc (1, sizeof (ADCL_fnctset_t));
+    if ( NULL == newfnctset ) {
+        return ADCL_NO_MEMORY;
+    }
+
+    newfnctset->fs_id = ADCL_local_fnctset_counter++;
+    ADCL_array_get_next_free_pos ( ADCL_fnctset_farray, &(newfnctset->fs_findex));
+    ADCL_array_set_element ( ADCL_fnctset_farray, newfnctset->fs_findex,
+                             newfnctset->fs_id, newfnctset );
+    newfnctset->fs_attrset = attrset;
+    if ( NULL != name ) {
+        newfnctset->fs_name = strdup ( name );
+    }
+    /* Calc the total number of functions */
+    for ( i=0; i<attrset->as_maxnum; i++) {
+        maxnum *= attrset->as_attrs_numval[i];
+    }
+    newfnctset->fs_maxnum  = maxnum;
+    /* Memory allocation for the ADCL_functions */
+    newfnctset->fs_fptrs   = (ADCL_function_t **) calloc ( 1, maxnum * sizeof (ADCL_function_t *));
+    if ( NULL == newfnctset->fs_fptrs ) {
+        ret = ADCL_NO_MEMORY;
+        goto exit;
+    }
+    /* Memory allcation and Initialization of the attr values */
+    attr_vals = (int *)malloc( attrset->as_maxnum*sizeof(int) );
+    if ( NULL == attr_vals ) {
+        ret = ADCL_NO_MEMORY;
+        goto exit;
+    }
+    for ( i=0; i<attrset->as_maxnum; i++ ) {
+        attr_vals[i] = attrset->as_attrs_baseval[i];
+    }
+    i = 0;
+    while ( ADCL_SUCCESS == new_attrs ) {
+        ADCL_function_create_async ( init_fnct, wait_fnct , attrset,
+                                     attr_vals, name, &newfnctset->fs_fptrs[i] );
+        new_attrs = get_next_attr_combination ( attrset, attr_vals );
+        i++;        
+    }
+exit:
+    if ( ret != ADCL_SUCCESS ) {
+        if ( NULL != newfnctset->fs_fptrs ) {
+            free ( newfnctset->fs_fptrs );
+        }
+
+        if ( NULL != newfnctset->fs_name ) {
+            free ( newfnctset->fs_name );
+        }
+        ADCL_array_remove_element ( ADCL_fnctset_farray, newfnctset->fs_findex);
+        free ( newfnctset );
+    }
+
+    *fnctset = newfnctset;
+    return ret;
+}
 
 /********************************************************************************/
 /********************************************************************************/
@@ -234,4 +304,28 @@ int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
     *fnctset = ADCL_FNCTSET_NULL;
     return ADCL_SUCCESS;
 }
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+static int get_next_attr_combination ( ADCL_attrset_t *attrset, int *attr_val_list )
+{
+    int i, ret = ADCL_SUCCESS;
+    int thisval;
 
+    for ( i = 0; i < attrset->as_maxnum; i++ ) {
+        thisval = attr_val_list[i];
+
+        if ( thisval < attrset->as_attrs_maxval[i] ) {
+            attr_val_list[i] = ADCL_attribute_get_nextval (attrset->as_attrs[i],
+                                   attr_val_list[i]);
+            return ret;
+        }
+        else if ( thisval == attrset->as_attrs_maxval[i] ){
+            attr_val_list[i] = attrset->as_attrs_baseval[i];
+        }
+        else {
+            /* Bug, should not happen */
+        }
+    }
+    return ADCL_EVAL_DONE;
+}

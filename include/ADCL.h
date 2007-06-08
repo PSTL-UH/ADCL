@@ -160,6 +160,12 @@ int ADCL_Function_free         ( ADCL_Function *fnct );
 
 int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name,
                           ADCL_Fnctset *fnctset );
+int ADCL_Fnctset_create_single_fnct ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset attrset,
+                                      char *name, ADCL_Fnctset *fnctset );
+int ADCL_Fnctset_create_single_fnct_async ( ADCL_work_fnct_ptr *init_fnct,
+                                            ADCL_work_fnct_ptr *wait_fnct,
+                                            ADCL_Attrset attrset, char *name,
+                                            ADCL_Fnctset *fnctset );
 int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
 
 

@@ -55,6 +55,7 @@ int main ( int argc, char ** argv )
     }
 
     ADCL_Request_free ( &request );
+    ADCL_Topology_free ( &topo );
     ADCL_Fnctset_free ( &fnctset );
     
     for ( i=0; i<3; i++ ) {
