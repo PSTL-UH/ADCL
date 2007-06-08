@@ -37,5 +37,5 @@ clean:
 	rm -rf *.o *~ *.out
 	rm -f split merge iterations
 	rm -f genscript gentex
-	rm -f minmax eval-slurm
+	rm -f minmax eval-slurm attr_test_generator
 
