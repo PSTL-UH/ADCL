@@ -48,7 +48,7 @@ dnl Now ask the user 'bout desired options...
 dnl ==================================================
 AC_MSG_CHECKING(for ADCL main directory)
 AC_ARG_WITH(adcl_dir,
- [  --with-adcl-dir=ADCLDIR           Main ADCL directory (default=$PWD)],
+ [  --with-adcl-dir=dir               Main ADCL directory (default=$PWD)],
     adcl_dir="${withval}", adcl_dir="")
     if test "x$adcl_dir" = "x" ; then 
        adcl_dir=$PWD
@@ -59,7 +59,7 @@ dnl ==================================================
 dnl ==================================================
 AC_MSG_CHECKING(for ADCL include directory)
 AC_ARG_WITH(adcl_inc_dir,
- [  --with-adcl-inc-dir=ADCLDIR       ADCL include directory (default=ADCL_DIR/include)],
+ [  --with-adcl-inc-dir=dir           ADCL include directory (default=ADCL_DIR/include)],
     adcl_inc_dir="${withval}", adcl_inc_dir="")
     if test "x$adcl_inc_dir" = "x" ; then 
        adcl_inc_dir=${adcl_dir}/include
@@ -106,7 +106,7 @@ dnl ==================================================
 dnl ==================================================
 AC_MSG_CHECKING(for MPI install directory)
 AC_ARG_WITH(mpi_dir,
- [  --with-mpi-dir=MPIDIR             Installation directory of MPI],
+ [  --with-mpi-dir=dir                Installation directory of MPI],
     mpi_dir="${withval}", mpi_dir="/usr/local/mpi/")
     AC_MSG_RESULT(${mpi_dir})
     AC_SUBST(mpi_dir)
@@ -180,7 +180,7 @@ if test "$ADCL_PAPI" = "yes" ; then
 dnl ==================================================
   AC_MSG_CHECKING(for PAPI main directory)
   AC_ARG_WITH(papi_dir,
-  [  --with-papi-dir=PAPIDIR           Main PAPI directory (default=$PWD)],
+  [  --with-papi-dir=dir               Main PAPI directory (default=$PWD)],
     papi_dir="${withval}", papi_dir="")
     if test "x$papi_dir" = "x" ; then 
        papi_dir=$PWD
@@ -195,7 +195,7 @@ dnl ==================================================
   dnl ==================================================
 AC_MSG_CHECKING(for PAPI include directory)
 AC_ARG_WITH(papi_inc_dir,
- [  --with-papi-inc-dir=ADCLDIR       PAPI include directory (default=PAPI_DIR/include)],
+ [  --with-papi-inc-dir=dir           PAPI include directory (default=PAPI_DIR/include)],
     papi_inc_dir="${withval}", papi_inc_dir="")
     if test "x$papi_inc_dir" = "x" ; then 
        papi_inc_dir=${papi_dir}/include
@@ -243,6 +243,63 @@ AC_SUBST(adcl_papi_inc_flag)
 AC_SUBST(adcl_papi_ld_flag)
 AC_SUBST(adcl_papi_o)
 AC_SUBST(adcl_Papi_o)
+
+
+dnl ==================================================
+dnl ==================================================
+dnl ==================================================
+dnl Check for GSL - experimental -
+
+AC_ARG_ENABLE(gsl,
+[  --enable-gsl           enable the usage of gsl (default=no)],
+[test "$enableval" = yes && ADCL_GSL=yes])
+test "$ADCL_GSL" = yes || ADCL_GSL=no
+
+AC_MSG_CHECKING([whether to enable the usage of GSL])
+AC_MSG_RESULT(${ADCL_GSL})
+
+if test "$ADCL_GSL" = "yes" ; then 
+   AC_DEFINE(ADCL_GSL)
+
+AC_MSG_CHECKING(for GSL main directory)
+  AC_ARG_WITH(gsl_dir,
+  [  --with-gsl-dir=dir                Main GSL directory (default=/usr/local)],
+    gsl_dir="${withval}", gsl_dir="")
+    if test "x$gsl_dir" = "x" ; then 
+       gsl_dir="/usr/local"
+    fi
+    AC_MSG_RESULT(${gsl_dir})
+  dnl ==================================================	
+  dnl ==================================================
+AC_MSG_CHECKING(for GSL include directory)
+AC_ARG_WITH(gsl_inc_dir,
+ [  --with-gsl-inc-dir=dir            GSL include directory (default=GSL_DIR/include/gsl)],
+    gsl_inc_dir="${withval}", papi_inc_dir="")
+    if test "x$gsl_inc_dir" = "x" ; then 
+       gsl_inc_dir=${gsl_dir}/include/gsl
+    fi
+    AC_MSG_RESULT(${gsl_inc_dir})
+dnl ==================================================	
+dnl ==================================================
+AC_MSG_CHECKING(for GSL lib directory)
+AC_ARG_WITH(gsl_lib_dir,
+ [  --with-gsl-lib-dir=dir            GSL lib directory (default=GSL_DIR/lib)],
+    gsl_lib_dir="${withval}", gsl_lib_dir="")
+    if test "x$gsl_lib_dir" = "x" ; then 
+       gsl_lib_dir=${gsl_dir}/lib
+    fi
+    AC_MSG_RESULT(${gsl_lib_dir})
+dnl ==================================================	
+
+   adcl_gsl_inc_flag="-I${gsl_inc_dir}"
+   adcl_gsl_ld_flag="-L${gsl_lib_dir} -lgsl -lgslcblas"
+   adcl_minmax="minmax"
+fi
+
+AC_SUBST(adcl_gsl_inc_flag)
+AC_SUBST(adcl_gsl_ld_flag)
+AC_SUBST(adcl_minmax)
+
 
 dnl ==================================================
 dnl Try to compile a trivial C MPI application

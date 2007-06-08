@@ -19,12 +19,12 @@ gentex: gentex.c
 	$(CC) $(CFLAGS) -o gentex gentex.c 
 
 minmax: minmax.c robust.c cluster.c cluster_data.c cluster_cluster.c data.h cluster.h 
-	$(CC) $(GSL_INC_FLAGS) -c robust.c
-	$(CC) $(GSL_INC_FLAGS) -c cluster.c
-	$(CC) $(GSL_INC_FLAGS) -c cluster_data.c
-	$(CC) $(GSL_INC_FLAGS) -c cluster_cluster.c
-	$(CC) $(GSL_INC_FLAGS) -o minmax minmax.c robust.o cluster_data.o \
-            cluster_cluster.o cluster.o $(GSL_LIB_FLAGS)
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c robust.c
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c cluster.c
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c cluster_data.c
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c cluster_cluster.c
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -o minmax minmax.c robust.o cluster_data.o \
+            cluster_cluster.o cluster.o $(GSL_LD_FLAGS)
 
 
 iterations: iterations.c

@@ -640,6 +640,9 @@ adcl_papi_inc_flag
 adcl_papi_ld_flag
 adcl_papi_o
 adcl_Papi_o
+adcl_gsl_inc_flag
+adcl_gsl_ld_flag
+adcl_minmax
 adcl_emethod_numtests
 LIBOBJS
 LTLIBOBJS'
@@ -1230,6 +1233,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-papi           enable the usage of papi (default=no)
+  --enable-gsl           enable the usage of gsl (default=no)
   --enable-onesided       enable the usage of one-sided communication (default=no)
   --enable-use-barrier    use barrier synchronization for measurements (default=yes)
   --enable-printf-tofile  dump printf statements to a file (default=no)
@@ -1239,22 +1243,25 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-adcl-dir=ADCLDIR           Main ADCL directory (default=$PWD)
-  --with-adcl-inc-dir=ADCLDIR       ADCL include directory (default=ADCL_DIR/include)
+  --with-adcl-dir=dir               Main ADCL directory (default=$PWD)
+  --with-adcl-inc-dir=dir           ADCL include directory (default=ADCL_DIR/include)
   --with-adcl-lib-dir=dir           ADCL lib directory (default=ADCL_DIR/lib)
   --with-adcl-bin-dir=dir           ADCL bin directory (default=ADCL_DIR/bin)
   --with-adcl-lib-name=name         name of the ADCL library (default=libadcl.a)
-  --with-mpi-dir=MPIDIR             Installation directory of MPI
+  --with-mpi-dir=dir                Installation directory of MPI
   --with-mpi-inc-dir=dir            Include directory of MPI (default=MPI_DIR/include)
   --with-mpi-lib-dir=dir            Library directory of MPI (default=MPI_DIR/lib)
   --with-mpi-bin-dir=dir            Bin directory of MPI (default=MPI_DIR/bin)
   --with-mpi-cc=mpicc               MPI C compiler wrapper (default=mpicc)
   --with-mpi-f90=mpif90             MPI f90 compiler wrapper (default=mpif90)
-  --with-papi-dir=PAPIDIR           Main PAPI directory (default=$PWD)
-  --with-papi-inc-dir=ADCLDIR       PAPI include directory (default=PAPI_DIR/include)
+  --with-papi-dir=dir               Main PAPI directory (default=$PWD)
+  --with-papi-inc-dir=dir           PAPI include directory (default=PAPI_DIR/include)
   --with-papi-lib-dir=dir           PAPI lib directory (default=PAPI_DIR/lib)
   --with-papi-bin-dir=dir           PAPI bin directory (default=PAPI_DIR/bin)
   --with-papi-lib-name=name         name of the PAPI library (default=papi)
+  --with-gsl-dir=dir                Main GSL directory (default=/usr/local)
+  --with-gsl-inc-dir=dir            GSL include directory (default=GSL_DIR/include/gsl)
+  --with-gsl-lib-dir=dir            GSL lib directory (default=GSL_DIR/lib)
   --with-num-tests=NUMTESTS         Number of measurements per implementation (default=30)
 
 Some influential environment variables:
@@ -3882,6 +3889,82 @@ fi
 
 
 
+
+
+# Check whether --enable-gsl was given.
+if test "${enable_gsl+set}" = set; then
+  enableval=$enable_gsl; test "$enableval" = yes && ADCL_GSL=yes
+fi
+
+test "$ADCL_GSL" = yes || ADCL_GSL=no
+
+{ echo "$as_me:$LINENO: checking whether to enable the usage of GSL" >&5
+echo $ECHO_N "checking whether to enable the usage of GSL... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: result: ${ADCL_GSL}" >&5
+echo "${ECHO_T}${ADCL_GSL}" >&6; }
+
+if test "$ADCL_GSL" = "yes" ; then
+   cat >>confdefs.h <<\_ACEOF
+#define ADCL_GSL 1
+_ACEOF
+
+
+{ echo "$as_me:$LINENO: checking for GSL main directory" >&5
+echo $ECHO_N "checking for GSL main directory... $ECHO_C" >&6; }
+
+# Check whether --with-gsl_dir was given.
+if test "${with_gsl_dir+set}" = set; then
+  withval=$with_gsl_dir; gsl_dir="${withval}"
+else
+  gsl_dir=""
+fi
+
+    if test "x$gsl_dir" = "x" ; then
+       gsl_dir="/usr/local"
+    fi
+    { echo "$as_me:$LINENO: result: ${gsl_dir}" >&5
+echo "${ECHO_T}${gsl_dir}" >&6; }
+    { echo "$as_me:$LINENO: checking for GSL include directory" >&5
+echo $ECHO_N "checking for GSL include directory... $ECHO_C" >&6; }
+
+# Check whether --with-gsl_inc_dir was given.
+if test "${with_gsl_inc_dir+set}" = set; then
+  withval=$with_gsl_inc_dir; gsl_inc_dir="${withval}"
+else
+  papi_inc_dir=""
+fi
+
+    if test "x$gsl_inc_dir" = "x" ; then
+       gsl_inc_dir=${gsl_dir}/include/gsl
+    fi
+    { echo "$as_me:$LINENO: result: ${gsl_inc_dir}" >&5
+echo "${ECHO_T}${gsl_inc_dir}" >&6; }
+{ echo "$as_me:$LINENO: checking for GSL lib directory" >&5
+echo $ECHO_N "checking for GSL lib directory... $ECHO_C" >&6; }
+
+# Check whether --with-gsl_lib_dir was given.
+if test "${with_gsl_lib_dir+set}" = set; then
+  withval=$with_gsl_lib_dir; gsl_lib_dir="${withval}"
+else
+  gsl_lib_dir=""
+fi
+
+    if test "x$gsl_lib_dir" = "x" ; then
+       gsl_lib_dir=${gsl_dir}/lib
+    fi
+    { echo "$as_me:$LINENO: result: ${gsl_lib_dir}" >&5
+echo "${ECHO_T}${gsl_lib_dir}" >&6; }
+
+   adcl_gsl_inc_flag="-I${gsl_inc_dir}"
+   adcl_gsl_ld_flag="-L${gsl_lib_dir} -lgsl -lgslcblas"
+   adcl_minmax="minmax"
+fi
+
+
+
+
+
+
 { echo "$as_me:$LINENO: checking if we can compile and link a simple MPI program with ${mpi_cc}" >&5
 echo $ECHO_N "checking if we can compile and link a simple MPI program with ${mpi_cc}... $ECHO_C" >&6; }
 cat > testmpi.c <<EOF
@@ -4933,12 +5016,15 @@ adcl_papi_inc_flag!$adcl_papi_inc_flag$ac_delim
 adcl_papi_ld_flag!$adcl_papi_ld_flag$ac_delim
 adcl_papi_o!$adcl_papi_o$ac_delim
 adcl_Papi_o!$adcl_Papi_o$ac_delim
+adcl_gsl_inc_flag!$adcl_gsl_inc_flag$ac_delim
+adcl_gsl_ld_flag!$adcl_gsl_ld_flag$ac_delim
+adcl_minmax!$adcl_minmax$ac_delim
 adcl_emethod_numtests!$adcl_emethod_numtests$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 81; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 84; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

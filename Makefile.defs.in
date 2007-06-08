@@ -28,9 +28,12 @@ AR	    = ar
 AR_FLAGS    = clr
 
 
+GSL_INC_FLAGS = @adcl_gsl_inc_flag@
+GSL_LD_FLAGS  = @adcl_gsl_ld_flag@
+
 CC          = $(MPI_BIN_DIR)/@mpi_cc@
-CFLAGS      = @CFLAGS@ -I$(ADCL_INC_DIR) @adcl_papi_inc_flag@
-LDFLAGS     = @LDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm @adcl_papi_ld_flag@
+CFLAGS      = @CFLAGS@ -I$(ADCL_INC_DIR) @adcl_papi_inc_flag@ 
+LDFLAGS     = @LDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm @adcl_papi_ld_flag@ 
 
 FC          = $(MPI_BIN_DIR)/@mpi_f90@
 FFLAGS      = @FFLAGS@ -I$(ADCL_INC_DIR) @adcl_papi_inc_flag@ 

@@ -42,6 +42,10 @@
 /* Use MPI_Wtime instead of gettimeofday */
 #undef ADCL_USE_MPIWTIME
 
+/* Enable the usage of the GNU scientific libraries */
+#undef ADCL_GSL
+
+
 /* enable PAPI module? */
 #undef ADCL_PAPI 
 
