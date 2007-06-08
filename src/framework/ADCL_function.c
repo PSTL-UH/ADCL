@@ -133,7 +133,7 @@ int ADCL_fnctset_create( int maxnum, ADCL_function_t **fncts, char *name,
             goto exit;
         }
     }
-
+    newfnctset->fs_single_fnct = 0;
     newfnctset->fs_attrset = fncts[0]->f_attrset;
     newfnctset->fs_maxnum  = maxnum;
     newfnctset->fs_fptrs   = (ADCL_function_t **) calloc ( 1, maxnum*sizeof (ADCL_function_t *));
@@ -182,7 +182,7 @@ int ADCL_fnctset_dup ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy )
         ADCL_attrset_dup ( org->fs_attrset, &copy->fs_attrset );
     }
 
-
+    copy->fs_single_fnct = org->fs_single_fnct;
     copy->fs_maxnum  = org->fs_maxnum;
     copy->fs_fptrs   = (ADCL_function_t**)calloc(1,org->fs_maxnum*sizeof(ADCL_function_t*));
     if ( NULL == copy->fs_fptrs ) {
@@ -228,6 +228,7 @@ int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
     ADCL_array_get_next_free_pos ( ADCL_fnctset_farray, &(newfnctset->fs_findex));
     ADCL_array_set_element ( ADCL_fnctset_farray, newfnctset->fs_findex,
                              newfnctset->fs_id, newfnctset );
+    newfnctset->fs_single_fnct = 1;
     newfnctset->fs_attrset = attrset;
     if ( NULL != name ) {
         newfnctset->fs_name = strdup ( name );
@@ -281,20 +282,26 @@ exit:
 /********************************************************************************/
 int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
 {
+    int i;
     ADCL_fnctset_t *tfnctset=*fnctset;
 
     if ( NULL != tfnctset ) {
+        if ( 1 == tfnctset->fs_single_fnct ) {
+	    for ( i=0; i<tfnctset->fs_maxnum ;i++ ) {
+                ADCL_function_free ( &tfnctset->fs_fptrs[i] );
+            }
+        }       
         if ( NULL != tfnctset->fs_fptrs ) {
-            free (tfnctset->fs_fptrs );
+            free ( tfnctset->fs_fptrs );
         }
-        if ( tfnctset->fs_findex != -1 ) {
-            ADCL_array_remove_element ( ADCL_fnctset_farray, tfnctset->fs_findex);
+        if ( -1 != tfnctset->fs_findex ) {
+            ADCL_array_remove_element ( ADCL_fnctset_farray, tfnctset->fs_findex );
         }
         else {
             /* Free the attrset generated during the fnctset_dup operation */
             ADCL_attrset_free ( &tfnctset->fs_attrset );
         }
-        
+
         if ( NULL != tfnctset->fs_name ) {
             free ( tfnctset->fs_name );
         }

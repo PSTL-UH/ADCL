@@ -44,6 +44,8 @@ int ADCL_function_get_attrval ( ADCL_function_t *func, int attr_pos );
 struct ADCL_fnctset_s{
     int                    fs_id; /* id of the object */
     int                fs_findex; /* index of this object in the fortran array */
+    int           fs_single_fnct; /* a flag set to 1 if the function set is created
+                                     by a single function, set to 0 otherwise */
     int                fs_maxnum; /* no. of functions in this function-group */
     ADCL_function_t   **fs_fptrs; /* list of function pointers of this group. */
     ADCL_attrset_t   *fs_attrset; /* attribute set used to characterize the function */
