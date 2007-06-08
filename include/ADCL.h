@@ -96,6 +96,8 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 #define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
 #define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
 
+#define TIME_TYPE double
+
 /* Prototypes of the User level interface functions */
 
 /* ADCL environment functions */
@@ -192,5 +194,7 @@ int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm, int *rank, int *s
 int ADCL_Request_get_curr_function ( ADCL_Request req, char **function_name,
                                      char ***attrs_names, int *attrs_num,
                                      char ***attrs_values_names, int **attrs_values_num );
+
+int ADCL_Request_update ( ADCL_Request req, TIME_TYPE time );
 
 #endif /* __ADCL_H__ */

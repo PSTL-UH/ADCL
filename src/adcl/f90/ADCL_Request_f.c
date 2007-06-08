@@ -43,6 +43,9 @@
 #pragma weak adcl_request_get_comm__ = adcl_request_get_comm
 #pragma weak ADCL_REQUEST_GET_COMM   = adcl_request_get_comm
 
+#pragma weak adcl_request_update_  =  adcl_request_update
+#pragma weak adcl_request_update__ =  adcl_request_update
+#pragma weak ADCL_REQUEST_UPDATE   =  adcl_request_update
 
 void adcl_request_create ( int *vec, int *topo, int *fnctset, int *req, int *ierror )
 {
@@ -283,5 +286,19 @@ void adcl_request_start_overlap ( int *req, ADCL_work_fnct_ptr *mid,
         return;
     }
     *ierror = ADCL_Request_start_overlap ( creq, mid, end, total );
+    return;
+}
+
+void adcl_request_update ( int *req, TIME_TYPE *time, int *ierror )
+{
+    ADCL_request_t *creq;
+
+    creq = (ADCL_request_t *) ADCL_array_get_ptr_by_pos ( ADCL_request_farray,
+                                                          *req );
+    if ( NULL == creq ) {
+        *ierror = ADCL_INVALID_REQUEST;
+        return;
+    }
+    *ierror = ADCL_Request_update ( creq, *time );
     return;
 }

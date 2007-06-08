@@ -13,8 +13,6 @@
 #include "mpi.h"
 #include "ADCL_attribute.h"
 
-#define TIME_TYPE double
-
 
 //#define TIME      MPI_Wtime()
 #define TIME ADCL_statistics_time()

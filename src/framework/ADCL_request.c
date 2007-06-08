@@ -305,9 +305,8 @@ int ADCL_request_wait ( ADCL_request_t *req )
 /**********************************************************************/
 /**********************************************************************/
 int ADCL_request_update ( ADCL_request_t *req,
-              TIME_TYPE t1, TIME_TYPE t2 )
+                          TIME_TYPE t1, TIME_TYPE t2 )
 {
-
     if ( (t1 == -1 ) && ( t2 == -1 ) ) {
         return ADCL_SUCCESS;
     }

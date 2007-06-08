@@ -246,6 +246,9 @@ void ADCL_REQUEST_START_OVERLAP   ( int *req, ADCL_work_fnct_ptr *mid,
                                     ADCL_work_fnct_ptr *total,
                                     int *ierror );
 
-
+void adcl_request_update   ( int *req, TIME_TYPE *time, int *ierror );
+void adcl_request_update_  ( int *req, TIME_TYPE *time, int *ierror );
+void adcl_request_update__ ( int *req, TIME_TYPE *time, int *ierror );
+void ADCL_REQUEST_UPDATE   ( int *req, TIME_TYPE *time, int *ierror );
 
 #endif /*  __ADCL_FPROTOTYPES_H__ */

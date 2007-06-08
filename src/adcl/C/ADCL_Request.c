@@ -122,10 +122,11 @@ int ADCL_Request_start ( ADCL_Request req )
     TIME_TYPE t1, t2;
     MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
 
-    /* Check validity of the request  */
+#ifdef ADCL_USE_BARRIER
     if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
         MPI_Barrier ( comm );
     }
+#endif /* ADCL_USE_BARRIER */
     t1 = TIME;
     ret = ADCL_request_init ( req, &db );
     if ( ADCL_SUCCESS != ret ) {
@@ -135,12 +136,15 @@ int ADCL_Request_start ( ADCL_Request req )
     if ( db ) {
         ret = ADCL_request_wait ( req );
     }
+#ifdef ADCL_USE_BARRIER
     if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
         MPI_Barrier ( comm );
     }
+#endif /* ADCL_USE_BARRIER */
     t2 = TIME;
+#ifndef ADCL_USERLEVEL_TIMINGS
     ADCL_request_update ( req, t1, t2 );
-
+#endif /* ADCL_USERLEVEL_TIMINGS */
     return ret;
 }
 
@@ -151,10 +155,11 @@ int ADCL_Request_init ( ADCL_Request req )
     int db;
     MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
 
-    /* Check validity of the request  */
+#ifdef ADCL_USE_BARRIER
     if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
         MPI_Barrier ( comm );
     }
+#endif /* ADCL_USE_BARRIER */
     t1 = TIME;
     ret = ADCL_request_init ( req, &db );
     t2 = TIME;
@@ -173,12 +178,15 @@ int ADCL_Request_wait ( ADCL_Request req )
     /* Check validity of the request  */
     t1 = TIME;
     ret = ADCL_request_wait ( req );
+#ifdef ADCL_USE_BARRIER
     if ( req->r_emethod->em_state == ADCL_STATE_TESTING )   {
         MPI_Barrier ( comm );
     }
+#endif /* ADCL_USE_BARRIER */
     t2 = TIME;
+#ifndef ADCL_USERLEVEL_TIMINGS
     ADCL_request_update ( req, t1, (t2+req->r_time));
-
+#endif /* ADCL_USERLEVEL_TIMINGS */
     return ret;
 }
 
@@ -192,11 +200,11 @@ int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
     int db;
     MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
 
-    /* Check validity of the request  */
-
+#ifdef ADCL_USE_BARRIER
     if ( req->r_emethod->em_state == ADCL_STATE_TESTING )   {
         MPI_Barrier ( comm );
     }
+#endif /* ADCL_USE_BARRIER */
     t1 = TIME;
     ret = ADCL_request_init ( req, &db );
     if ( ADCL_SUCCESS != ret ) {
@@ -217,12 +225,15 @@ int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
             totalfctn ( req );
         }
     }
+#ifdef ADCL_USE_BARRIER
     if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
         MPI_Barrier ( comm );
     }
+#endif /* ADCL_USE_BARRIER */
     t2 = TIME;
+#ifndef ADCL_USERLEVEL_TIMINGS
     ADCL_request_update ( req, t1, t2 );
-
+#endif /* ADCL_USERLEVEL_TIMINGS */
     return ret;
 }
 
@@ -248,4 +259,16 @@ int ADCL_Request_get_curr_function ( ADCL_Request req, char **function_name,
 
     return ADCL_request_get_curr_function ( req, function_name, attrs_names, attrs_num,
                                             attrs_values_names, attrs_values_num );
+}
+
+int ADCL_Request_update ( ADCL_Request req, TIME_TYPE time )
+{
+    if ( NULL == req ) {
+        return ADCL_INVALID_REQUEST;
+    }
+    if ( 0 > req->r_id ) {
+        return ADCL_INVALID_REQUEST;
+    }
+
+    return ADCL_request_update ( req, 0, time );
 }
