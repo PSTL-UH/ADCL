@@ -1229,9 +1229,12 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-papi       enable the usage of papi (default=no)
+  --enable-papi           enable the usage of papi (default=no)
   --enable-onesided       enable the usage of one-sided communication (default=no)
+  --enable-use-barrier    use barrier synchronization for measurements (default=yes)
   --enable-printf-tofile  dump printf statements to a file (default=no)
+  --enable-userlevel-timings   disable ADCL internal timing routines (default=no)
+  --enable-mpi-wtime      use MPI_Wtime instead of gettimeofday for timing (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1252,7 +1255,7 @@ Optional Packages:
   --with-papi-lib-dir=dir           PAPI lib directory (default=PAPI_DIR/lib)
   --with-papi-bin-dir=dir           PAPI bin directory (default=PAPI_DIR/bin)
   --with-papi-lib-name=name         name of the PAPI library (default=papi)
-  --with-num-tests=NUMTESTS    Number of measurements per method.(default=10)
+  --with-num-tests=NUMTESTS         Number of measurements per implementation (default=30)
 
 Some influential environment variables:
   CC          C compiler command
@@ -4142,6 +4145,23 @@ fi
 fi
 fi
 
+# Check whether --enable-use_barrier was given.
+if test "${enable_use_barrier+set}" = set; then
+  enableval=$enable_use_barrier; test "$enableval" = no && ADCL_USE_BARRIER=no
+fi
+
+test "$ADCL_USE_BARRIER" = no || ADCL_USE_BARRIER=yes
+
+{ echo "$as_me:$LINENO: checking whether to use barrier synchronization for measurements" >&5
+echo $ECHO_N "checking whether to use barrier synchronization for measurements... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: result: ${ADCL_USE_BARRIER}" >&5
+echo "${ECHO_T}${ADCL_USE_BARRIER}" >&6; }
+if test "$ADCL_USE_BARRIER" = yes ; then
+  cat >>confdefs.h <<\_ACEOF
+#define ADCL_USE_BARRIER 1
+_ACEOF
+
+fi
 
 
 # Check whether --enable-printf_tofile was given.
@@ -4162,6 +4182,43 @@ _ACEOF
 
 fi
 
+# Check whether --enable-userlevel_timings was given.
+if test "${enable_userlevel_timings+set}" = set; then
+  enableval=$enable_userlevel_timings; test "$enableval" = yes && ADCL_USERLEVEL_TIMINGS=yes
+fi
+
+test "$ADCL_USERLEVEL_TIMINGS" = yes || ADCL_USERLEVEL_TIMINGS=no
+
+{ echo "$as_me:$LINENO: checking whether to disable ADCL internal timing routines" >&5
+echo $ECHO_N "checking whether to disable ADCL internal timing routines... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: result: ${ADCL_USERLEVEL_TIMINGS}" >&5
+echo "${ECHO_T}${ADCL_USERLEVEL_TIMINGS}" >&6; }
+if test "$ADCL_USERLEVEL_TIMINGS" = yes ; then
+  cat >>confdefs.h <<\_ACEOF
+#define ADCL_USERLEVEL_TIMINGS 1
+_ACEOF
+
+fi
+
+# Check whether --enable-mpi-wtime was given.
+if test "${enable_mpi_wtime+set}" = set; then
+  enableval=$enable_mpi_wtime; test "$enableval" = yes && ADCL_USE_MPIWTIME=yes
+fi
+
+test "$ADCL_USE_MPIWTIME" = yes || ADCL_USE_MPIWTIME=no
+
+{ echo "$as_me:$LINENO: checking whether to use MPI_Wtime instead of gettimeofday for timing" >&5
+echo $ECHO_N "checking whether to use MPI_Wtime instead of gettimeofday for timing... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: result: ${ADCL_USE_MPIWTIME}" >&5
+echo "${ECHO_T}${ADCL_USE_MPIWTIME}" >&6; }
+if test "$ADCL_USE_MPIWTIME" = yes ; then
+  cat >>confdefs.h <<\_ACEOF
+#define ADCL_USE_MPIWTIME 1
+_ACEOF
+
+fi
+
+
 
 { echo "$as_me:$LINENO: checking for number of measurements per method" >&5
 echo $ECHO_N "checking for number of measurements per method... $ECHO_C" >&6; }
@@ -4170,7 +4227,7 @@ echo $ECHO_N "checking for number of measurements per method... $ECHO_C" >&6; }
 if test "${with_num_tests+set}" = set; then
   withval=$with_num_tests; adcl_emethod_numtests="${withval}"
 else
-  adcl_emethod_numtests="10"
+  adcl_emethod_numtests="30"
 fi
 
     { echo "$as_me:$LINENO: result: ${adcl_emethod_numtests}" >&5
