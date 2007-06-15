@@ -13,16 +13,12 @@
 
 #define NIT 500
 
-static void init_test_func ( ADCL_Request req );
-static void wait_test_func ( ADCL_Request req );
+static void test_func ( ADCL_Request req );
 
 int main ( int argc, char ** argv ) 
 {
     /* General variables */
-    int i, k, attrs_num, *attrs_values_num, rank, size;
-    char *function_name;
-    char **attrs_names;
-    char **attrs_values_names;
+    int i, rank, size;
 
     ADCL_Attribute attrs[3];
     ADCL_Attrset attrset;
@@ -51,42 +47,19 @@ int main ( int argc, char ** argv )
     ADCL_Attrset_create ( 3, attrs, &attrset );
 
     /* Creation of the function set from a single function */
-    ADCL_Fnctset_create_single_fnct_async ( (ADCL_work_fnct_ptr *)init_test_func,
-                                            (ADCL_work_fnct_ptr *)wait_test_func,
-                                             attrset, "test function", &fnctset );
+    ADCL_Fnctset_create_single_fnct ( (ADCL_work_fnct_ptr *)test_func,
+				      attrset, "test function", &fnctset );
+
     /* Creation of the topology */
     ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
 				   MPI_COMM_WORLD, &topo );
+
     /* Creation of the request */
     ADCL_Request_create ( ADCL_VECTOR_NULL, topo, fnctset, &request );
 
     for ( i=0; i<NIT; i++ ) {
         ADCL_Request_start( request );
-
-        if ( rank == 0 ) {
-            ADCL_Request_get_curr_function ( request, &function_name, &attrs_names, &attrs_num,
-                                             &attrs_values_names, &attrs_values_num );
-            printf("Running function is: %s \n", function_name);
-            printf("Attr_name  |Val_name   |Val_num\n");
-            printf("___________|___________|________\n");
-            for (k=0; k<attrs_num; k++) {
-                printf("%s|%s |  %d\n", attrs_names[k], attrs_values_names[k], attrs_values_num[k]);
-            }
-            printf("\n");
-        }
-
-	/* don't forget to free the names variables */
-	for ( k=0; k<attrs_num; k++ ) {
-	    free ( attrs_names[k] );
-	    free ( attrs_values_names[k] );
-	}
-	
-	free ( function_name );
-	free ( attrs_names );
-	free ( attrs_values_names );
-	free ( attrs_values_num );
     }
-
 
     /* Free the request object */
     ADCL_Request_free ( &request );
@@ -105,21 +78,41 @@ int main ( int argc, char ** argv )
     MPI_Finalize ();
     return 0;
 }
-void init_test_func ( ADCL_Request req )
+
+void test_func ( ADCL_Request req )
 {
     MPI_Comm comm;
     int rank, size;
+    int attrs_num, *attrs_values_num, k;
+    char *function_name;
+    char **attrs_names;
+    char **attrs_values_names;
+
 
     ADCL_Request_get_comm ( req, &comm, &rank, &size );
+    ADCL_Request_get_curr_function ( req, &function_name, &attrs_names, &attrs_num,
+				     &attrs_values_names, &attrs_values_num );
 
-    return;
-}
-void wait_test_func ( ADCL_Request req )
-{
-    MPI_Comm comm;
-    int rank, size;
+    if ( rank == 0 ) {
+	printf("Running function is: %s \n", function_name);
+	printf("Attr_name  |Val_name   |Val_num\n");
+	printf("___________|___________|________\n");
+	for (k=0; k<attrs_num; k++) {
+	    printf("%s|%s |  %d\n", attrs_names[k], attrs_values_names[k], attrs_values_num[k]);
+	}
+	printf("\n");
+    }
 
-    ADCL_Request_get_comm ( req, &comm, &rank, &size );
+    /* don't forget to free the names variables */
+    for ( k=0; k<attrs_num; k++ ) {
+	free ( attrs_names[k] );
+	free ( attrs_values_names[k] );
+    }
+
+    free ( function_name );
+    free ( attrs_names );
+    free ( attrs_values_names );
+    free ( attrs_values_num );
 
     return;
 }
