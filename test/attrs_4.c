@@ -119,6 +119,15 @@ int main ( int argc, char ** argv )
                 printf("%s|%s |  %d\n", attrs_names[k], attrs_values_names[k], attrs_values_num[k]);
             }
             printf("\n");
+            /* Free the names variables */
+            for ( k=0; k<attrs_num; k++ ) {
+                free ( attrs_names[k] );
+                free ( attrs_values_names[k] );
+            }
+            free ( function_name );
+            free ( attrs_names );
+            free ( attrs_values_names );
+            free ( attrs_values_num );
         }
     }
     /* Free the request object */
