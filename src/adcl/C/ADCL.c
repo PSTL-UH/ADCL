@@ -41,7 +41,8 @@ int ADCL_Init (void )
 int ADCL_Finalize ( void )
 {
     int ret;
-    
+    /* free the predefined function set  */
+    ADCL_predefined_finalize ();
     /* free the request and vector fortran pointer arrays */
     ADCL_array_free ( &(ADCL_vector_farray));
     ADCL_array_free ( &(ADCL_vectset_farray));

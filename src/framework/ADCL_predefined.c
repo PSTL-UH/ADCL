@@ -352,4 +352,12 @@ int ADCL_predefined_init ( void )
     return ADCL_SUCCESS;
 }
 
+int ADCL_predefined_finalize ( void )
+{
+    /* Free the created function set */
+    ADCL_Fnctset_free ( &ADCL_neighborhood_fnctset );
+    /* Free the atrtribute set */
+    ADCL_Attrset_free ( &ADCL_neighborhood_attrset );
 
+    return ADCL_SUCCESS;
+}

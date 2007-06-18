@@ -63,9 +63,9 @@ int main ( int argc, char ** argv )
     for ( i=0; i<NIT; i++ ) {
         ADCL_Request_start( request );
 
+        ADCL_Request_get_curr_function ( request, &function_name, &attrs_names, &attrs_num,
+                                         &attrs_values_names, &attrs_values_num );
         if ( rank == 0 ) {
-            ADCL_Request_get_curr_function ( request, &function_name, &attrs_names, &attrs_num,
-                                             &attrs_values_names, &attrs_values_num );
             printf("Running function is: %s \n", function_name);
             printf("Attr_name  |Val_name   |Val_num\n");
             printf("___________|___________|________\n");
@@ -74,17 +74,17 @@ int main ( int argc, char ** argv )
             }
             printf("\n");
         }
-
-	/* don't forget to free the names variables */
-	for ( k=0; k<attrs_num; k++ ) {
-	    free ( attrs_names[k] );
-	    free ( attrs_values_names[k] );
-	}
+            /* don't forget to free the names variables */
+            for ( k=0; k<attrs_num; k++ ) {
+                free ( attrs_names[k] );
+                free ( attrs_values_names[k] );
+            }
 	
-	free ( function_name );
-	free ( attrs_names );
-	free ( attrs_values_names );
-	free ( attrs_values_num );
+            free ( function_name );
+            free ( attrs_names );
+            free ( attrs_values_names );
+            free ( attrs_values_num );
+
     }
 
 
