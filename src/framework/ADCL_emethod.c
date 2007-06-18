@@ -321,21 +321,23 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
     ** would falsify the results
     */
     ADCL_statistics_filter_timings ( emethod->em_stats,
-                     emethod->em_fnctset.fs_maxnum,
-                     emethod->em_topo->t_rank );
+                                     emethod->em_fnctset.fs_maxnum,
+                                     emethod->em_topo->t_rank );
 
     /*
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */
-    ADCL_statistics_global_max_v3 ( emethod->em_stats,
-                    emethod->em_fnctset.fs_maxnum,
-                    emethod->em_topo->t_comm,
-                    emethod->em_topo->t_rank);
+    if ( 0 == emethod->em_perfhypothesis ) {
+        ADCL_statistics_global_max_v3 ( emethod->em_stats,
+                                        emethod->em_fnctset.fs_maxnum,
+                                        emethod->em_topo->t_comm,
+                                        emethod->em_topo->t_rank);
+    }
 
     ADCL_statistics_get_winner_v3 ( emethod->em_stats,
-                    emethod->em_fnctset.fs_maxnum,
-                    &winner );
+                                    emethod->em_fnctset.fs_maxnum,
+                                    &winner );
 
     return winner;
 }
