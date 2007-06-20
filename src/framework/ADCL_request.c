@@ -344,10 +344,21 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
     ADCL_function_t *tfunc=NULL;
     MPI_Comm comm = req->r_emethod->em_topo->t_comm;
     int rank = req->r_emethod->em_topo->t_rank;
-
+#ifdef PERF_DETAILS
+    static TIME_TYPE elapsed_time = 0;
+    TIME_TYPE start_time, end_time;
+#endif /* PERF_DETAILS */
     switch ( req->r_emethod->em_state ) {
     case ADCL_STATE_TESTING:
+#ifdef PERF_DETAILS
+        start_time = MPI_Wtime();
+#endif /* PERF_DETAILS */
         tmp = ADCL_emethods_get_next ( req->r_emethod, mode, &flag );
+#ifdef PERF_DETAILS
+        end_time = MPI_Wtime();
+        elapsed_time += end_time - start_time;
+#endif /* PERF_DETAILS */
+
         if ( ADCL_EVAL_DONE == tmp ) {
             req->r_emethod->em_state = ADCL_STATE_DECISION;
         }
@@ -366,6 +377,9 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
         ADCL_printf("#%d: Initiating decision procedure for req %d\n",
             rank, req->r_id);
 #endif
+#ifdef PERF_DETAILS
+        ADCL_printf("Total elapsed time of emethod_get_function = %f\n",elapsed_time);
+#endif /* PERF_DETAILS */
         tmp = ADCL_emethods_get_winner ( req->r_emethod, comm);
         req->r_emethod->em_last    = tmp;
         req->r_emethod->em_wfunction = ADCL_emethod_get_function (req->r_emethod, tmp);

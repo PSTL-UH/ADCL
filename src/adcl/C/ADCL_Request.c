@@ -121,12 +121,24 @@ int ADCL_Request_start ( ADCL_Request req )
     int db;
     TIME_TYPE t1, t2;
     MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
+#ifdef PERF_DETAILS
+    TIME_TYPE start_time, end_time;
+    static TIME_TYPE elapsed_time = 0;
+
+    start_time = MPI_Wtime();
+#endif /* PERF_DETAILS */
 
 #ifdef ADCL_USE_BARRIER
     if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
         MPI_Barrier ( comm );
     }
 #endif /* ADCL_USE_BARRIER */
+
+#ifdef PERF_DETAILS
+    end_time = MPI_Wtime();
+    elapsed_time += (end_time - start_time);
+#endif /* PERF_DETAILS */
+
     t1 = TIME;
     ret = ADCL_request_init ( req, &db );
     if ( ADCL_SUCCESS != ret ) {
@@ -136,11 +148,23 @@ int ADCL_Request_start ( ADCL_Request req )
     if ( db ) {
         ret = ADCL_request_wait ( req );
     }
+
+#ifdef PERF_DETAILS
+    start_time = MPI_Wtime();
+#endif /* PERF_DETAILS */
+
 #ifdef ADCL_USE_BARRIER
     if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
         MPI_Barrier ( comm );
     }
 #endif /* ADCL_USE_BARRIER */
+
+#ifdef PERF_DETAILS
+    end_time = MPI_Wtime();
+    elapsed_time += (end_time - start_time);
+    ADCL_printf("Total elapsed time in Barriers = %f\n",elapsed_time);    
+#endif /* PERF_DETAILS */
+
     t2 = TIME;
 #ifndef ADCL_USERLEVEL_TIMINGS
     ADCL_request_update ( req, t1, t2 );
