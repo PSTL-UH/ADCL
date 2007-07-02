@@ -2,6 +2,7 @@
 
 int MPI_Init      ( int *argc, char ***argv )
 {
+    printf("HERE\n");
     return MPI_SUCCESS;
 }
 int MPI_Finalize  ( void )
@@ -69,7 +70,7 @@ MPI_Fint MPI_Type_f2c      ( MPI_Datatype datatype )
 {
     return MPI_SUCCESS;
 }
-int MPI_Type_create_subbary( int ndims, int size_array[], int subsize_array[],
+int MPI_Type_create_subarray( int ndims, int size_array[], int subsize_array[],
 			     int start_array[], int order,
 			     MPI_Datatype oldtype, MPI_Datatype *newtype)
 {

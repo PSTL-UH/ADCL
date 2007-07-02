@@ -71,7 +71,7 @@ int MPI_Dims_create (  int nnodes, int ndims, int *dims );
 
 
 MPI_Fint MPI_Type_f2c      ( MPI_Datatype datatype );
-int MPI_Type_create_subbary( int ndims, int size_array[], int subsize_array[],
+int MPI_Type_create_subarray( int ndims, int size_array[], int subsize_array[],
 			     int start_array[], int order,
 			     MPI_Datatype oldtype, MPI_Datatype *newtype);
 int MPI_Type_get_envelope  ( MPI_Datatype type, int *num_integers,
