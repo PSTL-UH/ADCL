@@ -661,6 +661,9 @@ adcl_minmax
 adcl_emethod_numtests
 c_compiler
 f_compiler
+dumpi_inc
+dumpi_make
+dumpi_clean
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -4156,7 +4159,10 @@ echo "${ECHO_T}${adcl_emethod_numtests}" >&6; }
 
 # Check whether --enable-dummy-mpi was given.
 if test "${enable_dummy_mpi+set}" = set; then
-  enableval=$enable_dummy_mpi; test "$enableval" = yes && ADCL_DUMMY_MPI=yes && c_compiler="cc" && f_compiler="gfortran"
+  enableval=$enable_dummy_mpi; test "$enableval" = yes && ADCL_DUMMY_MPI=yes && c_compiler="cc" && f_compiler="gfortran" &&
+dumpi_inc="${adcl_inc_dir}/ADCL_dummy_mpi.h" &&
+dumpi_make="cd src/dummympi ; make all" &&
+dumpi_clean="cd src/dummympi ; make clean"
 fi
 
 test "$ADCL_DUMMY_MPI" = yes || ADCL_DUMMY_MPI=no
@@ -4172,6 +4178,9 @@ if test "$ADCL_DUMMY_MPI" = "yes" ; then
 _ACEOF
 
 fi
+
+
+
 
 
 
@@ -4895,11 +4904,14 @@ adcl_minmax!$adcl_minmax$ac_delim
 adcl_emethod_numtests!$adcl_emethod_numtests$ac_delim
 c_compiler!$c_compiler$ac_delim
 f_compiler!$f_compiler$ac_delim
+dumpi_inc!$dumpi_inc$ac_delim
+dumpi_make!$dumpi_make$ac_delim
+dumpi_clean!$dumpi_clean$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 86; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 89; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

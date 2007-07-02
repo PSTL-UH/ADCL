@@ -21,7 +21,7 @@ HEADER = $(ADCL_INC_DIR)/ADCL_array.h      \
 	 $(ADCL_INC_DIR)/ADCL_request.h    \
 	 $(ADCL_INC_DIR)/ADCL_subarray.h   \
 	 $(ADCL_INC_DIR)/ADCL_vector.h     \
-	 $(ADCL_INC_DIR)/ADCL_dummy_mpi.h  \
+	 @dumpi_inc@ \
 
 
 all:
@@ -31,7 +31,7 @@ all:
 	cd src/adcl/C ; make all 
 	cd src/adcl/f90 ; make all 
 	cd utils ; make all 
-	cd src/dummympi ; make all
+	@dumpi_make@
 
 clean:
 	cd src/framework ; make clean
@@ -40,7 +40,7 @@ clean:
 	cd src/adcl/C ; make clean 
 	cd src/adcl/f90 ; make clean 
 	cd utils ; make clean
-	cd src/dummympi ; make clean
+	@dumpi_clean@
 	rm -rf *~ ./include/*~ 
 	rm -rf ./lib/libadcl.a
 
