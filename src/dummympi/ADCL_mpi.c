@@ -2,7 +2,6 @@
 
 int MPI_Init      ( int *argc, char ***argv )
 {
-    printf("HERE\n");
     return MPI_SUCCESS;
 }
 int MPI_Finalize  ( void )
