@@ -9,7 +9,11 @@
 #ifndef __ADCL_TOPOLOGY_H__
 #define __ADCL_TOPOLOGY_H__
 
+#if ADCL_DUMMY_MPI
+#include "ADCL_dummy_mpi.h"
+#else
 #include "mpi.h"
+#endif
 
 struct ADCL_topology_s{
     int         t_id; /* id of the object */

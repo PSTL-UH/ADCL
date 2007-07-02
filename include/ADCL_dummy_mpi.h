@@ -19,6 +19,8 @@
 #define MPI_IDENT          13
 #define MPI_CONGRUENT      14
 #define MPI_MAX            15
+#define MPI_STATUS_IGNORE  16
+#define MPI_STATUSES_IGNORE 17
 
 #define MPI_SUCCESS        0
 
@@ -39,7 +41,7 @@ typedef  int * MPI_Win;
 typedef  int * MPI_Status;
 typedef  int * MPI_Info;
 typedef  long  MPI_Aint;
-typedef  int   MPI_Fint
+typedef  int   MPI_Fint;
 
 /* Prototypes of the functions */
 int MPI_Init      ( int *argc, char ***argv );
@@ -48,7 +50,7 @@ int MPI_Comm_rank ( MPI_Comm comm, int *rank );
 int MPI_Comm_size ( MPI_Comm comm, int *size );
 int MPI_Comm_free ( MPI_Comm * comm );
 MPI_Fint MPI_Comm_c2f (MPI_Comm comm );
-int MPI_Comm_compare  ( PI_Comm comm1, MPI_Comm comm2, int *result );
+int MPI_Comm_compare  ( MPI_Comm comm1, MPI_Comm comm2, int *result );
 int MPI_Comm_group ( MPI_Comm comm, MPI_Group *group );
 int MPI_Group_free ( MPI_Group *group);
 
@@ -94,9 +96,9 @@ int MPI_Get ( void *origin_addr, int origin_count,
 
 int MPI_Abort     ( MPI_Comm comm, int errcode );
 int MPI_Barrier   ( MPI_Comm comm );
-int MPI_Allreduce ( void *inbuf, void* outbuf, int cnt, MPI_Datatype dat, 
+int MPI_Allreduce ( void *inbuf, void *outbuf, int cnt, MPI_Datatype dat, 
 		    MPI_Op op, MPI_Comm comm);
-int MPI_Reduce ( void *inbuf, void* outbuf, int cnt, MPI_Datatype dat, 
+int MPI_Reduce ( void *inbuf, void *outbuf, int cnt, MPI_Datatype dat, 
 		 MPI_Op op, int root, MPI_Comm comm);
 int MPI_Bcast  ( void *buf, int cnt, MPI_Datatype dat, int root, 
 		 MPI_Comm comm);

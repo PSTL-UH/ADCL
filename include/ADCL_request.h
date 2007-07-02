@@ -9,7 +9,11 @@
 #ifndef __ADCL_REQUEST_H__
 #define __ADCL_REQUEST_H__
 
+#if ADCL_DUMMY_MPI
+#include "ADCL_dummy_mpi.h"
+#else
 #include "mpi.h"
+#endif
 
 #include "ADCL_vector.h"
 #include "ADCL_function.h"

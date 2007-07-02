@@ -9,7 +9,11 @@
 #ifndef __ADCL_ATTRIBUTE_H__
 #define __ADCL_ATTRIBUTE_H__
 
+#if ADCL_DUMMY_MPI
+#include "ADCL_dummy_mpi.h"
+#else
 #include "mpi.h"
+#endif
 
 #define ADCL_ATTR_NOT_SET   -1  /* attributes not set*/
 #define ADCL_ATTR_NEW_BLOCK -2  /* signal that we start a new block.

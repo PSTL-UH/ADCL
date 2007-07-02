@@ -34,6 +34,10 @@
 #include "ADCL_papi.h"
 #endif
 
+#if ADCL_DUMMY_MPI
+#include "ADCL_dummy_mpi.h"
+#endif
+
 #include "ADCL_config.h"
 #include "ADCL_sysconfig.h"
 

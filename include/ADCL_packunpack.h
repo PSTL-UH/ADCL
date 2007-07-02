@@ -9,7 +9,11 @@
 #ifndef __ADCL_PACKUNPACK_H__
 #define __ADCL_PACKUNPACK_H__
 
+#if ADCL_DUMMY_MPI
+#include "ADCL_dummy_mpi.h"
+#else
 #include "mpi.h"
+#endif
 
 int ADCL_packunpack_init ( int num, int neighbors[], MPI_Comm comm,
                char ***sendbuf, MPI_Datatype *sdats,

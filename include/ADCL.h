@@ -10,7 +10,12 @@
 #define __ADCL_H__
 
 #include "ADCL_config.h"
+
+#if ADCL_DUMMY_MPI
+#include "ADCL_dummy_mpi.h"
+#else
 #include "mpi.h"
+#endif
 
 /* define constants and error codes */
 #define ADCL_SUCCESS        0

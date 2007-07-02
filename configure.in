@@ -152,7 +152,8 @@ dnl ==================================================
 AC_MSG_CHECKING(for MPI C compiler wrapper)
 AC_ARG_WITH(mpi_cc,
  [  --with-mpi-cc=mpicc               MPI C compiler wrapper (default=mpicc) ],
-    mpi_cc="${withval}", mpi_cc="mpicc")
+    mpi_cc="${withval}" && c_compiler="${mpi_bin_dir}/${mpi_cc}", 
+    mpi_cc="mpicc" && c_compiler="${mpi_bin_dir}/${mpi_cc}")
     AC_MSG_RESULT(${mpi_cc})
     AC_SUBST(mpi_cc)
 dnl ==================================================	
@@ -161,11 +162,13 @@ dnl ==================================================
 AC_MSG_CHECKING(for MPI Fortran 90 compiler wrapper)
 AC_ARG_WITH(mpi_f90,
  [  --with-mpi-f90=mpif90             MPI f90 compiler wrapper (default=mpif90) ],
-    mpi_f90="${withval}", mpi_f90="mpif90")
+    mpi_f90="${withval}" && f_compiler="${mpi_bin_dir}/${mpi_f90}", 
+    mpi_f90="mpif90" && f_compiler="${mpi_bin_dir}/${mpi_f90}")
     AC_MSG_RESULT(${mpi_f90})
     AC_SUBST(mpi_f90)
 dnl ==================================================	
 
+dnl ==================================================
 AC_ARG_ENABLE(papi,
 [  --enable-papi           enable the usage of papi (default=no)],
 [test "$enableval" = yes && ADCL_PAPI=yes])
@@ -602,6 +605,23 @@ AC_ARG_WITH(num_tests,
     AC_SUBST(adcl_emethod_numtests)
 dnl ==================================================
 
+dnl ==================================================
+AC_ARG_ENABLE(dummy-mpi,
+[  --enable-dummy-mpi           enable the usage of dummy-mpi (default=no)],
+[test "$enableval" = yes && ADCL_DUMMY_MPI=yes && c_compiler="cc" && f_compiler="gfortran"])
+test "$ADCL_DUMMY_MPI" = yes || ADCL_DUMMY_MPI=no
+
+AC_MSG_CHECKING([whether to enable the usage of dummy-mpi])
+AC_MSG_RESULT(${ADCL_DUMMY_MPI})
+
+if test "$ADCL_DUMMY_MPI" = "yes" ; then 
+   AC_DEFINE(ADCL_DUMMY_MPI)
+fi
+
+AC_SUBST(c_compiler)
+AC_SUBST(f_compiler)
+
+dnl ==================================================
 
 dnl Checks for header files.
 #AC_HEADER_STDC
@@ -617,4 +637,4 @@ dnl Checks for library functions.
 #AC_FUNC_MEMCMP
 #AC_CHECK_FUNCS(gethostname strerror strstr setlinebuf strcasecmp snprintf)
 
-AC_OUTPUT(Makefile Makefile.defs include/ADCL_sysconfig.h src/framework/Makefile src/adcl/C/Makefile utils/Makefile) 
+AC_OUTPUT(Makefile Makefile.defs include/ADCL_sysconfig.h src/framework/Makefile src/adcl/C/Makefile src/dummympi/Makefile utils/Makefile) 

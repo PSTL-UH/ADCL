@@ -49,5 +49,8 @@
 /* enable PAPI module? */
 #undef ADCL_PAPI 
 
+/* enable Dummy MPI library? */
+#undef ADCL_DUMMY_MPI
+
 
 #endif

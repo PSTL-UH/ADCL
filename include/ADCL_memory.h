@@ -9,7 +9,11 @@
 #ifndef __ADCL_MEMORY_H__
 #define __ADCL_MEMORY_H__
 
+#if ADCL_DUMMY_MPI
+#include "ADCL_dummy_mpi.h"
+#else
 #include "mpi.h"
+#endif
 
 void* ADCL_allocate_matrix ( int ndims, int *dims, MPI_Datatype dat, void *pt);
 void ADCL_free_matrix ( int ndims, MPI_Datatype dat, void *mat);

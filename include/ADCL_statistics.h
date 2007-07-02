@@ -10,7 +10,11 @@
 #define __ADCL_STATISTICS_H__
 
 #include <sys/time.h>
+#if ADCL_DUMMY_MPI
+#include "ADCL_dummy_mpi.h"
+#else
 #include "mpi.h"
+#endif
 #include "ADCL_attribute.h"
 
 
