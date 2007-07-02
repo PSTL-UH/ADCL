@@ -25,7 +25,7 @@ MPI_Fint MPI_Comm_c2f (MPI_Comm comm )
 {
     return MPI_SUCCESS;
 }
-int MPI_Comm_compare  ( PI_Comm comm1, MPI_Comm comm2, int *result )
+int MPI_Comm_compare  ( MPI_Comm comm1, MPI_Comm comm2, int *result )
 {
     return MPI_SUCCESS;
 }
@@ -224,7 +224,3 @@ double MPI_Wtime(void)
 {
     return 0.0;
 }
-
-
-
-#endif /* __MPI_H__ */
