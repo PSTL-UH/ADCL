@@ -3,45 +3,51 @@
 
 /* define constants and dummy objects */
 
-#define MPI_COMM_WORLD    0
-#define MPI_COMM_NULL     1
-#define MPI_DATATYPE_NULL 2
-#define MPI_PROC_NULL     3
-#define MPI_INFO_NULL     4
-#define MPI_GROUP_NULL    5
-#define MPI_WIN_NULL      6
-#define MPI_REQUEST_NULL  7
-#define MPI_ORDER_C       8
-#define MPI_ORDER_FORTRAN 9
-#define MPI_COMBINER_NAMED 10
-#define MPI_UNDEFINED      11
-#define MPI_GRAPH          12
-#define MPI_IDENT          13
-#define MPI_CONGRUENT      14
-#define MPI_MAX            15
-#define MPI_STATUS_IGNORE  16
-#define MPI_STATUSES_IGNORE 17
-
-#define MPI_SUCCESS        0
-
-#define MPI_DOUBLE_PRECISION 20
-#define MPI_DOUBLE           21
-#define MPI_REAL             22
-#define MPI_FLOAT            23
-#define MPI_INT              24
-#define MPI_INTEGER          25
-#define MPI_PACKED           26
-
 typedef  int * MPI_Comm;
 typedef  int * MPI_Group;
 typedef  int * MPI_Datatype;
 typedef  int * MPI_Request;
 typedef  int * MPI_Op;
 typedef  int * MPI_Win;
-typedef  int * MPI_Status;
+typedef  int   MPI_Status;
 typedef  int * MPI_Info;
 typedef  long  MPI_Aint;
 typedef  int   MPI_Fint;
+
+
+#define MPI_COMM_WORLD    (MPI_Comm)0
+#define MPI_COMM_NULL     (MPI_Comm)1
+#define MPI_DATATYPE_NULL (MPI_Datatype)2
+#define MPI_PROC_NULL     3
+#define MPI_INFO_NULL     (MPI_Info)4
+#define MPI_GROUP_NULL    (MPI_Group)5
+#define MPI_WIN_NULL      (MPI_Win)6
+#define MPI_REQUEST_NULL  (MPI_Request)7
+
+#define MPI_ORDER_C       8
+#define MPI_ORDER_FORTRAN 9
+
+#define MPI_COMBINER_NAMED 10
+#define MPI_UNDEFINED      11
+#define MPI_GRAPH          12
+#define MPI_IDENT          13
+#define MPI_CONGRUENT      14
+
+#define MPI_MAX            (MPI_Op)15
+
+#define MPI_STATUS_IGNORE   (MPI_Status*)16
+#define MPI_STATUSES_IGNORE (MPI_Status*)17
+
+#define MPI_SUCCESS        0
+
+#define MPI_DOUBLE_PRECISION (MPI_Datatype)20
+#define MPI_DOUBLE           (MPI_Datatype)21
+#define MPI_REAL             (MPI_Datatype)22
+#define MPI_FLOAT            (MPI_Datatype)23
+#define MPI_INT              (MPI_Datatype)24
+#define MPI_INTEGER          (MPI_Datatype)25
+#define MPI_PACKED           (MPI_Datatype)26
+
 
 /* Prototypes of the functions */
 int MPI_Init      ( int *argc, char ***argv );
