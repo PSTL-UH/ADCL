@@ -23,9 +23,9 @@ struct ADCL_topology_s{
     int       t_size; /* size of t_comm */
     int      t_ndims; /* number of dimension of this process topology */
     int *t_neighbors; /* array of neighboring processes, dimension
-             2*t_ndims */
+                         2*t_ndims */
     int    *t_coords; /* coordinate of this proc in the proc-topology,
-             dimension t_ndims */
+                         dimension t_ndims */
 };
 typedef struct ADCL_topology_s ADCL_topology_t;
 extern ADCL_array_t *ADCL_topology_farray;
@@ -33,7 +33,7 @@ extern ADCL_array_t *ADCL_topology_farray;
 int ADCL_topology_create ( MPI_Comm cart_comm, ADCL_topology_t **topo );
 int ADCL_topology_free   ( ADCL_topology_t **topo);
 int ADCL_topology_create_generic ( int ndims, int *lneighbors, int *rneighbors,
-                   int *coords,  int direction, MPI_Comm comm,
-                   ADCL_topology_t **topo);
+                                   int *coords,  int direction, MPI_Comm comm,
+                                   ADCL_topology_t **topo);
 
 #endif

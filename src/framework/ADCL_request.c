@@ -362,6 +362,10 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
         if ( ADCL_EVAL_DONE == tmp ) {
             req->r_emethod->em_state = ADCL_STATE_DECISION;
         }
+        else if ( ADCL_SOL_FOUND == tmp ) {
+            tfunc = req->r_emethod->em_wfunction;
+            break;
+	}
         else if ( (ADCL_ERROR_INTERNAL == tmp)||( 0 > tmp )) {
             return NULL;
         }
@@ -386,7 +390,7 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
         ADCL_printf("#%d:  req %d winner is %d %s\n",
             rank, req->r_id, req->r_emethod->em_wfunction->f_id,
             req->r_emethod->em_wfunction->f_name);
-
+	ADCL_data_create ( req->r_emethod );
         req->r_emethod->em_state = ADCL_STATE_REGULAR;
         /* no break; statement here on purpose! */
     case ADCL_STATE_REGULAR:

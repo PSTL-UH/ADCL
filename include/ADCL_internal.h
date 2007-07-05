@@ -22,6 +22,7 @@
 #include "ADCL_topology.h"
 #include "ADCL_attribute.h"
 #include "ADCL_emethod.h"
+#include "ADCL_data.h"
 #include "ADCL_function.h"
 #include "ADCL_memory.h"
 #include "ADCL_subarray.h"
@@ -50,10 +51,14 @@
 #define ADCL_STATE_DECISION -102
 
 #define ADCL_EVAL_DONE  -110
+#define ADCL_SOL_FOUND  -111
 
 #define ADCL_STATISTIC_VOTE 0
 #define ADCL_STATISTIC_MAX  1
 
+#define ADCL_UNEQUAL 0
+#define ADCL_IDENT   1
+#define ADCL_SIMILAR 2
 
 /* Some prototypes of functions which do not deserve their own header file */
 int ADCL_printf_init     ( void );

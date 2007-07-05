@@ -13,7 +13,8 @@ all: ctests ftests
 ctests: first second third fourth \
 	one-dim two-dim three-dim \
 	test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
-	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4
+	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
+	data_1
 
 ftests: one-dim-f two-dim-f three-dim-f three-dim-large  \
 	first_f second_f                                 \
@@ -67,6 +68,9 @@ attrs_3a: attrs_3a.c
 attrs_4: attrs_4.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/attrs_4 attrs_4.c $(LDFLAGS)
 
+data_1: data_1.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/data_1 data_1.c $(LDFLAGS)
+
 first_f: first_f.f90
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/first_f first_f.f90 $(FLDFLAGS)
 
@@ -96,7 +100,7 @@ clean:
 	rm -rf $(ADCL_BIN_DIR)/*.out
 	rm -f $(ADCL_BIN_DIR)/attrs_1 $(ADCL_BIN_DIR)/attrs_2
 	rm -f $(ADCL_BIN_DIR)/attrs_3 $(ADCL_BIN_DIR)/attrs_3a
-	rm -f $(ADCL_BIN_DIR)/attrs_4 
+	rm -f $(ADCL_BIN_DIR)/attrs_4 $(ADCL_BIN_DIR)/data_1
 	rm -f $(ADCL_BIN_DIR)/first $(ADCL_BIN_DIR)/first_f
 	rm -f $(ADCL_BIN_DIR)/second $(ADCL_BIN_DIR)/second_f
 	rm -f $(ADCL_BIN_DIR)/third $(ADCL_BIN_DIR)/fourth

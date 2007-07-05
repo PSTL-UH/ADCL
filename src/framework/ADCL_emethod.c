@@ -349,6 +349,25 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
 {
     int next = ADCL_EVAL_DONE;
     int last = e->em_last;
+    int data_search_res;
+    ADCL_data_t *data;
+
+    /* Search for solution/hints in the data stored from previous runs */
+    data_search_res = ADCL_data_find( e, &data );
+    switch (data_search_res) {
+    case ADCL_IDENT:
+        e->em_state = ADCL_STATE_REGULAR;
+        e->em_wfunction = data->d_wfunction;
+        return ADCL_SOL_FOUND;
+        break;
+    case ADCL_SIMILAR:
+        /* one idea is to increment the confidance number for 
+           attributes values of the winning function */
+        break;
+    case ADCL_UNEQUAL:
+    default:
+        break;
+    }
 
     if ( e->em_stats[last]->s_count < ADCL_emethod_numtests ) {
         *flag = ADCL_FLAG_PERF;

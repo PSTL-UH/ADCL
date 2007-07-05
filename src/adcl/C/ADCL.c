@@ -21,6 +21,7 @@ int ADCL_Init (void )
     ADCL_array_init ( &(ADCL_vector_farray),    "ADCL_Vector",    32 );
     ADCL_array_init ( &(ADCL_vectset_farray),   "ADCL_Vectset",   32 );
     ADCL_array_init ( &(ADCL_emethod_array),    "ADCL_emethod",   32 );
+    ADCL_array_init ( &(ADCL_data_array),       "ADCL_data",      32 );
     ADCL_array_init ( &(ADCL_request_farray),   "ADCL_Request",   32 );
     ADCL_array_init ( &(ADCL_topology_farray),  "ADCL_Topology",  32 );
     ADCL_array_init ( &(ADCL_attribute_farray), "ADCL_Attribute", 32 );
@@ -41,12 +42,15 @@ int ADCL_Init (void )
 int ADCL_Finalize ( void )
 {
     int ret;
+    /* free the stored data objects */
+    ADCL_data_free ( );
     /* free the predefined function set  */
     ADCL_predefined_finalize ();
     /* free the request and vector fortran pointer arrays */
     ADCL_array_free ( &(ADCL_vector_farray));
     ADCL_array_free ( &(ADCL_vectset_farray));
     ADCL_array_free ( &(ADCL_emethod_array));
+    ADCL_array_free ( &(ADCL_data_array));
     ADCL_array_free ( &(ADCL_request_farray));
     ADCL_array_free ( &(ADCL_topology_farray));
     ADCL_array_free ( &(ADCL_attribute_farray));

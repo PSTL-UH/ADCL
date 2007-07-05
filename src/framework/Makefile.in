@@ -21,6 +21,7 @@ OBJ = 	ADCL_array.o 		\
 	ADCL_subarray.o         \
 	ADCL_topology.o         \
 	ADCL_emethod.o 		\
+	ADCL_data.o 		\
 	ADCL_hypothesis.o       \
 	ADCL_predefined.o       \
 	@adcl_papi_o@ ADCL_request.o
