@@ -63,7 +63,9 @@ void test_func_17 ( ADCL_Request req );
 
 int main ( int argc, char ** argv ) 
 {
-    int i, rank, size;
+    int i, rank, size, ret;
+    char *function_name;
+    double filtered_avg, unfiltered_avg, outliers_num;
 
     ADCL_Function funcs[18];
     ADCL_Fnctset fnctset;
@@ -157,6 +159,13 @@ int main ( int argc, char ** argv )
     for ( i=0; i<NIT; i++ ) {
 	ADCL_Request_start( request );
     }
+    ADCL_Request_get_curr_function ( request, &function_name, NULL, NULL, NULL, NULL );
+    ret = ADCL_Request_get_function_stat ( request, function_name, &filtered_avg, 
+                                           &unfiltered_avg, &outliers_num );
+    if (( rank == 0 ) && (ADCL_SUCCESS == ret )) {
+        printf("winner function %s, filtered avg:%f unfiltered_avg:%f outliers_num %f\n",
+                function_name, filtered_avg, unfiltered_avg, outliers_num);
+    }
 
     ADCL_Request_free ( &request );
     ADCL_Fnctset_free ( &fnctset );
@@ -169,7 +178,6 @@ int main ( int argc, char ** argv )
     for ( i=0; i<3; i++ ) {
 	ADCL_Attribute_free ( &attrs[i]);
     }
-
     
     ADCL_Finalize ();
     MPI_Finalize ();

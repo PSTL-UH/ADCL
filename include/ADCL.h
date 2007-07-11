@@ -184,22 +184,21 @@ int ADCL_Request_create_generic (ADCL_Vectset vectset,
                                  ADCL_Fnctset fnctset,
                                  ADCL_Request *req );
 
-int ADCL_Request_free      ( ADCL_Request *req );
+int ADCL_Request_free   ( ADCL_Request *req );
 
-int ADCL_Request_start ( ADCL_Request req );
-int ADCL_Request_init  ( ADCL_Request req );
-int ADCL_Request_wait  ( ADCL_Request req );
-
+int ADCL_Request_start  ( ADCL_Request req );
+int ADCL_Request_init   ( ADCL_Request req );
+int ADCL_Request_wait   ( ADCL_Request req );
+int ADCL_Request_update ( ADCL_Request req, TIME_TYPE time );
 int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
                                  ADCL_work_fnct_ptr *endfcnt,
                                  ADCL_work_fnct_ptr *totalfcnt );
 
 int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm, int *rank, int *size );
-
 int ADCL_Request_get_curr_function ( ADCL_Request req, char **function_name,
                                      char ***attrs_names, int *attrs_num,
                                      char ***attrs_values_names, int **attrs_values_num );
-
-int ADCL_Request_update ( ADCL_Request req, TIME_TYPE time );
-
+int ADCL_Request_get_function_stat ( ADCL_Request req, char *function_name,
+                                     double *filtered_avg, double *unfiltered_avg,
+                                     double *outliers_num );
 #endif /* __ADCL_H__ */

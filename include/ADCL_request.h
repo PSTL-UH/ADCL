@@ -75,5 +75,11 @@ int ADCL_request_update ( ADCL_request_t *req,
                           TIME_TYPE t1, TIME_TYPE t2 );
 int ADCL_request_get_comm ( ADCL_request_t *req, MPI_Comm *comm, int *rank, int *size);
 
+int ADCL_request_get_curr_function ( ADCL_request_t *req, char **function_name,
+                                     char ***attrs_names, int *attrs_num,
+                                     char ***attrs_values_names, int **attrs_values_num );
+int ADCL_request_get_function_stat ( ADCL_request_t *req, char *function_name,
+                                     double *filtered_avg, double *unfiltered_avg,
+                                     double *outliers_num );
 #endif /* __ADCL_REQUEST_H__ */
 

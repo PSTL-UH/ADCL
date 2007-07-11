@@ -493,3 +493,29 @@ int ADCL_request_get_curr_function ( ADCL_request_t *req, char **function_name,
 
     return ret;
 }
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+int ADCL_request_get_function_stat ( ADCL_request_t *req, char *function_name,
+                                     double *filtered_avg, double *unfiltered_avg,
+                                     double *outliers_num )
+{
+    ADCL_fnctset_t *fnctset = req->r_emethod->em_orgfnctset;
+    ADCL_function_t *func;
+    int i;
+    for ( i=0; i<fnctset->fs_maxnum; i++ ) {
+        if ( 0 == strncmp ( function_name,
+                           fnctset->fs_fptrs[i]->f_name,
+                           strlen(function_name) ) ) {
+            if ( 0 != req->r_emethod->em_stats[i]->s_gpts[0] ) {
+                *unfiltered_avg = req->r_emethod->em_stats[i]->s_gpts[0];
+                *filtered_avg = req->r_emethod->em_stats[i]->s_gpts[1];
+                *outliers_num =  req->r_emethod->em_stats[i]->s_gpts[2] *
+                                 req->r_emethod->em_stats[i]->s_rescount;
+                return ADCL_SUCCESS;
+             }
+        }
+    }
+    return ADCL_INVALID_ARG;
+}
