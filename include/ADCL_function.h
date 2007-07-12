@@ -66,4 +66,6 @@ int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
                                       ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_free   ( ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_dup    ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy );
+ADCL_function_t* ADCL_fnctset_get_fnct_by_name ( ADCL_fnctset_t *fnctset, char *fname );
+
 #endif

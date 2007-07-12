@@ -20,9 +20,12 @@ int ADCL_data_create ( ADCL_emethod_t *e )
     ADCL_data_t *data;
     ADCL_topology_t *topo = e->em_topo;
     ADCL_vector_t   *vec  = e->em_vec;
-    int i;
+    int i, topo_status;
+    int *dims, *coords;
 
-    if ( ADCL_VECTOR_NULL == vec ) {
+    /* For now we support only cartesian topology */
+    MPI_Topo_test ( topo->t_comm, &topo_status );
+    if ( ( MPI_CART != topo_status ) || ( ADCL_VECTOR_NULL == vec ) ) {
         return ADCL_INVALID_ARG;
     }
     data = (ADCL_data_t *) calloc (1, sizeof(ADCL_data_t));
@@ -35,12 +38,13 @@ int ADCL_data_create ( ADCL_emethod_t *e )
     ADCL_array_set_element ( ADCL_data_array, data->d_findex, data->d_id, data );
     data->d_refcnt = 1;
     /* Topology information */
-    data->d_comm  = topo->t_comm;
     data->d_tndims = topo->t_ndims;
-    data->d_neighbors = (int *)malloc( 2*data->d_tndims*sizeof(int) );
-    for ( i=0; i<2*data->d_tndims ;i++ ) {
-        data->d_neighbors[i] = topo->t_neighbors[i];
-    }
+    data->d_tperiods = (int *)malloc( data->d_tndims*sizeof(int) );
+    dims = (int *)malloc( data->d_tndims*sizeof(int) );
+    coords = (int *)malloc( data->d_tndims*sizeof(int) );
+    MPI_Cart_get ( topo->t_comm, topo->t_ndims, dims, data->d_tperiods, coords );
+    free( dims );
+    free( coords );
     /* Vector information */
     data->d_vndims = vec->v_ndims;
     data->d_vdims = (int *)malloc(data->d_vndims*sizeof(int) );
@@ -51,8 +55,8 @@ int ADCL_data_create ( ADCL_emethod_t *e )
     data->d_hwidth = vec->v_hwidth;
     data->d_comtype = vec->v_comtype;
     /* Function set and winner function */
-    data->d_fnctset     = e->em_orgfnctset;
-    data->d_wfunction   = e->em_wfunction;
+    data->d_fsname = strdup ( e->em_orgfnctset->fs_name );
+    data->d_wfname = strdup ( e->em_wfunction->f_name );
 
     return ADCL_SUCCESS;
 }
@@ -69,11 +73,17 @@ void ADCL_data_free ( void )
     for ( i=0; i<= last; i++ ) {
         data = ( ADCL_data_t * ) ADCL_array_get_ptr_by_pos( ADCL_data_array, i );
         if ( NULL != data  ) {
-            if ( NULL != data->d_neighbors ) {
-                free ( data->d_neighbors );
+            if ( NULL != data->d_tperiods ) {
+                free ( data->d_tperiods );
             }
             if ( NULL != data->d_vdims ) {
                 free ( data->d_vdims );
+            }
+            if ( NULL != data->d_fsname ) {
+                free ( data->d_fsname );
+            }
+            if ( NULL != data->d_wfname ) {
+                free ( data->d_wfname );
             }
             ADCL_array_remove_element ( ADCL_data_array, data->d_findex );
             free ( data );
@@ -89,6 +99,7 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
     ADCL_vector_t   *vec  = e->em_vec;
     int ret = ADCL_UNEQUAL;
     int i, j, last, found, result;
+    int *dims, *periods, *coords;
 
     ADCL_data_read_from_file ( );
 
@@ -98,23 +109,32 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
         if ( ADCL_VECTOR_NULL == vec ) {
             continue;
         }
-        MPI_Comm_compare ( topo->t_comm, data->d_comm, &result );
-        if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
-            continue;
-        }
         found = i;
-        if ( ( e->em_orgfnctset == data->d_fnctset ) &&
-             ( topo->t_ndims    == data->d_tndims  ) &&
+        if ( ( topo->t_ndims    == data->d_tndims  ) &&
              ( vec->v_ndims     == data->d_vndims  ) &&
              ( vec->v_nc        == data->d_nc      ) &&
              ( vec->v_comtype   == data->d_comtype ) &&
-             ( vec->v_hwidth    == data->d_hwidth  ) ) {
-            for ( j=0; j<(2*topo->t_ndims); j++ ) {
-                if ( topo->t_neighbors[i] != data->d_neighbors[i] ) {
+             ( vec->v_hwidth    == data->d_hwidth  ) &&
+             ( 0 == strncmp (data->d_fsname,
+                             e->em_orgfnctset->fs_name,
+                             strlen(e->em_orgfnctset->fs_name))) ) {
+
+            periods = (int *)malloc( topo->t_ndims*sizeof(int) );
+            dims = (int *)malloc( topo->t_ndims*sizeof(int) );
+            coords = (int *)malloc( topo->t_ndims*sizeof(int) );
+
+            MPI_Cart_get ( topo->t_comm, topo->t_ndims, dims, periods, coords );
+            for ( j=0; j<topo->t_ndims; j++ ) {
+                if ( periods[j] != data->d_tperiods[j] ) {
                     found = -1;
                     break;
                 }
             }
+
+            free( periods );
+            free( dims );
+            free( coords );
+
             for ( j=0 ; j<vec->v_ndims; j++ ){
                 if ( vec->v_dims[i] != data->d_vdims[i] ) {
                     found = -1;
@@ -131,9 +151,8 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
 	else {
             *found_data = data;
 	    ret = ADCL_IDENT;
-            ADCL_printf("#%d An identical problem is found, winner is %d %s \n",
-                        topo->t_rank, data->d_wfunction->f_id ,
-                        data->d_wfunction->f_name );
+            ADCL_printf("#%d An identical problem is found, winner is %s \n",
+                        topo->t_rank, data->d_wfname);
         }
     }
     return ret;

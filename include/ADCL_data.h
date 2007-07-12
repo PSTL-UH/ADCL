@@ -20,19 +20,17 @@ struct ADCL_data_s{
     int                 d_findex; /* index of this object in the fortran array */
     int                 d_refcnt; /* reference counter of this object */
     /* Topology information */
-    MPI_Comm              d_comm;
-    int                 d_tndims;
-    int             *d_neighbors; /* array of neighboring processes, dim 2*t_ndims */
+    int                 d_tndims; /* Topology number of dimensions */
+    int              *d_tperiods; /* periodicity for each cartesian dimension */
     /* Vector information */
-    int                 d_vndims;
-    int                 *d_vdims;
-    int                     d_nc;
-    int                 d_hwidth;
-    int                d_comtype;
+    int                 d_vndims; /* Vector number of dimensions */
+    int                 *d_vdims; /* Vector extent of each the dimensions */
+    int                     d_nc; /* Extent of each data point  */
+    int                 d_hwidth; /* Halo cells width */
+    int                d_comtype; /* Communication type */
     /* Function set and winner function */
-    ADCL_fnctset_t    *d_fnctset; /* pointer to the function set.*/
-    ADCL_function_t *d_wfunction; /* contain the 'winner' function once the
-                                     evaluation of that problem is over. */
+    char               *d_fsname; /* Function set name */
+    char               *d_wfname; /* Winner function name */
 };
 typedef struct ADCL_data_s ADCL_data_t;
 
