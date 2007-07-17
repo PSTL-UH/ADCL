@@ -297,16 +297,12 @@ int ADCL_Request_update ( ADCL_Request req, TIME_TYPE time )
     return ADCL_request_update ( req, 0, time );
 }
 
-int ADCL_Request_get_function_stat ( ADCL_Request req,char *function_name,
-                                     double *filtered_avg, double *unfiltered_avg,
-                                     double *outliers_num )
+int ADCL_Request_get_winner_stat ( ADCL_Request req, double *filtered_avg,
+                                   double *unfiltered_avg, double *outliers_num )
 {
     if ( req->r_id < 0 ) {
         return ADCL_INVALID_REQUEST;
     }
-    if ( NULL == function_name ) {
-        return ADCL_INVALID_ARG;
-    }
-    return ADCL_request_get_function_stat ( req, function_name, filtered_avg,
-                                            unfiltered_avg, outliers_num );
+    return ADCL_request_get_winner_stat ( req, filtered_avg, unfiltered_avg,
+                                          outliers_num );
 }

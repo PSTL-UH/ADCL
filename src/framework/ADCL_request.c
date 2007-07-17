@@ -497,22 +497,23 @@ int ADCL_request_get_curr_function ( ADCL_request_t *req, char **function_name,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_request_get_function_stat ( ADCL_request_t *req, char *function_name,
-                                     double *filtered_avg, double *unfiltered_avg,
-                                     double *outliers_num )
+int ADCL_request_get_winner_stat ( ADCL_request_t *req, double *filtered_avg,
+                                   double *unfiltered_avg, double *outliers_num )
 {
     ADCL_fnctset_t *fnctset = req->r_emethod->em_orgfnctset;
-    ADCL_function_t *func;
+    ADCL_function_t *func = req->r_emethod->em_wfunction;
     int i;
+
+    if (NULL == func ) {
+        return ADCL_INVALID_ARG;
+    }
     for ( i=0; i<fnctset->fs_maxnum; i++ ) {
-        if ( 0 == strncmp ( function_name,
-                           fnctset->fs_fptrs[i]->f_name,
-                           strlen(function_name) ) ) {
+        if ( func == fnctset->fs_fptrs[i] ) {
             if ( 0 != req->r_emethod->em_stats[i]->s_gpts[0] ) {
                 *unfiltered_avg = req->r_emethod->em_stats[i]->s_gpts[0];
                 *filtered_avg = req->r_emethod->em_stats[i]->s_gpts[1];
-                *outliers_num =  req->r_emethod->em_stats[i]->s_gpts[2] *
-                                 req->r_emethod->em_stats[i]->s_rescount;
+                *outliers_num = req->r_emethod->em_stats[i]->s_gpts[2] *
+                                req->r_emethod->em_stats[i]->s_rescount;
                 return ADCL_SUCCESS;
              }
         }

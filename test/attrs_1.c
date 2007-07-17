@@ -159,9 +159,10 @@ int main ( int argc, char ** argv )
     for ( i=0; i<NIT; i++ ) {
 	ADCL_Request_start( request );
     }
+
     ADCL_Request_get_curr_function ( request, &function_name, NULL, NULL, NULL, NULL );
-    ret = ADCL_Request_get_function_stat ( request, function_name, &filtered_avg, 
-                                           &unfiltered_avg, &outliers_num );
+    ret = ADCL_Request_get_winner_stat ( request, &filtered_avg, 
+                                         &unfiltered_avg, &outliers_num );
     if (( rank == 0 ) && (ADCL_SUCCESS == ret )) {
         printf("winner function %s, filtered avg:%f unfiltered_avg:%f outliers_num %f\n",
                 function_name, filtered_avg, unfiltered_avg, outliers_num);

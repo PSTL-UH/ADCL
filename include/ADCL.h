@@ -198,7 +198,6 @@ int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm, int *rank, int *s
 int ADCL_Request_get_curr_function ( ADCL_Request req, char **function_name,
                                      char ***attrs_names, int *attrs_num,
                                      char ***attrs_values_names, int **attrs_values_num );
-int ADCL_Request_get_function_stat ( ADCL_Request req, char *function_name,
-                                     double *filtered_avg, double *unfiltered_avg,
-                                     double *outliers_num );
+int ADCL_Request_get_winner_stat ( ADCL_Request req, double *filtered_avg,
+                                   double *unfiltered_avg, double *outliers_num );
 #endif /* __ADCL_H__ */
