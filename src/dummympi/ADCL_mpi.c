@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2006-2007     University of Houston. All rights reserved.
+ * Copyright (c) 2007          Cisco, Inc. All rights reserved.
+ * $COPYRIGHTS$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADERS$
+ */
+
 #include "ADCL.h"
 
 int MPI_Init      ( int *argc, char ***argv )

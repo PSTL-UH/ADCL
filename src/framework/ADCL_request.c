@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -519,4 +520,84 @@ int ADCL_request_get_winner_stat ( ADCL_request_t *req, double *filtered_avg,
         }
     }
     return ADCL_INVALID_ARG;
+}
+
+int ADCL_request_get_functions_with_average ( ADCL_request_t *req, 
+                                              double filtered_average,
+                                              int *number_functions,
+                                              char ***function_name,
+                                              char ****attrs_names, 
+                                              int **attrs_num,
+                                              char ****attrs_values_names, 
+                                              int ***attrs_values_num )
+{
+    int i, j, k, n, num_functions = 0, ret = ADCL_SUCCESS;
+    ADCL_fnctset_t *fnctset = req->r_emethod->em_orgfnctset;
+    
+    for ( i=0; i<fnctset->fs_maxnum; i++ ) {
+        if ( filtered_average == req->r_emethod->em_stats[i]->s_gpts[1] ) {
+            num_functions ++;
+        }
+    }
+    (*number_functions) = num_functions;
+
+    if ( NULL != function_name ) {
+        (*function_name) = (char **)malloc(sizeof(char *) * num_functions);
+    }
+    if ( NULL != attrs_names) {
+        (*attrs_names) = (char ***)malloc(sizeof(char **) * num_functions);
+    }
+    if ( NULL != attrs_num ) {
+        (*attrs_num) = (int *)malloc(sizeof(int) * num_functions);
+    }
+    if ( NULL != attrs_values_names) {
+        (*attrs_values_names) = (char ***)malloc(sizeof(char **) * num_functions);
+    }
+    if ( NULL != attrs_values_num) {
+        (*attrs_values_num) = (int **)malloc(sizeof(int *) * num_functions);
+    }
+    i = 0;
+    for ( n=0; n<fnctset->fs_maxnum; n++ ) {
+        if ( filtered_average == req->r_emethod->em_stats[n]->s_gpts[1] ) {
+            if (NULL != function_name) {
+                (*function_name)[i] = strdup(fnctset->fs_fptrs[n]->f_name);
+            }
+            if (NULL != attrs_num) {
+                (*attrs_num)[i] = fnctset->fs_fptrs[n]->f_attrset->as_maxnum;
+            }
+            if (NULL != attrs_names) {
+                (*attrs_names)[i] = (char **)malloc(sizeof(char *) * 
+                                                    fnctset->fs_fptrs[n]->f_attrset->as_maxnum);
+            }
+            if (NULL != attrs_values_names) {
+                (*attrs_values_names)[i] = (char **)malloc(sizeof(char *) * 
+                                                           fnctset->fs_fptrs[n]->f_attrset->as_maxnum);
+            }
+            if (NULL != attrs_values_num) {
+                (*attrs_values_num)[i] = (int *)malloc(sizeof(int) * 
+                                                       fnctset->fs_fptrs[n]->f_attrset->as_maxnum);
+            }
+            for (j=0 ; j<fnctset->fs_fptrs[n]->f_attrset->as_maxnum ; j++) {
+                if (NULL != attrs_names) {
+                    (*attrs_names)[i][j] = strdup (fnctset->fs_fptrs[n]->f_attrset->as_attrs[j]->a_attr_name);
+                }
+                for (k=0 ; k<fnctset->fs_fptrs[n]->f_attrset->as_attrs_numval[j]; k++ ) {
+                    if ( fnctset->fs_fptrs[n]->f_attrvals[j] ==
+                         fnctset->fs_fptrs[n]->f_attrset->as_attrs[j]->a_values[k] ) {
+                        /* Name of the function attribute value in the i th attribute */
+                        if (NULL != attrs_values_names) {
+                            (*attrs_values_names)[i][j] =
+                                strdup ( fnctset->fs_fptrs[n]->f_attrset->as_attrs[j]->a_values_names[k] );
+                        }
+                        break;
+                    }
+                }
+                if (NULL != attrs_values_num) {
+                    (*attrs_values_num)[i][j] = fnctset->fs_fptrs[n]->f_attrvals[j];
+                }
+            }
+            i++;
+        }
+    }
+    return ret;
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -305,4 +306,22 @@ int ADCL_Request_get_winner_stat ( ADCL_Request req, double *filtered_avg,
     }
     return ADCL_request_get_winner_stat ( req, filtered_avg, unfiltered_avg,
                                           outliers_num );
+}
+
+int ADCL_Request_get_functions_with_average ( ADCL_Request req, 
+                                              double filtered_avg, 
+                                              int *num_functions,
+                                              char ***function_name, 
+                                              char ****attrs_names, 
+                                              int **attrs_num , 
+                                              char ****attrs_values_names, 
+                                              int ***attrs_values_num )
+{
+    if ( req->r_id < 0 ) {
+        return ADCL_INVALID_REQUEST;
+    }
+
+    return ADCL_request_get_functions_with_average ( req, filtered_avg, num_functions,
+                                                     function_name, attrs_names, attrs_num,
+                                                     attrs_values_names, attrs_values_num );
 }

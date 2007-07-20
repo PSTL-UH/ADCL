@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -200,4 +201,12 @@ int ADCL_Request_get_curr_function ( ADCL_Request req, char **function_name,
                                      char ***attrs_values_names, int **attrs_values_num );
 int ADCL_Request_get_winner_stat ( ADCL_Request req, double *filtered_avg,
                                    double *unfiltered_avg, double *outliers_num );
+int ADCL_Request_get_functions_with_average ( ADCL_Request req, 
+                                              double filtered_avg,
+                                              int *num_functions,
+                                              char *** function_name, 
+                                              char ****attrs_names, 
+                                              int **attrs_num, 
+                                              char ****attrs_values_names, 
+                                              int ***attrs_values_num);
 #endif /* __ADCL_H__ */

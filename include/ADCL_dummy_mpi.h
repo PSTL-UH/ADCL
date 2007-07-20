@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2006-2007     University of Houston. All rights reserved.
+ * Copyright (c) 2007          Cisco, Inc. All rights reserved.
+ * $Copyrights$
+ *
+ * Additional Copyrights may follow
+ *
+ * $HEADERS$
+ */
 #ifndef __MPI_H__
 #define __MPI_H__
 
