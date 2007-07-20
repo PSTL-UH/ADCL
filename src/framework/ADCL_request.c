@@ -526,8 +526,8 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
                                               double filtered_average,
                                               int *number_functions,
                                               char ***function_name,
-                                              char ****attrs_names, 
-                                              int **attrs_num,
+                                              char ***attrs_names, 
+                                              int *attrs_num,
                                               char ****attrs_values_names, 
                                               int ***attrs_values_num )
 {
@@ -547,27 +547,30 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
     if ( NULL != attrs_names) {
         (*attrs_names) = (char ***)malloc(sizeof(char **) * num_functions);
     }
-    if ( NULL != attrs_num ) {
-        (*attrs_num) = (int *)malloc(sizeof(int) * num_functions);
-    }
     if ( NULL != attrs_values_names) {
         (*attrs_values_names) = (char ***)malloc(sizeof(char **) * num_functions);
     }
     if ( NULL != attrs_values_num) {
         (*attrs_values_num) = (int **)malloc(sizeof(int *) * num_functions);
     }
+    if (NULL != attrs_names) {
+        (*attrs_names) = (char **)malloc(sizeof(char *) * (*attrs_num));
+    }
+
+    (*attrs_num) = fnctset->fs_fptrs[0]->f_attrset->as_maxnum;
+    
+    for (j=0 ; j<(*attrs_num) ; j++) {
+        if (NULL != attrs_names) {
+            (*attrs_names)[j] = strdup (fnctset->fs_fptrs[0]->f_attrset->
+                                        as_attrs[j]->a_attr_name);
+        }
+    }
+
     i = 0;
     for ( n=0; n<fnctset->fs_maxnum; n++ ) {
         if ( filtered_average == req->r_emethod->em_stats[n]->s_gpts[1] ) {
             if (NULL != function_name) {
                 (*function_name)[i] = strdup(fnctset->fs_fptrs[n]->f_name);
-            }
-            if (NULL != attrs_num) {
-                (*attrs_num)[i] = fnctset->fs_fptrs[n]->f_attrset->as_maxnum;
-            }
-            if (NULL != attrs_names) {
-                (*attrs_names)[i] = (char **)malloc(sizeof(char *) * 
-                                                    fnctset->fs_fptrs[n]->f_attrset->as_maxnum);
             }
             if (NULL != attrs_values_names) {
                 (*attrs_values_names)[i] = (char **)malloc(sizeof(char *) * 
@@ -578,9 +581,6 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
                                                        fnctset->fs_fptrs[n]->f_attrset->as_maxnum);
             }
             for (j=0 ; j<fnctset->fs_fptrs[n]->f_attrset->as_maxnum ; j++) {
-                if (NULL != attrs_names) {
-                    (*attrs_names)[i][j] = strdup (fnctset->fs_fptrs[n]->f_attrset->as_attrs[j]->a_attr_name);
-                }
                 for (k=0 ; k<fnctset->fs_fptrs[n]->f_attrset->as_attrs_numval[j]; k++ ) {
                     if ( fnctset->fs_fptrs[n]->f_attrvals[j] ==
                          fnctset->fs_fptrs[n]->f_attrset->as_attrs[j]->a_values[k] ) {

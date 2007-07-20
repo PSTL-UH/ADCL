@@ -85,8 +85,8 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
                                               double filtered_avg, 
                                               int *num_functions,
                                               char ***function_name, 
-                                              char ****attrs_names, 
-                                              int **attrs_num, 
+                                              char ***attrs_names, 
+                                              int *attrs_num, 
                                               char ****attrs_values_names, 
                                               int ***attrs_values_num );
 #endif /* __ADCL_REQUEST_H__ */
