@@ -550,12 +550,11 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
     if ( NULL != attrs_values_num) {
         (*attrs_values_num) = (int **)malloc(sizeof(int *) * num_functions);
     }
+    (*attrs_num) = fnctset->fs_fptrs[0]->f_attrset->as_maxnum;
     if (NULL != attrs_names) {
         (*attrs_names) = (char **)malloc(sizeof(char *) * (*attrs_num));
     }
 
-    (*attrs_num) = fnctset->fs_fptrs[0]->f_attrset->as_maxnum;
-    
     for (j=0 ; j<(*attrs_num) ; j++) {
         if (NULL != attrs_names) {
             (*attrs_names)[j] = strdup (fnctset->fs_fptrs[0]->f_attrset->
