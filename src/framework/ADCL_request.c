@@ -544,9 +544,6 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
     if ( NULL != function_name ) {
         (*function_name) = (char **)malloc(sizeof(char *) * num_functions);
     }
-    if ( NULL != attrs_names) {
-        (*attrs_names) = (char ***)malloc(sizeof(char **) * num_functions);
-    }
     if ( NULL != attrs_values_names) {
         (*attrs_values_names) = (char ***)malloc(sizeof(char **) * num_functions);
     }
