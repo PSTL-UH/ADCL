@@ -539,7 +539,6 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
         if ( (fabs(filtered_average) * 0.001) >= 
              fabs(filtered_average - req->r_emethod->em_stats[i]->s_gpts[1]) ) {
             (*number_functions) ++;
-            printf("BINGOOOOOOOOOOOOOOOOOOOOOOOOOOO\n");
         }
     }
     if (0 == *number_functions) {
