@@ -8,6 +8,7 @@
  * $HEADER$
  */
 #include "ADCL_internal.h"
+#include "math.h"
 
 static int ADCL_local_id_counter=0;
 static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req, int mode);
@@ -531,24 +532,27 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
                                               char ****attrs_values_names, 
                                               int ***attrs_values_num )
 {
-    int i, j, k, n, num_functions = 0, ret = ADCL_SUCCESS;
+    int i, j, k, n, ret = ADCL_SUCCESS;
     ADCL_fnctset_t *fnctset = req->r_emethod->em_orgfnctset;
     
     for ( i=0; i<fnctset->fs_maxnum; i++ ) {
-        if ( filtered_average == req->r_emethod->em_stats[i]->s_gpts[1] ) {
-            num_functions ++;
+        if ( (fabs(filtered_average) * 0.001) >= 
+             fabs(filtered_average - req->r_emethod->em_stats[i]->s_gpts[1]) ) {
+            (*number_functions) ++;
+            printf("BINGOOOOOOOOOOOOOOOOOOOOOOOOOOO\n");
         }
     }
-    (*number_functions) = num_functions;
-
+    if (0 == *number_functions) {
+        return ret;
+    }
     if ( NULL != function_name ) {
-        (*function_name) = (char **)malloc(sizeof(char *) * num_functions);
+        (*function_name) = (char **)malloc(sizeof(char *) * (*number_functions));
     }
     if ( NULL != attrs_values_names) {
-        (*attrs_values_names) = (char ***)malloc(sizeof(char **) * num_functions);
+        (*attrs_values_names) = (char ***)malloc(sizeof(char **) * (*number_functions));
     }
     if ( NULL != attrs_values_num) {
-        (*attrs_values_num) = (int **)malloc(sizeof(int *) * num_functions);
+        (*attrs_values_num) = (int **)malloc(sizeof(int *) * (*number_functions));
     }
     (*attrs_num) = fnctset->fs_fptrs[0]->f_attrset->as_maxnum;
     if (NULL != attrs_names) {
@@ -561,10 +565,10 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
                                         as_attrs[j]->a_attr_name);
         }
     }
-
     i = 0;
     for ( n=0; n<fnctset->fs_maxnum; n++ ) {
-        if ( filtered_average == req->r_emethod->em_stats[n]->s_gpts[1] ) {
+        if ( (fabs(filtered_average) * 0.001) >= 
+             fabs(filtered_average - req->r_emethod->em_stats[n]->s_gpts[1]) ) {
             if (NULL != function_name) {
                 (*function_name)[i] = strdup(fnctset->fs_fptrs[n]->f_name);
             }
