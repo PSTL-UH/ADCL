@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -63,6 +64,8 @@ int ADCL_fnctset_create ( int maxnum, ADCL_function_t **fncts, char *name,
 int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
                                       ADCL_work_fnct_ptr *wait_fnct,
                                       ADCL_attrset_t * attrset, char *name,
+                                      int **without_attribute_combinations,
+                                      int num_without_attribute_combinations,
                                       ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_free   ( ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_dup    ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy );

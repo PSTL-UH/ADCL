@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -17,6 +18,7 @@ static int ADCL_local_fnctset_counter=0;
 
 static int get_next_attr_combination ( ADCL_attrset_t *attrset, int *attr_val_list );
 
+static int check_excluded( int* , int , int**, int );
 /********************************************************************************/
 /********************************************************************************/
 /********************************************************************************/
@@ -214,11 +216,14 @@ int ADCL_fnctset_dup ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy )
 int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
                                       ADCL_work_fnct_ptr *wait_fnct,
                                       ADCL_attrset_t * attrset, char *name,
+                                      int **without_attribute_combinations,
+                                      int num_without_attribute_combinations,
                                       ADCL_fnctset_t **fnctset )
 {
     int ret=ADCL_SUCCESS, new_attrs=ADCL_SUCCESS, maxnum=1, i;
     int *attr_vals;
     ADCL_fnctset_t *newfnctset=NULL;
+    int excluded;
     newfnctset = ( ADCL_fnctset_t *) calloc (1, sizeof (ADCL_fnctset_t));
     if ( NULL == newfnctset ) {
         return ADCL_NO_MEMORY;
@@ -237,6 +242,7 @@ int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
     for ( i=0; i<attrset->as_maxnum; i++) {
         maxnum *= attrset->as_attrs_numval[i];
     }
+    maxnum = maxnum - num_without_attribute_combinations;
     newfnctset->fs_maxnum  = maxnum;
     /* Memory allocation for the ADCL_functions */
     newfnctset->fs_fptrs   = (ADCL_function_t **) calloc ( 1, maxnum * sizeof (ADCL_function_t *));
@@ -254,11 +260,18 @@ int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
         attr_vals[i] = attrset->as_attrs_baseval[i];
     }
     i = 0;
+    excluded = 0;
     while ( ADCL_SUCCESS == new_attrs ) {
-        ADCL_function_create_async ( init_fnct, wait_fnct , attrset,
-                                     attr_vals, name, &newfnctset->fs_fptrs[i] );
-        new_attrs = get_next_attr_combination ( attrset, attr_vals );
-        i++;        
+        if (0 != num_without_attribute_combinations) {
+            excluded = check_excluded(attr_vals, attrset->as_maxnum, without_attribute_combinations,
+                                      num_without_attribute_combinations);
+        }
+        if (!excluded) {
+            ADCL_function_create_async ( init_fnct, wait_fnct , attrset,
+                                         attr_vals, name, &newfnctset->fs_fptrs[i] );
+            i++;
+        }
+        new_attrs = get_next_attr_combination ( attrset, attr_vals );        
     }
 exit:
     if ( ret != ADCL_SUCCESS ) {
@@ -353,3 +366,22 @@ static int get_next_attr_combination ( ADCL_attrset_t *attrset, int *attr_val_li
     }
     return ADCL_EVAL_DONE;
 }
+
+static int check_excluded( int* attr_vals, int num_vals, 
+                            int ** without_attribute_combinations,
+                            int num_without_attribute_combinations )
+{
+    int i, j;
+    for (i=0 ; i<num_without_attribute_combinations ; i++) {
+        for (j=0 ; j<num_vals ; j++) {
+            if (attr_vals[j] != without_attribute_combinations[i][j]) {
+                break;
+            }
+        }
+        if (j == num_vals) {
+            return 1;
+        }
+    }
+    return 0;
+}
+        

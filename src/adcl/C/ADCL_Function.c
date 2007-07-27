@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -110,7 +111,9 @@ int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts,
 }
 
 int ADCL_Fnctset_create_single_fnct ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset attrset,
-                                      char *name, ADCL_Fnctset *fnctset )
+                                      char *name, int **without_attribute_combinations,
+                                      int num_without_attribute_combinations,
+                                      ADCL_Fnctset *fnctset )
 {
     if ( NULL == iptr ) {
         return ADCL_INVALID_WORK_FUNCTION_PTR;
@@ -132,12 +135,16 @@ int ADCL_Fnctset_create_single_fnct ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset att
         return ADCL_INVALID_ARG;
     }
 
-    return ADCL_fnctset_create_single_fnct ( iptr, NULL, attrset , name, fnctset );
+    return ADCL_fnctset_create_single_fnct ( iptr, NULL, attrset , name, 
+                                             without_attribute_combinations,
+                                             num_without_attribute_combinations, fnctset );
 }
 
 int ADCL_Fnctset_create_single_fnct_async ( ADCL_work_fnct_ptr *init_fnct,
                                             ADCL_work_fnct_ptr *wait_fnct,
                                             ADCL_Attrset attrset, char *name,
+                                            int **without_attribute_combinations,
+                                            int num_without_attribute_combinations,
                                             ADCL_Fnctset *fnctset )
 {
     if ( NULL == init_fnct ) {
@@ -163,8 +170,9 @@ int ADCL_Fnctset_create_single_fnct_async ( ADCL_work_fnct_ptr *init_fnct,
         return ADCL_INVALID_ARG;
     }
 
-    return ADCL_fnctset_create_single_fnct ( init_fnct, wait_fnct,
-                                             attrset , name, fnctset );
+    return ADCL_fnctset_create_single_fnct ( init_fnct, wait_fnct, attrset , name, 
+                                             without_attribute_combinations,
+                                             num_without_attribute_combinations, fnctset );
 }
 
 int ADCL_Fnctset_free ( ADCL_Fnctset *fnctset )
