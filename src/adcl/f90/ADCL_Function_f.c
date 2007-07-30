@@ -195,8 +195,8 @@ void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, int *fn
 }
 
 void adcl_fnctset_create_single_fnct ( void *init_fnct, int *attrset, char *name,
-                                       int **without_attr_vals, 
-                                       int num_without_attr_vals,
+                                       int *without_attr_vals, 
+                                       int *num_without_attr_vals,
                                        int *fnctset, int *ierr, int name_len )
 {
     ADCL_attrset_t *cattrset;
@@ -227,8 +227,8 @@ void adcl_fnctset_create_single_fnct ( void *init_fnct, int *attrset, char *name
             return;
         }
     }
-    *ierr = ADCL_fnctset_create_single_fnct ( init_fnct, NULL, cattrset, cname, without_attr_vals, 
-                                              num_without_attr_vals, &cfnctset );
+    *ierr = ADCL_fnctset_create_single_fnct ( init_fnct, NULL, cattrset, cname, &without_attr_vals, 
+                                              *num_without_attr_vals, &cfnctset );
     if ( *ierr == ADCL_SUCCESS ) {
         *fnctset = cfnctset->fs_findex;
     }
@@ -238,8 +238,8 @@ void adcl_fnctset_create_single_fnct ( void *init_fnct, int *attrset, char *name
 
 void adcl_fnctset_create_single_fnct_async ( void *init_fnct, void *wait_fnct,
                                              int *attrset, char *name,
-                                             int **without_attr_vals, 
-                                             int num_without_attr_vals,
+                                             int *without_attr_vals, 
+                                             int *num_without_attr_vals,
                                              int *fnctset, int *ierr, int name_len )
 {
     ADCL_attrset_t *cattrset;
@@ -271,8 +271,8 @@ void adcl_fnctset_create_single_fnct_async ( void *init_fnct, void *wait_fnct,
             return;
         }
     }
-    *ierr = ADCL_fnctset_create_single_fnct ( init_fnct, wait_fnct, cattrset, cname, without_attr_vals, 
-                                              num_without_attr_vals, &cfnctset );
+    *ierr = ADCL_fnctset_create_single_fnct ( init_fnct, wait_fnct, cattrset, cname, &without_attr_vals, 
+                                              *num_without_attr_vals, &cfnctset );
     if ( *ierr == ADCL_SUCCESS ) {
         *fnctset = cfnctset->fs_findex;
     }

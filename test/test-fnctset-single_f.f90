@@ -42,7 +42,8 @@
         call ADCL_Attrset_create ( 3, attrs, attrset, ierror );
 
         call ADCL_Fnctset_create_single_fnct_async ( init_test_func, wait_test_func, &
-                                                     attrset,"test function", fnctset, ierror)
+                                                     attrset,"test function", 0, 0, &
+                                                     fnctset, ierror)
 
         call ADCL_Topology_create_generic ( 0, 0, 0, 0, ADCL_DIRECTION_BOTH, &
                                             MPI_COMM_WORLD, topo, ierror )
