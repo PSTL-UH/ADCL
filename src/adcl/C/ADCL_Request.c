@@ -325,3 +325,38 @@ int ADCL_Request_get_functions_with_average ( ADCL_Request req,
                                                      function_name, attrs_names, attrs_num,
                                                      attrs_values_names, attrs_values_num );
 }
+
+int ADCL_Request_save_status ( ADCL_request_t *req, int *tested_num,
+                               double **unfiltered_avg,
+                               double **filtered_avg,
+                               double **outliers, int *winner_so_far )
+{
+    if ( req->r_id < 0 ) {
+        return ADCL_INVALID_REQUEST;
+    }
+    if ( (NULL == tested_num) ||
+         (NULL == unfiltered_avg) ||
+         (NULL == filtered_avg) ||
+         (NULL == outliers) ) {
+        return ADCL_INVALID_ARG;
+    }
+    return ADCL_request_save_status ( req, tested_num, unfiltered_avg,
+                                      filtered_avg, outliers, winner_so_far );
+}
+
+int ADCL_Request_restore_status ( ADCL_Request req, int tested_num,
+                                  double *unfiltered_avg,
+                                  double *filtered_avg,
+                                  double *outliers )
+{
+    if ( req->r_id < 0 ) {
+        return ADCL_INVALID_REQUEST;
+    }
+    if ( (NULL == unfiltered_avg) ||
+         (NULL == filtered_avg) ||
+         (NULL == outliers) ) {
+        return ADCL_INVALID_ARG;
+    }
+    return ADCL_request_restore_status ( req, tested_num, unfiltered_avg,
+                                         filtered_avg, outliers );
+}

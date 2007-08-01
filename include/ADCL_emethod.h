@@ -52,7 +52,7 @@ void ADCL_emethod_free ( ADCL_emethod_t * er );
 int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, int pos,
                TIME_TYPE tstart, TIME_TYPE tend );
 
-int  ADCL_emethods_get_winner ( ADCL_emethod_t *ermethods, MPI_Comm comm );
+int  ADCL_emethods_get_winner ( ADCL_emethod_t *ermethods, MPI_Comm comm, int count );
 void ADCL_emethods_update ( ADCL_emethod_t *ermethods, int pos,
                 int flag, TIME_TYPE tstart, TIME_TYPE tend );
 

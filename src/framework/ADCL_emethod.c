@@ -312,7 +312,7 @@ int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, int pos,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
+int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm, int count)
 {
     int winner;
 
@@ -320,8 +320,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
     ** Filter the input data, i.e. remove outliers which
     ** would falsify the results
     */
-    ADCL_statistics_filter_timings ( emethod->em_stats,
-                                     emethod->em_fnctset.fs_maxnum,
+    ADCL_statistics_filter_timings ( emethod->em_stats, count,
                                      emethod->em_topo->t_rank );
 
     /*
@@ -329,15 +328,12 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm)
     ** method with the largest number of points will be the chosen one.
     */
     if ( 0 == emethod->em_perfhypothesis ) {
-        ADCL_statistics_global_max_v3 ( emethod->em_stats,
-                                        emethod->em_fnctset.fs_maxnum,
+        ADCL_statistics_global_max_v3 ( emethod->em_stats, count,
                                         emethod->em_topo->t_comm,
                                         emethod->em_topo->t_rank);
     }
 
-    ADCL_statistics_get_winner_v3 ( emethod->em_stats,
-                                    emethod->em_fnctset.fs_maxnum,
-                                    &winner );
+    ADCL_statistics_get_winner_v3 ( emethod->em_stats, count, &winner );
 
     return winner;
 }

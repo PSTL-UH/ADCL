@@ -386,7 +386,8 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
 #ifdef PERF_DETAILS
         ADCL_printf("Total elapsed time of emethod_get_function = %f\n",elapsed_time);
 #endif /* PERF_DETAILS */
-        tmp = ADCL_emethods_get_winner ( req->r_emethod, comm);
+        tmp = ADCL_emethods_get_winner ( req->r_emethod, comm,
+                                         req->r_emethod->em_fnctset.fs_maxnum);
         req->r_emethod->em_last    = tmp;
         req->r_emethod->em_wfunction = ADCL_emethod_get_function (req->r_emethod, tmp);
         ADCL_printf("#%d:  req %d winner is %d %s\n",
@@ -599,4 +600,52 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
         }
     }
     return ret;
+}
+
+int ADCL_request_save_status ( ADCL_request_t *req, int *tested_num,
+                               double **unfiltered_avg,
+                               double **filtered_avg,
+                               double **outliers, int *winner_so_far )
+{
+    int i;
+    /* Number of executed functions */
+    (*tested_num) = req->r_erlast;
+    /* Boundary conditions */
+    if ( req->r_emethod->em_stats[(*tested_num)]->s_count == ADCL_EMETHOD_NUMTESTS ) {
+        (*tested_num)++;
+        ADCL_STAT_SET_TESTED ( req->r_emethod->em_stats[(*tested_num)-1] );
+        ADCL_statistics_filter_timings ( &(req->r_emethod->em_stats[(*tested_num)-1]), 1,
+                                         req->r_emethod->em_topo->t_rank );
+    }
+    *filtered_avg = (double *)malloc( (*tested_num)*sizeof(double) );
+    *unfiltered_avg = (double *)malloc( (*tested_num)*sizeof(double) );
+    *outliers = (double *)malloc( (*tested_num)*sizeof(double) );
+    *winner_so_far = ADCL_emethods_get_winner ( req->r_emethod, 
+                                                req->r_emethod->em_topo->t_comm,
+                                                (*tested_num) );
+    for (i=0; i<(*tested_num); i++ ) {
+        (*unfiltered_avg)[i] =  req->r_emethod->em_stats[i]->s_gpts[0];
+        (*filtered_avg)[i] =  req->r_emethod->em_stats[i]->s_gpts[1];
+        (*outliers)[i] =  req->r_emethod->em_stats[i]->s_gpts[2];
+    }
+    return ADCL_SUCCESS;
+}
+
+int ADCL_request_restore_status ( ADCL_request_t *req, int tested_num,
+                                  double *unfiltered_avg,
+                                  double *filtered_avg,
+                                  double *outliers )
+{
+    int i;
+    if ( 0 == req->r_emethod->em_perfhypothesis ) {
+        for (i=0; i<tested_num; i++) {
+            req->r_emethod->em_stats[i]->s_lpts[0] = unfiltered_avg[i];
+            req->r_emethod->em_stats[i]->s_lpts[1] = filtered_avg[i];
+            req->r_emethod->em_stats[i]->s_lpts[2] = outliers[i];
+            ADCL_STAT_SET_FILTERED ( req->r_emethod->em_stats[i] );
+        }
+
+        req->r_emethod->em_last = tested_num;
+    }
+    return ADCL_SUCCESS;
 }

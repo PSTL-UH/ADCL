@@ -89,5 +89,16 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
                                               int *attrs_num, 
                                               char ****attrs_values_names, 
                                               int ***attrs_values_num );
+
+int ADCL_request_save_status ( ADCL_request_t *req, int *tested_num,
+                               double **unfiltered_avg,
+                               double **filtered_avg,
+                               double **outliers, int *winner_so_far );
+
+int ADCL_request_restore_status ( ADCL_request_t *req, int tested_num,
+                                  double *unfiltered_avg,
+                                  double *filtered_avg,
+                                  double *outliers );
+
 #endif /* __ADCL_REQUEST_H__ */
 
