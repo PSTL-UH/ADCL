@@ -39,5 +39,6 @@ extern ADCL_array_t *ADCL_data_array;
 int  ADCL_data_create ( ADCL_emethod_t *e );
 void ADCL_data_free   ( void );
 int  ADCL_data_find   ( ADCL_emethod_t *e, ADCL_data_t **data );
+void ADCL_data_read_from_file ( void );
 
 #endif /* __ADCL_DATA_H__ */

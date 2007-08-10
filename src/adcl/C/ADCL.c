@@ -35,7 +35,7 @@ int ADCL_Init (void )
 
     ret = ADCL_predefined_init ();
     ret = ADCL_readenv();
-
+    ADCL_data_read_from_file ();
     return ret;
 }
 

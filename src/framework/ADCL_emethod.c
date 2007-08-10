@@ -101,6 +101,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     e->em_id          = ADCL_local_id_counter++;
     e->em_rfcnt       = 1;
     e->em_state       = ADCL_STATE_TESTING;
+    e->em_explored_data = -1;
     e->em_topo        = t;
     e->em_vec         = v;
     e->em_orgfnctset  = f;
@@ -353,10 +354,10 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     data_search_res = ADCL_data_find( e, &data );
     switch (data_search_res) {
     case ADCL_IDENT:
-        e->em_state = ADCL_STATE_REGULAR;
         func = ADCL_fnctset_get_fnct_by_name ( e->em_orgfnctset,
                                                data->d_wfname );
         if ( ADCL_FUNCTION_NULL != func ) {
+            e->em_state = ADCL_STATE_REGULAR;
             e->em_wfunction = func;
             return ADCL_SOL_FOUND;
         }
