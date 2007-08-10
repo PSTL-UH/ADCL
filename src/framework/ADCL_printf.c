@@ -26,6 +26,7 @@ int ADCL_printf_init ( void )
     int rank;
     char filename[32];
 
+    rank = 0;
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
     sprintf(filename, "%d.out", rank);
     fd = fopen (filename, "w");
