@@ -163,6 +163,7 @@ void ADCL_data_dump_to_file ( void )
     ADCL_data_t *data;
     FILE *fp;
 
+    rank = 0;
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
     if ( 0 == rank ) {
         fp = fopen ("ADCL.dat", "w");
