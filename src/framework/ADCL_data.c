@@ -12,6 +12,8 @@ static int ADCL_local_id_counter = 0;
 ADCL_array_t *ADCL_data_array = NULL;
 
 static void ADCL_data_dump_to_file ( void );
+static int get_int_data_from_xml (char *str, int *res);
+static int get_str_data_from_xml (char *str, char **dest);
 
 int ADCL_data_create ( ADCL_emethod_t *e ) 
 {
@@ -166,83 +168,161 @@ void ADCL_data_dump_to_file ( void )
     rank = 0;
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
     if ( 0 == rank ) {
-        fp = fopen ("ADCL.dat", "w");
+        fp = fopen ("ADCL.xml", "w");
         last = ADCL_array_get_last ( ADCL_data_array );
-        fprintf ( fp, "%d\n", last+1 );
+        fprintf ( fp, "<?xml version=\"1.0\" ?>\n<?xml-stylesheet"
+                  " type=\"text/xsl\" href=\"ADCL.xsl\"?>\n<ADCL>\n" );
+        fprintf ( fp, "  <NUM>%d</NUM>\n", last+1 );
 
         for ( i=0; i<=last; i++ ) {
+            fprintf ( fp, "  <RECORD>\n" );
             data = ( ADCL_data_t * ) ADCL_array_get_ptr_by_pos( ADCL_data_array, i );
+            /* Topology information */
+            fprintf ( fp, "    <TOPO>\n" );
             tndims = data->d_tndims;
-            fprintf ( fp, "%d\n", tndims );
+            fprintf ( fp, "      <NDIM>%d</NDIM>\n", tndims );
+            fprintf ( fp, "      <PERIOD>\n");
             for ( j=0; j<tndims; j++) {
-                fprintf ( fp, "%d\n", data->d_tperiods[j] );
+                fprintf ( fp, "        <DIM>%d</DIM>\n", data->d_tperiods[j] );
             }
+            fprintf ( fp, "      </PERIOD>\n");
+            fprintf ( fp, "    </TOPO>\n" );
+            /* Vector information */
+            fprintf ( fp, "    <VECT>\n" );
             vndims = data->d_vndims;
-            fprintf ( fp, "%d\n", vndims );
+            fprintf ( fp, "      <NDIM>%d</NDIM>\n", vndims );
+            fprintf ( fp, "      <DIMS>\n");            
             for ( j=0; j<vndims; j++) {
-                fprintf ( fp, "%d\n", data->d_vdims[j] );
+                fprintf ( fp, "        <DIM>%d</DIM>\n", data->d_vdims[j] );
             }
-            fprintf ( fp, "%d\n", data->d_nc );
-            fprintf ( fp, "%d\n", data->d_hwidth );
-            fprintf ( fp, "%d\n", data->d_comtype );
-            fprintf ( fp, "%s\n", data->d_fsname );
-            fprintf ( fp, "%s\n", data->d_wfname );
+            fprintf ( fp, "      </DIMS>\n");
+            fprintf ( fp, "      <NC>%d</NC>\n", data->d_nc );
+            fprintf ( fp, "      <HWIDTH>%d</HWIDTH>\n", data->d_hwidth );
+            fprintf ( fp, "      <COMTYPE>%d</COMTYPE>\n", data->d_comtype );
+            fprintf ( fp, "    </VECT>\n" );
+            /* Function set and winner function */
+            fprintf ( fp, "    <FUNC>\n" );
+            fprintf ( fp, "      <FNCTSET>%s</FNCTSET>\n", data->d_fsname );
+            fprintf ( fp, "      <WINNER>%s</WINNER>\n", data->d_wfname );
+            fprintf ( fp, "    </FUNC>\n" );
+            fprintf ( fp, "  </RECORD>\n" );
         }
+        fprintf ( fp, "</ADCL>" );
         fclose ( fp );
     }
+
     return;
 }
 
 void ADCL_data_read_from_file ( void )
 {
-    int i, j, ndata, len;
+    int i, j, ndata;
     int nchar = 80;
-    char *name;
+    char *line;
     ADCL_data_t *data;
     FILE *fp;
 
-    fp = fopen ("ADCL.dat", "r");
+    fp = fopen ("ADCL.xml", "r");
     if ( NULL == fp ) {
         return;
     }
-    fscanf ( fp, "%d", &ndata );
+    line = (char *)malloc( nchar * sizeof(char) );
+    /* Read the XML file line by line */
+    getline( &line, &nchar, fp ); /* XML header lines */
+    getline( &line, &nchar, fp );
+    getline( &line, &nchar, fp ); /* ADCL Tag */
+    getline( &line, &nchar, fp );
+    get_int_data_from_xml ( line, &ndata );
     for ( i=0; i<ndata; i++ ) {
         data = (ADCL_data_t *) calloc (1, sizeof(ADCL_data_t));
         if ( NULL == data ) {
-            return ADCL_NO_MEMORY;
+            return;
         }
+
         /* Internal info for object management */
         data->d_id = ADCL_local_id_counter++;
         ADCL_array_get_next_free_pos ( ADCL_data_array, &data->d_findex );
         ADCL_array_set_element ( ADCL_data_array, data->d_findex, data->d_id, data );
         data->d_refcnt = 1;
+	getline( &line, &nchar, fp ); /* RECORD Tag */
+
         /* Topology information */
-        fscanf ( fp, "%d", &data->d_tndims );
+        getline( &line, &nchar, fp ); /* TOPO Tag */
+        getline( &line, &nchar, fp ); /* NDIM Tag */
+        get_int_data_from_xml ( line, &data->d_tndims );
+        getline( &line, &nchar, fp ); /* PERIOD Tag */
         data->d_tperiods = (int *)malloc( data->d_tndims*sizeof(int) );
         for ( j=0; j<data->d_tndims; j++ ) {
-            fscanf ( fp, "%d", &data->d_tperiods[j] );
+            getline( &line, &nchar, fp ); /* DIM Tag */
+            get_int_data_from_xml ( line, &(data->d_tperiods[j]) );
         }
+        getline( &line, &nchar, fp ); /* Close PERIOD Tag */
+        getline( &line, &nchar, fp ); /* Close TOPO Tag */
+
         /* Vector information */
-        fscanf ( fp, "%d", &data->d_vndims );
-        data->d_vdims = (int *)malloc(data->d_vndims*sizeof(int) );
+        getline( &line, &nchar, fp ); /* VECT Tag */
+        getline( &line, &nchar, fp ); /* NDIM Tag */
+        get_int_data_from_xml ( line, &data->d_vndims );
+        getline( &line, &nchar, fp ); /* DIMS Tag */
+        data->d_vdims = (int *)malloc( data->d_vndims*sizeof(int) );
         for ( j=0; j<data->d_vndims; j++ ) {
-            fscanf ( fp, "%d", &data->d_vdims[j] );
-        }
-        fscanf ( fp, "%d", &data->d_nc );
-        fscanf ( fp, "%d", &data->d_hwidth );
-        fscanf ( fp, "%d", &data->d_comtype );
+            getline( &line, &nchar, fp ); /* DIM Tag */
+	    get_int_data_from_xml ( line, &(data->d_vdims[j]) );
+	}
+        getline( &line, &nchar, fp ); /* Close DIMS Tag */
+        getline( &line, &nchar, fp ); /* NC Tag */
+        get_int_data_from_xml ( line, &data->d_nc );
+        getline( &line, &nchar, fp ); /* HWIDTH Tag */
+        get_int_data_from_xml ( line, &data->d_hwidth );
+        getline( &line, &nchar, fp ); /* COMTYPE Tag */
+        get_int_data_from_xml ( line, &data->d_comtype );
+        getline( &line, &nchar, fp ); /* Close VECT Tag */
+
         /* Function set and winner function */
-        name = (char *)malloc( nchar * sizeof(char) );
-        getline( &name, &nchar, fp );
-        getline( &name, &nchar, fp );
-        len = strlen(name) - 1;
-        data->d_fsname = (char *)calloc ( len , sizeof(char) );
-        strncpy( data->d_fsname, name, len );
-        getline( &name, &nchar, fp );
-        len = strlen(name) - 1;
-        data->d_wfname = (char *)calloc ( len , sizeof(char) );
-        strncpy( data->d_wfname, name, len );
+        getline( &line, &nchar, fp ); /* FUNC Tag */
+        getline( &line, &nchar, fp ); /* FNCTSET Tag */
+        get_str_data_from_xml ( line, &data->d_fsname );
+        getline( &line, &nchar, fp ); /* WINNER  Tag */
+        get_str_data_from_xml ( line, &data->d_wfname );
+        getline( &line, &nchar, fp ); /* Close FUNC Tag */
+        getline( &line, &nchar, fp ); /* Close RECORD Tag */
     }
     fclose ( fp );
+    free ( line );
     return;
+}
+
+static int get_int_data_from_xml (char *str, int *res)
+{
+    char *n, *p;
+    char *ext;
+    int num;
+    int ret = ADCL_ERROR_INTERNAL;
+    n = strstr (str,">");
+    p = strstr (str,"/");
+    num = p-n-2;
+    if ( NULL != n && NULL != p && num>0 ) {
+        ext = (char *)calloc( num, sizeof(char) );
+        strncpy ( ext, n+1, num );
+        *res = atoi( ext );
+        free( ext );
+        ret = ADCL_SUCCESS;
+    }
+    return ret;
+}
+
+static int get_str_data_from_xml (char *str, char **dest)
+{
+    char *n, *p;
+    int num;
+    int ret = ADCL_ERROR_INTERNAL;
+    n = strstr (str,">");
+    p = strstr (str,"/");
+    if ( NULL != n && NULL != p ) {
+        num = p-n-2;
+        (*dest) = (char *)calloc( num, sizeof(char) );
+        strncpy ((*dest), n+1, num);
+        ret = ADCL_SUCCESS;
+    }
+    return ret;
 }
