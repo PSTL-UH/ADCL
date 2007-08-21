@@ -55,6 +55,20 @@ int ADCL_data_create ( ADCL_emethod_t *e )
     data->d_nc = vec->v_nc;
     data->d_hwidth = vec->v_hwidth;
     data->d_comtype = vec->v_comtype;
+    /* Attribute information */
+    data->d_asmaxnum = e->em_orgfnctset->fs_attrset->as_maxnum;
+    data->d_attrvals = (int *)malloc( data->d_asmaxnum * sizeof(int) );
+    /* Initialization */
+    for (i=0; i<data->d_asmaxnum ; i++){
+        data->d_attrvals[i] = -1;
+    }
+    if ( e->em_perfhypothesis ) {
+        for (i=0; i<data->d_asmaxnum ; i++){
+            if( e->em_hypo.h_attr_confidence[i] > 1 ) {
+                data->d_attrvals[i] = e->em_fnctset.fs_fptrs[0]->f_attrvals[i];
+            }
+        }
+    }
     /* Function set and winner function */
     data->d_fsname = strdup ( e->em_orgfnctset->fs_name );
     data->d_wfname = strdup ( e->em_wfunction->f_name );
@@ -200,6 +214,15 @@ void ADCL_data_dump_to_file ( void )
             fprintf ( fp, "      <HWIDTH>%d</HWIDTH>\n", data->d_hwidth );
             fprintf ( fp, "      <COMTYPE>%d</COMTYPE>\n", data->d_comtype );
             fprintf ( fp, "    </VECT>\n" );
+            /* Attribute information */
+            fprintf ( fp, "    <ATTR>\n" );
+            fprintf ( fp, "      <NUM>%d</NUM>\n", data->d_asmaxnum );
+            fprintf ( fp, "      <ATTRVALS>\n" );
+            for ( j=0; j<data->d_asmaxnum; j++) {
+                fprintf ( fp, "        <VAL>%d</VAL>\n", data->d_attrvals[j] );
+            }
+            fprintf ( fp, "      </ATTRVALS>\n" );
+            fprintf ( fp, "    </ATTR>\n" );
             /* Function set and winner function */
             fprintf ( fp, "    <FUNC>\n" );
             fprintf ( fp, "      <FNCTSET>%s</FNCTSET>\n", data->d_fsname );
@@ -277,6 +300,19 @@ void ADCL_data_read_from_file ( void )
         getline( &line, &nchar, fp ); /* COMTYPE Tag */
         get_int_data_from_xml ( line, &data->d_comtype );
         getline( &line, &nchar, fp ); /* Close VECT Tag */
+
+        /* Attribute information */
+        getline( &line, &nchar, fp ); /* ATTR Tag */
+        getline( &line, &nchar, fp ); /* NUM Tag */
+        get_int_data_from_xml ( line, &data->d_asmaxnum );
+        getline( &line, &nchar, fp ); /* ATTRVALS Tag */
+        data->d_attrvals = (int *)malloc( data->d_asmaxnum*sizeof(int) );
+        for ( j=0; j<data->d_asmaxnum; j++ ) {
+            getline( &line, &nchar, fp ); /* VAL Tag */
+            get_int_data_from_xml ( line, &(data->d_attrvals[j]) );
+        }
+        getline( &line, &nchar, fp ); /* Close ATTRVALS Tag */
+        getline( &line, &nchar, fp ); /* Close ATTR Tag */
 
         /* Function set and winner function */
         getline( &line, &nchar, fp ); /* FUNC Tag */

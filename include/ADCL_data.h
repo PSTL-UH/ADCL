@@ -28,6 +28,9 @@ struct ADCL_data_s{
     int                     d_nc; /* Extent of each data point  */
     int                 d_hwidth; /* Halo cells width */
     int                d_comtype; /* Communication type */
+    /* Attribute information */
+    int               d_asmaxnum; /* Number of attributes in the attribute set */
+    int              *d_attrvals; /* Values of the winning attributes */
     /* Function set and winner function */
     char               *d_fsname; /* Function set name */
     char               *d_wfname; /* Winner function name */

@@ -23,6 +23,7 @@
     <tr bgcolor="#9AC0CD">
       <th align="center">Topology information</th>
       <th align="center">Vector information</th>
+      <th align="center">Attribute information</th>
       <th align="center">Function information</th>
     </tr>
     <xsl:for-each select="ADCL/RECORD">
@@ -60,6 +61,18 @@
           <tr>
             <td><b>Communication type :</b></td>
             <td><xsl:value-of select="VECT/COMTYPE"/></td>
+          </tr>
+        </table>
+      </td>
+      <td>
+        <table> 
+          <tr>
+            <td><b>Number of attributes :</b></td>
+            <td> <xsl:value-of select="ATTR/NUM"/></td>
+          </tr>
+          <tr>
+            <td><b>Attribute values :</b></td>
+            <td><xsl:value-of select="ATTR/ATTRVALS"/></td>
           </tr>
         </table>
       </td>
