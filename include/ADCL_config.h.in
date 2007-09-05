@@ -42,6 +42,12 @@
 /* Use MPI_Wtime instead of gettimeofday */
 #undef ADCL_USE_MPIWTIME
 
+/* Enable dumping the ADCL knowledge to an XML file  */
+#undef ADCL_KNOWLEDGE_TOFILE
+
+/* Enable saving the winner of a request  */
+#undef ADCL_SAVE_REQUEST_WINNER
+
 /* Enable the usage of the GNU scientific libraries */
 #undef ADCL_GSL
 

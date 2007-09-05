@@ -393,7 +393,9 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
         ADCL_printf("#%d:  req %d winner is %d %s\n",
             rank, req->r_id, req->r_emethod->em_wfunction->f_id,
             req->r_emethod->em_wfunction->f_name);
+#ifdef ADCL_SAVE_REQUEST_WINNER
 	ADCL_data_create ( req->r_emethod );
+#endif
         req->r_emethod->em_state = ADCL_STATE_REGULAR;
         /* no break; statement here on purpose! */
     case ADCL_STATE_REGULAR:

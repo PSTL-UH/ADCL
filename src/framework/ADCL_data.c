@@ -80,9 +80,9 @@ void ADCL_data_free ( void )
 {
     int i, last;
     ADCL_data_t *data;
-
+#ifdef ADCL_KNOWLEDGE_TOFILE
     ADCL_data_dump_to_file ( );
-
+#endif
     last = ADCL_array_get_last ( ADCL_data_array );
     /* Free all the data objects */
     for ( i=0; i<= last; i++ ) {
