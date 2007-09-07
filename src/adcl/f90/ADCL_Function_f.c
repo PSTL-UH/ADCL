@@ -64,7 +64,8 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
     }
 
     if ( ADCL_FATTRSET_NULL == *attrset ) {
-        *ierr = ADCL_Function_create ( iptr, ADCL_ATTRSET_NULL, NULL, cname, &cfunction );
+        *ierr = ADCL_Function_create ( (ADCL_work_fnct_ptr *)iptr, ADCL_ATTRSET_NULL,
+                                       NULL, cname, &cfunction );
     }
     else {
         cattrset = ( ADCL_attrset_t *) ADCL_array_get_ptr_by_pos ( ADCL_attrset_farray, *attrset );
@@ -72,7 +73,8 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
             *ierr = ADCL_INVALID_ATTRSET;
             return;
         }
-        *ierr = ADCL_Function_create ( iptr, cattrset, array_of_attrvals, cname, &cfunction );
+        *ierr = ADCL_Function_create ( (ADCL_work_fnct_ptr *)iptr, cattrset,
+                                       array_of_attrvals, cname, &cfunction );
     }
 
 
@@ -108,7 +110,10 @@ void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *arr
     }
 
     if ( ADCL_FATTRSET_NULL == *attrset ) {
-	    *ierr = ADCL_Function_create_async ( iptr, wptr, ADCL_ATTRSET_NULL, NULL, cname, &cfunction );
+	    *ierr = ADCL_Function_create_async ( (ADCL_work_fnct_ptr *)iptr,
+                                                 (ADCL_work_fnct_ptr *)wptr,
+                                                 ADCL_ATTRSET_NULL, NULL,
+                                                 cname, &cfunction );
     }
     else {
         cattrset = ( ADCL_attrset_t *) ADCL_array_get_ptr_by_pos ( ADCL_attrset_farray, *attrset );
@@ -117,7 +122,10 @@ void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *arr
             return;
         }
     }
-    *ierr = ADCL_Function_create_async ( iptr, wptr, cattrset, array_of_attrvals, cname, &cfunction );
+    *ierr = ADCL_Function_create_async ( (ADCL_work_fnct_ptr *)iptr,
+                                         (ADCL_work_fnct_ptr *)wptr,
+                                         cattrset, array_of_attrvals,
+                                         cname, &cfunction );
     if ( ADCL_SUCCESS == *ierr ) {
         *fnct = cfunction->f_findex;
     }

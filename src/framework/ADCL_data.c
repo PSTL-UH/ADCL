@@ -251,10 +251,10 @@ void ADCL_data_read_from_file ( void )
     }
     line = (char *)malloc( nchar * sizeof(char) );
     /* Read the XML file line by line */
-    getline( &line, &nchar, fp ); /* XML header lines */
-    getline( &line, &nchar, fp );
-    getline( &line, &nchar, fp ); /* ADCL Tag */
-    getline( &line, &nchar, fp );
+    fgets( line, nchar, fp ); /* XML header lines */
+    fgets( line, nchar, fp );
+    fgets( line, nchar, fp ); /* ADCL Tag */
+    fgets( line, nchar, fp );
     get_int_data_from_xml ( line, &ndata );
     for ( i=0; i<ndata; i++ ) {
         data = (ADCL_data_t *) calloc (1, sizeof(ADCL_data_t));
@@ -267,61 +267,61 @@ void ADCL_data_read_from_file ( void )
         ADCL_array_get_next_free_pos ( ADCL_data_array, &data->d_findex );
         ADCL_array_set_element ( ADCL_data_array, data->d_findex, data->d_id, data );
         data->d_refcnt = 1;
-	getline( &line, &nchar, fp ); /* RECORD Tag */
+	fgets( line, nchar, fp ); /* RECORD Tag */
 
         /* Topology information */
-        getline( &line, &nchar, fp ); /* TOPO Tag */
-        getline( &line, &nchar, fp ); /* NDIM Tag */
+        fgets( line, nchar, fp ); /* TOPO Tag */
+        fgets( line, nchar, fp ); /* NDIM Tag */
         get_int_data_from_xml ( line, &data->d_tndims );
-        getline( &line, &nchar, fp ); /* PERIOD Tag */
+        fgets( line, nchar, fp ); /* PERIOD Tag */
         data->d_tperiods = (int *)malloc( data->d_tndims*sizeof(int) );
         for ( j=0; j<data->d_tndims; j++ ) {
-            getline( &line, &nchar, fp ); /* DIM Tag */
+            fgets( line, nchar, fp ); /* DIM Tag */
             get_int_data_from_xml ( line, &(data->d_tperiods[j]) );
         }
-        getline( &line, &nchar, fp ); /* Close PERIOD Tag */
-        getline( &line, &nchar, fp ); /* Close TOPO Tag */
+        fgets( line, nchar, fp ); /* Close PERIOD Tag */
+        fgets( line, nchar, fp ); /* Close TOPO Tag */
 
         /* Vector information */
-        getline( &line, &nchar, fp ); /* VECT Tag */
-        getline( &line, &nchar, fp ); /* NDIM Tag */
+        fgets( line, nchar, fp ); /* VECT Tag */
+        fgets( line, nchar, fp ); /* NDIM Tag */
         get_int_data_from_xml ( line, &data->d_vndims );
-        getline( &line, &nchar, fp ); /* DIMS Tag */
+        fgets( line, nchar, fp ); /* DIMS Tag */
         data->d_vdims = (int *)malloc( data->d_vndims*sizeof(int) );
         for ( j=0; j<data->d_vndims; j++ ) {
-            getline( &line, &nchar, fp ); /* DIM Tag */
+            fgets( line, nchar, fp ); /* DIM Tag */
 	    get_int_data_from_xml ( line, &(data->d_vdims[j]) );
 	}
-        getline( &line, &nchar, fp ); /* Close DIMS Tag */
-        getline( &line, &nchar, fp ); /* NC Tag */
+        fgets( line, nchar, fp ); /* Close DIMS Tag */
+        fgets( line, nchar, fp ); /* NC Tag */
         get_int_data_from_xml ( line, &data->d_nc );
-        getline( &line, &nchar, fp ); /* HWIDTH Tag */
+        fgets( line, nchar, fp ); /* HWIDTH Tag */
         get_int_data_from_xml ( line, &data->d_hwidth );
-        getline( &line, &nchar, fp ); /* COMTYPE Tag */
+        fgets( line, nchar, fp ); /* COMTYPE Tag */
         get_int_data_from_xml ( line, &data->d_comtype );
-        getline( &line, &nchar, fp ); /* Close VECT Tag */
+        fgets( line, nchar, fp ); /* Close VECT Tag */
 
         /* Attribute information */
-        getline( &line, &nchar, fp ); /* ATTR Tag */
-        getline( &line, &nchar, fp ); /* NUM Tag */
+        fgets( line, nchar, fp ); /* ATTR Tag */
+        fgets( line, nchar, fp ); /* NUM Tag */
         get_int_data_from_xml ( line, &data->d_asmaxnum );
-        getline( &line, &nchar, fp ); /* ATTRVALS Tag */
+        fgets( line, nchar, fp ); /* ATTRVALS Tag */
         data->d_attrvals = (int *)malloc( data->d_asmaxnum*sizeof(int) );
         for ( j=0; j<data->d_asmaxnum; j++ ) {
-            getline( &line, &nchar, fp ); /* VAL Tag */
+            fgets( line, nchar, fp ); /* VAL Tag */
             get_int_data_from_xml ( line, &(data->d_attrvals[j]) );
         }
-        getline( &line, &nchar, fp ); /* Close ATTRVALS Tag */
-        getline( &line, &nchar, fp ); /* Close ATTR Tag */
+        fgets( line, nchar, fp ); /* Close ATTRVALS Tag */
+        fgets( line, nchar, fp ); /* Close ATTR Tag */
 
         /* Function set and winner function */
-        getline( &line, &nchar, fp ); /* FUNC Tag */
-        getline( &line, &nchar, fp ); /* FNCTSET Tag */
+        fgets( line, nchar, fp ); /* FUNC Tag */
+        fgets( line, nchar, fp ); /* FNCTSET Tag */
         get_str_data_from_xml ( line, &data->d_fsname );
-        getline( &line, &nchar, fp ); /* WINNER  Tag */
+        fgets( line, nchar, fp ); /* WINNER  Tag */
         get_str_data_from_xml ( line, &data->d_wfname );
-        getline( &line, &nchar, fp ); /* Close FUNC Tag */
-        getline( &line, &nchar, fp ); /* Close RECORD Tag */
+        fgets( line, nchar, fp ); /* Close FUNC Tag */
+        fgets( line, nchar, fp ); /* Close RECORD Tag */
     }
     fclose ( fp );
     free ( line );
