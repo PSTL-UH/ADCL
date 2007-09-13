@@ -26,7 +26,7 @@ int main ( int argc, char ** argv )
     sprintf(outname, "%s.tex", basefname );
     outfd = fopen ( outname, "w" );
     if ( NULL == outfd ) {
-	exit -1;
+	exit (-1);
     }
 
     fprintf( outfd, "\\documentclass{article}\n");

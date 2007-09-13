@@ -40,9 +40,13 @@
 #pragma weak adcl_fnctset_free__ = adcl_fnctset_free
 #pragma weak ADCL_FNCTSET_FREE   = adcl_fnctset_free
 
-
+#ifdef _SX
+void adcl_function_create_( void *iptr, int *attrset, int *array_of_attrvals, char *name,
+                            int *fnct, int *ierr, int name_len )
+#else
 void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, char *name,
                             int *fnct, int *ierr, int name_len )
+#endif
 {
     ADCL_attrset_t *cattrset;
     ADCL_function_t *cfunction;
@@ -64,8 +68,7 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
     }
 
     if ( ADCL_FATTRSET_NULL == *attrset ) {
-        *ierr = ADCL_Function_create ( (ADCL_work_fnct_ptr *)iptr, ADCL_ATTRSET_NULL,
-                                       NULL, cname, &cfunction );
+        *ierr = ADCL_Function_create ( iptr, ADCL_ATTRSET_NULL, NULL, cname, &cfunction );
     }
     else {
         cattrset = ( ADCL_attrset_t *) ADCL_array_get_ptr_by_pos ( ADCL_attrset_farray, *attrset );
@@ -73,8 +76,7 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
             *ierr = ADCL_INVALID_ATTRSET;
             return;
         }
-        *ierr = ADCL_Function_create ( (ADCL_work_fnct_ptr *)iptr, cattrset,
-                                       array_of_attrvals, cname, &cfunction );
+        *ierr = ADCL_Function_create ( iptr, cattrset, array_of_attrvals, cname, &cfunction );
     }
 
 
@@ -86,8 +88,13 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
     return;
 }
 
+#ifdef _SX
+void adcl_function_create_async_( void *iptr, void *wptr, int *attrset, int *array_of_attrvals,
+                                  char *name, int *fnct, int *ierr, int name_len )
+#else
 void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *array_of_attrvals,
                                   char *name, int *fnct, int *ierr, int name_len )
+#endif
 {
     ADCL_attrset_t *cattrset;
     ADCL_function_t *cfunction;
@@ -110,10 +117,7 @@ void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *arr
     }
 
     if ( ADCL_FATTRSET_NULL == *attrset ) {
-	    *ierr = ADCL_Function_create_async ( (ADCL_work_fnct_ptr *)iptr,
-                                                 (ADCL_work_fnct_ptr *)wptr,
-                                                 ADCL_ATTRSET_NULL, NULL,
-                                                 cname, &cfunction );
+	    *ierr = ADCL_Function_create_async ( iptr, wptr, ADCL_ATTRSET_NULL, NULL, cname, &cfunction );
     }
     else {
         cattrset = ( ADCL_attrset_t *) ADCL_array_get_ptr_by_pos ( ADCL_attrset_farray, *attrset );
@@ -122,10 +126,7 @@ void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *arr
             return;
         }
     }
-    *ierr = ADCL_Function_create_async ( (ADCL_work_fnct_ptr *)iptr,
-                                         (ADCL_work_fnct_ptr *)wptr,
-                                         cattrset, array_of_attrvals,
-                                         cname, &cfunction );
+    *ierr = ADCL_Function_create_async ( iptr, wptr, cattrset, array_of_attrvals, cname, &cfunction );
     if ( ADCL_SUCCESS == *ierr ) {
         *fnct = cfunction->f_findex;
     }
@@ -134,7 +135,11 @@ void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *arr
     return;
 }
 
+#ifdef _SX
+void adcl_function_free_( int *fnct, int *ierr  )
+#else
 void adcl_function_free ( int *fnct, int *ierr  )
+#endif
 {
     ADCL_function_t *cfunction;
 
@@ -154,7 +159,11 @@ void adcl_function_free ( int *fnct, int *ierr  )
     return;
 }
 
+#ifdef _SX
+void adcl_fnctset_create_( int* maxnum, int *array_of_fncts, char *name, int *fnctset,
+#else
 void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, int *fnctset,
+#endif
                            int *ierr, int name_len )
 {
     ADCL_fnctset_t *cfnctset;
@@ -202,7 +211,11 @@ void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, int *fn
     return;
 }
 
+#ifdef _SX
+void adcl_fnctset_create_single_fnct_( void *init_fnct, int *attrset, char *name,
+#else
 void adcl_fnctset_create_single_fnct ( void *init_fnct, int *attrset, char *name,
+#endif
                                        int *without_attr_vals, 
                                        int *num_without_attr_vals,
                                        int *fnctset, int *ierr, int name_len )
@@ -244,7 +257,12 @@ void adcl_fnctset_create_single_fnct ( void *init_fnct, int *attrset, char *name
     return;   
 }
 
+#ifdef _SX
+/* only function names with 33 characters allowed */
+void adcl_fnctset_crt_sgle_fct_async_( void *init_fnct, void *wait_fnct,
+#else
 void adcl_fnctset_create_single_fnct_async ( void *init_fnct, void *wait_fnct,
+#endif
                                              int *attrset, char *name,
                                              int *without_attr_vals, 
                                              int *num_without_attr_vals,
@@ -288,7 +306,11 @@ void adcl_fnctset_create_single_fnct_async ( void *init_fnct, void *wait_fnct,
     return;
 }
 
+#ifdef _SX
+void adcl_fnctset_free_( int *fctset, int *ierr )
+#else
 void adcl_fnctset_free ( int *fctset, int *ierr )
+#endif
 {
     ADCL_fnctset_t *cfnctset;
 

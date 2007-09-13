@@ -28,9 +28,13 @@
 #pragma weak adcl_attrset_free__ = adcl_attrset_free
 #pragma weak ADCL_ATTRSET_FREE   = adcl_attrset_free
 
-
+#ifdef _SX
+void adcl_attribute_create_ ( int* maxnvalues, int *array_of_values, 
+			    int *attr, int *ierr )
+#else
 void adcl_attribute_create ( int* maxnvalues, int *array_of_values, 
 			    int *attr, int *ierr )
+#endif
 {
     ADCL_attribute_t *tattr;
 
@@ -48,7 +52,12 @@ void adcl_attribute_create ( int* maxnvalues, int *array_of_values,
 
     return;
 }
+
+#ifdef _SX
+void adcl_attribute_free_  ( int *attr, int *ierr )
+#else
 void adcl_attribute_free   ( int *attr, int *ierr )
+#endif
 {
     ADCL_attribute_t *tattr;
 
@@ -62,8 +71,13 @@ void adcl_attribute_free   ( int *attr, int *ierr )
     return;
 }
 
+#ifdef _SX
+void adcl_attrset_create_( int* maxnum, int *array_of_attributes, 
+			   int *attrset, int *ierr )
+#else
 void adcl_attrset_create ( int* maxnum, int *array_of_attributes, 
 			   int *attrset, int *ierr )
+#endif
 {
     int i;
     ADCL_attrset_t *tattr;
@@ -96,7 +110,11 @@ void adcl_attrset_create ( int* maxnum, int *array_of_attributes,
 
 }
 
+#ifdef _SX
+void adcl_attrset_free_( int *attrset, int *ierr )
+#else
 void adcl_attrset_free ( int *attrset, int *ierr )
+#endif
 {
     ADCL_attrset_t *tattr;
 

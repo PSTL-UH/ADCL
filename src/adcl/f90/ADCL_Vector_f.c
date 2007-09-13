@@ -29,8 +29,13 @@
 #pragma weak adcl_vectset_free__ = adcl_vectset_free
 #pragma weak ADCL_VECTSET_FREE   = adcl_vectset_free
 
+#ifdef _SX
+void adcl_vector_register_( int *ndims, int *dims, int *nc, int *comtype, int *hwidth,
+                            int *dat, void *data, int *vec, int *ierror)
+#else
 void adcl_vector_register ( int *ndims, int *dims, int *nc, int *comtype, int *hwidth,
                             int *dat, void *data, int *vec, int *ierror)
+#endif
 {
     int i;
     ADCL_vector_t *cvec;
@@ -95,7 +100,11 @@ void adcl_vector_register ( int *ndims, int *dims, int *nc, int *comtype, int *h
     return;
 }
 
+#ifdef _SX
+void adcl_vector_deregister_( int *vec, int *ierror )
+#else
 void adcl_vector_deregister ( int *vec, int *ierror )
+#endif
 {
     ADCL_vector_t *cvec;
 
@@ -106,8 +115,13 @@ void adcl_vector_deregister ( int *vec, int *ierror )
     return;
 }
 
+#ifdef _SX
+void adcl_vectset_create_( int *maxnum, int *svecs, int *rvecs,
+                           int *vectset, int *ierror )
+#else
 void adcl_vectset_create ( int *maxnum, int *svecs, int *rvecs,
                            int *vectset, int *ierror )
+#endif
 {
     int i;
     ADCL_vector_t **csvecs;
@@ -152,7 +166,11 @@ void adcl_vectset_create ( int *maxnum, int *svecs, int *rvecs,
     return;
 }
 
-void adcl_vectset_free( int *vectset, int *ierror )
+#ifdef _SX
+void adcl_vectset_free_( int *vectset, int *ierror )
+#else
+void adcl_vectset_free ( int *vectset, int *ierror )
+#endif
 {
     ADCL_vectset_t *cvectset;
 

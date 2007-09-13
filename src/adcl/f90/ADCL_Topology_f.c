@@ -24,8 +24,13 @@
 #pragma weak ADCL_TOPOLOGY_FREE   = adcl_topology_free
 
 
+#ifdef _SX
+void adcl_topology_create_generic_ ( int *ndims, int *lneighb, int *rneighb, int *coords, 
+				    int *direction, int *comm, int *topo, int *ierror )
+#else
 void adcl_topology_create_generic ( int *ndims, int *lneighb, int *rneighb, int *coords, 
 				    int *direction, int *comm, int *topo, int *ierror )
+#endif
 {
     ADCL_topology_t *ctopo;
     MPI_Comm ccomm;
@@ -64,7 +69,11 @@ void adcl_topology_create_generic ( int *ndims, int *lneighb, int *rneighb, int 
     return;
 }
 
+#ifdef _SX
+void adcl_topology_create_  ( int* cart_comm, int *topo, int *ierror )
+#else
 void adcl_topology_create   ( int* cart_comm, int *topo, int *ierror )
+#endif
 {
     int topo_type;
     ADCL_topology_t *ctopo;
@@ -95,7 +104,11 @@ void adcl_topology_create   ( int* cart_comm, int *topo, int *ierror )
     return;
 }
 
+#ifdef _SX
+void adcl_topology_free_ ( int *topo, int *ierror )
+#else
 void adcl_topology_free ( int *topo, int *ierror )
+#endif
 {
     ADCL_topology_t *ctopo;
 

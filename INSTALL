@@ -1,0 +1,28 @@
+INSTALLATION NOTES for NEC SX-8
+
+1. extract ADCL sources
+
+2. run configure on v00
+   rsh v00
+   cd ADCL/trunk
+   ./configure
+   exit
+
+3. edit Makefile.defs
+   replace 
+     CC          = /usr/local/mpi//bin/mpicc
+     FC          = /usr/local/mpi//bin/mpif90
+   by 
+     CC          = mpicc
+     FC          = mpif90
+   add "-EP -D_SX" to FFLAGS
+
+4. no efence library in test/solversys/Makefile
+
+5. redefine compilers -> cross-compilers
+   extract sxcompiler.tgz (available from benkert@hlrs.de) and add it 
+   to the PATH environment variable
+
+   export PATH=~/sxcompiler/:$PATH
+
+6. run make

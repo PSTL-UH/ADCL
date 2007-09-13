@@ -47,7 +47,11 @@
 #pragma weak adcl_request_update__ =  adcl_request_update
 #pragma weak ADCL_REQUEST_UPDATE   =  adcl_request_update
 
+#ifdef _SX
+void adcl_request_create_ ( int *vec, int *topo, int *fnctset, int *req, int *ierror )
+#else
 void adcl_request_create ( int *vec, int *topo, int *fnctset, int *req, int *ierror )
+#endif
 {
     ADCL_vector_t *cvec, **svecs, **rvecs;
     ADCL_request_t *creq;
@@ -121,9 +125,13 @@ void adcl_request_create ( int *vec, int *topo, int *fnctset, int *req, int *ier
     return;
 }
 
-
+#ifdef _SX
+void adcl_request_create_generic_( int *vectset, int *topo,
+                                   int *fnctset, int *req, int *ierror )
+#else
 void adcl_request_create_generic ( int *vectset, int *topo,
                                    int *fnctset, int *req, int *ierror )
+#endif
 {
     int i;
     ADCL_vectset_t *cvectset;
@@ -188,7 +196,11 @@ void adcl_request_create_generic ( int *vectset, int *topo,
     return;
 }
 
+#ifdef _SX
+void adcl_request_get_comm_( int *req, int *comm, int *rank, int *size, int *ierror )
+#else
 void adcl_request_get_comm ( int *req, int *comm, int *rank, int *size, int *ierror )
+#endif
 {
     ADCL_request_t *creq;
     MPI_Comm ccomm;
@@ -215,7 +227,11 @@ void adcl_request_get_comm ( int *req, int *comm, int *rank, int *size, int *ier
     return;
 }
 
+#ifdef _SX
+void adcl_request_free_( int *req, int *ierror )
+#else
 void adcl_request_free ( int *req, int *ierror )
+#endif
 {
     ADCL_request_t *creq;
 
@@ -229,7 +245,11 @@ void adcl_request_free ( int *req, int *ierror )
     return;
 }
 
+#ifdef _SX
+void adcl_request_start_ ( int *req, int *ierror )
+#else
 void adcl_request_start ( int *req, int *ierror )
+#endif
 {
     ADCL_request_t *creq;
 
@@ -243,7 +263,11 @@ void adcl_request_start ( int *req, int *ierror )
     return;
 }
 
+#ifdef _SX
+void adcl_request_init_( int *req, int *ierror )
+#else
 void adcl_request_init ( int *req, int *ierror )
+#endif
 {
     ADCL_request_t *creq;
 
@@ -257,7 +281,11 @@ void adcl_request_init ( int *req, int *ierror )
     return;
 }
 
+#ifdef _SX
+void adcl_request_wait_( int *req, int *ierror )
+#else
 void adcl_request_wait ( int *req, int *ierror )
+#endif
 {
     ADCL_request_t *creq;
 
@@ -271,7 +299,11 @@ void adcl_request_wait ( int *req, int *ierror )
     return;
 }
 
+#ifdef _SX
+void adcl_request_start_overlap_( int *req, ADCL_work_fnct_ptr *mid,
+#else
 void adcl_request_start_overlap ( int *req, ADCL_work_fnct_ptr *mid,
+#endif
                                   ADCL_work_fnct_ptr *end,
                                   ADCL_work_fnct_ptr *total,
                                   int *ierror )
@@ -289,7 +321,11 @@ void adcl_request_start_overlap ( int *req, ADCL_work_fnct_ptr *mid,
     return;
 }
 
+#ifdef _SX
+void adcl_request_update_( int *req, TIME_TYPE *time, int *ierror )
+#else
 void adcl_request_update ( int *req, TIME_TYPE *time, int *ierror )
+#endif
 {
     ADCL_request_t *creq;
 
