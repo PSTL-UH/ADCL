@@ -1,4 +1,4 @@
-!
+
 ! Copyright (c) 2006-2007      University of Houston. All rights reserved.
 ! $COPYRIGHT$
 !
@@ -70,14 +70,14 @@
         case ( 'MatrixSize:' )
           read ( s(anfang:ende), 992 ) nProSize
          ! write(*,*) nProSize
-        case ( 'IterNumber:' )
+        case ( 'ItrNumber:' )
           read ( s(anfang:ende), 992 ) NIT
          ! write(*,*) NIT
-         case ('PatternNO :')
+         case ('PatternNo:')
           read( s(anfang:ende), 992) Pattern 
 
         case default
-          write (*,*) 'Unknown keqword in System.config, line :',line
+          write (*,*) 'Unknown keyword in Values.config, line :',line
       end select
 
       goto 100
@@ -167,7 +167,7 @@ program FirstTest
     logical :: Periods(1), Reorder(1), EndConf
     
     external PMatmulSynch, PMatmulOverLap, PMatmulBcast
-    
+    double precision ::startTime, endTime
     NIT = 200
     
     call MPI_Init ( ierror )
@@ -184,7 +184,6 @@ program FirstTest
          "PMatmulBcast", funcs(3), ierror ) 
     call ReadConf()
 
-    write(*,*) "ProSie=", nProSize, "iter=", NIT
     call SetMatrix( size, rank )
     
     nDims = 2
@@ -196,7 +195,6 @@ program FirstTest
     
     call MPI_Cart_create ( MPI_COMM_WORLD, nDims, Dims, Periods, Reorder, NewComm, ierror )
    
-
     select case ( Pattern )
       case(-1)
         call ADCL_Fnctset_create ( 3, funcs, "trivial fortran funcs", fnctset, &
@@ -218,12 +216,26 @@ program FirstTest
          NewComm, topo, ierror )
     
     call ADCL_Request_create ( ADCL_VECTOR_NULL, topo, fnctset, request, ierror )
-
-
+   
+    startTime = MPI_Wtime()
     do i=0, NIT 
        call ADCL_Request_start( request, ierror )
     end do
     
+    endTime = MPI_Wtime()
+
+    if (rank .eq. 0) then
+    
+      write(*,*) "Matrix Size=", nProSize, "Iteration number=", NIT
+      write(*,*) "Time for solving the matrix multiplication:", endTime-startTime
+
+    endif
+
+    deallocate(colA);
+    deallocate(colB);
+    deallocate(colC);
+    deallocate(C);
+
     call ADCL_Request_free ( request, ierror )
     call ADCL_Topology_free ( topo, ierror )
     call ADCL_Fnctset_free ( fnctset, ierror )
@@ -254,7 +266,6 @@ program FirstTest
     
     
     call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
-    ! write (*,*) rank, ": In PMatmulSynch, size = ", size
     
     call MPI_Topo_test (comm, TopoType, ierror)
     
@@ -314,12 +325,10 @@ program FirstTest
     double precision, dimension(:,:), pointer:: pColA, pColTemp
     
     call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
-   ! write (*,*) rank, ": In PMatmulOverLap, size = ", size
     
     call MPI_Topo_test (comm, TopoType, ierror)
     
     call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
-    ! write (*,*) rank, ": In PMatmulOverLap, size = ", size
     
     direction = 1
     disp = 1
@@ -367,7 +376,6 @@ program FirstTest
     double precision, dimension(:,:), pointer:: pColA, pColTemp
     
     call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
-    ! write (*,*) rank, ": In PMatmulBcast, size = ", size
     
     call MPI_Topo_test (Comm, TopoType, ierror)
     
@@ -389,7 +397,6 @@ program FirstTest
           call Multiply(ColC, pColA, ColB, nProSize, nXSize, i)
        endif
     enddo
-    
     
   end subroutine PMatmulBcast
   
