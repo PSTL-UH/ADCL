@@ -213,12 +213,12 @@ int ADCL_fnctset_dup ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy )
 /********************************************************************************/
 /********************************************************************************/
 /********************************************************************************/
-int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
-                                      ADCL_work_fnct_ptr *wait_fnct,
-                                      ADCL_attrset_t * attrset, char *name,
-                                      int **without_attribute_combinations,
-                                      int num_without_attribute_combinations,
-                                      ADCL_fnctset_t **fnctset )
+int ADCL_fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
+                                 ADCL_work_fnct_ptr *wait_fnct,
+                                 ADCL_attrset_t * attrset, char *name,
+                                 int **without_attribute_combinations,
+                                 int num_without_attribute_combinations,
+                                 ADCL_fnctset_t **fnctset )
 {
     int ret=ADCL_SUCCESS, new_attrs=ADCL_SUCCESS, maxnum=1, i;
     int *attr_vals;

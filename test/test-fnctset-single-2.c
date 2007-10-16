@@ -47,9 +47,8 @@ int main ( int argc, char ** argv )
     ADCL_Attrset_create ( 3, attrs, &attrset );
 
     /* Creation of the function set from a single function */
-    ADCL_Fnctset_create_single_fnct ( (ADCL_work_fnct_ptr *)test_func,
-				      attrset, "test function", NULL, 0,
-                                      &fnctset );
+    ADCL_Fnctset_create_single ( (ADCL_work_fnct_ptr *)test_func, NULL,
+				 attrset, "test function", NULL, 0, &fnctset );
 
     /* Creation of the topology */
     ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 

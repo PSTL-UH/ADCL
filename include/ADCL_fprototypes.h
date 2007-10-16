@@ -106,47 +106,26 @@ void adcl_fnctset_create__ ( int* maxnum, int *array_of_fncts, char *name,
 void ADCL_FNCTSET_CREATE   ( int* maxnum, int *array_of_fncts, char *name,
                              int *fctset, int *ierr, int name_len  );
 
-void adcl_fnctset_create_single_fnct   ( void *init_fnct,
-                                         int *attrset, char *name,
-                                         int *without_attr_vals,
-                                         int *num_without_attr_vals,
-                                         int *fnctset, int *ierr, int name_len );
-void adcl_fnctset_create_single_fnct_  ( void *init_fnct,
-                                         int *attrset, char *name,
-                                         int *without_attr_vals,
-                                         int *num_without_attr_vals,
-                                         int *fnctset, int *ierr, int name_len );
-void adcl_fnctset_create_single_fnct__ ( void *init_fnct,
-                                         int *attrset, char *name,
-                                         int *without_attr_vals,
-                                         int *num_without_attr_vals,
-                                         int *fnctset, int *ierr, int name_len );
-void ADCL_FNCTSET_CREATE_SINGLE_FNCT   ( void *init_fnct,
-                                         int *attrset, char *name,
-                                         int *without_attr_vals,
-                                         int *num_without_attr_vals,
-                                         int *fnctset, int *ierr, int name_len );
-
-void adcl_fnctset_create_single_fnct_async   ( void *init_fnct, void *wait_fnct,
-                                               int *attrset, char *name,
-                                               int *without_attr_vals,
-                                               int *num_without_attr_vals,
-                                               int *fnctset, int *ierr, int name_len );
-void adcl_fnctset_create_single_fnct_async_  ( void *init_fnct, void *wait_fnct,
-                                               int *attrset, char *name,
-                                               int *without_attr_vals,
-                                               int *num_without_attr_vals,
-                                               int *fnctset, int *ierr, int name_len );
-void adcl_fnctset_create_single_fnct_async__ ( void *init_fnct, void *wait_fnct,
-                                               int *attrset, char *name,
-                                               int *without_attr_vals,
-                                               int *num_without_attr_vals,
-                                               int *fnctset, int *ierr, int name_len );
-void ADCL_FNCTSET_CREATE_SINGLE_FNCT_ASYNC   ( void *init_fnct, void *wait_fnct,
-                                               int *attrset, char *name,
-                                               int *without_attr_vals,
-                                               int *num_without_attr_vals,
-                                               int *fnctset, int *ierr, int name_len );
+void adcl_fnctset_create_single   ( void *init_fnct, void *wait_fnct,
+                                    int *attrset, char *name,
+                                    int *without_attr_vals,
+                                    int *num_without_attr_vals,
+                                    int *fnctset, int *ierr, int name_len );
+void adcl_fnctset_create_single_  ( void *init_fnct, void *wait_fnct,
+                                    int *attrset, char *name,
+                                    int *without_attr_vals,
+                                    int *num_without_attr_vals,
+                                    int *fnctset, int *ierr, int name_len );
+void adcl_fnctset_create_single__ ( void *init_fnct, void *wait_fnct,
+                                    int *attrset, char *name,
+                                    int *without_attr_vals,
+                                    int *num_without_attr_vals,
+                                    int *fnctset, int *ierr, int name_len );
+void ADCL_FNCTSET_CREATE_SINGLE   ( void *init_fnct, void *wait_fnct,
+                                    int *attrset, char *name,
+                                    int *without_attr_vals,
+                                    int *num_without_attr_vals,
+                                    int *fnctset, int *ierr, int name_len );
 
 void adcl_fnctset_free   ( int *fctset, int *ierr );
 void adcl_fnctset_free_  ( int *fctset, int *ierr );

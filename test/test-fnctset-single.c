@@ -51,10 +51,10 @@ int main ( int argc, char ** argv )
     ADCL_Attrset_create ( 3, attrs, &attrset );
 
     /* Creation of the function set from a single function */
-    ADCL_Fnctset_create_single_fnct_async ( (ADCL_work_fnct_ptr *)init_test_func,
-                                            (ADCL_work_fnct_ptr *)wait_test_func,
-                                             attrset, "test function", NULL, 0,
-                                             &fnctset );
+    ADCL_Fnctset_create_single ( (ADCL_work_fnct_ptr *)init_test_func,
+                                 (ADCL_work_fnct_ptr *)wait_test_func,
+                                 attrset, "test function", NULL, 0,
+                                 &fnctset );
     /* Creation of the topology */
     ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
 				   MPI_COMM_WORLD, &topo );

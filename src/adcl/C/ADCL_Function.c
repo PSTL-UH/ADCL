@@ -110,49 +110,17 @@ int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts,
     return ADCL_fnctset_create ( maxnum, fncts, name, fnctset );
 }
 
-int ADCL_Fnctset_create_single_fnct ( ADCL_work_fnct_ptr *iptr, ADCL_Attrset attrset,
-                                      char *name, int **without_attribute_combinations,
-                                      int num_without_attribute_combinations,
-                                      ADCL_Fnctset *fnctset )
+int ADCL_Fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
+                                 ADCL_work_fnct_ptr *wait_fnct,
+                                 ADCL_Attrset attrset, char *name,
+                                 int **without_attribute_combinations,
+                                 int num_without_attribute_combinations,
+                                 ADCL_Fnctset *fnctset )
 {
-    if ( NULL == iptr ) {
-        return ADCL_INVALID_WORK_FUNCTION_PTR;
-    }
-    if ( NULL == attrset ) {
-        return ADCL_INVALID_ATTRSET;
-    }
-    if ( attrset != ADCL_ATTRSET_NULL ) {
-        if ( attrset->as_id < 0 ) {
-            return ADCL_INVALID_ATTRSET;
-        }
-    }
-    else {
-        /* This constructor does not accept an ADCL_ATTRSET_NULL */
-        return ADCL_INVALID_ATTRSET;
-    }
-
-    if ( NULL == fnctset ) {
-        return ADCL_INVALID_ARG;
-    }
-
-    return ADCL_fnctset_create_single_fnct ( iptr, NULL, attrset , name, 
-                                             without_attribute_combinations,
-                                             num_without_attribute_combinations, fnctset );
-}
-
-int ADCL_Fnctset_create_single_fnct_async ( ADCL_work_fnct_ptr *init_fnct,
-                                            ADCL_work_fnct_ptr *wait_fnct,
-                                            ADCL_Attrset attrset, char *name,
-                                            int **without_attribute_combinations,
-                                            int num_without_attribute_combinations,
-                                            ADCL_Fnctset *fnctset )
-{
+    /* we don't check if wait_fnct is NULL since it can be */
     if ( NULL == init_fnct ) {
         return ADCL_INVALID_WORK_FUNCTION_PTR;
     }
-    if ( NULL == wait_fnct ) {
-        return ADCL_INVALID_WORK_FUNCTION_PTR;
-    }
     if ( NULL == attrset ) {
         return ADCL_INVALID_ATTRSET;
     }
@@ -170,9 +138,9 @@ int ADCL_Fnctset_create_single_fnct_async ( ADCL_work_fnct_ptr *init_fnct,
         return ADCL_INVALID_ARG;
     }
 
-    return ADCL_fnctset_create_single_fnct ( init_fnct, wait_fnct, attrset , name, 
-                                             without_attribute_combinations,
-                                             num_without_attribute_combinations, fnctset );
+    return ADCL_fnctset_create_single ( init_fnct, wait_fnct, attrset , name, 
+                                        without_attribute_combinations,
+                                        num_without_attribute_combinations, fnctset );
 }
 
 int ADCL_Fnctset_free ( ADCL_Fnctset *fnctset )

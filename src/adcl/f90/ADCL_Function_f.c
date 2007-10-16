@@ -28,13 +28,9 @@
 #pragma weak adcl_fnctset_create__ = adcl_fnctset_create
 #pragma weak ADCL_FNCTSET_CREATE   = adcl_fnctset_create
 
-#pragma weak adcl_fnctset_create_single_fnct_  = adcl_fnctset_create_single_fnct
-#pragma weak adcl_fnctset_create_single_fnct__ = adcl_fnctset_create_single_fnct
-#pragma weak ADCL_FNCTSET_CREATE_SINGLE_FNCT   = adcl_fnctset_create_single_fnct
-
-#pragma weak adcl_fnctset_create_single_fnct_async_  = adcl_fnctset_create_single_fnct_async
-#pragma weak adcl_fnctset_create_single_fnct_async__ = adcl_fnctset_create_single_fnct_async
-#pragma weak ADCL_FNCTSET_CREATE_SINGLE_FNCT_ASYNC   = adcl_fnctset_create_single_fnct_async
+#pragma weak adcl_fnctset_create_single_  = adcl_fnctset_create_single
+#pragma weak adcl_fnctset_create_single__ = adcl_fnctset_create_single
+#pragma weak ADCL_FNCTSET_CREATE_SINGLE   = adcl_fnctset_create_single
 
 #pragma weak adcl_fnctset_free_  = adcl_fnctset_free
 #pragma weak adcl_fnctset_free__ = adcl_fnctset_free
@@ -212,13 +208,14 @@ void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, int *fn
 }
 
 #ifdef _SX
-void adcl_fnctset_create_single_fnct_( void *init_fnct, int *attrset, char *name,
+void adcl_fnctset_cearte_single_( void *init_fnct, void *wait_fnct,
 #else
-void adcl_fnctset_create_single_fnct ( void *init_fnct, int *attrset, char *name,
+void adcl_fnctset_create_single ( void *init_fnct, void *wait_fnct,
 #endif
-                                       int *without_attr_vals, 
-                                       int *num_without_attr_vals,
-                                       int *fnctset, int *ierr, int name_len )
+                                  int *attrset, char *name,
+                                  int *without_attr_vals, 
+                                  int *num_without_attr_vals,
+                                  int *fnctset, int *ierr, int name_len )
 {
     ADCL_attrset_t *cattrset;
     ADCL_fnctset_t *cfnctset;
@@ -248,57 +245,8 @@ void adcl_fnctset_create_single_fnct ( void *init_fnct, int *attrset, char *name
             return;
         }
     }
-    *ierr = ADCL_fnctset_create_single_fnct ( init_fnct, NULL, cattrset, cname, &without_attr_vals, 
-                                              *num_without_attr_vals, &cfnctset );
-    if ( *ierr == ADCL_SUCCESS ) {
-        *fnctset = cfnctset->fs_findex;
-    }
-    free ( cname );
-    return;   
-}
-
-#ifdef _SX
-/* only function names with 33 characters allowed */
-void adcl_fnctset_crt_sgle_fct_async_( void *init_fnct, void *wait_fnct,
-#else
-void adcl_fnctset_create_single_fnct_async ( void *init_fnct, void *wait_fnct,
-#endif
-                                             int *attrset, char *name,
-                                             int *without_attr_vals, 
-                                             int *num_without_attr_vals,
-                                             int *fnctset, int *ierr, int name_len )
-{
-    ADCL_attrset_t *cattrset;
-    ADCL_fnctset_t *cfnctset;
-    int ret;
-    char *cname;
-
-    if ( ( NULL == init_fnct ) ||
-         ( NULL == wait_fnct ) ||
-         ( NULL == attrset )   ||
-         ( NULL == name )      ||
-         ( NULL == fnctset ) ) {
-        *ierr = ADCL_INVALID_ARG;
-        return;
-    }
-    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
-    if ( ADCL_SUCCESS != ret ) {
-        *ierr = ADCL_ERROR_INTERNAL;
-        return;
-    }
-    if ( ADCL_FATTRSET_NULL == *attrset ) {
-        *ierr = ADCL_INVALID_ARG;
-        return;
-    }
-    else {
-        cattrset = ( ADCL_attrset_t *) ADCL_array_get_ptr_by_pos ( ADCL_attrset_farray, *attrset );
-        if ( NULL == cattrset ) {
-            *ierr = ADCL_INVALID_ATTRSET;
-            return;
-        }
-    }
-    *ierr = ADCL_fnctset_create_single_fnct ( init_fnct, wait_fnct, cattrset, cname, &without_attr_vals, 
-                                              *num_without_attr_vals, &cfnctset );
+    *ierr = ADCL_fnctset_create_single ( init_fnct, wait_fnct, cattrset, cname, &without_attr_vals, 
+                                         *num_without_attr_vals, &cfnctset );
     if ( *ierr == ADCL_SUCCESS ) {
         *fnctset = cfnctset->fs_findex;
     }
