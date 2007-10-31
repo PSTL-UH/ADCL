@@ -12,7 +12,7 @@ user level function.
 
 \begin{verbatim}
 int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo, 
-      ADCL_Fnctset fnctset, ADCL_Request *req );
+         ADCL_Fnctset fnctset, ADCL_Request *req );
 
 subroutine ADCL_Request_create ( vec, topo, fnctset, req, ierror)
 integer vec, topo, fnctset, req, ierror
@@ -44,28 +44,27 @@ topology, by not distributing the last dimension of the vector.
 {\it Remark on the dimension matching rule}: It is fairly straight forward to
 define a more generic vector object, where the user could define a
 multi-dimensional vector and assign to each of the dimensions a flag which
-indicats whether the data is distributed accordingly in this dimension or not.
+indicates whether the data is distributed accordingly in this dimension or not.
 The solution applied so far restricts this approach by reducing the dimension
 of a matrix which is not distributed across the processes to the last
-dimension. This is due to our findings, that it is a common approach in the
+dimension. This is due to our findings, that it is a common approach in
 many codes. However, if an end-user faces a problem requiring the generic
 solution, please contact the authors of ADCL. In any case, the number of
 dimension of the matrix distributed across the process has to match the number
 of dimensions of the process topology.
 
-
 \begin{verbatim}
 int ADCL_Request_create_generic ( ADCL_Vectset vecset, 
-     ADCL_Topology topo, ADCL_Fnctset fnctset, 
-     ADCL_Request *req );
+         ADCL_Topology topo, ADCL_Fnctset fnctset, 
+         ADCL_Request *req );
       
 subroutine ADCL_Request_create_generic ( vecset, topo, 
-     fnctset, req, ierror )
+                fnctset, req, ierror )
 integer vecset, topo, fnctset, req, ierror
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt vecsset}(IN): vector set to be used in the request. The extent of
+\item {\tt vecset}(IN): vector set to be used in the request. The extent of
   the array of send vectors and receive vectors has to match the number of
   dimensions of the topology object.
 \item {\tt topo}(IN): topology object identifying the neighboring processes.
@@ -143,11 +142,11 @@ change.
 \begin{verbatim}
 int ADCL_Request_start_overlap ( ADCL_Request req, 
          ADCL_work_fnct_ptr* midfctn,
-				 ADCL_work_fnct_ptr *endfcnt, 
-				 ADCL_work_fnct_ptr *totalfcnt );
+         ADCL_work_fnct_ptr *endfcnt, 
+	 ADCL_work_fnct_ptr *totalfcnt );
 
 subroutine ADCL_Request_start_overlap ( req, midfctn,
-         endfnct, totalfnct, ierror )
+                endfnct, totalfnct, ierror )
 integer req, ierror
 external midfnct, endfnct, totalfnct
 \end{verbatim}
@@ -171,31 +170,31 @@ soon
 
 \begin{verbatim}
 int ADCL_Request_get_comm  ( ADCL_Request req, 
-     MPI_Comm *comm, int *rank, int *size );
-     
+         MPI_Comm *comm, int *rank, int *size );
+
+
 subroutine ADCL_Request_get_comm ( req, comm, rank,
-    size, ierror )
+                size, ierror )
 integer req, comm, rank, size, ierror     
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt req}(IN): ADCL handle used when calling the ADCL function
+\item {\tt req}(IN): valid ADCL request handle
 \item {\tt comm}(OUT): communicator used when creating the according ADCL topology object
 \item {\tt rank}(OUT): rank of the process in the according communicator {\tt comm}.
 \item {\tt size}(OUT): size of the communicator {\tt comm}.
 \end{itemize}
 \hspace{1cm}
 
-
 \begin{verbatim}
 int ADCL_Request_get_curr_function ( ADCL_Request req, 
-   char **function_name, char ***attribute_names, 
-   int *num_of_attributes, char ***attribute_values_names, 
-   int **attribute_values );
+         char **function_name, char ***attribute_names, 
+         int *num_of_attributes, char ***attribute_values_names, 
+         int **attribute_values );
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt req}(IN):
+\item {\tt req}(IN): valid ADCL request handle
 \item {\tt function\_name}(OUT): Name of the function currently being
   called. This string has to be freed by the user level function.
 \item {\tt attribute\_names}(OUT):
@@ -207,9 +206,20 @@ with
 \item {\tt attribute\_values}(OUT): array of integers containing the attribute
   values of the current function.
 \end{itemize}
+\hspace{1cm}
 
-  
-
+%\begin{verbatim} 
+%int ADCL_Request_get_winner_stat ( ADCL_Request req, 
+%         double *filtered_avg, double *unfiltered_avg,
+%         double *outliers_num );
+%\end{verbatim}
+%with
+%\begin{itemize}
+%\item {\tt req}(IN): valid ADCL request handle
+%\item {\tt filtered\_avg}(OUT): Filtered average execution time of the winning ADCL function.
+%\item {\tt unfiltered\_avg}(OUT): unfiltered average execution time of the winning ADCL function.
+%\item {\tt outliers\_num}(OUT): number of outliers detected during the execution the winning ADCL %function.
+%\end{itemize}
 
 %\begin{verbatim}
 %int ADCL_Request_get_vec ( ADCL_Request req, 
@@ -234,6 +244,36 @@ with
 %\end{itemize}
 %\hspace{1cm}
 
+\subsection{Save/Restore request status}
+The following function helps the user to save the progress in the search process of the fastest implementation when using the brute force strategy. Then, the user can simply resume the search from where he stopped by restoring the request status using the function {\tt ADCL\_Request\_restore\_status}.
+
+\begin{verbatim}
+int ADCL_Request_save_status ( ADCL_Request req, int *tested_num,
+         double **unfiltered_avg, double **filtered_avg,
+         double **outliers, int *winner_so_far );
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt req}(IN): valid ADCL request handle
+\item {\tt tested\_num}(OUT): number of already evaluated ADCL functions.
+\item {\tt unfiltered\_avg}(OUT): unfiltered average of the evaluated ADCL functions.
+\item {\tt filtered\_avg}(OUT): filtered average of the evaluated ADCL functions.
+\item {\tt outliers}(OUT): number of outliers detected in the evaluated ADCL functions.
+\item {\tt winner\_so\_far}(OUT): the winning implementation so far.
+\end{itemize}
+\begin{verbatim}
+int ADCL_Request_restore_status ( ADCL_Request req, int tested_num,
+         double *unfiltered_avg, double *filtered_avg,
+         double *outliers );
+\end{verbatim} 
+with
+\begin{itemize}
+\item {\tt req}(IN): valid ADCL request handle
+\item {\tt tested\_num}(IN): number of already evaluated ADCL functions.
+\item {\tt unfiltered\_avg}(IN): unfiltered average of each evaluated ADCL functions.
+\item {\tt filtered\_avg}(IN): filtered average of each evaluated ADCL functions.
+\item {\tt outliers}(IN): number of outliers detected in the evaluated ADCL functions.
+\end{itemize}
 \subsection{Examples}
 
 The following example demonstrates the usage of the predefined function set {\tt ADCL\_FNCTSET\_NEIGHBORHOOD} for a three dimensional matrix and process topology.
@@ -267,7 +307,7 @@ int main ( int argc, char ** argv )
     MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, &cart_comm);
     ADCL_Topology_create ( cart_comm, &topo );
 
-    /**********************************************************************/
+    /******************************************************************/
     /* Test 1: hwidth=1, nc=0 */
     hwidth=1;
     dims[0] = DIM0 + 2*hwidth;

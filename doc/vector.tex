@@ -8,8 +8,8 @@ while in the second case the memory has to be allocated by the application.
 
 \begin{verbatim}
 int ADCL_Vector_allocate ( int ndims, int *dims, int nc, 
-    int comtype, int hwidth, MPI_Datatype dat, void *data, 
-    ADCL_Vector *vec );
+         int comtype, int hwidth, MPI_Datatype dat, 
+         void *data, ADCL_Vector *vec );
 \end{verbatim}
 with
 \begin{itemize}
@@ -49,12 +49,12 @@ section 4.1.1.
 \hspace{1cm}
 \begin{verbatim}
 int ADCL_Vector_register ( int ndims, int *dims, int nc, 
-    int comtype, int hwidth, MPI_Datatype dat, void *data, 
-    ADCL_Vector *vec );
+         int comtype, int hwidth, MPI_Datatype dat,
+         void *data, ADCL_Vector *vec );
 
 
 subroutine ADCL_Vector_register ( ndims,  dims, nc, 
-    comtype, hwidth, dat, data, vec, ierror )
+                comtype, hwidth, dat, data, vec, ierror )
 integer ndims, nc, comtype, hwidth, dat, vec, ierror
 integer dims(*)
 TYPE data(*)
@@ -176,10 +176,10 @@ one buffer, such as circular shift operations.
 
 \begin{verbatim}
 int ADCL_Vectset_create ( int maxnum, ADCL_Vector  *svecs,
-             ADCL_Vector  *rvecs,  ADCL_Vectset *vectset );
+         ADCL_Vector  *rvecs,  ADCL_Vectset *vectset );
 
 subroutine ADCL_Vectset_create ( maxnum, svecs, rvecs, 
-             vectset, ierror )
+                vectset, ierror )
 integer maxnum, vectset, ierror
 integer svecs(*), rvecs(*)
 \end{verbatim}
@@ -231,7 +231,6 @@ int main ( int argc, char ** argv )
     dims[1] = DIM1 + 2*hwidth;
     ADCL_Vector_allocate ( 2,  dims, 0, ADCL_VECTOR_HALO, 
             hwidth, MPI_DOUBLE, &data, &vec );
-    
     /* now you can access the elements of the vector in order to perform 
        computations, e.g */
     for ( i=1; i<DIM0; i++ ) {
@@ -239,8 +238,7 @@ int main ( int argc, char ** argv )
          data[i][j] = ...
        }
     }
-    
-    ADCL_Vector_free ( &vec );        
+    ADCL_Vector_free ( &vec );
     ADCL_Finalize ();
     MPI_Finalize ();
     return 0;

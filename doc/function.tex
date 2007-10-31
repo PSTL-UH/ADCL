@@ -16,13 +16,13 @@ selection logic.
 
 \begin{verbatim}
 typedef void ADCL_work_fnct_ptr ( ADCL_Request req );
-int ADCL_Function_create ( ADCL_work_fnct_ptr *fnctp, 
-      ADCL_Attrset attrset, int *array_of_attrvalues,  
-      char *name, ADCL_Function *fnct);
 
+int ADCL_Function_create ( ADCL_work_fnct_ptr *fnctp, 
+         ADCL_Attrset attrset, int *array_of_attrvalues,  
+         char *name, ADCL_Function *fnct);
 
 subroutine ADCL_Function_create ( fnctp, attrset, 
-      array_of_attrvalues, name, fnct, ierror )
+                array_of_attrvalues, name, fnct, ierror )
 external fnctp
 integer attrset, fnct, ierror
 integer array_of_attrvalues(*)
@@ -50,7 +50,7 @@ int ADCL_Function_create_async ( ADCL_work_fnct_ptr *init_fnct,
          char *name, ADCL_Function *fnct);
 
 subroutine ADCL_Function_create_async ( init_fnct, wait_fnct, 
-    attrset, array_of_attrvalues, 	name, fnct, ierror )
+                attrset, array_of_attrvalues, name, fnct, ierror )
 external init_fnct, wait_fnct
 integer attrset, fnct, ierror
 integer array_of_attrvalues(*)
@@ -87,10 +87,10 @@ with
 \hspace{1cm}
 \begin{verbatim}
 int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, 
-       char *name, ADCL_Fnctset *fnctset );
+         char *name, ADCL_Fnctset *fnctset );
 
 subroutine ADCL_Fnctset_create ( maxnum, fncts, name, 
-       fnctset, ierror )
+                fnctset, ierror )
 integer maxnum, fnctset, ierror
 integer fncts(*)
 char name (*)
@@ -107,63 +107,47 @@ with
 \end{itemize}
 
 
-The following two functions provide a short cut for scenarios, where a single function
+The following function provides a short cut for scenarios, where a single function
 shall be executed with different attribute values. Thus, instead of the user
 having to create all the individual funtions and register them with ADCL, this
 interface provides the opportunity to specify the function pointer, an
 attribute set, and get an Functionset handle back. ADCL will create internally
 a function with the same function pointer for each possible combination of
-attribute values.
+attribute values. Some combinations of attribute values can be also excluded.
 
 \begin{verbatim}
-int ADCL_Fnctset_create_single_fnct ( ADCL_work_fnct_ptr *fnctp, 
-         ADCL_Attrset attrset, char *name, ADCL_Function *fnct);
+int ADCL_Fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
+         ADCL_work_fnct_ptr *wait_fnct, ADCL_Attrset attrset, 
+         char *name, int **without_attr_combinations, 
+         int num_without_attr_combinations, 
+         ADCL_Fnctset *fnctset );
 
-subroutine ADCL_Function_create_async ( fnctp, attrset, name, 
-         fnct, ierror )
-external fnctp
-integer attrset, fnct, ierror
-char name (*)	  
-\end{verbatim}
-with
-\begin{itemize}
-\item {\tt fnctp}(IN): function pointer to the actual implementation of the function. The prototype has
-     to be of type {\tt ADCL\_work\_fnct\_ptr}.
-\item {\tt attrset}(IN): valid ADCL attribute-set handle, or {\tt
-    ADCL\_ATTRSET\_NULL}. It is illegal for this function to pass in the NULL attribute-set 
-    handle.
-\item {\tt name}(IN): name for the function. The length of the character string can not exceed 
-  {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a NULL pointer instead of a string.
-\item {\tt fnct}(OUT): handle to the ADCL function object.
-\end{itemize}
-
-\begin{verbatim}
-int ADCL_Fnctset_create_single_fnct_async ( ADCL_work_fnct_ptr *ifnct, 
-         ADCL_work_fnct_ptr *wfnct, ADCL_Attrset attrset, char *name, 
-         ADCL_Function *fnct);
-
-subroutine ADCL_Function_create_async ( ifnct, wfnct, attrset, name, 
-         fnct, ierror )
+subroutine ADCL_Fnctset_create_single ( void *init_fnct, 
+                void *wait_fnct, int *attrset, char *name,
+                int *without_attr_vals, 
+                int *num_without_attr_vals,
+                int *fnctset, int *ierror, int name_len );
 external init_fnct, wait_fnct
-integer attrset, fnct, ierror
-char name (*)	  
+integer attrset, without_attr_vals, num_without_attr_vals
+integer fnctset, ierror
+char name (*)
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt ifnct}(IN): function pointer to the actual implementation of
+\item {\tt init\_fnct}(IN): function pointer to the actual implementation of
   the init function. The prototype has to be of type {\tt ADCL\_work\_fnct\_ptr}.
-\item {\tt wfnct}(IN): function pointer to the actual implementation of
+\item {\tt wait\_fnct}(IN): function pointer to the actual implementation of
   the completion function. The prototype has to be of type {\tt ADCL\_work\_fnct\_ptr}.
+  It is allowed to pass in a NULL pointer if there is no need to a completion function.
 \item {\tt attrset}(IN): valid ADCL attribute-set handle, or {\tt
     ADCL\_ATTRSET\_NULL}. It is illegal for this function to pass in the NULL attribute-set 
     handle.
 \item {\tt name}(IN): name for the function. The length of the character string can not exceed 
   {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a NULL pointer instead of a string.
-\item {\tt fnct}(OUT): handle to the ADCL function object.
+\item {\tt without\_attr\_vals}(IN): array containing the attribute values that the user want to exclude.
+\item {\tt num\_without\_attr\_vals}(IN): number of entries in the array containing the attribute values that the user want to exclude.
+\item {\tt fnctset}(OUT): handle to the ADCL function-set object.
 \end{itemize}
-
-
-
 \hspace{1cm}
 \begin{verbatim}
 int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
