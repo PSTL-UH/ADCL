@@ -24,7 +24,7 @@ ADCL_LIB      = @adcl_lib_name@
 
 
 #Set some Flags
-AR	    = ar
+AR	    = @AR@
 AR_FLAGS    = clr
 
 
