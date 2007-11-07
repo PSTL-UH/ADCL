@@ -44,6 +44,8 @@ AC_SUBST(LDFLAGS)
 AC_SUBST(FLDFLAGS)
 AC_SUBST(AR)
 
+AC_CHECK_PROG(AR, ar, ar)
+
 dnl ==================================================
 dnl Now ask the user 'bout desired options...
 
