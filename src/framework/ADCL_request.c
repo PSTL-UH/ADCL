@@ -29,6 +29,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     int i, ret = ADCL_SUCCESS;
     ADCL_request_t *newreq;
 
+    int tsize, tcount=1, ident_vecs=1;
 
     /*
     ** Since the dimension of all vector objects has to be the same,
@@ -65,6 +66,10 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
         for ( i=0; i < 2* topo->t_ndims; i++ ) {
             newreq->r_svecs[i] = svecs[i];
             newreq->r_rvecs[i] = rvecs[i];
+            if ( (svecs[0]->v_id != svecs[i]->v_id) ||
+                 (svecs[0]->v_id != rvecs[i]->v_id)) {
+                ident_vecs = 0;
+            }
         }
 
         /*
@@ -146,21 +151,40 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     /* Set now elements of the structure required for the communication itself */
 
 #ifdef MPI_WIN
-    /*  Doesn't work in this concept anymore!!!
+    /*  Doesn't work in this concept anymore!!! */
+    /*  But only if all vectors are identical   */
+    if ( ident_vecs && (NULL != vec) && (ADCL_VECTOR_NULL != vec) ) {
+        MPI_Type_size ( vec->v_dat, &tsize);
+        if ( vec->v_nc > 0 ) {
+            tcount = vec->v_nc;
+        }
+        for (i=0; i <vec->v_ndims; i++){
+            tcount *= vec->v_dims[i];
+        }
+        MPI_Win_create ( vec->v_data, tcount , tsize, MPI_INFO_NULL,
+                         topo->t_comm, &(newreq->r_win));
+        MPI_Comm_group ( topo->t_comm, &(newreq->r_group) );
+    }
+    else {
+        /* For now, we will not support one sided comm in that case.
+           Then we shrink the function set by eliminating them */
+        if ( 0 == strcmp ( newreq->r_emethod->em_fnctset.fs_name,
+                           "Neighborhood communication") ) {
+            ADCL_fnctset_shrink_by_attr( &(newreq->r_emethod->em_fnctset), 2,
+                                         ADCL_attr_transfer_FenceGet );
+            ADCL_fnctset_shrink_by_attr( &(newreq->r_emethod->em_fnctset), 2,
+                                         ADCL_attr_transfer_FencePut );
+            ADCL_fnctset_shrink_by_attr( &(newreq->r_emethod->em_fnctset), 2,
+                                         ADCL_attr_transfer_PostStartGet );
+            ADCL_fnctset_shrink_by_attr( &(newreq->r_emethod->em_fnctset), 2,
+                                         ADCL_attr_transfer_PostStartPut );
+        }
+        newreq->r_win        = MPI_WIN_NULL;
+        newreq->r_group      = MPI_GROUP_NULL;
+    }
 
-    MPI_Type_size (array_of_send_vecs[0]->v_dat, &tsize);
-    if ( vec->v_nc > 0 ) {
-    tcount = vec->v_nc;
-    }
-    for (i=0; i <vec->v_ndims; i++){
-        tcount *= vec->v_dims[i];
-    }
-    MPI_Win_create ( newreq->r_vec->v_data, tcount , tsize, MPI_INFO_NULL,
-             topo->t_comm, &(newreq->r_win));
-    MPI_Comm_group ( topo->t_comm, &(newreq->r_group) );
-    */
 #else
-    newreq->r_win        = MPI_WIN_NULL; /* TBD: unused for right now! */
+    newreq->r_win        = MPI_WIN_NULL;   /* TBD: unused for right now! */
     newreq->r_group      = MPI_GROUP_NULL; /* TBD: unused for right now! */
 #endif
 

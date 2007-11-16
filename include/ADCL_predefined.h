@@ -69,8 +69,8 @@ extern const int ADCL_attr_transfer_Sendrecv;
 #ifdef MPI_WIN
 extern const int ADCL_attr_transfer_FenceGet;
 extern const int ADCL_attr_transfer_FencePut;
-extern const int ADCL_attr_transfer_StartPostGet;
-extern const int ADCL_attr_transfer_StartPostPut;
+extern const int ADCL_attr_transfer_PostStartGet;
+extern const int ADCL_attr_transfer_PostStartPut;
 #endif
 
 /*=================================================================*/

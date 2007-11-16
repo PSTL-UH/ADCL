@@ -341,6 +341,27 @@ ADCL_function_t*  ADCL_fnctset_get_fnct_by_name ( ADCL_fnctset_t *fnctset, char 
     return  ADCL_FUNCTION_NULL;
 }
 
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+int  ADCL_fnctset_shrink_by_attr ( ADCL_fnctset_t *fnctset, int attr_pos,
+                                   int excluded_value)
+{
+    int i, j;
+
+    for (i=0; i<fnctset->fs_maxnum; i++) {
+        if ( fnctset->fs_fptrs[i]->f_attrvals[attr_pos] == excluded_value ) {
+            ADCL_printf("#Removing function \n");
+     	    fnctset->fs_maxnum--;
+            for (j=i; j<(fnctset->fs_maxnum-1); j++) {
+                /* move next functions from pos j+1 to pos j */
+                fnctset->fs_fptrs[j] = fnctset->fs_fptrs[j+1];
+            }
+            i--;
+        }
+    }
+    return  ADCL_SUCCESS;
+}
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/

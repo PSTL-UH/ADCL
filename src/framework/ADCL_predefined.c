@@ -36,8 +36,8 @@ const int ADCL_attr_transfer_Sendrecv=123;
 #ifdef MPI_WIN
 const int ADCL_attr_transfer_FenceGet=124;
 const int ADCL_attr_transfer_FencePut=125;
-const int ADCL_attr_transfer_StartPostGet=126;
-const int ADCL_attr_transfer_StartPostPut=127;
+const int ADCL_attr_transfer_PostStartGet=126;
+const int ADCL_attr_transfer_PostStartPut=127;
 #endif
 
 const int ADCL_attr_numblocks_single=130;
@@ -77,8 +77,8 @@ int ADCL_predefined_init ( void )
 #ifdef MPI_WIN
     ADCL_attr_transfer[4] = ADCL_attr_transfer_FenceGet;
     ADCL_attr_transfer[5] = ADCL_attr_transfer_FencePut;
-    ADCL_attr_transfer[6] = ADCL_attr_transfer_StartPostGet;
-    ADCL_attr_transfer[7] = ADCL_attr_transfer_StartPostPut;
+    ADCL_attr_transfer[6] = ADCL_attr_transfer_PostStartGet;
+    ADCL_attr_transfer[7] = ADCL_attr_transfer_PostStartPut;
 #endif
 
     /* Define the attributes and the attributeset for the n-dimensional
@@ -254,7 +254,7 @@ int ADCL_predefined_init ( void )
 #ifdef FENCE_GET
     m_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     m_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
-    m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_FenceGet;
+    m_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_FenceGet;
     /* m_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
     ADCL_function_create_async ( ADCL_change_sb_aao_win_fence_get, NULL,
                  ADCL_neighborhood_attrset,
