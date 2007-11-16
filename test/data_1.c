@@ -74,6 +74,7 @@ int main ( int argc, char ** argv )
 	ADCL_Request_start( request2 );
     }
 
+    ADCL_Request_free ( &request2 );
     ADCL_Vector_free ( &vec );
     ADCL_Topology_free ( &topo );
 
