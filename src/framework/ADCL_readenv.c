@@ -90,6 +90,8 @@ int ADCL_readenv()
     if ( i == len ) {
         continue; /* No colon found */
     }
+    /* Reinitialize the buffer keword each time */
+    memset( keyword, 0x00, MAXLINE );
     strncpy ( keyword, buffer, i);
     ptr = &(buffer[++i]);
 #ifdef Debug
