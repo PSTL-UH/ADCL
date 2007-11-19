@@ -566,9 +566,9 @@ fi
 
 
 AC_ARG_ENABLE(printf_tofile,
-[  --enable-printf-tofile  dump printf statements to a file (default=no)],
-[test "$enableval" = yes && ADCL_FILE_PER_PROC=yes])
-test "$ADCL_FILE_PER_PROC" = yes || ADCL_FILE_PER_PROC=no
+[  --disable-printf-tofile  dump printf statements to a file (default=yes)],
+[test "$enableval" = no && ADCL_FILE_PER_PROC=no])
+test "$ADCL_FILE_PER_PROC" = no || ADCL_FILE_PER_PROC=yes
 
 AC_MSG_CHECKING([whether to dump printf statements to a file instead of stdout])
 AC_MSG_RESULT(${ADCL_FILE_PER_PROC})
