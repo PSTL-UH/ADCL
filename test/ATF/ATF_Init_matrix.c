@@ -106,10 +106,10 @@ int ATF_Init_matrix(int px, int py, int pz)
 
     /*New added*/
     
-    nc =0;
     int cdims[]={0,0,0};
     int periods[] = {0,0,0};
-    
+    nc =0; 
+
     ATF_n1g = px;
     ATF_n2g = py;
     ATF_n3g = pz;

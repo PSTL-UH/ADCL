@@ -42,7 +42,7 @@ int ATF_Read_config(int *nPr, int *nSol)
     
     /* The variables below should be defined in Global_Modules */
     
-    /*    float tol */;
+    /*    float tol */
     float subtol;
     int franks;
     
