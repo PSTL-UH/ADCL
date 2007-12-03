@@ -208,7 +208,7 @@ void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, int *fn
 }
 
 #ifdef _SX
-void adcl_fnctset_cearte_single_( void *init_fnct, void *wait_fnct,
+void adcl_fnctset_create_single_( void *init_fnct, void *wait_fnct,
 #else
 void adcl_fnctset_create_single ( void *init_fnct, void *wait_fnct,
 #endif
