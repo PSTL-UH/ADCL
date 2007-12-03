@@ -220,7 +220,8 @@ int ADCL_fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
                                  int num_without_attribute_combinations,
                                  ADCL_fnctset_t **fnctset )
 {
-    int ret=ADCL_SUCCESS, new_attrs=ADCL_SUCCESS, maxnum=1, i;
+    int ret=ADCL_SUCCESS, new_attrs=ADCL_SUCCESS, i; 
+    long long maxnum=1;
     int *attr_vals;
     ADCL_fnctset_t *newfnctset=NULL;
     int excluded;
