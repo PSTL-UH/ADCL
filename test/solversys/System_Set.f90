@@ -9,7 +9,7 @@
         subroutine System_Set ( ierror )
 
 !...Diskretisieren der Gleichung, belegen der Matrix und der
-!   rechten Seite. Dieses File diskretisiert eine Laplacegleichung,
+!   rechten Seite. Dieses File diskretisiert eine Konvektions-Diffusions-Gleichung,
 !   wobei ein Einheitsquader in n1g,n2g,n3g Punkte
 !   unterteilt wird. Diskretisiert wird mit einer Zentralen-Differenz.
 
