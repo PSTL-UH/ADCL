@@ -12,7 +12,8 @@ EXENAME      = System
 
 
 OBJ =   System_modules.o              \
-	System_Display_Result.o       \
+        System_objdebug.o             \
+        System_Display_Result.o       \
         System_Init.o                 \
         System_Main.o                 \
         System_Matchange.o            \
@@ -26,11 +27,11 @@ OBJ =   System_modules.o              \
         System_Solver.qmr.o           \
         System_Solver.tfqmr.o         \
         System_Transmatmul.blocking.o \
-        System_Transmatmul.o           
+        System_Transmatmul.o
 
 
 
-#	 ADCL_request.o
+#        ADCL_request.o
 .SUFFIXES: .c .f90
 
 all: System
@@ -39,10 +40,13 @@ all: System
 compile: $(OBJ)
 
 $(EXENAME):  $(OBJ) $(HEADER)
-	$(FC) $(FFLAGS) -o $@ $(OBJ) $(FLDFLAGS) 
+	$(FC) -o $@ $(OBJ) $(LDFLAGS)
 
 .f90.o: $(HEADER)
 	$(FC) -c $(FFLAGS) $<
+
+System_objdebug.o: System_objdebug.c
+	$(CC) -c $(CFLAGS) $<
 
 clean:
 	rm -f $(OBJ)
@@ -50,21 +54,3 @@ clean:
 	rm -f *.mod *.out
 	rm -f *~ i.* 
 
-
-#all:    $(EXENAME) 
-# 	
-##System: $(HEADER) $(OBJ) 
-#$(EXENAME):  $(OBJ)
-#	$(FC) $(OBJ)  $(FLDFLAGS) $(ADCL_LIB_DIR)/$(ADCL_LIB) -o $(EXENAME) #-lefence
-#
-#
-#.SUFFIXES: .o.f90
-##$(OBJ): $(HEADER)
-##.f90.o:   $(HEADER)
-#
-#.f90.o:   
-#	$(FC) -c $(FFLAGS) $<
-#
-#clean:
-#	rm -rf $(OBJ) $(EXENAME) *.mod *.out *~
-#
