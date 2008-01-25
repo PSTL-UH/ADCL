@@ -18,14 +18,14 @@ genscript: genscript.c
 gentex: gentex.c
 	$(CC) $(CFLAGS) -o gentex gentex.c 
 
-minmax: minmax.c robust.c cluster.c cluster_data.c cluster_cluster.c data.h cluster.h 
-	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c robust.c
+minmax: minmax.c robust.c cluster.c cluster_data.c cluster_cluster.c data.h cluster.h #nr.h nrutil.h
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c robust.c # brent.c f1dim.c lnsrch.c dfpmin.c \
+             # linmin.c  mnbrak.c  nrutil.c  powell.c #amoeba.c amotry.c 
 	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c cluster.c
 	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c cluster_data.c
 	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c cluster_cluster.c
 	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -o minmax minmax.c robust.o cluster_data.o \
             cluster_cluster.o cluster.o $(GSL_LD_FLAGS)
-
 
 iterations: iterations.c
 	$(CC) $(CFLAGS) -o iterations iterations.c 
