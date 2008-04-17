@@ -20,7 +20,8 @@
 #define WORST_CLASS           2
 #define WORST_CLASS_THRESHOLD 50
 #define NB_OF_IMPL            12
-#define NB_OF_SIZES           35
+#define NB_OF_SIZES           16
+#define VERBOSE               1
 
 /* Implementations names */
 char *impl_names[NB_OF_IMPL] = {"IsendIrecv_aao","SendIrecv_aao","IsendIrecv_aao_pack","SendIrecv_aao_pack",
@@ -28,15 +29,8 @@ char *impl_names[NB_OF_IMPL] = {"IsendIrecv_aao","SendIrecv_aao","IsendIrecv_aao
                                "Sendrecv_pair","SendRecv_pair","Sendrecv_pair_pack","SendRecv_pair_pack"};
 
 /* Dimensions of the data matrix per process */
-int ProblemSizes[NB_OF_SIZES][3] = { {32,32,32}, {40,32,32}, {40,40,32}, {40,40,40},
-                                     {48,32,32}, {48,40,32}, {48,40,40}, {48,48,32},
-                                     {48,48,40}, {48,48,48}, {56,32,32} ,{56,40,32},
-                                     {56,40,40}, {56,48,32}, {56,48,40}, {56,48,48},
-                                     {56,56,32}, {56,56,40}, {56,56,48}, {56,56,56},
-                                     {64,32,32}, {64,40,32}, {64,40,40}, {64,48,32},
-                                     {64,48,40}, {64,48,48}, {64,56,32} ,{64,56,40},
-                                     {64,56,48}, {64,56,56}, {64,64,32} ,{64,64,40},
-                                     {64,64,48}, {64,64,56}, {64,64,64} };
+int ProblemSizes[NB_OF_SIZES] = { 32, 36, 40, 44, 48, 52, 56, 60, 
+                                  64, 68, 72, 76, 80, 84, 88, 92};
 
 static void cluster_implementations(double *g_elapsed_time, int *impl_classes );
 static double compute_distance(int i,int j);
@@ -54,14 +48,13 @@ int main ( int argc, char ** argv )
     int winners[NB_OF_SIZES][2];
     double t_start, dmax, distance[NB_OF_SIZES], relation[NB_OF_SIZES], elapsed_time[14], g_elapsed_time[NB_OF_SIZES][14];
 
-    /* Definition of the 2-D vector */
-    int dims[3], neighbors[6];
-    double ***data, ****data2;
+    /* Definition of the 1-D vector */
+    int dims;
+    double *data, **data2;
     ADCL_Vector vec;
 
     /* Variables for the process topology information */
-    int cdims[]={0,0,0};
-    int periods[]={0,0,0};
+    int cdims=0, periods=0;
     MPI_Comm cart_comm;
     ADCL_Topology topo;
     ADCL_Request request;
@@ -72,12 +65,8 @@ int main ( int argc, char ** argv )
     MPI_Comm_size ( MPI_COMM_WORLD, &size );
 
     /* Describe the neighborhood relations */
-    MPI_Dims_create ( size, 3, cdims );
-    MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, &cart_comm);
-    MPI_Cart_shift ( cart_comm, 0, 1, &(neighbors[0]), &(neighbors[1]));
-    MPI_Cart_shift ( cart_comm, 1, 1, &(neighbors[2]), &(neighbors[3]));
-    MPI_Cart_shift ( cart_comm, 2, 1, &(neighbors[4]), &(neighbors[5]));
-
+    MPI_Dims_create ( size, 1, &cdims );
+    MPI_Cart_create ( MPI_COMM_WORLD, 1, &cdims, &periods, 0, &cart_comm);
 
     /* Initiate the ADCL library and register a topology object with ADCL */
     ADCL_Init ();
@@ -87,14 +76,13 @@ int main ( int argc, char ** argv )
     /* hwidth=1, nc=0 */
     hwidth=1;
     for (i=0; i<NB_OF_SIZES; i++) {
-        dims[0] = ProblemSizes[i][0] + 2*hwidth;
-        dims[1] = ProblemSizes[i][1] + 2*hwidth;
-        dims[2] = ProblemSizes[i][2] + 2*hwidth;
+
+        dims = ProblemSizes[i] + 2*hwidth;
 
         if(rank == 0) {
-            printf("Explored Problem Size %dX%dX%d \n", ProblemSizes[i][0],ProblemSizes[i][1], ProblemSizes[i][2] );
+            printf("Explored Problem Size %d\n", ProblemSizes[i]);
         }
-        ADCL_Vector_allocate ( 3,  dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data, &vec );
+        ADCL_Vector_allocate ( 1,  &dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data, &vec );
         ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
         
         /* Evaluate implementation 1 */
@@ -247,8 +235,7 @@ int main ( int argc, char ** argv )
 		}
             }
             dmax = find_dmax(distance,relation);
-            printf( "Max distance for Pb size %dX%dX%d is %f\n",ProblemSizes[i][0],
-                    ProblemSizes[i][1], ProblemSizes[i][2], dmax);
+            printf( "Max distance for Pb size %d is %f\n",ProblemSizes[i], dmax);
         }
     }
     
@@ -303,9 +290,7 @@ static double compute_distance(int i,int j)
 	dist =0;
     }
     else {
-        dist = sqrt( pow((ProblemSizes[i][0]-ProblemSizes[j][0]),2) +
-                     pow((ProblemSizes[i][1]-ProblemSizes[j][1]),2) + 
-                     pow((ProblemSizes[i][2]-ProblemSizes[j][2]),2));
+        dist = abs(ProblemSizes[i]-ProblemSizes[j]);
     }
 #ifdef VERBOSE
     printf("The distance between probems %d and %d is %f\n",i,j,dist);
@@ -367,4 +352,3 @@ static double find_dmax(double *distance, double *relation)
     }
     return dmax;     
 }
-

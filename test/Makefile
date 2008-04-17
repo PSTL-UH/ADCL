@@ -14,7 +14,7 @@ ctests: first second third fourth \
 	one-dim two-dim three-dim \
 	test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
 	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
-	data_1 PbSizes_3D
+	data_1 PbSizes_1D PbSizes_2D PbSizes_3D
 
 ftests: one-dim-f two-dim-f three-dim-f three-dim-large  \
 	first_f second_f                                 \
@@ -74,6 +74,12 @@ data_1: data_1.c
 PbSizes_3D: PbSizes_3D.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/PbSizes_3D PbSizes_3D.c $(LDFLAGS)
 
+PbSizes_2D: PbSizes_2D.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/PbSizes_2D PbSizes_2D.c $(LDFLAGS)
+
+PbSizes_1D: PbSizes_1D.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/PbSizes_1D PbSizes_1D.c $(LDFLAGS)
+
 first_f: first_f.f90
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/first_f first_f.f90 $(FLDFLAGS)
 
@@ -110,7 +116,8 @@ clean:
 	rm -f $(ADCL_BIN_DIR)/one-dim $(ADCL_BIN_DIR)/one-dim-f
 	rm -f $(ADCL_BIN_DIR)/two-dim $(ADCL_BIN_DIR)/two-dim-f
 	rm -f $(ADCL_BIN_DIR)/three-dim $(ADCL_BIN_DIR)/three-dim-f
-	rm -f $(ADCL_BIN_DIR)/three-dim-large $(ADCL_BIN_DIR)/PbSizes_3D
+	rm -f $(ADCL_BIN_DIR)/three-dim-large
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-noattrs $(ADCL_BIN_DIR)/test-fnctset-noattrs_f
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-single $(ADCL_BIN_DIR)/test-fnctset-single_f	
-	rm -f $(ADCL_BIN_DIR)/test-fnctset-single-2 
+	rm -f $(ADCL_BIN_DIR)/test-fnctset-single-2 $(ADCL_BIN_DIR)/PbSizes_1D
+	rm -f $(ADCL_BIN_DIR)/Pbsizes_2D $(ADCL_BIN_DIR)/PbSizes_3D
