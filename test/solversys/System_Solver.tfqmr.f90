@@ -72,6 +72,10 @@
 !        
 !        acount = 1
 !        itercount = 1
+        tfqmr_v = 0.0
+        tfqmr_y = 0.0
+        tfqmr_y_old = 0.0
+        tfqmr_y_old_1 = 0.0
 
         dims(1) = n1+2
         dims(2) = n2+2
