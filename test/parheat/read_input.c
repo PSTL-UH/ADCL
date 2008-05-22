@@ -9,7 +9,6 @@ int read_input( int *grid, \
                 double *min, double *max )
 {
   FILE *fp;
-  char dummy[40];
 
   fp = fopen( "parheat.in", "r" );
   fscanf( fp, "%d %d %d", &grid[0], &grid[1], &grid[2] );

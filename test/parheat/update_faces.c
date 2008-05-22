@@ -19,7 +19,7 @@ int update_faces( double c_fact, double delta_t, double delta_x, \
                   double lambda, struct tstep *solution )
 {
   int i, j, k;
-  int xmax, ymax, zmax;
+  int ymax, zmax;
   int index;
 
   /*                              */

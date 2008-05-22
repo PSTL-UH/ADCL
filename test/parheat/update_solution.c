@@ -23,308 +23,193 @@
 #include "mpi.h"
 #include "parheat.h"
 
-int update_solution( double c_fact, double delta_t, double delta_x,  \
-              int *grid, int *start, int *end, int *neighbor, \
-              double tstep_fac, double accuracy, int msg_fac, \
-              int cpt_fac, int *num_iter, struct point *set, struct timing *data, \
+int update_solution( double c_fact, double delta_t, double delta_x,  
+              int *grid, int *start, int *end, int *neighbor, 
+              double tstep_fac, double accuracy, int msg_fac, 
+              int cpt_fac, int *num_iter, struct point *set, struct timing *data, 
               struct tstep *solution, MPI_Comm newcomm )
 {
-  MPI_Datatype faces[3];
-  int ierr, i, j, num_ifaces;
-  int local_done, global_done;
-  int s_off[6]={ 0, 0, 0, 0, 0, 0 };
-  int r_off[6]={ 0, 0, 0, 0, 0, 0 };
-  int s_tag[6];
-  int r_count, r_flag;
-  int s_count, s_flag;
-  MPI_Request s_req[6], r_req[6];
-  MPI_Status s_stat[6], r_stat[6];
-  double lambda;
-
-  /* variables for timing computation and */
-  /* communication                        */
-  double cpt_start, cpt_end;
-  double msg_start, msg_end;
-  double duration;
-
-  /* initialize request arrays */
-  for( i=0 ; i<6 ; i++ )
-    s_req[i] = r_req[i] = MPI_REQUEST_NULL;
-
-  *num_iter = 0;
-
-  local_done = 0;
-  global_done = 0;
-
-  /* get the start time for the computation */
-  cpt_start = MPI_Wtime();
-
-  /* compute the offsets for the send and */
-  /* receive operations.                  */
-  if( ierr=get_offset( grid, start, end, neighbor, s_off, r_off ) != 0 )
-  {
-    printf( "get_offset failed with code %d.\n", ierr );
-    return ierr;
-  } 
-
-  /* compute the correct time step for the */
-  /* grid considered.                      */
-/*  lambda = tstep_fac / 6.0; */ /*  dt<= h^2/2*n */
-/* MIR */
-    lambda = delta_t / (delta_x * delta_x);
-/* MIR */
-
-  /* get datatypes for sendrecv */
-  if( ierr=get_datatypes( grid, start, end, faces, msg_fac ) != 0 )
-  {
-    printf( "get_datatypes failed with code %d.\n", ierr );
-    return ierr;
-  } 
-
-  /* set up the message tags that are used */
-  /* until local_done == 1         */
-  for( i=0 ; i<6 ; i++ )
-    s_tag[i] = i+1;
-
-  num_ifaces = 0;
-  for( i=0 ; i<6 ; i++ )
-  {
-    if( neighbor[i] != MPI_PROC_NULL )
-      num_ifaces++;
-  }
-
-  /* finally: THE TIME LOOP!    */
-  do
-  {
-    /* post a receive for all neighbors */
-
-#ifdef PERF_ANALYZE
-    MPE_Log_event( 5, 0, "IrStart" );
-#endif
-
-    /* Get time values for initiating messages */
-    msg_start = MPI_Wtime();
-
-    /* post a receive for all existing neighbors */
+    MPI_Datatype faces[3];
+    int ierr, i, j, num_ifaces;
+    int local_done, global_done;
+    int s_off[6]={ 0, 0, 0, 0, 0, 0 };
+    int r_off[6]={ 0, 0, 0, 0, 0, 0 };
+    int s_tag[6];
+    int r_count, r_flag;
+    int s_count, s_flag;
+    MPI_Request s_req[6], r_req[6];
+    MPI_Status s_stat[6], r_stat[6];
+    double lambda;
+    
+    /* variables for timing computation and */
+    /* communication                        */
+    double cpt_start, cpt_end;
+    double msg_start, msg_end;
+    double duration;
+    
+    /* initialize request arrays */
     for( i=0 ; i<6 ; i++ )
+	s_req[i] = r_req[i] = MPI_REQUEST_NULL;
+    
+    *num_iter = 0;
+    
+    local_done = 0;
+    global_done = 0;
+    
+    /* get the start time for the computation */
+    cpt_start = MPI_Wtime();
+    
+    /* compute the offsets for the send and */
+    /* receive operations.                  */
+    if( (ierr=get_offset( grid, start, end, neighbor, s_off, r_off )) != 0 )
     {
-      if( neighbor[i] != MPI_PROC_NULL )
-      {
-        MPI_Irecv( (void *)&((*solution).old[r_off[i]]), 1, faces[i%3], \
-            neighbor[i], MPI_ANY_TAG, newcomm, &r_req[i] );
-      }
-    }
-
-#ifdef PERF_ANALYZE
-    MPE_Log_event( 6, 0, "IrEnd" );
-#endif
-
-    /* send to all neighbors            */
-
-#ifdef PERF_ANALYZE
-    MPE_Log_event( 3, 0, "IsStart" );
-#endif
-
-    for( i=0 ; i<6 ; i++ )
-    {
-      if( neighbor[i] != MPI_PROC_NULL )
-        MPI_Isend( (void *)&((*solution).old[s_off[i]]), 1, faces[i%3], \
-            neighbor[i], s_tag[i], newcomm, &s_req[i] );
-    }
-
-    msg_end = MPI_Wtime();
-    duration = msg_end - msg_start;
-    (*data).comm_start += duration;         /* add communication part */
-    (*data).comp -= duration;         /* subtract non-computation part */
-
-#ifdef PERF_ANALYZE
-    MPE_Log_event( 4, 0, "IsEnd" );
-#endif
-
-#ifdef PERF_ANALYZE
-      MPE_Log_event( 7, 0, "CStart" );
-#endif
-
-/*
- * from now on we either compute (local_done == 0)
- * or provide neighbors with data (local_done == 1)
- */
-/* MIR */
-/*    printf ("iteration \n"); */
-/* MIR */
-
-    if( local_done == 0)
-    {
-      for( i=0 ; i<cpt_fac ; i++ )
-      {
-        update_interior( c_fact, delta_t, delta_x, grid, start, \
-                         end, lambda, solution );
-
-        if( i == cpt_fac-1 )
-        {
-
-#ifdef PERF_ANALYZE
-          MPE_Log_event( 8, 0, "CEnd" );
-#endif
-
-#ifdef PERF_ANALYZE
-          MPE_Log_event( 5, 0, "IrStart" );
-#endif
-
-          msg_start = MPI_Wtime();
-          MPI_Waitall( 6, r_req, r_stat );
-          msg_end = MPI_Wtime();
-          duration = msg_end - msg_start;
-          (*data).recv_end += duration;         /* add communication part */
-          (*data).comp -= duration;         /* subtract non-computation part */
-
-#ifdef PERF_ANALYZE
-          MPE_Log_event( 6, 0, "IrEnd" );
-#endif
-
-#ifdef PERF_ANALYZE
-          MPE_Log_event( 7, 0, "CStart" );
-#endif
-
-        }
-
-        update_faces( c_fact, delta_t, delta_x, grid, start, \
-                      end, neighbor, lambda, \
-                      solution );
-      } /* end of compute factor loop */
-
-      if( ierr=check_done( accuracy, &local_done, grid, start, end, \
-                           solution, set ) != 0 )
-      {
-        printf( "check_done: check_done failed with code %d.\n", \
-                               ierr );
-        return 1;
-      }
-
-/* 
- * This may cause trouble with message passing, as some values
- * that have previously been used with the INCOMPLETE send are
- * changed before the send completes. 
- * Is this the way MPI should handle this ?
- *
-      if( local_done == 0)
-      {
-        if( ierr=switch_steps( solution ) != 0 )
-        {
-          printf( "update_solution: switch_steps failed with code %d.\n", \
-                                 ierr );
-          return 1;
-        }
-      }
-      else
-      {
-        for( j=0 ; j<6 ; j++ ) s_tag[j] = 0;
-        global_done = 1;
-        for( j=0 ; j<6 ; j++ )
-        {
-          if( neighbor[j] != MPI_PROC_NULL )
-          {
-            if( r_stat[j].MPI_TAG != 0 )
-              global_done = 0;
-          }
-        }
-      }
- */
-        
-      /* the real computation of one time step is done */
+	printf( "get_offset failed with code %d.\n", ierr );
+	return ierr;
     } 
-    else /* that means, local_done == 1*/
-    { 
-
-#ifdef PERF_ANALYZE
-      MPE_Log_event( 8, 0, "CEnd" );
-#endif
-
-#ifdef PERF_ANALYZE
-      MPE_Log_event( 5, 0, "IrStart" );
-#endif
-
-      msg_start = MPI_Wtime();
-      MPI_Waitall( 6, r_req, r_stat );
-      msg_end = MPI_Wtime();
-      duration = msg_end - msg_start;
-      (*data).recv_end += duration;         /* add communication part */
-      (*data).comp -= duration;         /* subtract non-computation part */
-
-#ifdef PERF_ANALYZE
-      MPE_Log_event( 6, 0, "IrEnd" );
-#endif
-
-#ifdef PERF_ANALYZE
-      MPE_Log_event( 7, 0, "CStart" );
-#endif
-
-      global_done = 1;
-      for( j=0 ; j<6 ; j++ )
-      {
-        if( neighbor[j] != MPI_PROC_NULL )
-        {
-          if( r_stat[j].MPI_TAG != 0 )
-            global_done = 0;
-          else
-            neighbor[j] = MPI_PROC_NULL;
-        }
-      }
-
-    } /* end of providing information to neighbors */
-
-#ifdef PERF_ANALYZE
-    MPE_Log_event( 8, 0, "CEnd" );
-#endif
-
-#ifdef PERF_ANALYZE
-    MPE_Log_event( 3, 0, "IsStart" );
-#endif
-
-    msg_start = MPI_Wtime();
-    MPI_Waitall( 6, s_req, s_stat );
-    msg_end = MPI_Wtime();
-    duration = msg_end - msg_start;
-    (*data).send_end += duration;         /* add communication part */
-    (*data).comp -= duration;         /* subtract non-computation part */
-
-#ifdef PERF_ANALYZE
-    MPE_Log_event( 4, 0, "IsEnd" );
-#endif
-    if( local_done == 0)
+    
+    /* compute the correct time step for the */
+    /* grid considered.                      */
+    /*  lambda = tstep_fac / 6.0; */ /*  dt<= h^2/2*n */
+    /* MIR */
+    lambda = delta_t / (delta_x * delta_x); 
+    /* MIR */
+    
+    /* get datatypes for sendrecv */
+    if( (ierr=get_datatypes( grid, start, end, faces, msg_fac )) != 0 )
     {
-      if( ierr=switch_steps( solution ) != 0 )
-      {
-        printf( "update_solution: switch_steps failed with code %d.\n", \
-                               ierr );
-        return 1;
-      }
+	printf( "get_datatypes failed with code %d.\n", ierr );
+	return ierr;
+    } 
+    
+    /* set up the message tags that are used */
+    /* until local_done == 1         */
+    for( i=0 ; i<6 ; i++ )
+	s_tag[i] = i+1;
+    
+    num_ifaces = 0;
+    for( i=0 ; i<6 ; i++ )
+    {
+	if( neighbor[i] != MPI_PROC_NULL )
+	    num_ifaces++;
     }
-    else
-      for( j=0 ; j<6 ; j++ ) s_tag[j] = 0;
+    
+    /* finally: THE TIME LOOP!    */
+    do
+    {
+	/* post a receive for all neighbors */
+	/* Get time values for initiating messages */
+	msg_start = MPI_Wtime();
+	
+	/* post a receive for all existing neighbors */
+	for( i=0 ; i<6 ; i++ )
+	{
+	    if( neighbor[i] != MPI_PROC_NULL )
+	    {
+		MPI_Irecv( (void *)&((*solution).old[r_off[i]]), 1, faces[i%3], 
+			   neighbor[i], MPI_ANY_TAG, newcomm, &r_req[i] );
+	    }
+	}
+	
+	/* send to all neighbors            */
+	
+	for( i=0 ; i<6 ; i++ )
+	{
+	    if( neighbor[i] != MPI_PROC_NULL )
+		MPI_Isend( (void *)&((*solution).old[s_off[i]]), 1, faces[i%3], 
+			   neighbor[i], s_tag[i], newcomm, &s_req[i] );
+	}
+	
+	msg_end = MPI_Wtime();
+	duration = msg_end - msg_start;
+	(*data).comm_start += duration;         /* add communication part */
+	(*data).comp -= duration;         /* subtract non-computation part */
+	
+	/*
+	 * from now on we either compute (local_done == 0)
+	 * or provide neighbors with data (local_done == 1)
+	 */
+	
+	if( local_done == 0)
+	{
+	    for( i=0 ; i<cpt_fac ; i++ )
+	    {
+		update_interior( c_fact, delta_t, delta_x, grid, start, 
+				 end, lambda, solution );
+		
+		if( i == cpt_fac-1 )
+		{
+		    msg_start = MPI_Wtime();
+		    MPI_Waitall( 6, r_req, r_stat );
+		    msg_end = MPI_Wtime();
+		    duration = msg_end - msg_start;
+		    (*data).recv_end += duration;         /* add communication part */
+		    (*data).comp -= duration;         /* subtract non-computation part */	
+		}
+		
+		update_faces( c_fact, delta_t, delta_x, grid, start,	
+			      end, neighbor, lambda,			
+			      solution );
+	    } /* end of compute factor loop */
+	    
+	    if( ierr=check_done( accuracy, &local_done, grid, start, end, 
+				 solution, set ) != 0 )
+	    {
+		printf( "check_done: check_done failed with code %d.\n", 
+			ierr );
+		return 1;
+	    }
+	} 
+	else {
+	    /* that means, local_done == 1*/  	    
 
-/*
-#ifdef PERF_ANALYZE
-    MPE_Log_event( 9, 0, "ArStart" );
-#endif
-
-
-#ifdef PERF_ANALYZE
-    MPE_Log_event( 10, 0, "ArEnd" );
-#endif
-*/
-
-    (*num_iter) += 1; 
-/* MIR */
-/*    printf ("iteration %d.\n", *num_iter); */
-/* MIR */
-
-  } while (  global_done == 0);
-
-  cpt_end = MPI_Wtime();
-  duration = cpt_end - cpt_start;
-  (*data).comp += duration;           /* add all time (communication was previously
+	    msg_start = MPI_Wtime();
+	    MPI_Waitall( 6, r_req, r_stat );
+	    msg_end = MPI_Wtime();
+	    duration = msg_end - msg_start;
+	    (*data).recv_end += duration;         /* add communication part */
+	    (*data).comp -= duration;         /* subtract non-computation part */
+	    
+	    global_done = 1;
+	    for( j=0 ; j<6 ; j++ )
+	    {
+		if( neighbor[j] != MPI_PROC_NULL )
+		{
+		    if( r_stat[j].MPI_TAG != 0 )
+			global_done = 0;
+		    else
+			neighbor[j] = MPI_PROC_NULL;
+		}
+	    }
+	    
+	} /* end of providing information to neighbors */
+		
+	msg_start = MPI_Wtime();
+	MPI_Waitall( 6, s_req, s_stat );
+	msg_end = MPI_Wtime();
+	duration = msg_end - msg_start;
+	(*data).send_end += duration;         /* add communication part */
+	(*data).comp -= duration;         /* subtract non-computation part */
+	
+	if( local_done == 0)
+	{
+	    if( ierr=switch_steps( solution ) != 0 )
+	    {
+		printf( "update_solution: switch_steps failed with code %d.\n", \
+			ierr );
+		return 1;
+	    }
+	}
+	else
+	    for( j=0 ; j<6 ; j++ ) s_tag[j] = 0;
+	
+	
+	(*num_iter) += 1; 
+    } while (  global_done == 0);
+    
+    cpt_end = MPI_Wtime();
+    duration = cpt_end - cpt_start;
+    (*data).comp += duration;           /* add all time (communication was previously
                                            subtracted */
-
-  return 0;
+    
+    return 0;
 }
