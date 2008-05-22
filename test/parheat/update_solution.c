@@ -35,8 +35,6 @@ int update_solution( double c_fact, double delta_t, double delta_x,
     int s_off[6]={ 0, 0, 0, 0, 0, 0 };
     int r_off[6]={ 0, 0, 0, 0, 0, 0 };
     int s_tag[6];
-    int r_count, r_flag;
-    int s_count, s_flag;
     MPI_Request s_req[6], r_req[6];
     MPI_Status s_stat[6], r_stat[6];
     double lambda;
@@ -151,8 +149,8 @@ int update_solution( double c_fact, double delta_t, double delta_x,
 			      solution );
 	    } /* end of compute factor loop */
 	    
-	    if( ierr=check_done( accuracy, &local_done, grid, start, end, 
-				 solution, set ) != 0 )
+	    if( (ierr=check_done( accuracy, &local_done, grid, start, end, 
+				  solution, set )) != 0 )
 	    {
 		printf( "check_done: check_done failed with code %d.\n", 
 			ierr );
@@ -192,7 +190,7 @@ int update_solution( double c_fact, double delta_t, double delta_x,
 	
 	if( local_done == 0)
 	{
-	    if( ierr=switch_steps( solution ) != 0 )
+	    if( (ierr=switch_steps( solution )) != 0 )
 	    {
 		printf( "update_solution: switch_steps failed with code %d.\n", \
 			ierr );
@@ -201,7 +199,6 @@ int update_solution( double c_fact, double delta_t, double delta_x,
 	}
 	else
 	    for( j=0 ; j<6 ; j++ ) s_tag[j] = 0;
-	
 	
 	(*num_iter) += 1; 
     } while (  global_done == 0);

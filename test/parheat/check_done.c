@@ -16,30 +16,29 @@
 int check_done( double eps, int *flag, int *grid, int *start, \
                 int *end, struct tstep *solution, struct point *set )
 {
-  int i, j, k;
-  int index;
-  int count = 0;
-  double diff;
-
-  *flag = 0;
-  for( i=start[0] ; i<=end[0]&&count==0 ; i++ )
-  {
-    for( j=start[1] ; j<=end[1]&&count==0 ; j++ )
+    int i, j, k;
+    int index;
+    int count = 0;
+    double diff;
+    
+    *flag = 0;
+    for( i=start[0] ; i<=end[0]&&count==0 ; i++ )
     {
-      for( k=start[2] ; k<=end[2] ; k++ )
-      {
-        index = ( i * grid[1] + j ) * grid[2] + k;
-        diff = fabs( (*solution).neu[index] - (*solution).old[index] ); 
-        if( diff > eps ) 
-		  {
-			count++;
-			break;
-          }
-      }
+	for( j=start[1] ; j<=end[1]&&count==0 ; j++ )
+	{
+	    for( k=start[2] ; k<=end[2] ; k++ )
+	    {
+		index = ( i * grid[1] + j ) * grid[2] + k;
+		diff = fabs( (*solution).neu[index] - (*solution).old[index] ); 
+		if( diff > eps ) 
+		{
+		    count++;
+		    break;
+		}
+	    }
+	}
     }
-  }
 
-  if( count == 0 ) *flag = 1;
-
-  return 0;
+    if( count == 0 ) *flag = 1;
+    return 0;
 }

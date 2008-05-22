@@ -34,16 +34,8 @@ int main( int argc, char *argv[] )
     /* up the correct topology      */
     int numprocs, myid, oldmyid, ndim, dimlist[3];
     int reorder, periods[3], coords[3];
-/* MIR */
-    int ncoords[3];
-/* MIR */
     MPI_Comm newcomm;
     int nodenum;
-    
-    /* variables for the pack/unpack */
-    /* routines                      */
-    int position, numvars, buffsize;
-    void *buffer;
     
     /* variables for the get_domain  */
     /* routine                       */
@@ -77,7 +69,7 @@ int main( int argc, char *argv[] )
     for( i=0 ; i<6 ; i++ )
 	neighbor[i] = MPI_PROC_NULL;
     
-    if( ierr=MPI_Init( &argc, &argv ) != 0 )
+    if( (ierr=MPI_Init( &argc, &argv )) != 0 )
     {
 	printf( "MPI_Init failed with code %d.\n", ierr );
 	exit( ierr );
@@ -97,8 +89,8 @@ int main( int argc, char *argv[] )
     for( i=0 ; i<3 ; i++ )
 	coords[i] = 0;
     
-    if( ierr=MPI_Cart_create( MPI_COMM_WORLD, ndim, dimlist, periods, 
-			      reorder, &newcomm ) != 0 )
+    if( (ierr=MPI_Cart_create( MPI_COMM_WORLD, ndim, dimlist, periods, 
+			       reorder, &newcomm )) != 0 )
     {
 	printf( "MPI_Cart_create failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, ierr );
@@ -112,28 +104,32 @@ int main( int argc, char *argv[] )
 	printf( "There are %d processes.\n", numprocs );
     
     
-    read_input( grid, &mem_fac, &msg_fac, &cpt_fac,		\
+    read_input( grid, &mem_fac, &msg_fac, &cpt_fac,
 		&accuracy, &tstep_fac, &c_fact, min, max );
 /* MIR */
     delta_x = 1.0/(grid[1]-1);
     delta_t = tstep_fac * delta_x *delta_x/6.0;
-    printf (" delta_x = %f, delta_t = %f \n", delta_x, delta_t);
+    if ( myid == 0 ) {
+	printf (" delta_x = %f, delta_t = %f \n", delta_x, delta_t);
+    }
 /* MIR */
     
     
     
     for( i=0 ; i<ndim ; i++ ) {
-	if( ierr = MPI_Cart_shift( newcomm, i, 1, &neighbor[i], &neighbor[i+3] ) != 0 ) {
+	if( (ierr = MPI_Cart_shift( newcomm, i, 1, &neighbor[i], &neighbor[i+3])) != 0 ) {
 	    printf( "MPI_Cart_shift failed with code %d.\n" , ierr );
 	    MPI_Abort ( MPI_COMM_WORLD, ierr );
 	} 
     }
     
+#ifdef DEBUG
     printf("%d  coords %d %d %d  \n", myid ,coords[0],coords[1],coords[2]);
     printf("%d  neighbors %d %d %d  \n", myid ,neighbor[0],neighbor[1],neighbor[2]);
-    
-    if( get_domain( grid, coords, dimlist, ndim,		\
-		    min, max, ppnode, lmin, lmax ) != 0 )
+#endif 
+
+    if( (ierr=get_domain( grid, coords, dimlist, ndim,		
+			  min, max, ppnode, lmin, lmax )) != 0 )
     {
 	printf( "Error in get_domain.\n" );
 	MPI_Abort ( MPI_COMM_WORLD, 1 );
@@ -170,18 +166,18 @@ int main( int argc, char *argv[] )
 	}
     }
     
-    if( ierr=get_mesh_mem( mem_fac, ppnode, &setlist ) != 0 )
+    if( (ierr=get_mesh_mem( mem_fac, ppnode, &setlist )) != 0 )
 	printf( "process %d: get_mesh_mem failed with code %d.\n", 
 		myid, ierr );
     
-    if( ierr=get_coords( ppnode, start, end,		\
-			 lmin, lmax, *setlist ) != 0 )
+    if( (ierr=get_coords( ppnode, start, end,
+			  lmin, lmax, *setlist )) != 0 )
     {
 	printf( "parheat: get_coords failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, 1 );
     }
     
-    if( ierr=get_time_mem( ppnode, &solution ) != 0 )
+    if( (ierr=get_time_mem( ppnode, &solution )) != 0 )
     {
 	printf( "parheat: get_time_mem failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, 1 );
@@ -196,44 +192,44 @@ int main( int argc, char *argv[] )
 	    max_bcnodes += ppnode[ (i+1)%3 ] * ppnode[ (i+2)%3 ];
     }
     
-    if( ierr=get_bcnode_mem( max_bcnodes, &bcnode ) != 0 )
+    if( (ierr=get_bcnode_mem( max_bcnodes, &bcnode )) != 0 )
     {
 	printf( "parheat: get_bcnode_mem failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, 1 );
     }
     
-    if( ierr=find_bcnodes( ppnode, start, end, neighbor,	\
-			   bcnode, &num_bcnodes ) != 0 )
+    if( (ierr=find_bcnodes( ppnode, start, end, neighbor,
+			    bcnode, &num_bcnodes )) != 0 )
     {
 	printf( "parheat: find_bcnodes failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, 1 );
     }
     
-    if( ierr=set_initial( ppnode, solution.old ) != 0 )
+    if( (ierr=set_initial( ppnode, solution.old )) != 0 )
     {
 	printf( "parheat: set_initial failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, 1 );
     }
     
-    if( ierr=apply_bc( num_bcnodes, *setlist, solution.old,	\
-		       bcnode ) != 0 )
+    if( (ierr=apply_bc( num_bcnodes, *setlist, solution.old,
+			bcnode )) != 0 )
     {
 	printf( "parheat: apply_bc failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, 1 );
     }
     
-    if( ierr=apply_bc( num_bcnodes, *setlist, solution.neu,	\
-		       bcnode ) != 0 )
+    if( (ierr=apply_bc( num_bcnodes, *setlist, solution.neu,
+			bcnode )) != 0 )
     {
 	printf( "parheat: apply_bc failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, 1 );
     }
     
-/* Here comes the actual computation ! */
-    if( ierr=update_solution( c_fact, delta_t, delta_x, ppnode,   
+    /* Here comes the actual computation ! */
+    if( (ierr=update_solution( c_fact, delta_t, delta_x, ppnode,   
 			      start, end, neighbor,		
 			      tstep_fac, accuracy, msg_fac, cpt_fac, &num_iter,
-			      *setlist, &data, &solution, newcomm ) != 0 )
+			       *setlist, &data, &solution, newcomm )) != 0 )
     {
 	printf( "update_ solution failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, ierr );
@@ -253,8 +249,8 @@ int main( int argc, char *argv[] )
     if( myid == 0 )
 	trecv = (double *)malloc( 6*numprocs*sizeof(double) );
     
-    if( ierr = MPI_Gather( (void *)&tsend, 6, MPI_DOUBLE, (void *)trecv, 6,
-			   MPI_DOUBLE, 0, newcomm ) != 0 )
+    if( (ierr = MPI_Gather( (void *)&tsend, 6, MPI_DOUBLE, (void *)trecv, 6,
+			    MPI_DOUBLE, 0, newcomm )) != 0 )
     {
 	printf( "MPI_Gather failed with code %d.\n", ierr );
 	MPI_Abort ( MPI_COMM_WORLD, ierr );
@@ -283,7 +279,7 @@ int main( int argc, char *argv[] )
 	    printf( "\n" );
 	}
 	
-	if( ierr=write_step( ppnode, *setlist, solution.old, filename ) != 0 )
+	if( (ierr=write_step( ppnode, *setlist, solution.old, filename )) != 0 )
 	{
 	    printf( "process %d: write_step failed with code %d.\n", myid, ierr );
 	    MPI_Abort ( MPI_COMM_WORLD, 1 );
