@@ -34,7 +34,6 @@ int update_solution( double c_fact, double delta_t, double delta_x,
     int local_done, global_done;
     int s_off[6]={ 0, 0, 0, 0, 0, 0 };
     int r_off[6]={ 0, 0, 0, 0, 0, 0 };
-    int s_tag[6];
     MPI_Request s_req[6], r_req[6];
     MPI_Status s_stat[6], r_stat[6];
     double lambda;
@@ -78,12 +77,7 @@ int update_solution( double c_fact, double delta_t, double delta_x,
 	printf( "get_datatypes failed with code %d.\n", ierr );
 	return ierr;
     } 
-    
-    /* set up the message tags that are used */
-    /* until local_done == 1         */
-    for( i=0 ; i<6 ; i++ )
-	s_tag[i] = i+1;
-    
+        
     num_ifaces = 0;
     for( i=0 ; i<6 ; i++ )
     {
@@ -99,22 +93,19 @@ int update_solution( double c_fact, double delta_t, double delta_x,
 	msg_start = MPI_Wtime();
 	
 	/* post a receive for all existing neighbors */
-	for( i=0 ; i<6 ; i++ )
-	{
-	    if( neighbor[i] != MPI_PROC_NULL )
-	    {
+	for( i=0 ; i<6 ; i++ )	{
+	    if( neighbor[i] != MPI_PROC_NULL )  {
 		MPI_Irecv( (void *)&((*solution).old[r_off[i]]), 1, faces[i%3], 
-			   neighbor[i], MPI_ANY_TAG, newcomm, &r_req[i] );
+			   neighbor[i], 1000, newcomm, &r_req[i] );
 	    }
 	}
 	
 	/* send to all neighbors            */
 	
-	for( i=0 ; i<6 ; i++ )
-	{
+	for( i=0 ; i<6 ; i++ ) {
 	    if( neighbor[i] != MPI_PROC_NULL )
 		MPI_Isend( (void *)&((*solution).old[s_off[i]]), 1, faces[i%3], 
-			   neighbor[i], s_tag[i], newcomm, &s_req[i] );
+			   neighbor[i], 1000, newcomm, &s_req[i] );
 	}
 	
 	msg_end = MPI_Wtime();
@@ -127,31 +118,23 @@ int update_solution( double c_fact, double delta_t, double delta_x,
 	 * or provide neighbors with data (local_done == 1)
 	 */
 	
-	if( local_done == 0)
-	{
-	    for( i=0 ; i<cpt_fac ; i++ )
-	    {
-		update_interior( c_fact, delta_t, delta_x, grid, start, 
-				 end, lambda, solution );
+	if( local_done == 0) {
+	    update_interior( c_fact, delta_t, delta_x, grid, start, 
+			     end, lambda, solution );
 		
-		if( i == cpt_fac-1 )
-		{
-		    msg_start = MPI_Wtime();
-		    MPI_Waitall( 6, r_req, r_stat );
-		    msg_end = MPI_Wtime();
-		    duration = msg_end - msg_start;
-		    (*data).recv_end += duration;         /* add communication part */
-		    (*data).comp -= duration;         /* subtract non-computation part */	
-		}
+	    msg_start = MPI_Wtime();
+	    MPI_Waitall( 6, r_req, r_stat );
+	    msg_end = MPI_Wtime();
+	    duration = msg_end - msg_start;
+	    (*data).recv_end += duration;         /* add communication part */
+	    (*data).comp -= duration;         /* subtract non-computation part */	
 		
-		update_faces( c_fact, delta_t, delta_x, grid, start,	
-			      end, neighbor, lambda,			
+	    update_faces( c_fact, delta_t, delta_x, grid, start,	
+			  end, neighbor, lambda,			
 			      solution );
-	    } /* end of compute factor loop */
 	    
 	    if( (ierr=check_done( accuracy, &local_done, grid, start, end, 
-				  solution, set )) != 0 )
-	    {
+				  solution, set )) != 0 ) {
 		printf( "check_done: check_done failed with code %d.\n", 
 			ierr );
 		return 1;
@@ -167,39 +150,19 @@ int update_solution( double c_fact, double delta_t, double delta_x,
 	    (*data).recv_end += duration;         /* add communication part */
 	    (*data).comp -= duration;         /* subtract non-computation part */
 	    
-	    global_done = 1;
-	    for( j=0 ; j<6 ; j++ )
-	    {
-		if( neighbor[j] != MPI_PROC_NULL )
-		{
-		    if( r_stat[j].MPI_TAG != 0 )
-			global_done = 0;
-		    else
-			neighbor[j] = MPI_PROC_NULL;
-		}
-	    }
-	    
 	} /* end of providing information to neighbors */
 		
-	msg_start = MPI_Wtime();
-	MPI_Waitall( 6, s_req, s_stat );
-	msg_end = MPI_Wtime();
-	duration = msg_end - msg_start;
-	(*data).send_end += duration;         /* add communication part */
-	(*data).comp -= duration;         /* subtract non-computation part */
 	
-	if( local_done == 0)
-	{
-	    if( (ierr=switch_steps( solution )) != 0 )
-	    {
-		printf( "update_solution: switch_steps failed with code %d.\n", \
+	if( local_done == 0) {
+	    if( (ierr=switch_steps( solution )) != 0 ) {
+		printf( "update_solution: switch_steps failed with code %d.\n", 
 			ierr );
 		return 1;
 	    }
 	}
-	else
-	    for( j=0 ; j<6 ; j++ ) s_tag[j] = 0;
 	
+	MPI_Allreduce ( &local_done, &global_done, 1, MPI_INT, MPI_MIN, newcomm );
+
 	(*num_iter) += 1; 
     } while (  global_done == 0);
     
