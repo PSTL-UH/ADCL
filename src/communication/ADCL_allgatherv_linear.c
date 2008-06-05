@@ -62,7 +62,7 @@
  *	Accepts:	- same as MPI_Allgatherv()
  *	Returns:	- MPI_SUCCESS or error code
  */
-int ADCL_allgatherv_linear ( ADCL_request_t *req )
+void ADCL_allgatherv_linear ( ADCL_request_t *req )
 {
     int i, size, rank ;
     int err;
@@ -109,7 +109,7 @@ int ADCL_allgatherv_linear ( ADCL_request_t *req )
 		      comm);
     
     if (MPI_SUCCESS != err) {
-        return err;
+        return;
     }
     /*
      * we now have all the data in the root's rbuf. Need to
@@ -126,18 +126,18 @@ int ADCL_allgatherv_linear ( ADCL_request_t *req )
 
     err = MPI_Type_create_indexed(size,rcounts,disps,rdtype,&newtype);
     if (MPI_SUCCESS != err) {
-        return err;
+        return ;
     }
     
     err = MPI_Type_commit(&newtype);
     if(MPI_SUCCESS != err) {
-        return err;
+        return;
     }
 
     MPI_Bccast(rbuf, 1, newtype, 0, comm );
-
     MPI_Type_free (&newtype);
-    return MPI_SUCCESS;
+
+    return;
 }
 /* copied function (with appropriate renaming) ends here */
 

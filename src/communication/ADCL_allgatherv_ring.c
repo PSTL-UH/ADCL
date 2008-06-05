@@ -1,5 +1,3 @@
-
-
 /* Algorithms implementing ALLGATHERV operations. Taken from the Open MPI source code repository.
 ** Following are the Open MPI copyrights
 */
@@ -42,7 +40,7 @@
 
 
 /*
- * ompi_coll_tuned_allgatherv_intra_ring
+ * allgatherv_ring
  *
  * Function:     allgatherv using O(N) steps.
  * Accepts:      Same arguments as MPI_Allgatherv
@@ -56,7 +54,7 @@
  *               No additional memory requirements.
  * 
  */
-int ADCL_allgatherv_ring( ADCL_request_t *req )
+void ADCL_allgatherv_ring( ADCL_request_t *req )
 {
     int line = -1;
     int rank, size;
@@ -95,7 +93,8 @@ int ADCL_allgatherv_ring( ADCL_request_t *req )
     if (MPI_IN_PLACE != sbuf) {
         tmpsend = (char*) sbuf;
         err = MPI_Sendrecv (tmpsend, scount, sdtype, 
-			    tmprecv, rcounts[rank], rdtype, comm, MPI_STATUS_IGNORE);
+			    tmprecv, rcounts[rank], rdtype, comm, 
+			    MPI_STATUS_IGNORE);
         if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl;  }
     } 
    
@@ -118,18 +117,17 @@ int ADCL_allgatherv_ring( ADCL_request_t *req )
         tmpsend = (char*)rbuf + rdisps[senddatafrom] * rext;
 
         /* Sendreceive */
-        err = ompi_coll_tuned_sendrecv(tmpsend, rcounts[senddatafrom], rdtype, 
-                                       sendto, MCA_COLL_BASE_TAG_ALLGATHERV,
-                                       tmprecv, rcounts[recvdatafrom], rdtype, 
-                                       recvfrom, MCA_COLL_BASE_TAG_ALLGATHERV,
-                                       comm, MPI_STATUS_IGNORE, rank);
+        err = MPI_Sendrecv(tmpsend, rcounts[senddatafrom], rdtype, 
+			   sendto, ADCL_TAG_ALLGATHERV,
+			   tmprecv, rcounts[recvdatafrom], rdtype, 
+			   recvfrom, ADCL_TAG_ALLGATHERV,
+			   comm, MPI_STATUS_IGNORE);
         if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl; }
 
     }
 
-    return ADCL_SUCCESS;
 
 err_hndl:
-    return err;
+    return ;
 }
 

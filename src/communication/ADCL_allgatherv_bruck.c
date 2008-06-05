@@ -41,7 +41,7 @@
 
 
 /*
- * ompi_coll_tuned_allgatherv_intra_bruck
+ * allgatherv_bruck
  *
  * Function:     allgather using O(log(N)) steps.
  * Accepts:      Same arguments as MPI_Allgather
@@ -95,7 +95,7 @@
  *         [5]    [5]    [5]    [5]    [5]    [5]    [5]
  *         [6]    [6]    [6]    [6]    [6]    [6]    [6]
  */
-int ADCL_allgatherv_intra_bruck( ADCL_request_t *req )
+void ADCL_allgatherv_bruck( ADCL_request_t *req )
 {
    int line = -1, err = 0;
    int rank, size;
@@ -135,7 +135,8 @@ int ADCL_allgatherv_intra_bruck( ADCL_request_t *req )
    if (MPI_IN_PLACE != sbuf) {
       tmpsend = (char*) sbuf;
       err = MPI_Sendrecv (tmpsend, scount, sdtype, 
-                          tmprecv, rcounts[rank], rdtype, comm, MPI_STATUS_IGNORE);
+                          tmprecv, rcounts[rank], rdtype, comm, 
+			  MPI_STATUS_IGNORE);
       if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl;  }
 
    }
@@ -195,22 +196,15 @@ int ADCL_allgatherv_intra_bruck( ADCL_request_t *req )
       if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl; }
 
       /* Sendreceive */
-      err = ompi_coll_tuned_sendrecv(rbuf, 1, new_sdtype, sendto,
-                                     MCA_COLL_BASE_TAG_ALLGATHERV,
-                                     rbuf, 1, new_rdtype, recvfrom,
-                                     MCA_COLL_BASE_TAG_ALLGATHERV,
-                                     comm, MPI_STATUS_IGNORE, rank);
+      err = MPI_Sendrecv(rbuf, 1, new_sdtype, sendto,
+			 ADCL_TAG_ALLGATHERV,
+			 rbuf, 1, new_rdtype, recvfrom,
+			 ADCL_TAG_ALLGATHERV,
+			 comm, MPI_STATUS_IGNORE);
       MPI_Type_free(&new_sdtype);
       MPI_Type_free(&new_rdtype);
 
    }
-
-   free(new_rcounts);
-   free(new_rdispls);
-   free(new_scounts);
-   free(new_sdispls);
-
-   return ADCL_SUCCESS;
 
  err_hndl:
    if( NULL != new_rcounts ) free(new_rcounts);
@@ -218,7 +212,7 @@ int ADCL_allgatherv_intra_bruck( ADCL_request_t *req )
    if( NULL != new_scounts ) free(new_scounts);
    if( NULL != new_sdispls ) free(new_sdispls);
 
-   return err;
+   return;
 }
 
 

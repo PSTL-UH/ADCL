@@ -1,5 +1,3 @@
-
-
 /* Algorithms implementing ALLGATHERV operations. Taken from the Open MPI source code repository.
 ** Following are the Open MPI copyrights
 */
@@ -41,10 +39,8 @@
 #include "ADCL_internal.h"
 
 
-
-
 /*
- * ompi_coll_tuned_allgatherv_intra_neighborexchange
+ * allgatherv_neighborexchange
  *
  * Function:     allgatherv using N/2 steps (O(N))
  * Accepts:      Same arguments as MPI_Allgatherv
@@ -101,7 +97,7 @@
  *         [4]    [4]    [4]    [4]    [4]    [4]
  *         [5]    [5]    [5]    [5]    [5]    [5]
  */
-int ADCL_allgatherv_neighborexchange(ADCL_request_t *req)
+void ADCL_allgatherv_neighborexchange(ADCL_request_t *req)
 {
     int line = -1;
     int rank, size;
@@ -131,7 +127,8 @@ int ADCL_allgatherv_neighborexchange(ADCL_request_t *req)
 
     if (size % 2) {
 	/* ADCL: I Don't like this!!!! */
-        return ADCL_allgatherv_ring(req);
+        ADCL_allgatherv_ring(req);
+	return;
     }
 
     err = MPI_Type_get_extent (sdtype, &slb, &sext);
@@ -148,7 +145,8 @@ int ADCL_allgatherv_neighborexchange(ADCL_request_t *req)
     if (MPI_IN_PLACE != sbuf) {
         tmpsend = (char*) sbuf;
         err = MPI_Sendrecv(tmpsend, scount, sdtype, 
-			   tmprecv, rcounts[rank], rdtype, comm, MPI_STATUS_IGNORE);
+			   tmprecv, rcounts[rank], rdtype, comm, 
+			   MPI_STATUS_IGNORE);
         if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl;  }
     } 
 
@@ -181,11 +179,11 @@ int ADCL_allgatherv_neighborexchange(ADCL_request_t *req)
     */
     tmprecv = (char*)rbuf + rdispls[neighbor[0]] * rext;
     tmpsend = (char*)rbuf + rdispls[rank] * rext;
-    err = ompi_coll_tuned_sendrecv(tmpsend, rcounts[rank], rdtype, 
-                                   neighbor[0], MCA_COLL_BASE_TAG_ALLGATHERV,
-                                   tmprecv, rcounts[neighbor[0]], rdtype, 
-                                   neighbor[0], MCA_COLL_BASE_TAG_ALLGATHERV,
-                                   comm, MPI_STATUS_IGNORE, rank);
+    err = MPI_Sendrecv(tmpsend, rcounts[rank], rdtype, 
+		       neighbor[0], ADCL_TAG_ALLGATHERV,
+		       tmprecv, rcounts[neighbor[0]], rdtype, 
+		       neighbor[0], ADCL_TAG_ALLGATHERV,
+		       comm, MPI_STATUS_IGNORE);
     if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl; }
    
     /* Determine initial sending counts and displacements*/
@@ -229,23 +227,21 @@ int ADCL_allgatherv_neighborexchange(ADCL_request_t *req)
         tmpsend = (char*)rbuf;
       
         /* Sendreceive */
-        err = ompi_coll_tuned_sendrecv(tmpsend, 1, new_sdtype, neighbor[i_parity],
-                                       MCA_COLL_BASE_TAG_ALLGATHERV,
-                                       tmprecv, 1, new_rdtype, neighbor[i_parity],
-                                       MCA_COLL_BASE_TAG_ALLGATHERV,
-                                       comm, MPI_STATUS_IGNORE, rank);
+        err = MPI_Sendrecv(tmpsend, 1, new_sdtype, neighbor[i_parity],
+			   ADCL_TAG_ALLGATHERV,
+			   tmprecv, 1, new_rdtype, neighbor[i_parity],
+			   ADCL_TAG_ALLGATHERV,
+			   comm, MPI_STATUS_IGNORE);
         if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl; }
-
+	
         send_data_from = recv_data_from[i_parity];
       
         MPI_Type_free(&new_sdtype);
         MPI_Type_free(&new_rdtype);
     }
 
-    return OMPI_SUCCESS;
-
  err_hndl:
-    return err;
+    return;
 }
 
 

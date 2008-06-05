@@ -41,7 +41,7 @@
 
 
 
-int ADCL_allgatherv_two_procs(ADCL_request_t *req )
+void ADCL_allgatherv_two_procs(ADCL_request_t *req )
 {
     int line = -1, err = 0;
     int rank;
@@ -84,25 +84,24 @@ int ADCL_allgatherv_two_procs(ADCL_request_t *req )
     }
     tmprecv = (char*)rbuf + rdispls[remote] * rext;
 
-    err = ompi_coll_tuned_sendrecv(tmpsend, scount, sdtype, remote,
-                                   MCA_COLL_BASE_TAG_ALLGATHERV,
-                                   tmprecv, rcounts[remote], rdtype, remote,
-                                   MCA_COLL_BASE_TAG_ALLGATHERV,
-                                   comm, MPI_STATUS_IGNORE, rank);
+    err = MPI_Sendrecv(tmpsend, scount, sdtype, remote,
+		       ADCL_TAG_ALLGATHERV,
+		       tmprecv, rcounts[remote], rdtype, remote,
+		       ADCL_TAG_ALLGATHERV,
+		       comm, MPI_STATUS_IGNORE);
     if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl; }
 
     /* Place your data in correct location if necessary */
     if (MPI_IN_PLACE != sbuf) {
         err = MPI_Sendrecv((char*)sbuf, scount, sdtype, 
 			   (char*)rbuf + rdispls[rank] * rext, 
-			   rcounts[rank], rdtype, comm, MPI_STATUS_NULL); 
+			   rcounts[rank], rdtype, comm, MPI_STATUS_IGNORE); 
         if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl;  }
     }
 
-    return MPI_SUCCESS;
 
  err_hndl:
 
-    return err;
+    return;
 }
 
