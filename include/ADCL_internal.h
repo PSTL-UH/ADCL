@@ -29,6 +29,7 @@
 #include "ADCL_packunpack.h"
 #include "ADCL_request.h"
 #include "ADCL_change.h"
+#include "ADCL_allgatherv.h"
 #include "ADCL_predefined.h"
 
 #ifdef ADCL_PAPI
