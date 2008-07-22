@@ -158,8 +158,8 @@
         implicit none
         include 'ADCL.inc'
 
-        double precision data(dim1,dim2)
         integer rank, dim1, dim2, hwidth, nc
+        double precision data(dim1,dim2)
         integer i, j
 
         do i=1,hwidth
@@ -256,8 +256,8 @@
         implicit none
         include 'ADCL.inc'
 
-        double precision data(dim1,dim2)
         integer rank, size, dim1, dim2, hwidth, nc
+        double precision data(dim1,dim2)
         integer lres, gres, i, j, ierr
         
         lres = 1
@@ -350,8 +350,8 @@
         implicit none
         include 'ADCL.inc'
 
-        double precision data(dim1, dim2)
         integer rank, dim1, dim2
+        double precision data(dim1, dim2)
         integer i, j
 
         do j = 1, dim1
