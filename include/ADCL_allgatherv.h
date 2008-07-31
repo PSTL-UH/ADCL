@@ -1,8 +1,11 @@
 #ifndef __ADCL_ALLGATHERV__
 #define __ADCL_ALLGATHERV__
 
-
+#if ADCL_DUMMY_MPI
+#include "ADCL_dummy_mpi.h"
+#else
 #include "mpi.h"
+#endif
 
 #define ADCL_TAG_ALLGATHERV 123
 
