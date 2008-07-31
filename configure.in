@@ -645,11 +645,26 @@ if test "$ADCL_DUMMY_MPI" = "yes" ; then
    AC_DEFINE(ADCL_DUMMY_MPI)
 fi
 
+dnl ==================================================
+AC_ARG_ENABLE(fortran,
+[  --disable-fortran          compile fortran wrappers (default=yes)],
+[test "$enableval" = no && ADCL_FORTRAN=no])
+test "$ADCL_FORTRAN" = no || ADCL_FORTRAN=yes
+test "$ADCL_FORTRAN" = yes && fortran_make="cd src/adcl/f90 ; make all"
+test "$ADCL_FORTRAN" = yes && fortran_clean="cd src/adcl/f90 ; make clean"
+AC_MSG_CHECKING([whether to compile fortran wrappers])
+AC_MSG_RESULT(${ADCL_FORTRAN})
+if test "$ADCL_FORTRAN" = "yes" ; then 
+   AC_DEFINE(ADCL_FORTRAN)
+fi
+
 AC_SUBST(c_compiler)
 AC_SUBST(f_compiler)
 AC_SUBST(dumpi_inc)
 AC_SUBST(dumpi_make)
 AC_SUBST(dumpi_clean)
+AC_SUBST(fortran_make)
+AC_SUBST(fortran_clean)
 
 dnl ==================================================
 

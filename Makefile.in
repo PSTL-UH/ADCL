@@ -30,7 +30,7 @@ all:
 	cd src/memory ; make
 	cd src/communication ; make 
 	cd src/adcl/C ; make all 
-	cd src/adcl/f90 ; make all 
+	@fortran_make@
 	cd utils ; make all 
 	@dumpi_make@
 
@@ -38,8 +38,8 @@ clean:
 	cd src/framework ; make clean
 	cd src/memory ; make clean
 	cd src/communication ; make clean
-	cd src/adcl/C ; make clean 
-	cd src/adcl/f90 ; make clean 
+	cd src/adcl/C ; make clean
+	@fortran_clean@
 	cd utils ; make clean
 	@dumpi_clean@
 	rm -rf *~ ./include/*~ 
