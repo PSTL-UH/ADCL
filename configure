@@ -650,6 +650,8 @@ f_compiler
 dumpi_inc
 dumpi_make
 dumpi_clean
+fortran_make
+fortran_clean
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -1248,6 +1250,7 @@ Optional Features:
   --disable-knowledge-tofile  dump the ADCL knowledge to an XML file (default=yes)
   --disable-saving-request-winner  save the winner of a request (default=yes)
   --enable-dummy-mpi           enable the usage of dummy-mpi (default=no)
+  --disable-fortran          compile fortran wrappers (default=yes)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -4421,6 +4424,27 @@ _ACEOF
 
 fi
 
+# Check whether --enable-fortran was given.
+if test "${enable_fortran+set}" = set; then
+  enableval=$enable_fortran; test "$enableval" = no && ADCL_FORTRAN=no
+fi
+
+test "$ADCL_FORTRAN" = no || ADCL_FORTRAN=yes
+test "$ADCL_FORTRAN" = yes && fortran_make="cd src/adcl/f90 ; make all"
+test "$ADCL_FORTRAN" = yes && fortran_clean="cd src/adcl/f90 ; make clean"
+{ echo "$as_me:$LINENO: checking whether to compile fortran wrappers" >&5
+echo $ECHO_N "checking whether to compile fortran wrappers... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: result: ${ADCL_FORTRAN}" >&5
+echo "${ECHO_T}${ADCL_FORTRAN}" >&6; }
+if test "$ADCL_FORTRAN" = "yes" ; then
+   cat >>confdefs.h <<\_ACEOF
+#define ADCL_FORTRAN 1
+_ACEOF
+
+fi
+
+
+
 
 
 
@@ -4439,7 +4463,7 @@ fi
 #AC_FUNC_MEMCMP
 #AC_CHECK_FUNCS(gethostname strerror strstr setlinebuf strcasecmp snprintf)
 
-ac_config_files="$ac_config_files Makefile Makefile.defs include/ADCL_sysconfig.h src/framework/Makefile src/adcl/C/Makefile src/dummympi/Makefile utils/Makefile test/solversys/Makefile"
+ac_config_files="$ac_config_files Makefile Makefile.defs include/ADCL_sysconfig.h src/framework/Makefile src/adcl/C/Makefile src/dummympi/Makefile utils/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4987,8 +5011,8 @@ do
     "src/framework/Makefile") CONFIG_FILES="$CONFIG_FILES src/framework/Makefile" ;;
     "src/adcl/C/Makefile") CONFIG_FILES="$CONFIG_FILES src/adcl/C/Makefile" ;;
     "src/dummympi/Makefile") CONFIG_FILES="$CONFIG_FILES src/dummympi/Makefile" ;;
-    "utils/Makefile") CONFIG_FILES="$CONFIG_FILES utils/Makefile" ;; 
-    "test/solversys/Makefile") CONFIG_FILES="$CONFIG_FILES test/solversys/Makefile" ;; 
+    "utils/Makefile") CONFIG_FILES="$CONFIG_FILES utils/Makefile" ;;
+
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
@@ -5137,11 +5161,13 @@ f_compiler!$f_compiler$ac_delim
 dumpi_inc!$dumpi_inc$ac_delim
 dumpi_make!$dumpi_make$ac_delim
 dumpi_clean!$dumpi_clean$ac_delim
+fortran_make!$fortran_make$ac_delim
+fortran_clean!$fortran_clean$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 90; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 92; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
