@@ -46,7 +46,7 @@ static double find_dmax(double *distance, double *relation);
 int main ( int argc, char ** argv ) 
 {
     /* General variables */
-    int hwidth, rank, size;
+    int hwidth, rank, size, err;
 
     int i, j, k,it;
     char *winner_name;
@@ -57,6 +57,7 @@ int main ( int argc, char ** argv )
     /* Definition of the 2-D vector */
     int dims[3], neighbors[6];
     double ***data, ****data2;
+    ADCL_Vmap vmap; 
     ADCL_Vector vec;
 
     /* Variables for the process topology information */
@@ -94,7 +95,10 @@ int main ( int argc, char ** argv )
         if(rank == 0) {
             printf("Explored Problem Size %dX%dX%d \n", ProblemSizes[i][0],ProblemSizes[i][1], ProblemSizes[i][2] );
         }
-        ADCL_Vector_allocate ( 3,  dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data, &vec );
+        err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+        if ( ADCL_SUCCESS != err) goto exit;
+        err = ADCL_Vector_allocate_generic ( 3,  dims, 0, vmap, MPI_DOUBLE, &data, &vec );
+        if ( ADCL_SUCCESS != err) goto exit;
         ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
         
         /* Evaluate implementation 1 */
@@ -221,6 +225,7 @@ int main ( int argc, char ** argv )
 
         ADCL_Request_free ( &request );
         ADCL_Vector_free ( &vec );
+        ADCL_Vmap_free ( &vmap );
     }
 
     ADCL_Topology_free ( &topo );
@@ -251,7 +256,8 @@ int main ( int argc, char ** argv )
                     ProblemSizes[i][1], ProblemSizes[i][2], dmax);
         }
     }
-    
+   
+exit: 
     ADCL_Finalize ();
     MPI_Finalize ();
     return 0;

@@ -9,6 +9,7 @@
 #ifndef __ADCL_VECTOR_H__
 #define __ADCL_VECTOR_H__
 
+#include "ADCL_vmap.h"
 
 struct ADCL_vector_s{
     int              v_id; /* unique identifier for this process */
@@ -18,12 +19,15 @@ struct ADCL_vector_s{
                               done by user */
     int           v_ndims; /* number of dimensions */
     int              v_nc; /* extent of each point */
-    int         v_comtype; /* communication type */
-    int          v_hwidth; /* how many halo-cells are being used */
+
+//    int         v_vectype; /* communication type */
+//    int          v_hwidth; /* how many halo-cells are being used */
+
     int           *v_dims; /* extent of each of the dimensions */
     void        *v_matrix; /* the matrix pointer */
     void          *v_data; /* pointer to the data array */
     MPI_Datatype    v_dat; /* basic datatype */
+    ADCL_vmap_t    *v_map; /* pointer to the vmap structure */
 };
 typedef struct ADCL_vector_s ADCL_vector_t;
 
@@ -40,7 +44,7 @@ extern ADCL_array_t *ADCL_vector_farray;
    @param   ndims:   number of dimensions
    @param    dims:   extent of each dimension
    @param      nc:   extent of each point of the vector
-   @param comtype:   type of the data to be communicated
+   @param vectype:   type of the data to be communicated
    @param hdiwdth:   number of ghost cells. Note: this entry does not
                      modify dims or nc! It's stored for later usage
    @param     dat;   basic datatype of the array, described as an
@@ -57,10 +61,12 @@ extern ADCL_array_t *ADCL_vector_farray;
    @retval ADCL_INVALID_HWIDTH   invalid hwidth input parameter
    @retval ADCL_INVALID_DAT      invalid dat input parameter
 */
-int ADCL_vector_allocate ( int ndims, int *dims, int nc, int comtype, int hwidth,
+int ADCL_vector_allocate ( int ndims, int *dims, int nc, int vectype, int hwidth,
                            MPI_Datatype dat, ADCL_vector_t **vec );
 
 
+int ADCL_vector_allocate_generic ( int ndims, int *dims, int nc,
+           ADCL_vmap_t *vmap, MPI_Datatype dat, ADCL_vector_t **vec );
 
 
 /* ADCL_vector_free
@@ -87,7 +93,7 @@ int ADCL_vector_free  ( ADCL_vector_t **vec );
    @param   ndims:   number of dimensions
    @param    dims:   extent of each dimension
    @param      nc:   extent of each point of the vector
-   @param comtype:   type of the data to be communicated
+   @param vectype:   type of the data to be communicated
    @param hdiwdth:   number of ghost cells. Note: this entry does not
                      modify dims or nc! It's stored for later usage
    @param     dat;   basic datatype of the array, described as an
@@ -106,10 +112,12 @@ int ADCL_vector_free  ( ADCL_vector_t **vec );
    @retval ADCL_INVALID_DAT      invalid dat input parameter
    @retval ADCL_INVALID_DATA     invalid data pointer input parameter
 */
-int ADCL_vector_register ( int ndims, int *dims, int nc, int comtype, int hwidth,
+int ADCL_vector_register ( int ndims, int *dims, int nc, int vectype, int hwidth,
                            MPI_Datatype dat, void *data, ADCL_vector_t **vec );
 
 
+int ADCL_vector_register_generic ( int ndims, int *dims, int nc, ADCL_vmap_t *vmap,
+               MPI_Datatype dat, void *data,  ADCL_vector_t **vec ); 
 
 
 /* ADCL_vector_deregister
@@ -130,6 +138,12 @@ int ADCL_vector_deregister  ( ADCL_vector_t **vec );
 
 
 void* ADCL_vector_get_data_ptr ( ADCL_vector_t *vec );
+
+/* increments / decrements the vector reference counters and those of the 
+ * underlying structures (e.g. vmap) */
+int ADCL_vector_add_reference ( ADCL_vector_t *vec );
+
+
 
 struct ADCL_vectset_s{
     int                    vs_id; /* id of the object */

@@ -17,7 +17,9 @@
 */
 
 /* Total number of attributes */
-#define ADCL_ATTR_TOTAL_NUM  3  /* ignoring numblocks for right now */
+#define ADCL_ATTR_NN_TOTAL_NUM  3  /* ignoring numblocks for right now */
+#define ADCL_ATTR_ALLGATHERV_TOTAL_NUM  1  /*  */
+#define ADCL_ATTR_ALLREDUCE_TOTAL_NUM  1  /*  */
 #define ADCL_ATTR_NOT_SET   -1  /* attributes not set*/
 #define ADCL_ATTR_NEW_BLOCK -2  /* signal that we start a new block.
                    Used in the performance hypothesis v2 */
@@ -62,16 +64,22 @@ extern const int ADCL_attr_noncont_individual;
 #define ADCL_ATTR_TRANSFER_MAX 4
 #endif
 
-extern const int ADCL_attr_transfer_IsendIrecv;
-extern const int ADCL_attr_transfer_SendIrecv;
-extern const int ADCL_attr_transfer_Send_Recv;
-extern const int ADCL_attr_transfer_Sendrecv;
+extern const int ADCL_attr_transfer_nn_IsendIrecv;
+extern const int ADCL_attr_transfer_nn_SendIrecv;
+extern const int ADCL_attr_transfer_nn_Send_Recv;
+extern const int ADCL_attr_transfer_nn_Sendrecv;
 #ifdef MPI_WIN
-extern const int ADCL_attr_transfer_FenceGet;
-extern const int ADCL_attr_transfer_FencePut;
-extern const int ADCL_attr_transfer_PostStartGet;
-extern const int ADCL_attr_transfer_PostStartPut;
+extern const int ADCL_attr_transfer_nn_FenceGet;
+extern const int ADCL_attr_transfer_nn_FencePut;
+extern const int ADCL_attr_transfer_nn_PostStartGet;
+extern const int ADCL_attr_transfer_nn_PostStartPut;
 #endif
+
+extern const int ADCL_attr_transfer_allgatherv_bruck;
+extern const int ADCL_attr_transfer_allgatherv_linear;
+extern const int ADCL_attr_transfer_allgatherv_neighborexch;
+extern const int ADCL_attr_transfer_allgatherv_ring;
+extern const int ADCL_attr_transfer_allgatherv_twoprocs;
 
 /*=================================================================*/
 
@@ -89,14 +97,19 @@ extern const int ADCL_attr_numblocks_dual;
 /*=================================================================*/
 
 #ifdef MPI_WIN
-#define ADCL_METHOD_TOTAL_NUM 20
+#define ADCL_METHOD_NN_TOTAL_NUM 20
 #else
-#define ADCL_METHOD_TOTAL_NUM 12
+#define ADCL_METHOD_NN_TOTAL_NUM 12
 #endif
+#define ADCL_METHOD_ALLGATHERV_TOTAL_NUM 5 
 
-extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
+#define ADCL_METHOD_ALLREDUCE_TOTAL_NUM 5 
+
+extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_NN_TOTAL_NUM];
 extern ADCL_attrset_t *ADCL_neighborhood_attrset;
 
-extern ADCL_function_t *ADCL_neighborhood_functions[ADCL_METHOD_TOTAL_NUM];
+extern ADCL_function_t *ADCL_neighborhood_functions[ADCL_METHOD_NN_TOTAL_NUM];
+extern ADCL_function_t *ADCL_allgatherv_functions[ADCL_METHOD_ALLGATHERV_TOTAL_NUM];
+extern ADCL_function_t *ADCL_allreduce_functions[ADCL_METHOD_ALLREDUCE_TOTAL_NUM];
 
 #endif

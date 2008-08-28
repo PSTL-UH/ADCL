@@ -80,6 +80,8 @@ int ADCL_Function_create_async ( ADCL_work_fnct_ptr *iptr, ADCL_work_fnct_ptr *w
 
 int ADCL_Function_free ( ADCL_Function *fnct )
 {
+    int ret; 
+    
     if ( NULL == fnct ) {
         return ADCL_INVALID_ARG;
     }
@@ -87,7 +89,10 @@ int ADCL_Function_free ( ADCL_Function *fnct )
         return ADCL_INVALID_FUNCTION;
     }
 
-    return ADCL_function_free (fnct);
+    ret = ADCL_function_free (fnct);
+    fnct = ADCL_FUNCTION_NULL; 
+
+    return ret; 
 }
 
 int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts,
@@ -145,6 +150,8 @@ int ADCL_Fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
 
 int ADCL_Fnctset_free ( ADCL_Fnctset *fnctset )
 {
+    int ret;
+    
     if ( NULL == fnctset ) {
         return ADCL_INVALID_ARG;
     }
@@ -153,5 +160,8 @@ int ADCL_Fnctset_free ( ADCL_Fnctset *fnctset )
         return ADCL_INVALID_FNCTSET;
     }
 
-    return ADCL_fnctset_free ( fnctset );
+    ret = ADCL_fnctset_free ( fnctset );
+    fnctset = ADCL_FNCTSET_NULL;
+
+    return ret; 
 }

@@ -13,7 +13,7 @@
 
         integer rank, size, ierror 
         integer nc, hwidth
-        integer vec, topo, request
+        integer vmap, vec, topo, request
         integer cart_comm
         integer, dimension(3) :: dims, cdims, periods
         integer, dimension(6) :: neighbors
@@ -48,7 +48,9 @@
         dims(3) = 6
         nc     = 0
         hwidth = 1
-        call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
+        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
+        call adcl_vector_register_generic ( 3,  dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
@@ -59,6 +61,7 @@
 
         call ADCL_Request_free ( request, ierror )
         call ADCL_Vector_deregister ( vec, ierror )
+        call ADCL_Vmap_free ( vmap, ierror )
 
 !!.......Test 2: hwidth=2, nc=0 
         dims(1) = 12
@@ -66,7 +69,9 @@
         dims(3) = 8
         hwidth = 2
         nc   = 0
-        call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
+        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
+        call adcl_vector_register_generic ( 3, dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data1, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
@@ -77,6 +82,7 @@
 
         call ADCL_Request_free ( request, ierror )
         call ADCL_Vector_deregister ( vec, ierror )
+        call ADCL_Vmap_free ( vmap, ierror )
 
 !!.......Test 3: hwidth=1, nc=1 
         dims(1) = 10
@@ -84,7 +90,9 @@
         dims(3) = 6
         hwidth = 1
         nc     = 1
-        call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
+        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
+        call adcl_vector_register_generic ( 3,  dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data2, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
@@ -102,7 +110,9 @@
         dims(3) = 8
         hwidth = 2
         nc     = 1
-        call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
+        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
+        call adcl_vector_register_generic ( 3,  dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data3, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
@@ -113,6 +123,7 @@
 
         call ADCL_Request_free ( request, ierror )
         call ADCL_Vector_deregister ( vec, ierror )
+        call ADCL_Vmap_free ( vmap, ierror )
 
 !!.......Test 5: hwidth=2, nc=2 
         dims(1) = 12
@@ -120,7 +131,9 @@
         dims(3) = 8
         hwidth = 2
         nc     = 2
-        call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE_PRECISION,&
+        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
+        call adcl_vector_register_generic ( 3,  dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data4, vec, ierror)
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
@@ -131,6 +144,7 @@
 
         call ADCL_Request_free ( request, ierror )
         call ADCL_Vector_deregister ( vec, ierror )
+        call ADCL_Vmap_free ( vmap, ierror )
 
 !!.......done
         call ADCL_Topology_free ( topo, ierror )

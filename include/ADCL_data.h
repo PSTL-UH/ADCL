@@ -9,7 +9,7 @@
 #ifndef __ADCL_DATA_H__
 #define __ADCL_DATA_H__
 
-#if ADCL_DUMMY_MPI
+#ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #else
 #include "mpi.h"
@@ -27,7 +27,7 @@ struct ADCL_data_s{
     int                 *d_vdims; /* Vector extent of each the dimensions */
     int                     d_nc; /* Extent of each data point  */
     int                 d_hwidth; /* Halo cells width */
-    int                d_comtype; /* Communication type */
+    int                d_vectype; /* Communication type */
     /* Attribute information */
     int               d_asmaxnum; /* Number of attributes in the attribute set */
     int              *d_attrvals; /* Values of the winning attributes */

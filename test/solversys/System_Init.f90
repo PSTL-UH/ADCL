@@ -145,10 +145,12 @@
       dims(1) = n1+2
       dims(2) = n2+2
       dims(3) = n3+2
-      call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE_PRECISION, &
-           dq, adcl_vec_dq, ierror )
-      call ADCL_Vector_register ( 3, dims, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE_PRECISION, &
-           loes, adcl_vec_loes, ierror )
+      call ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, adcl_vmap, &
+           ierror )
+      call ADCL_Vector_register_generic ( 3, dims, nc, adcl_vmap, & 
+           MPI_DOUBLE_PRECISION, dq, adcl_vec_dq, ierror )
+      call ADCL_Vector_register_generic ( 3, dims, nc, adcl_vmap, &
+           MPI_DOUBLE_PRECISION, loes, adcl_vec_loes, ierror )
 
 !...Generate now the ADCL-Request object for dq
       call ADCL_Request_create (adcl_vec_dq, adcl_topo, & 
@@ -216,6 +218,7 @@
         call ADCL_Request_free ( adcl_req_loes, ierror )
         call ADCL_Vector_deregister ( adcl_vec_dq, ierror )
         call ADCL_Vector_deregister ( adcl_vec_loes, ierror )
+        call ADCL_Vmap_free ( adcl_vmap, ierror )
 
         deallocate ( rhs, dq, loes, stat=status )
         if ( status .gt. 0 ) then

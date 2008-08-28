@@ -9,7 +9,7 @@
 #ifndef __ADCL_MEMORY_H__
 #define __ADCL_MEMORY_H__
 
-#if ADCL_DUMMY_MPI
+#ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #else
 #include "mpi.h"
@@ -27,7 +27,7 @@ void ADCL_free_float_matrix ( int ndims, void *mat);
 void* ADCL_allocate_int_matrix ( int ndims, int *dims, void *pt);
 void ADCL_free_int_matrix ( int ndims, void *mat);
 
-
+#if defined TYPEMODE
 #if TYPEMODE == 1
 #define TYPE double
 #define ADCL_allocate_TYPE_matrix    ADCL_allocate_double_matrix
@@ -70,6 +70,7 @@ void ADCL_free_int_matrix ( int ndims, void *mat);
 #define ADCL_free_4D_TYPE_matrix     ADCL_free_4D_int_matrix
 #define ADCL_free_5D_TYPE_matrix     ADCL_free_5D_int_matrix
 
+#endif
 #endif
 
 /*

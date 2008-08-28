@@ -28,6 +28,7 @@ int ADCL_Attribute_create ( int maxnvalues, int *array_of_values, char **values_
 
 int ADCL_Attribute_free   ( ADCL_Attribute *attr )
 {
+    int ret; 
 
     if ( NULL == attr ) {
         return ADCL_INVALID_ARG;
@@ -36,7 +37,10 @@ int ADCL_Attribute_free   ( ADCL_Attribute *attr )
         return ADCL_INVALID_ATTRIBUTE;
     }
 
-    return ADCL_attribute_free ( attr );
+    ret = ADCL_attribute_free ( attr );
+    attr = ADCL_ATTRIBUTE_NULL;
+
+    return ret;
 }
 
 int ADCL_Attrset_create ( int maxnum, ADCL_Attribute *array_of_attributes,
@@ -63,6 +67,7 @@ int ADCL_Attrset_create ( int maxnum, ADCL_Attribute *array_of_attributes,
 
 int ADCL_Attrset_free ( ADCL_Attrset *attrset )
 {
+    int ret; 
 
     if ( NULL == attrset ) {
         return ADCL_INVALID_ARG;
@@ -71,6 +76,9 @@ int ADCL_Attrset_free ( ADCL_Attrset *attrset )
         return ADCL_INVALID_ATTRSET;
     }
 
-    return ADCL_attrset_free ( attrset );
+    ret = ADCL_attrset_free ( attrset );
+    attrset = ADCL_ATTRSET_NULL;
+
+    return ret;
 }
 

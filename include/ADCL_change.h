@@ -15,6 +15,7 @@
 #define TOPO req->r_emethod->em_topo
 
 
+#if defined COMMMODE
 #if COMMMODE == 0
   #define COMMTEXT  "DebugNoCommunication"
 
@@ -319,6 +320,7 @@
   #define RECV_WAIT(req,i)
 
 #endif
+#endif
 
 /*COMM 1*/
 void ADCL_change_sb_aao_IsendIrecv  (ADCL_request_t *req );
@@ -366,6 +368,22 @@ void ADCL_change_sb_aao_post_start_put (ADCL_request_t *req );
 /*COMM 12: Post_start_get-Derived datatype*/
 void ADCL_change_sb_pair_post_start_get( ADCL_request_t *req );
 void ADCL_change_sb_aao_post_start_get( ADCL_request_t *req );
+
+void ADCL_allgatherv_linear( ADCL_request_t *req );
+void ADCL_allgatherv_bruck( ADCL_request_t *req );
+void ADCL_allgatherv_neighborexchange( ADCL_request_t *req );
+void ADCL_allgatherv_ring( ADCL_request_t *req );
+void ADCL_allgatherv_two_procs( ADCL_request_t *req );
+void ADCL_allgatherv_recursivedoubling(ADCL_request_t *req);
+
+void ADCL_allreduce_native(ADCL_request_t *req);
+void ADCL_allreduce_ring( ADCL_request_t *req );
+void ADCL_allreduce_recursivedoubling( ADCL_request_t *req );
+void ADCL_allreduce_linear( ADCL_request_t *req );
+void ADCL_allreduce_nonoverlapping(ADCL_request_t *req );
+
+void ADCL_reduce_linear ( ADCL_request_t *req );
+void ADCL_bcast_linear  ( ADCL_request_t *req );
 
 #endif /* __ADCL_CHANGE_H__ */
 

@@ -298,9 +298,11 @@ AC_ARG_WITH(gsl_lib_dir,
     AC_MSG_RESULT(${gsl_lib_dir})
 dnl ==================================================	
 
-   adcl_gsl_inc_flag="-I${gsl_inc_dir}"
+   adcl_gsl_inc_flag="-DGSL -I${gsl_inc_dir}"
    adcl_gsl_ld_flag="-L${gsl_lib_dir} -lgsl -lgslcblas"
    adcl_minmax="minmax"
+else
+   adcl_gsl_inc_flag="-UGSL"
 fi
 
 AC_SUBST(adcl_gsl_inc_flag)

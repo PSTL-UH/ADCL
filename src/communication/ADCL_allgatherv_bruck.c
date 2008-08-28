@@ -102,27 +102,28 @@ void ADCL_allgatherv_bruck( ADCL_request_t *req )
    int sendto, recvfrom, distance, blockcount, i;
    int *new_rcounts = NULL, *new_rdispls = NULL;
    int *new_scounts = NULL, *new_sdispls = NULL;
-   MPI_Aint slb, rlb, sext, rext;
+   MPI_Aint rlb, rext;
    char *tmpsend = NULL, *tmprecv = NULL;
    MPI_Datatype new_rdtype, new_sdtype;
 
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
+   //ADCL_vmap_t *s_vmap = req->r_svecs[0]->v_map;
+   ADCL_vmap_t *r_vmap = req->r_rvecs[0]->v_map;
+   void *sbuf = req->r_svecs[0]->v_data;
+   void *rbuf = req->r_rvecs[0]->v_data;
 
    /* Caution, this might be a hack */
-   MPI_Datatype sdtype = req->sdats[0];
-   MPI_Datatype rdtype = req->rdats[0];
-   /*  Missing: 
-       int *rcounts,
-       int *rdispls, 
-   */
+   MPI_Datatype sdtype = req->r_sdats[0]; 
+   int scount = req->r_scnts[0];
+   MPI_Datatype rdtype = req->r_rdats[0];
 
+   //int scount = req->r_svecs[0]->v_dims[0];
+   int *rcounts = r_vmap->m_rcnts;
+   int *rdispls = r_vmap->m_displ;
 
    size = topo->t_size;
    rank = topo->t_rank;
-
-   err = MPI_Type_get_extent (sdtype, &slb, &sext);
-   if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl; }
 
    err = MPI_Type_get_extent (rdtype, &rlb, &rext);
    if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl; }
@@ -134,13 +135,13 @@ void ADCL_allgatherv_bruck( ADCL_request_t *req )
    tmprecv = (char*) rbuf + rdispls[rank] * rext;
    if (MPI_IN_PLACE != sbuf) {
       tmpsend = (char*) sbuf;
-      err = MPI_Sendrecv (tmpsend, scount, sdtype, 
-                          tmprecv, rcounts[rank], rdtype, comm, 
-			  MPI_STATUS_IGNORE);
+      err = MPI_Sendrecv (tmpsend, scount, sdtype, rank, ADCL_TAG_ALLGATHERV, 
+                    tmprecv, rcounts[rank], rdtype, rank, ADCL_TAG_ALLGATHERV,
+	            comm,  MPI_STATUS_IGNORE);
       if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl;  }
 
    }
-   
+
    /* Communication step:
       At every step i, rank r:
       - doubles the distance
@@ -184,10 +185,10 @@ void ADCL_allgatherv_bruck( ADCL_request_t *req )
           new_rcounts[i] = rcounts[tmp_rrank];
           new_rdispls[i] = rdispls[tmp_rrank];
       }
-      err = MPI_Type_create_indexed(blockcount, new_scounts, new_sdispls, 
+      err = MPI_Type_indexed(blockcount, new_scounts, new_sdispls, 
                                     rdtype, &new_sdtype);
       if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl; }
-      err = MPI_Type_create_indexed(blockcount, new_rcounts, new_rdispls,
+      err = MPI_Type_indexed(blockcount, new_rcounts, new_rdispls,
                                     rdtype, &new_rdtype);
 
       err = MPI_Type_commit(&new_sdtype);

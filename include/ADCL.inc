@@ -28,6 +28,7 @@
        integer ADCL_INVALID_FUNCTION, ADCL_INVALID_WORK_FUNCTION_PTR
        integer ADCL_INVALID_FNCTSET, ADCL_INVALID_VECTOR
        integer ADCL_INVALID_VECTSET, ADCL_INVALID_DIRECTION
+       integer ADCL_INVALID_VMAP
 
        parameter ( ADCL_INVALID_ARG     = 10)
        parameter ( ADCL_INVALID_NDIMS   = 11)
@@ -49,12 +50,14 @@
        parameter ( ADCL_INVALID_VECTOR     = 27)
        parameter ( ADCL_INVALID_VECTSET    = 28)
        parameter ( ADCL_INVALID_DIRECTION  = 29)
+       parameter ( ADCL_INVALID_VMAP       = 30)
        
        integer ADCL_VECTOR_NULL, ADCL_VECTSET_NULL
        integer ADCL_REQUEST_NULL, ADCL_TOPOLOGY_NULL
        integer ADCL_ATTRIBUTE_NULL, ADCL_ATTRSET_NULL
        integer ADCL_FUNCTION_NULL, ADCL_FNCTSET_NULL, ADCL_NULL_FNCT_PTR 
-
+       integer ADCL_VMAP_NULL
+ 
        parameter ( ADCL_VECTOR_NULL    = -1)
        parameter ( ADCL_VECTSET_NULL   = -2)
        parameter ( ADCL_REQUEST_NULL   = -3)
@@ -64,6 +67,7 @@
        parameter ( ADCL_FUNCTION_NULL  = -7)
        parameter ( ADCL_FNCTSET_NULL   = -8)
        parameter ( ADCL_NULL_FNCT_PTR  = -9)
+       parameter ( ADCL_VMAP_NULL      = -10)
 
        integer ADCL_MAX_ATTRLEN, ADCL_MAX_NAMELEN
        parameter ( ADCL_MAX_ATTRLEN = 32 ) 
@@ -77,13 +81,21 @@
 
        integer ADCL_VECTOR_HALO, ADCL_VECTOR_ALL
        integer ADCL_VECTOR_UP_TRIANG, ADCL_VECTOR_LO_TRIANG
+       integer ADCL_VECTOR_LIST, ADCL_VECTOR_ALLREDUCE
        parameter ( ADCL_VECTOR_HALO = 1 )
        parameter ( ADCL_VECTOR_ALL = 2 )
        parameter ( ADCL_VECTOR_UP_TRIANG = 3 )
        parameter ( ADCL_VECTOR_LO_TRIANG = 4 )
+       parameter ( ADCL_VECTOR_LIST      = 5 )
+       parameter ( ADCL_VECTOR_ALLREDUCE = 6 )
 
        integer ADCL_FNCTSET_NEIGHBORHOOD, ADCL_FNCTSET_SHIFT_LTOR
        integer ADCL_FNCTSET_SHIFT_RTOL
+       integer ADCL_FNCTSET_ALLGATHERV, ADCL_FNCTSET_ALLREDUCE
        parameter ( ADCL_FNCTSET_NEIGHBORHOOD = 0 )
-       parameter ( ADCL_FNCTSET_SHIFT_RTOL = 0 )
-       parameter ( ADCL_FNCTSET_SHIFT_LTOR = 0 )
+       parameter ( ADCL_FNCTSET_ALLGATHERV   = 1 )
+       parameter ( ADCL_FNCTSET_ALLREDUCE    = 2 )
+       ! this is not such a good idea: 
+       ! parameter ( ADCL_FNCTSET_SHIFT_RTOL   = 0 )
+       ! parameter ( ADCL_FNCTSET_SHIFT_LTOR   = 0 )
+       

@@ -50,18 +50,21 @@ void ADCL_allgatherv_two_procs(ADCL_request_t *req )
     MPI_Aint sext, rext, lb;
 
     ADCL_topology_t *topo = req->r_emethod->em_topo;
+    //ADCL_vmap_t *s_vmap = req->r_svecs[0]->v_map;
+    ADCL_vmap_t *r_vmap = req->r_rvecs[0]->v_map;
+    void *sbuf = req->r_svecs[0]->v_data;
+    void *rbuf = req->r_rvecs[0]->v_data;
     MPI_Comm comm = topo->t_comm;
     
     /* Caution, this might be a hack */
-    MPI_Datatype sdtype = req->sdats[0];
-    MPI_Datatype rdtype = req->rdats[0];
+    MPI_Datatype sdtype = req->r_sdats[0];
+    MPI_Datatype rdtype = req->r_rdats[0];
+    int scount = req->r_svecs[0]->v_dims[0];
+    int *rcounts = r_vmap->m_rcnts;
+    int *rdispls = r_vmap->m_displ;
+	        
+    scount = 1; // for ddt
 
-   /*  Missing: 
-       int *rcounts,
-       int *rdispls, 
-   */
-   
-    size = topo->t_size;
     rank = topo->t_rank;
 
     err = MPI_Type_get_extent (sdtype, &lb, &sext);
@@ -76,7 +79,7 @@ void ADCL_allgatherv_two_procs(ADCL_request_t *req )
     */
     remote  = rank ^ 0x1;
 
-    tmpsend = (char*)sbuf;
+    tmpsend = (char*) sbuf;
     if (MPI_IN_PLACE == sbuf) {
         tmpsend = (char*)rbuf + rdispls[rank] * rext;
         scount = rcounts[rank];
@@ -93,9 +96,10 @@ void ADCL_allgatherv_two_procs(ADCL_request_t *req )
 
     /* Place your data in correct location if necessary */
     if (MPI_IN_PLACE != sbuf) {
-        err = MPI_Sendrecv((char*)sbuf, scount, sdtype, 
-			   (char*)rbuf + rdispls[rank] * rext, 
-			   rcounts[rank], rdtype, comm, MPI_STATUS_IGNORE); 
+      tmprecv = (char*) rbuf + rdispls[rank] * rext;
+      err = MPI_Sendrecv (tmpsend, scount, sdtype, rank, ADCL_TAG_ALLGATHERV,
+           tmprecv, rcounts[rank], rdtype, rank, ADCL_TAG_ALLGATHERV,
+	   comm,  MPI_STATUS_IGNORE);
         if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl;  }
     }
 

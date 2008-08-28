@@ -9,7 +9,7 @@
 #ifndef __ADCL_SUBARRAY_H__
 #define __ADCL_SUBARRAY_H__
 
-#if ADCL_DUMMY_MPI
+#ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #else
 #include "mpi.h"
@@ -66,5 +66,12 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order,  MPI_Data
 
 void ADCL_subarray_free ( int num, MPI_Datatype **sdats, MPI_Datatype **rdats );
 
+
+int ADCL_contiguous_init ( int vecndims, MPI_Datatype btype, MPI_Datatype **dats);
+void ADCL_contiguous_free ( int num, MPI_Datatype **dats );
+
+
+int ADCL_list_init ( int size, int* rcnts, MPI_Datatype btype, MPI_Datatype **dats ); 
+void ADCL_list_free ( int num, MPI_Datatype **dats ); 
 
 #endif /* __ADCL_SUBARRAY_H__ */

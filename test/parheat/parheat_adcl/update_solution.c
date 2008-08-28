@@ -44,6 +44,7 @@ int update_solution( double c_fact, double delta_t, double delta_x,
     /*ADCL Declaration*/
     int hwidth = 1, dims[3];
     ADCL_Topology topo;
+    ADCL_Vmap vmap; 
     ADCL_Vector ovec, nvec;
     ADCL_Request request;
     ADCL_Request nrequest;
@@ -69,9 +70,10 @@ int update_solution( double c_fact, double delta_t, double delta_x,
     dims[0] = grid[0];
     dims[1] = grid[1];
     dims[2] = grid[2];
-    ADCL_Vector_register (3, dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, 
+    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    ADCL_Vector_register_generic (3, dims, 0, vmap, MPI_DOUBLE, 
 			  (double***)(solution->old), &ovec);
-    ADCL_Vector_register (3, dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, 
+    ADCL_Vector_register_generic (3, dims, 0, vmap, MPI_DOUBLE, 
 			  (double***)(solution->neu), &nvec);
     ADCL_Request_create( ovec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request);
     ADCL_Request_create( nvec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &nrequest);
@@ -137,6 +139,7 @@ int update_solution( double c_fact, double delta_t, double delta_x,
     ADCL_Request_free(&nrequest);
     ADCL_Vector_free(&nvec);
     ADCL_Vector_free(&ovec);
+    ADCL_Vmap_free(&vmap);
     ADCL_Topology_free(&topo);
     return 0;
 }

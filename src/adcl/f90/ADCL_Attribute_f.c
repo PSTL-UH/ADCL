@@ -10,7 +10,7 @@
 #include "ADCL_internal.h"
 #include "ADCL_fprototypes.h"
 
-
+#ifndef _SX
 #pragma weak adcl_attribute_create_  = adcl_attribute_create
 #pragma weak adcl_attribute_create__ = adcl_attribute_create
 #pragma weak ADCL_ATTRIBUTE_CREATE   = adcl_attribute_create
@@ -27,6 +27,7 @@
 #pragma weak adcl_attrset_free_  = adcl_attrset_free
 #pragma weak adcl_attrset_free__ = adcl_attrset_free
 #pragma weak ADCL_ATTRSET_FREE   = adcl_attrset_free
+#endif
 
 #ifdef _SX
 void adcl_attribute_create_ ( int* maxnvalues, int *array_of_values, 
@@ -68,6 +69,8 @@ void adcl_attribute_free   ( int *attr, int *ierr )
 
     tattr = (ADCL_attribute_t *) ADCL_array_get_ptr_by_pos ( ADCL_attribute_farray, *attr);
     *ierr = ADCL_attribute_free (&tattr);
+    *attr = ADCL_FATTRIBUTE_NULL;
+
     return;
 }
 
@@ -125,5 +128,7 @@ void adcl_attrset_free ( int *attrset, int *ierr )
 
     tattr = (ADCL_attrset_t *) ADCL_array_get_ptr_by_pos ( ADCL_attrset_farray, *attrset);
     *ierr = ADCL_attrset_free (&tattr);
+    *attrset = ADCL_FATTRSET_NULL;
+
     return;
 }

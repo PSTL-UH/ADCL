@@ -9,12 +9,12 @@
 #include "ADCL_internal.h"
 
 
-int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth );
-int compare ( const void *p, const void* q );
+static int ADCL_max ( int cnt, int *vecdim, int nc, int hwidth );
+static int compare ( const void *p, const void* q );
 
-int dist_4D_C ( int dim0, int dim1, int dim2, int dim3, int vecdim[3], int nc);
-int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3, int vecdim[3], int nc);
-int dist_3D_Fortran ( int dim0, int dim1, int dim2, int vecdim[2], int nc);
+static int dist_4D_C ( int dim0, int dim1, int dim2, int dim3, int vecdim[3], int nc);
+static int dist_4D_Fortran ( int dim0, int dim1, int dim2, int dim3, int vecdim[3], int nc);
+static int dist_3D_Fortran ( int dim0, int dim1, int dim2, int vecdim[2], int nc);
 
 int ADCL_indexed_1D_init ( int vecdim, int hwidth, int nc, int order, MPI_Datatype btype,
                MPI_Datatype **senddats, MPI_Datatype **recvdats)

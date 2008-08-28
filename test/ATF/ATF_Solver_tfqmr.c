@@ -49,6 +49,7 @@ int ATF_Solver_tfqmr( int nreal)
     double ****tmp_vect_2, ****tmp_vect;
       
     /*Define ADCL objects*/
+    ADCL_Vmap adcl_vmap;
     ADCL_Vector  adcl_Vec_tfqmr_y, adcl_Vec_tfqmr_y_old, adcl_Vec_tfqmr_y_old_1;
     ADCL_Request adcl_Req_tfqmr_y, adcl_Req_tfqmr_y_old, adcl_Req_tfqmr_y_old_1;
     
@@ -79,13 +80,14 @@ int ATF_Solver_tfqmr( int nreal)
     ATF_allocate_4D_double_matrix(&tmp_vect,dim);
 
     /*For adcl library*/
-    ADCL_Vector_register( 3, dim3, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &(tfqmr_y[0][0][0][0]), &adcl_Vec_tfqmr_y );
+    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, &adcl_vmap );
+    ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(tfqmr_y[0][0][0][0]), &adcl_Vec_tfqmr_y );
     ADCL_Request_create( adcl_Vec_tfqmr_y, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_tfqmr_y );
 
-    ADCL_Vector_register( 3, dim3, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &(tfqmr_y_old[0][0][0][0]), &adcl_Vec_tfqmr_y_old );
+    ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(tfqmr_y_old[0][0][0][0]), &adcl_Vec_tfqmr_y_old );
     ADCL_Request_create( adcl_Vec_tfqmr_y_old, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_tfqmr_y_old );
 
-    ADCL_Vector_register( 3, dim3, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &(tfqmr_y_old_1[0][0][0][0]), &adcl_Vec_tfqmr_y_old_1 );
+    ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(tfqmr_y_old_1[0][0][0][0]), &adcl_Vec_tfqmr_y_old_1 );
     ADCL_Request_create( adcl_Vec_tfqmr_y_old_1, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_tfqmr_y_old_1 );
 
     tfqmr_limit = 1.0e-09;
@@ -308,7 +310,7 @@ int ATF_Solver_tfqmr( int nreal)
     ADCL_Vector_deregister( &adcl_Vec_tfqmr_y);
     ADCL_Vector_deregister( &adcl_Vec_tfqmr_y_old);
     ADCL_Vector_deregister( &adcl_Vec_tfqmr_y_old_1);
-
+    ADCL_Vmap_free ( &adcl_vmap);
     
     return ATF_SUCCESS;
 }

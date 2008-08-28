@@ -15,7 +15,7 @@
 
 
 #define ADCL_FVECTOR_NULL     -1
-#define ADCL_FVECTSET_NUL     -2
+#define ADCL_FVECTSET_NULL    -2
 #define ADCL_FREQUEST_NULL    -3
 #define ADCL_FTOPOLOGY_NULL   -4
 #define ADCL_FATTRIBUTE_NULL  -5
@@ -23,6 +23,7 @@
 #define ADCL_FFUNCTION_NULL   -7
 #define ADCL_FFNCTSET_NULL    -8
 #define ADCL_FNULL_FNCT_PTR   -9
+#define ADCL_FVMAP_NULL      -10 
 
 
 /* ADCL environment functions */
@@ -132,16 +133,56 @@ void adcl_fnctset_free_  ( int *fctset, int *ierr );
 void adcl_fnctset_free__ ( int *fctset, int *ierr );
 void ADCL_FNCTSET_FREE   ( int *fctset, int *ierr );
 
+/* ADCL vmap functions */
+void adcl_vmap_halo_allocate   ( int* vectype, int* hwidth, int *vmap, int* ierror );
+void adcl_vmap_halo_allocate_  ( int* vectype, int* hwidth, int *vmap, int* ierror );
+void adcl_vmap_halo_allocate__ ( int* vectype, int* hwidth, int *vmap, int* ierror );
+void ADCL_VMAP_HALO_ALLOCATE   ( int* vectype, int* hwidth, int *vmap, int* ierror );
+
+void adcl_vmap_list_allocate   ( int *vectype, int *size, int *rcnts, 
+    int *displ, int *vmap, int *ierror );
+void adcl_vmap_list_allocate_  ( int *vectype, int *size, int *rcnts, 
+        int *displ, int *vmap, int *ierror );
+void adcl_vmap_list_allocate__ ( int *vectype, int *size, int *rcnts, 
+    int *displ, int *vmap, int *ierror );
+void ADCL_VMAP_LIST_ALLOCATE  ( int *vectype, int *size, int *rcnts, 
+    int *displ, int *vmap, int *ierror );
+
+void adcl_vmap_allreduce_allocate   ( int *vectype, int *op, int *vmap, int *ierror );
+void adcl_vmap_allreduce_allocate_  ( int *vectype, int *op, int *vmap, int *ierror );
+void adcl_vmap_allreduce_allocate__ ( int *vectype, int *op, int *vmap, int *ierror );
+void ADCL_VMAP_ALLREDUCE_ALLOCATE   ( int *vectype, int *op, int *vmap, int *ierror );
+
+void adcl_vmap_all_allocate   ( int *vectype, int *vmap, int* ierror );
+void adcl_vmap_all_allocate_  ( int *vectype, int *vmap, int* ierror );
+void adcl_vmap_all_allocate__ ( int *vectype, int *vmap, int* ierror );
+void ADCL_VMAP_ALL_ALLOCATE   ( int *vectype, int *vmap, int* ierror );
+
+void adcl_vmap_free   ( int *vmap, int *ierror );
+void adcl_vmap_free_  ( int *vmap, int *ierror );
+void adcl_vmap_free__ ( int *vmap, int *ierror );
+void ADCL_VMAP_FREE   ( int *vmap, int *ierror );
+
+
 /* ADCL vector functions */
 
-void adcl_vector_register   ( int *ndims, int *dims, int *nc, int *comtype,
+void adcl_vector_register   ( int *ndims, int *dims, int *nc, int *vectype,
                               int *hwidth,int *dat, void *data, int *vec, int *ierror);
-void adcl_vector_register_  ( int *ndims, int *dims, int *nc, int *comtype,
+void adcl_vector_register_  ( int *ndims, int *dims, int *nc, int *vectype,
                               int *hwidth,int *dat, void *data, int *vec, int *ierror);
-void adcl_vector_register__ ( int *ndims, int *dims, int *nc, int *comtype,
+void adcl_vector_register__ ( int *ndims, int *dims, int *nc, int *vectype,
                               int *hwidth,int *dat, void *data, int *vec, int *ierror);
-void ADCL_VECTOR_REGISTER   ( int *ndims, int *dims, int *nc, int *comtype,
+void ADCL_VECTOR_REGISTER   ( int *ndims, int *dims, int *nc, int *vectype,
                               int *hwidth,int *dat, void *data, int *vec, int *ierror);
+
+void adcl_vector_register_generic   ( int *ndims, int *dims, int *nc, int *vmap,
+                                      int *dat, void *data, int *vec, int* ierror );
+void adcl_vector_register_generic_  ( int *ndims, int *dims, int *nc, int *vmap,
+                                      int *dat, void *data, int *vec, int* ierror );
+void adcl_vector_register_generic__ ( int *ndims, int *dims, int *nc, int *vmap,
+                                      int *dat, void *data, int *vec, int* ierror );
+void ADCL_VECTOR_REGISTER_GENERIC   ( int *ndims, int *dims, int *nc, int *vmap,
+                                      int *dat, void *data, int *vec, int* ierror );
 
 void adcl_vector_deregister   ( int *vec, int *ierror );
 void adcl_vector_deregister_  ( int *vec, int *ierror );
@@ -191,14 +232,22 @@ void adcl_request_create__ ( int *vec, int *topo, int *fnctset, int *req, int *i
 void ADCL_REQUEST_CREATE   ( int *vec, int *topo, int *fnctset, int *req, int *ierror );
 
 
-void adcl_request_create_generic   ( int *vectset, int *topo,
+void adcl_request_create_generic   ( int *svec, int *rvec, int *topo, int *fnctset,
+                                     int *req, int *ierror );
+void adcl_request_create_generic_  ( int *svec, int *rvec, int *topo, int *fnctset,
+                                     int *req, int *ierror );
+void adcl_request_create_generic__ ( int *svec, int *rvec, int *topo, int *fnctset,
+                                     int *req, int *ierror );
+void ADCL_REQUEST_CREATE_GENERIC   ( int *svec, int *rvec, int *topo, int *fnctset,
+                                     int *req, int *ierror );
+/*void adcl_request_create_generic   ( int *vectset, int *topo,
                                      int *fnctset, int *req, int *ierror );
 void adcl_request_create_generic_  ( int *vectset, int *topo,
                                      int *fnctset, int *req, int *ierror );
 void adcl_request_create_generic__ ( int *vectset, int *topo,
                                      int *fnctset, int *req, int *ierror );
 void ADCL_REQUEST_CREATE_GENERIC   ( int *vectset, int *topo,
-                                     int *fnctset, int *req, int *ierror );
+                                     int *fnctset, int *req, int *ierror );*/
 
 void adcl_request_get_comm   ( int *req, int *comm, int *rank, int *size, int *ierr);
 void adcl_request_get_comm_  ( int *req, int *comm, int *rank, int *size, int *ierr);

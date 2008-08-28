@@ -57,7 +57,7 @@ int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
 
     newfunction->f_iptr = init_fnct;
     newfunction->f_wptr = wait_fnct;
-    if ( NULL != wait_fnct ) {
+    if ( NULL != wait_fnct && ADCL_FUNCTION_NULL != wait_fnct ) {
         newfunction->f_db   = 1; /* true */
     }
 

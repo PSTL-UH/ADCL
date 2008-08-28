@@ -10,15 +10,26 @@ include ../Makefile.defs
 
 all: ctests ftests
 
-ctests: first second third fourth \
-	one-dim two-dim three-dim \
+ctests: one-dim  \
 	test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
-	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
-	data_1 PbSizes_1D PbSizes_2D PbSizes_3D
+	test-fnctset-allgatherv-1d test-fnctset-allreduce \
+	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 
 
-ftests: one-dim-f two-dim-f three-dim-f three-dim-large  \
-	first_f second_f                                 \
-	test-fnctset-noattrs_f test-fnctset-single_f
+ftests: test-fnctset-noattrs_f test-fnctset-single_f     \
+        test-fnctset-allgatherv_f test-fnctset-allreduce_f 
+
+#ctests: first second third fourth \
+#	one-dim two-dim three-dim \
+#	test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
+#	test-fnctset-allgatherv-1d \
+#	test-fnctset-allreduce \
+#	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
+#	data_1 PbSizes_1D PbSizes_2D PbSizes_3D
+#         
+#ftests: one-dim-f two-dim-f three-dim-f three-dim-large  \
+#	first_f second_f                                 \
+#	test-fnctset-noattrs_f test-fnctset-single_f     \
+#        test-fnctset-allgatherv_f test-fnctset-allreduce_f 
 
 first: 	first.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/first first.c $(LDFLAGS) 
@@ -51,6 +62,14 @@ test-fnctset-single: test-fnctset-single.c
 
 test-fnctset-single-2: test-fnctset-single-2.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-single-2 test-fnctset-single-2.c \
+	$(LDFLAGS)
+
+test-fnctset-allgatherv-1d: test-fnctset-allgatherv-1d.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d test-fnctset-allgatherv-1d.c \
+	$(LDFLAGS)
+
+test-fnctset-allreduce: test-fnctset-allreduce.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-allreduce test-fnctset-allreduce.c \
 	$(LDFLAGS)
 
 attrs_1: attrs_1.c
@@ -104,6 +123,12 @@ test-fnctset-noattrs_f:  test-fnctset-noattrs_f.f90
 test-fnctset-single_f:  test-fnctset-single_f.f90 	
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-single_f test-fnctset-single_f.f90 $(FLDFLAGS)
 
+test-fnctset-allgatherv_f:  test-fnctset-allgatherv_f.f90 	
+	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-allgatherv_f test-fnctset-allgatherv_f.f90 $(FLDFLAGS)
+
+test-fnctset-allreduce_f:  test-fnctset-allreduce_f.f90 	
+	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-allreduce_f test-fnctset-allreduce_f.f90 $(FLDFLAGS)
+
 clean:
 	rm -rf *.o *~ *.out
 	rm -rf $(ADCL_BIN_DIR)/*.out
@@ -120,4 +145,6 @@ clean:
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-noattrs $(ADCL_BIN_DIR)/test-fnctset-noattrs_f
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-single $(ADCL_BIN_DIR)/test-fnctset-single_f	
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-single-2 $(ADCL_BIN_DIR)/PbSizes_1D
+	rm -f $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d 
+	rm -f $(ADCL_BIN_DIR)/test-fnctset-allreduce
 	rm -f $(ADCL_BIN_DIR)/Pbsizes_2D $(ADCL_BIN_DIR)/PbSizes_3D

@@ -10,7 +10,7 @@
 #include "ADCL_internal.h"
 #include "ADCL_fprototypes.h"
 
-
+#ifndef _SX
 #pragma weak adcl_request_create_  = adcl_request_create
 #pragma weak adcl_request_create__ = adcl_request_create
 #pragma weak ADCL_REQUEST_CREATE   = adcl_request_create
@@ -46,6 +46,7 @@
 #pragma weak adcl_request_update_  =  adcl_request_update
 #pragma weak adcl_request_update__ =  adcl_request_update
 #pragma weak ADCL_REQUEST_UPDATE   =  adcl_request_update
+#endif
 
 #ifdef _SX
 void adcl_request_create_ ( int *vec, int *topo, int *fnctset, int *req, int *ierror )
@@ -126,6 +127,66 @@ void adcl_request_create ( int *vec, int *topo, int *fnctset, int *req, int *ier
 }
 
 #ifdef _SX
+void adcl_request_create_generic_ ( int *svec, int *rvec, int *topo, int *fnctset,
+                                    int *req, int *ierror )
+#else
+void adcl_request_create_generic  ( int *svec, int *rvec, int *topo, int *fnctset,
+                                    int *req, int *ierror )
+#endif
+{
+    ADCL_vector_t *csvec, *crvec;
+    ADCL_topology_t *ctopo; 
+    ADCL_fnctset_t *cfnctset;
+    ADCL_request_t *creq;
+
+    if ( ( NULL == svec ) ||
+         ( NULL == rvec ) ||
+         ( NULL == topo )    ||
+         ( NULL == fnctset ) ||
+         ( NULL == req ) ){
+         *ierror = ADCL_INVALID_ARG;
+         return;
+    }
+
+    csvec = (ADCL_vector_t *) ADCL_array_get_ptr_by_pos ( ADCL_vector_farray, *svec );
+    crvec = (ADCL_vector_t *) ADCL_array_get_ptr_by_pos ( ADCL_vector_farray, *rvec );
+    ctopo = (ADCL_topology_t *) ADCL_array_get_ptr_by_pos ( ADCL_topology_farray, *topo );
+    cfnctset = (ADCL_fnctset_t *) ADCL_array_get_ptr_by_pos ( ADCL_fnctset_farray, *fnctset );
+
+    if ( ADCL_VECTOR_NULL != svec ) {
+        if ( 0 > csvec->v_id ) {
+            *ierror = ADCL_INVALID_VECTOR;
+            return;
+        }
+    }
+    if ( ADCL_VECTOR_NULL != rvec ) {
+        if ( 0 > crvec->v_id ) {
+            *ierror = ADCL_INVALID_VECTOR;
+            return;
+        }
+    }
+    if ( ADCL_TOPOLOGY_NULL != topo ) {
+        if ( 0 > ctopo->t_id ) {
+            *ierror = ADCL_INVALID_TOPOLOGY;
+            return;
+        }
+    }
+    if ( ADCL_FNCTSET_NULL != fnctset ) {
+        if ( 0 > cfnctset->fs_id ) {
+            *ierror = ADCL_INVALID_FNCTSET;
+            return;
+        }
+    }
+    *ierror = ADCL_request_create_generic ( &(csvec), &(crvec),
+                                         ctopo, cfnctset, &(creq), MPI_ORDER_FORTRAN);
+
+    if ( *ierror == ADCL_SUCCESS ) {
+        *req = creq->r_findex;
+    }
+    return;
+}
+
+/*#ifdef _SX
 void adcl_request_create_generic_( int *vectset, int *topo,
                                    int *fnctset, int *req, int *ierror )
 #else
@@ -194,7 +255,7 @@ void adcl_request_create_generic ( int *vectset, int *topo,
         *req = creq->r_findex;
     }
     return;
-}
+}*/
 
 #ifdef _SX
 void adcl_request_get_comm_( int *req, int *comm, int *rank, int *size, int *ierror )
@@ -241,7 +302,10 @@ void adcl_request_free ( int *req, int *ierror )
         *ierror = ADCL_INVALID_REQUEST;
         return;
     }
+
     *ierror = ADCL_Request_free ( &creq );
+    *req = ADCL_FREQUEST_NULL;
+
     return;
 }
 

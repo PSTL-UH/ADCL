@@ -9,7 +9,54 @@
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
-int ADCL_Vector_allocate ( int ndims, int *dims, int nc, int comtype, int hwidth,
+//int ADCL_Vector_allocate ( int ndims, int *dims, int nc, int vectype, int hwidth,
+//                           MPI_Datatype dat, void *data, ADCL_Vector *vec )
+//{
+//    int i, err;
+//    int numints, numaddr, numdats, combiner;
+//
+//    /* Verification of the input parameters */
+//    if ( 0 > ndims ) {
+//        return ADCL_INVALID_NDIMS;
+//    }
+//    if ( NULL == dims ) {
+//        return ADCL_INVALID_DIMS;
+//    }
+//    for ( i=0; i<ndims; i++ ) {
+//        if ( 0 > dims[i] ) {
+//            return ADCL_INVALID_DIMS;
+//        }
+//    }
+//    if ( 0 > hwidth ) {
+//        return ADCL_INVALID_HWIDTH;
+//    }
+//    if ( 0 > nc ) {
+//        return ADCL_INVALID_NC;
+//    }
+//    if ( MPI_DATATYPE_NULL == dat ) {
+//        return ADCL_INVALID_DAT;
+//    }
+//
+//    if ( NULL == data ) {
+//        return ADCL_INVALID_ARG;
+//    }
+//
+//    /* Datatype has to be a basic datatype */
+//    MPI_Type_get_envelope ( dat, &numints, &numaddr, &numdats, &combiner );
+//    if ( MPI_COMBINER_NAMED != combiner ) {
+//        return ADCL_INVALID_DAT;
+//    }
+//    if ( NULL == vec ) {
+//        return ADCL_INVALID_ARG;
+//    }
+//
+//    /* Call the backend function */
+//    err = ADCL_vector_allocate ( ndims, dims, nc, vectype, hwidth, dat, vec );
+//    *((void **) data ) = ADCL_vector_get_data_ptr ( *vec );
+//    return err;
+//}
+
+int ADCL_Vector_allocate_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
                            MPI_Datatype dat, void *data, ADCL_Vector *vec )
 {
     int i, err;
@@ -27,11 +74,11 @@ int ADCL_Vector_allocate ( int ndims, int *dims, int nc, int comtype, int hwidth
             return ADCL_INVALID_DIMS;
         }
     }
-    if ( 0 > hwidth ) {
-        return ADCL_INVALID_HWIDTH;
-    }
     if ( 0 > nc ) {
         return ADCL_INVALID_NC;
+    }
+    if ( NULL == vmap ) {
+        return ADCL_INVALID_VMAP;
     }
     if ( MPI_DATATYPE_NULL == dat ) {
         return ADCL_INVALID_DAT;
@@ -51,14 +98,16 @@ int ADCL_Vector_allocate ( int ndims, int *dims, int nc, int comtype, int hwidth
     }
 
     /* Call the backend function */
-    err = ADCL_vector_allocate ( ndims, dims, nc, comtype, hwidth, dat, vec );
+    err = ADCL_vector_allocate_generic ( ndims, dims, nc, vmap, dat, vec );
     *((void **) data ) = ADCL_vector_get_data_ptr ( *vec );
     return err;
 }
 
+
 int ADCL_Vector_free  ( ADCL_Vector *vec )
 {
     ADCL_vector_t *tvec;
+    int ret; 
 
     /* Verification of input parameters */
     if ( NULL == vec ) {
@@ -72,10 +121,60 @@ int ADCL_Vector_free  ( ADCL_Vector *vec )
         return ADCL_INVALID_DATA;
     }
 
-    return ADCL_vector_free ( vec );
+    ret = ADCL_vector_free ( vec );
+
+    // whatever happens internally, object has to appear deleted
+    vec = ADCL_VECTOR_NULL; 
+
+    return ret;
 }
 
-int ADCL_Vector_register ( int ndims, int *dims, int nc, int comtype, int hwidth,
+//int ADCL_Vector_register ( int ndims, int *dims, int nc, int vectype, int hwidth,
+//                           MPI_Datatype dat, void *data, ADCL_Vector *vec )
+//{
+//    int i;
+//    int numints, numaddr, numdats, combiner;
+//
+//    /* Verification of the input parameters */
+//    if ( 0 > ndims ) {
+//        return ADCL_INVALID_NDIMS;
+//    }
+//    if ( NULL == dims ) {
+//        return ADCL_INVALID_DIMS;
+//    }
+//    for ( i=0; i<ndims; i++ ) {
+//        if ( 0 > dims[i] ) {
+//            return ADCL_INVALID_DIMS;
+//        }
+//            }
+//    if ( 0 > hwidth ) {
+//        return ADCL_INVALID_HWIDTH;
+//    }
+//    if ( 0 > nc ) {
+//        return ADCL_INVALID_NC;
+//    }
+//    if ( MPI_DATATYPE_NULL == dat ) {
+//        return ADCL_INVALID_DAT;
+//    }
+//    if (  0 >= vectype || 4 < vectype ) {
+//        return ADCL_INVALID_VECTYPE;
+//    }
+//    /* Datatype has to be a basic datatype */
+//    MPI_Type_get_envelope ( dat, &numints, &numaddr, &numdats, &combiner );
+//    if ( MPI_COMBINER_NAMED != combiner ) {
+//        return ADCL_INVALID_DAT;
+//    }
+//    if ( NULL == data ) {
+//        return ADCL_INVALID_DATA;
+//    }
+//    if ( NULL == vec ) {
+//        return ADCL_INVALID_ARG;
+//    }
+//
+//    return ADCL_vector_register ( ndims, dims, nc, vectype, hwidth, dat, data, vec );
+//}
+
+int ADCL_Vector_register_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap, 
                            MPI_Datatype dat, void *data, ADCL_Vector *vec )
 {
     int i;
@@ -93,17 +192,17 @@ int ADCL_Vector_register ( int ndims, int *dims, int nc, int comtype, int hwidth
             return ADCL_INVALID_DIMS;
         }
             }
-    if ( 0 > hwidth ) {
-        return ADCL_INVALID_HWIDTH;
-    }
     if ( 0 > nc ) {
         return ADCL_INVALID_NC;
+    }
+    if ( NULL == vmap ) {
+        return ADCL_INVALID_VMAP;
     }
     if ( MPI_DATATYPE_NULL == dat ) {
         return ADCL_INVALID_DAT;
     }
-    if (  0 >= comtype || 4 < comtype ) {
-        return ADCL_INVALID_COMTYPE;
+    if (  0 >= vmap->m_vectype || 6 < vmap->m_vectype ) {
+        return ADCL_INVALID_VECTYPE;
     }
     /* Datatype has to be a basic datatype */
     MPI_Type_get_envelope ( dat, &numints, &numaddr, &numdats, &combiner );
@@ -117,7 +216,7 @@ int ADCL_Vector_register ( int ndims, int *dims, int nc, int comtype, int hwidth
         return ADCL_INVALID_ARG;
     }
 
-    return ADCL_vector_register ( ndims, dims, nc, comtype, hwidth, dat, data, vec );
+    return ADCL_vector_register_generic ( ndims, dims, nc, vmap, dat, data, vec );
 }
 
 int ADCL_Vector_deregister  ( ADCL_Vector *vec )

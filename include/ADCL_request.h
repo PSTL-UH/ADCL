@@ -10,7 +10,7 @@
 #ifndef __ADCL_REQUEST_H__
 #define __ADCL_REQUEST_H__
 
-#if ADCL_DUMMY_MPI
+#ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #else
 #include "mpi.h"
@@ -47,6 +47,8 @@ struct ADCL_request_s{
     MPI_Group               r_group; /* Group used for some window operations */
     MPI_Datatype           *r_sdats; /* array of MPI datatypes used for sending */
     MPI_Datatype           *r_rdats; /* array of MPI datatypes used for receiving */
+    int                    *r_scnts;  /* array of number of MPI datatypes to be send */ 
+    int                    *r_rcnts;  /* array of number of MPI datatypes to be received */ 
     MPI_Request            *r_sreqs; /* array of send requests used for nb ops */
     MPI_Request            *r_rreqs; /* array of recv requests used for nb ops */
     char                   **r_rbuf; /* temp recv buffer used for pack/unpack */

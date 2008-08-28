@@ -13,6 +13,7 @@
 
         integer rank, size, ierror, NIT, allocstat
         integer dims(3), cdims(2), periods(2)
+        integer vmap;
         integer vec;
         integer topo;
         integer request;
@@ -44,7 +45,8 @@
         end if
 
         call ADCL_Init ( ierror )
-        call ADCL_Vector_register ( 2, dims, 1, ADCL_VECTOR_HALO, 1, MPI_DOUBLE_PRECISION,&
+        call ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, vmap, ierror )
+        call ADCL_Vector_register_generic ( 2, dims, 1, vmap, MPI_DOUBLE_PRECISION,&
                                     data, vec, ierror)
 
         call MPI_Dims_create ( size, 2, cdims, ierror)
@@ -65,6 +67,7 @@
         call ADCL_Request_free ( request, ierror )
         call ADCL_Topology_free ( topo, ierror )
         call ADCL_Vector_deregister ( vec, ierror )
+        call ADCL_Vmap_free ( vmap, ierror )
         call MPI_Comm_free ( cart_comm, ierror )
     
         deallocate ( data, stat=allocstat)

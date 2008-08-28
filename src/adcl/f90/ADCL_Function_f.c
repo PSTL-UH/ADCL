@@ -11,6 +11,7 @@
 #include "ADCL_internal.h"
 #include "ADCL_fprototypes.h"
 
+#ifndef _SX
 #pragma weak adcl_function_create_   = adcl_function_create
 #pragma weak adcl_function_create__  = adcl_function_create
 #pragma weak ADCL_FUNCTION_CREATE    = adcl_function_create
@@ -35,6 +36,7 @@
 #pragma weak adcl_fnctset_free_  = adcl_fnctset_free
 #pragma weak adcl_fnctset_free__ = adcl_fnctset_free
 #pragma weak ADCL_FNCTSET_FREE   = adcl_fnctset_free
+#endif
 
 #ifdef _SX
 void adcl_function_create_( void *iptr, int *attrset, int *array_of_attrvals, char *name,
@@ -149,9 +151,10 @@ void adcl_function_free ( int *fnct, int *ierr  )
         *ierr = ADCL_INVALID_FUNCTION;
         return;
     }
-    *ierr = ADCL_Function_free ( &cfunction );
 
-    fnct = ADCL_FUNCTION_NULL;
+    *ierr = ADCL_Function_free ( &cfunction );
+    *fnct = ADCL_FFUNCTION_NULL;
+
     return;
 }
 
@@ -274,5 +277,7 @@ void adcl_fnctset_free ( int *fctset, int *ierr )
     }
 
     *ierr = ADCL_fnctset_free ( &cfnctset );
+    *fctset = ADCL_FFNCTSET_NULL;
+
     return;
 }

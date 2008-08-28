@@ -11,6 +11,7 @@
 
 void* ADCL_allocate_TYPE_matrix ( int ndims, int *dims, void *matpt )
 {
+    int i;
     switch ( ndims ) {
     case 1: {
         TYPE *matrix;
@@ -18,6 +19,7 @@ void* ADCL_allocate_TYPE_matrix ( int ndims, int *dims, void *matpt )
         if ( NULL == matrix ) {
             return NULL;
         }
+        for (i=0; i<dims[0]; i++) matrix[i]=-5;
         *((void **)matpt) = matrix;
         return &(matrix[0]);
     }

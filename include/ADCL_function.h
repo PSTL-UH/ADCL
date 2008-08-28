@@ -10,7 +10,7 @@
 #ifndef __ADCL_FUNCTION_H__
 #define __ADCL_FUNCTION_H__
 
-#if ADCL_DUMMY_MPI
+#ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #else
 #include "mpi.h"
@@ -61,6 +61,12 @@ extern ADCL_array_t *ADCL_fnctset_farray;
 
 int ADCL_fnctset_create ( int maxnum, ADCL_function_t **fncts, char *name,
                           ADCL_fnctset_t **fnctset );
+int ADCL_fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
+                                 ADCL_work_fnct_ptr *wait_fnct,
+                                 ADCL_attrset_t * attrset, char *name,
+                                 int **without_attribute_combinations,
+                                 int num_without_attribute_combinations,
+                                 ADCL_fnctset_t **fnctset ); 
 int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
                                       ADCL_work_fnct_ptr *wait_fnct,
                                       ADCL_attrset_t * attrset, char *name,

@@ -33,6 +33,7 @@ int ATF_Free_matrix()
   ADCL_Vector_deregister( &adcl_Vec_dq);
   ADCL_Vector_deregister( &adcl_Vec_loes);
   ADCL_Vector_deregister( &adcl_Vec_rhs);
+  ADCL_Vmap_free ( &adcl_vmap );
 
   ADCL_Topology_free(&ADCL_topo);
   

@@ -13,18 +13,18 @@
 
 #define NIT 500
 
-void test_func_0_0_0 ( ADCL_Request req );
-void test_func_0_0_1 ( ADCL_Request req );
-void test_func_0_1_0 ( ADCL_Request req );
-void test_func_0_1_1 ( ADCL_Request req );
-void test_func_0_2_0 ( ADCL_Request req );
-void test_func_0_2_1 ( ADCL_Request req );
-void test_func_1_0_0 ( ADCL_Request req );
-void test_func_1_0_1 ( ADCL_Request req );
-void test_func_1_1_0 ( ADCL_Request req );
-void test_func_1_1_1 ( ADCL_Request req );
-void test_func_1_2_0 ( ADCL_Request req );
-void test_func_1_2_1 ( ADCL_Request req );
+static void test_func_0_0_0 ( ADCL_Request req );
+static void test_func_0_0_1 ( ADCL_Request req );
+static void test_func_0_1_0 ( ADCL_Request req );
+static void test_func_0_1_1 ( ADCL_Request req );
+static void test_func_0_2_0 ( ADCL_Request req );
+static void test_func_0_2_1 ( ADCL_Request req );
+static void test_func_1_0_0 ( ADCL_Request req );
+static void test_func_1_0_1 ( ADCL_Request req );
+static void test_func_1_1_0 ( ADCL_Request req );
+static void test_func_1_1_1 ( ADCL_Request req );
+static void test_func_1_2_0 ( ADCL_Request req );
+static void test_func_1_2_1 ( ADCL_Request req );
 
 int main ( int argc, char ** argv ) 
 {

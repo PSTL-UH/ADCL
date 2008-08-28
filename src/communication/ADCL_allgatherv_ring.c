@@ -64,16 +64,18 @@ void ADCL_allgatherv_ring( ADCL_request_t *req )
     char *tmpsend = NULL, *tmprecv = NULL;
 
     ADCL_topology_t *topo = req->r_emethod->em_topo;
+    //ADCL_vmap_t *s_vmap = req->r_svecs[0]->v_map;
+    ADCL_vmap_t *r_vmap = req->r_rvecs[0]->v_map;
+    void *sbuf = req->r_svecs[0]->v_data;
+    void *rbuf = req->r_rvecs[0]->v_data;
     MPI_Comm comm = topo->t_comm;
     
     /* Caution, this might be a hack */
-    MPI_Datatype sdtype = req->sdats[0];
-    MPI_Datatype rdtype = req->rdats[0];
-
-   /*  Missing: 
-       int *rcounts,
-       int *rdispls, 
-   */
+    MPI_Datatype sdtype = req->r_sdats[0];
+    int scount = req->r_scnts[0];
+    MPI_Datatype rdtype = req->r_rdats[0];
+    int *rcounts = r_vmap->m_rcnts;
+    int *rdispls = r_vmap->m_displ;
 
     size = topo->t_size;
     rank = topo->t_rank;
@@ -89,12 +91,12 @@ void ADCL_allgatherv_ring( ADCL_request_t *req )
        - if send buffer is not MPI_IN_PLACE, copy send buffer to 
        the appropriate block of receive buffer
     */
-    tmprecv = (char*) rbuf + rdisps[rank] * rext;
+    tmprecv = (char*) rbuf + rdispls[rank] * rext;
     if (MPI_IN_PLACE != sbuf) {
         tmpsend = (char*) sbuf;
-        err = MPI_Sendrecv (tmpsend, scount, sdtype, 
-			    tmprecv, rcounts[rank], rdtype, comm, 
-			    MPI_STATUS_IGNORE);
+        err = MPI_Sendrecv (tmpsend, scount, sdtype, rank, ADCL_TAG_ALLGATHERV,
+                tmprecv, rcounts[rank], rdtype, rank, ADCL_TAG_ALLGATHERV,
+	        comm,  MPI_STATUS_IGNORE);
         if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl;  }
     } 
    
@@ -113,8 +115,8 @@ void ADCL_allgatherv_ring( ADCL_request_t *req )
         recvdatafrom = (rank - i - 1 + size) % size;
         senddatafrom = (rank - i + size) % size;
 
-        tmprecv = (char*)rbuf + rdisps[recvdatafrom] * rext;
-        tmpsend = (char*)rbuf + rdisps[senddatafrom] * rext;
+        tmprecv = (char*)rbuf + rdispls[recvdatafrom] * rext;
+        tmpsend = (char*)rbuf + rdispls[senddatafrom] * rext;
 
         /* Sendreceive */
         err = MPI_Sendrecv(tmpsend, rcounts[senddatafrom], rdtype, 

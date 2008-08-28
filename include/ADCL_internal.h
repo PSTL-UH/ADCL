@@ -30,13 +30,19 @@
 #include "ADCL_request.h"
 #include "ADCL_change.h"
 #include "ADCL_allgatherv.h"
+#include "ADCL_allreduce.h"
+#include "ADCL_reduce.h"
+#include "ADCL_bcast.h"
 #include "ADCL_predefined.h"
+#include "ADCL_vmap.h"
+#include "ADCL_contiguous.h"
+#include "ADCL_list.h"
 
 #ifdef ADCL_PAPI
 #include "ADCL_papi.h"
 #endif
 
-#if ADCL_DUMMY_MPI
+#ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #endif
 

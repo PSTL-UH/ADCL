@@ -14,24 +14,24 @@
 
 #define NIT 500
 
-void test_func_0 ( ADCL_Request req );
-void test_func_1 ( ADCL_Request req );
-void test_func_2 ( ADCL_Request req );
-void test_func_3 ( ADCL_Request req );
-void test_func_4 ( ADCL_Request req );
-void test_func_5 ( ADCL_Request req );
-void test_func_6 ( ADCL_Request req );
-void test_func_7 ( ADCL_Request req );
-void test_func_8 ( ADCL_Request req );
-void test_func_9 ( ADCL_Request req );
-void test_func_10 ( ADCL_Request req );
-void test_func_11 ( ADCL_Request req );
-void test_func_12 ( ADCL_Request req );
-void test_func_13 ( ADCL_Request req );
-void test_func_14 ( ADCL_Request req );
-void test_func_15 ( ADCL_Request req );
-void test_func_16 ( ADCL_Request req );
-void test_func_17 ( ADCL_Request req );
+static void test_func_0 ( ADCL_Request req );
+static void test_func_1 ( ADCL_Request req );
+static void test_func_2 ( ADCL_Request req );
+static void test_func_3 ( ADCL_Request req );
+static void test_func_4 ( ADCL_Request req );
+static void test_func_5 ( ADCL_Request req );
+static void test_func_6 ( ADCL_Request req );
+static void test_func_7 ( ADCL_Request req );
+static void test_func_8 ( ADCL_Request req );
+static void test_func_9 ( ADCL_Request req );
+static void test_func_10 ( ADCL_Request req );
+static void test_func_11 ( ADCL_Request req );
+static void test_func_12 ( ADCL_Request req );
+static void test_func_13 ( ADCL_Request req );
+static void test_func_14 ( ADCL_Request req );
+static void test_func_15 ( ADCL_Request req );
+static void test_func_16 ( ADCL_Request req );
+static void test_func_17 ( ADCL_Request req );
 
 /* Optimal values shall be {0,4,6}  = Func9*/
 

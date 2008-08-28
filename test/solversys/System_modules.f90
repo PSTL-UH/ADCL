@@ -41,6 +41,7 @@
           integer :: adcl_topo
           integer :: adcl_vec_dq, adcl_req_dq
           integer :: adcl_vec_loes, adcl_req_loes
+          integer :: adcl_vmap
 
 !...Logische Variablen, die die Lage eines Blockes beschreiben
 

@@ -9,7 +9,7 @@
 #ifndef __ADCL_PACKUNPACK_H__
 #define __ADCL_PACKUNPACK_H__
 
-#if ADCL_DUMMY_MPI
+#ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #else
 #include "mpi.h"

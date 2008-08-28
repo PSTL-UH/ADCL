@@ -53,21 +53,23 @@ int ADCL_data_create ( ADCL_emethod_t *e )
         data->d_vdims[i] = vec->v_dims[i];
     }
     data->d_nc = vec->v_nc;
-    data->d_hwidth = vec->v_hwidth;
-    data->d_comtype = vec->v_comtype;
+    data->d_hwidth = vec->v_map->m_hwidth;
+    data->d_vectype = vec->v_map->m_vectype;
     /* Attribute information */
-    data->d_asmaxnum = e->em_orgfnctset->fs_attrset->as_maxnum;
-    data->d_attrvals = (int *)malloc( data->d_asmaxnum * sizeof(int) );
-    /* Initialization */
-    for (i=0; i<data->d_asmaxnum ; i++){
-        data->d_attrvals[i] = -1;
-    }
-    if ( e->em_perfhypothesis ) {
-        for (i=0; i<data->d_asmaxnum ; i++){
-            if( e->em_hypo.h_attr_confidence[i] > 1 ) {
-                data->d_attrvals[i] = e->em_fnctset.fs_fptrs[0]->f_attrvals[i];
-            }
-        }
+    if (NULL != e->em_orgfnctset->fs_attrset && ADCL_ATTRSET_NULL !=  e->em_orgfnctset->fs_attrset){
+       data->d_asmaxnum = e->em_orgfnctset->fs_attrset->as_maxnum;
+       data->d_attrvals = (int *)malloc( data->d_asmaxnum * sizeof(int) );
+       /* Initialization */
+       for (i=0; i<data->d_asmaxnum ; i++){
+           data->d_attrvals[i] = -1;
+       }
+       if ( e->em_perfhypothesis ) {
+           for (i=0; i<data->d_asmaxnum ; i++){
+               if( e->em_hypo.h_attr_confidence[i] > 1 ) {
+                   data->d_attrvals[i] = e->em_fnctset.fs_fptrs[0]->f_attrvals[i];
+               }
+           }
+       }
     }
     /* Function set and winner function */
     data->d_fsname = strdup ( e->em_orgfnctset->fs_name );
@@ -113,7 +115,7 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
     ADCL_topology_t *topo = e->em_topo;
     ADCL_vector_t   *vec  = e->em_vec;
     int ret = ADCL_UNEQUAL;
-    int i, j, last, explored_data, found, result;
+    int i, j, last, explored_data, found;
     int *dims, *periods, *coords;
 
     if ( ADCL_VECTOR_NULL == vec ) {
@@ -127,8 +129,8 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
             if ( ( topo->t_ndims    == data->d_tndims  ) &&
                  ( vec->v_ndims     == data->d_vndims  ) &&
                  ( vec->v_nc        == data->d_nc      ) &&
-                 ( vec->v_comtype   == data->d_comtype ) &&
-                 ( vec->v_hwidth    == data->d_hwidth  ) &&
+                 ( vec->v_map->m_vectype   == data->d_vectype ) &&
+                 ( vec->v_map->m_hwidth    == data->d_hwidth  ) &&
                  ( 0 == strncmp (data->d_fsname,
                                  e->em_orgfnctset->fs_name,
                                  strlen(e->em_orgfnctset->fs_name))) ) {
@@ -212,7 +214,7 @@ void ADCL_data_dump_to_file ( void )
             fprintf ( fp, "      </DIMS>\n");
             fprintf ( fp, "      <NC>%d</NC>\n", data->d_nc );
             fprintf ( fp, "      <HWIDTH>%d</HWIDTH>\n", data->d_hwidth );
-            fprintf ( fp, "      <COMTYPE>%d</COMTYPE>\n", data->d_comtype );
+            fprintf ( fp, "      <COMTYPE>%d</COMTYPE>\n", data->d_vectype );
             fprintf ( fp, "    </VECT>\n" );
             /* Attribute information */
             fprintf ( fp, "    <ATTR>\n" );
@@ -298,7 +300,7 @@ void ADCL_data_read_from_file ( void )
         fgets( line, nchar, fp ); /* HWIDTH Tag */
         get_int_data_from_xml ( line, &data->d_hwidth );
         fgets( line, nchar, fp ); /* COMTYPE Tag */
-        get_int_data_from_xml ( line, &data->d_comtype );
+        get_int_data_from_xml ( line, &data->d_vectype );
         fgets( line, nchar, fp ); /* Close VECT Tag */
 
         /* Attribute information */

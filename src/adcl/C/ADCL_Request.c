@@ -61,26 +61,24 @@ int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
 }
 
 
-int ADCL_Request_create_generic ( ADCL_Vectset vectset,
+int ADCL_Request_create_generic ( ADCL_Vector svec, ADCL_Vector rvec,
                                   ADCL_Topology topo, ADCL_Fnctset fnctset,
                                   ADCL_Request *req )
 {
-    int i;
-
-    if ( ( NULL == vectset ) ||
+    if ( ( NULL == svec ) ||
+         ( NULL == rvec ) ||
          ( NULL == topo )    ||
          ( NULL == fnctset ) ||
          ( NULL == req ) ){
         return ADCL_INVALID_ARG;
     }
-    if ( ADCL_VECTSET_NULL == vectset ) {
-        if ( 0 > vectset->vs_id ) {
-            return ADCL_INVALID_VECTSET;
+    if ( ADCL_VECTOR_NULL != svec ) {
+        if ( 0 > svec->v_id ) {
+            return ADCL_INVALID_VECTOR;
         }
     }
-    for ( i=0; i< 2*topo->t_ndims; i++ ) {
-        if ( 0 > vectset->vs_svecs[i]->v_id ||
-             0 > vectset->vs_svecs[i]->v_id ) {
+    if ( ADCL_VECTOR_NULL != rvec ) {
+        if ( 0 > rvec->v_id ) {
             return ADCL_INVALID_VECTOR;
         }
     }
@@ -94,7 +92,7 @@ int ADCL_Request_create_generic ( ADCL_Vectset vectset,
             return ADCL_INVALID_FNCTSET;
         }
     }
-    return ADCL_request_create_generic ( vectset->vs_svecs, vectset->vs_rvecs, 
+    return ADCL_request_create_generic ( &(svec), &(rvec), 
                                          topo, fnctset, req, MPI_ORDER_C );
 }
 
@@ -102,6 +100,7 @@ int ADCL_Request_create_generic ( ADCL_Vectset vectset,
 int ADCL_Request_free ( ADCL_Request *req )
 {
     ADCL_request_t *preq = *req;
+    int ret; 
 
     if ( NULL == req ) {
         return ADCL_INVALID_REQUEST;
@@ -113,7 +112,11 @@ int ADCL_Request_free ( ADCL_Request *req )
         return ADCL_INVALID_REQUEST;
     }
 
-    return ADCL_request_free ( req );
+    ret = ADCL_request_free ( req );
+
+    req = ADCL_REQUEST_NULL;
+
+    return ret; 
 }
 
 int ADCL_Request_start ( ADCL_Request req )

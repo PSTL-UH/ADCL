@@ -59,26 +59,29 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
                  ( topo->t_ndims   == t->t_ndims  ) &&
                  ( vec->v_ndims    == v->v_ndims  ) &&
                  ( vec->v_nc       == v->v_nc     ) &&
-                 ( vec->v_hwidth   == v->v_hwidth ) ) {
+                 ( vec->v_map->m_hwidth  == v->v_map->m_hwidth  ) && 
+                 ( vec->v_map->m_vectype == v->v_map->m_vectype ) ) { 
 
-                for ( j=0; j< (2*topo->t_ndims); j++ ) {
-                    if ( topo->t_neighbors[i] != t->t_neighbors [i] ) {
-                        found = -1;
-                        break;
-                    }
-                }
-                if ( found == -1 ) {
-                    continue;
-                }
-                for ( j=0 ; j< vec->v_ndims; j++ ){
-                    if ( vec->v_dims[i] != v->v_dims[i] ) {
-                        found = -1;
-                        break;
-                    }
-                }
-                if ( found != -1 ) {
-                    break;
-                }
+                if ( ADCL_VECTOR_HALO == vec->v_map->m_vectype ){
+                   for ( j=0; j< (2*topo->t_ndims); j++ ) {
+                       if ( topo->t_neighbors[i] != t->t_neighbors [i] ) {
+                           found = -1;
+                           break;
+                       }
+                   }
+                   if ( found == -1 ) {
+                       continue;
+                   }
+                   for ( j=0 ; j< vec->v_ndims; j++ ){
+                       if ( vec->v_dims[i] != v->v_dims[i] ) {
+                           found = -1;
+                           break;
+                       }
+                   }
+                   if ( found != -1 ) {
+                       break;
+                   }
+		}
             }
         }
 
@@ -104,6 +107,9 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     e->em_explored_data = -1;
     e->em_topo        = t;
     e->em_vec         = v;
+    if ( NULL != v && ADCL_VECTOR_NULL != v) {
+       ADCL_vector_add_reference(v);
+    }
     e->em_orgfnctset  = f;
 
     /*
@@ -155,6 +161,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
         ADCL_hypothesis_init ( e );
     }
 
+    /* for verification runs */
     if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
         if ( -1 != ADCL_emethod_selection ) {
             e->em_state = ADCL_STATE_REGULAR;
@@ -214,6 +221,8 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
             }
             free ( e->em_stats );
         }
+
+        ADCL_vector_free(&(e->em_vec));
 
         if ( NULL != hypo->h_attr_hypothesis ) {
             free ( hypo->h_attr_hypothesis );
@@ -377,9 +386,6 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
         return last;
     }
 
-    ADCL_STAT_SET_TESTED ( e->em_stats[last]);
-    ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1,
-                                     e->em_topo->t_rank );
 
     if ( e->em_stats[last]->s_rescount < ADCL_emethod_numtests ) {
         /*
@@ -391,6 +397,10 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
         *flag = ADCL_FLAG_NOPERF;
         return last;
     }
+
+    ADCL_STAT_SET_TESTED ( e->em_stats[last]);
+    ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1,
+                                     e->em_topo->t_rank );
 
     if ( e->em_perfhypothesis ) {
         ADCL_statistics_global_max_v3 ( &(e->em_stats[last]), 1,

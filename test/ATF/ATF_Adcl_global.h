@@ -10,6 +10,7 @@
 #define ADCL_GLOBAL_H
 #include "ADCL.h"
 
+extern ADCL_Vmap adcl_vmap;
 
 extern ADCL_Vector adcl_Vec_dq;
 extern ADCL_Vector adcl_Vec_loes;

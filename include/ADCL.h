@@ -12,7 +12,7 @@
 
 #include "ADCL_config.h"
 
-#if ADCL_DUMMY_MPI
+#ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #else
 #include "mpi.h"
@@ -33,7 +33,7 @@
 #define ADCL_INVALID_HWIDTH    13
 #define ADCL_INVALID_DAT       14
 #define ADCL_INVALID_DATA      15
-#define ADCL_INVALID_COMTYPE   16
+#define ADCL_INVALID_VECTYPE   16
 #define ADCL_INVALID_COMM      17
 #define ADCL_INVALID_REQUEST   18
 #define ADCL_INVALID_NC        19
@@ -47,9 +47,11 @@
 #define ADCL_INVALID_VECTOR    27
 #define ADCL_INVALID_VECTSET   28
 #define ADCL_INVALID_DIRECTION 29
+#define ADCL_INVALID_VMAP      30
+#define ADCL_INVALID_OP        31
 
 #ifdef ADCL_PAPI
-#define ADCL_INVALID_PAPI      30
+#define ADCL_INVALID_PAPI      32
 #endif
 
 #define ADCL_VECTOR_NULL    (void*) -1
@@ -61,9 +63,11 @@
 #define ADCL_FUNCTION_NULL  (void*) -7
 #define ADCL_FNCTSET_NULL   (void*) -8
 #define ADCL_NULL_FNCT_PTR  (void*) -9
+#define ADCL_VMAP_NULL      (void*) -10
+#define ADCL_VECTYPE_NULL           -11
 
 #ifdef ADCL_PAPI
-#define ADCL_PAPI_NULL      (void*) -10
+#define ADCL_PAPI_NULL      (void*) -15
 #endif
 
 #define ADCL_MAX_ATTRLEN 32
@@ -78,8 +82,11 @@
 #define ADCL_VECTOR_ALL        2
 #define ADCL_VECTOR_UP_TRIANG  3
 #define ADCL_VECTOR_LO_TRIANG  4
+#define ADCL_VECTOR_LIST       5 
+#define ADCL_VECTOR_ALLREDUCE  6 
 
 /* define the object types visible to the user */
+typedef struct ADCL_vmap_s*      ADCL_Vmap;
 typedef struct ADCL_vector_s*    ADCL_Vector;
 typedef struct ADCL_vectset_s*   ADCL_Vectset;
 typedef struct ADCL_request_s*   ADCL_Request;
@@ -95,10 +102,14 @@ typedef struct ADCL_papi_s*      ADCL_Papi;
 
 /* define predefined functionsets */
 extern struct ADCL_fnctset_s *ADCL_neighborhood_fnctset;
+extern struct ADCL_fnctset_s *ADCL_allgatherv_fnctset;
+extern struct ADCL_fnctset_s *ADCL_allreduce_fnctset;
 extern struct ADCL_fnctset_s *ADCL_fnctset_rtol;
 extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 
 #define ADCL_FNCTSET_NEIGHBORHOOD ADCL_neighborhood_fnctset
+#define ADCL_FNCTSET_ALLGATHERV   ADCL_allgatherv_fnctset
+#define ADCL_FNCTSET_ALLREDUCE    ADCL_allreduce_fnctset
 #define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
 #define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
 
@@ -110,12 +121,23 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 int ADCL_Init (void );
 int ADCL_Finalize (void );
 
+/* ADCL Vmap functions */
+int ADCL_Vmap_halo_allocate ( int vectype, int hwidth, ADCL_Vmap *vec );
+int ADCL_Vmap_list_allocate ( int vectype, int size, int* rcnts, int* displ, ADCL_Vmap *vec );
+int ADCL_Vmap_allreduce_allocate ( int vectype, MPI_Op op, ADCL_Vmap *vec );
+int ADCL_Vmap_all_allocate ( int vectype, ADCL_Vmap *vec );
+int ADCL_Vmap_free  ( ADCL_Vmap *vec );
+
 /* ADCL Vector functions and ADCL Vectorset functions */
-int ADCL_Vector_allocate   ( int ndims, int *dims, int nc, int comtype, int hwidth,
+int ADCL_Vector_allocate   ( int ndims, int *dims, int nc, int vectype, int hwidth,
                              MPI_Datatype dat, void *data, ADCL_Vector *vec );
+int ADCL_Vector_allocate_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
+                           MPI_Datatype dat, void *data, ADCL_Vector *vec ); 
 int ADCL_Vector_free       ( ADCL_Vector *vec );
-int ADCL_Vector_register   ( int ndims, int *dims, int nc, int comtype, int hwidth,
+int ADCL_Vector_register   ( int ndims, int *dims, int nc, int vectype, int hwidth,
                              MPI_Datatype dat, void *data, ADCL_Vector *vec );
+int ADCL_Vector_register_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
+                           MPI_Datatype dat, void *data, ADCL_Vector *vec );
 int ADCL_Vector_deregister ( ADCL_Vector *vec );
 
 int ADCL_Vectset_create ( int maxnum,
@@ -180,7 +202,7 @@ int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
 /* ADCL Request functions */
 int ADCL_Request_create         ( ADCL_Vector vec, ADCL_Topology topo,
                                   ADCL_Fnctset fnctset,  ADCL_Request *req );
-int ADCL_Request_create_generic (ADCL_Vectset vectset,
+int ADCL_Request_create_generic (ADCL_Vector svec, ADCL_Vector rvec, 
                                  ADCL_Topology topo,
                                  ADCL_Fnctset fnctset,
                                  ADCL_Request *req );

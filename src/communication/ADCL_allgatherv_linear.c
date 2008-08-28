@@ -1,5 +1,6 @@
 /* 
 ** Algorithms implementing ALLGATHERV operations. Taken from the Open MPI source code repository.
+** (./ompi/mca/coll/tuned/coll_tuned_allgather.c)
 ** Following are the Open MPI copyrights
 */
 
@@ -64,7 +65,7 @@
  */
 void ADCL_allgatherv_linear ( ADCL_request_t *req )
 {
-    int i, size, rank ;
+    int size, rank;
     int err;
     MPI_Aint extent;
     MPI_Aint lb;
@@ -72,21 +73,22 @@ void ADCL_allgatherv_linear ( ADCL_request_t *req )
     MPI_Datatype newtype, send_type;
 
     ADCL_topology_t *topo = req->r_emethod->em_topo;
+    ADCL_vmap_t *r_vmap = req->r_rvecs[0]->v_map;
+    void *sbuf = req->r_svecs[0]->v_data;
+    void *rbuf = req->r_rvecs[0]->v_data;
     MPI_Comm comm = topo->t_comm;
     
     /* Caution, this might be a hack */
-    MPI_Datatype sdtype = req->sdats[0];
-    MPI_Datatype rdtype = req->rdats[0];
-
-   /*  Missing: 
-       int *rcounts,
-       int *rdispls, 
-   */
-   
+    MPI_Datatype sdtype = req->r_sdats[0];
+    int scount = req->r_scnts[0];
+    MPI_Datatype rdtype = req->r_rdats[0];
+    int *rcounts = r_vmap->m_rcnts;
+    int *rdispls = r_vmap->m_displ;
+  
     size = topo->t_size;
     rank = topo->t_rank;
 
-    /*
+     /*
      * We don't have a root process defined. Arbitrarily assign root
      * to process with rank 0 (OMPI convention)
      */
@@ -94,18 +96,18 @@ void ADCL_allgatherv_linear ( ADCL_request_t *req )
     if (MPI_IN_PLACE == sbuf) {
         MPI_Type_get_extent(rdtype, &lb, &extent);
         send_type = rdtype;
-        send_buf = (char*)rbuf;
+        send_buf = ((char*) rbuf) + rdispls[rank] * extent;
+        /*send_buf = (char*) sbuf;
         for (i = 0; i < rank; ++i) {
             send_buf += (rcounts[i] * extent);
-        }
+        }*/
     } else {
-        send_buf = (char*)sbuf;
+        send_buf = (char*) sbuf;
         send_type = sdtype;
     }
 
-    err = MPI_Gatherv(send_buf,
-		      rcounts[rank], send_type,rbuf,
-		      rcounts, disps, rdtype, 0,
+    err = MPI_Gatherv(send_buf, scount, send_type, 
+                      rbuf, rcounts, rdispls, rdtype, 0,
 		      comm);
     
     if (MPI_SUCCESS != err) {
@@ -124,7 +126,7 @@ void ADCL_allgatherv_linear ( ADCL_request_t *req )
      * datatype.
      */
 
-    err = MPI_Type_create_indexed(size,rcounts,disps,rdtype,&newtype);
+    err = MPI_Type_indexed(size,rcounts,rdispls,rdtype,&newtype);
     if (MPI_SUCCESS != err) {
         return ;
     }
@@ -134,7 +136,7 @@ void ADCL_allgatherv_linear ( ADCL_request_t *req )
         return;
     }
 
-    MPI_Bccast(rbuf, 1, newtype, 0, comm );
+    MPI_Bcast(rbuf, 1, newtype, 0, comm );
     MPI_Type_free (&newtype);
 
     return;

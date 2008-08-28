@@ -34,6 +34,7 @@
 #include "nrutil.h"
 #endif
 
+#ifdef GSL
 #include <gsl_math.h>
 #include <gsl_sort.h>
 #include <gsl_sf_gamma.h>
@@ -43,6 +44,7 @@
 #include <gsl_statistics_double.h>
 #include <gsl/gsl_sf_pow_int.h>
 #include <gsl_multimin.h>
+#endif 
 
 #ifdef NR
 void get_starting_value(float* x0);

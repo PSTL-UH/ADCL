@@ -29,7 +29,20 @@ OBJ =	ADCL_change_sb_aao_debug.o \
         ADCL_change_sb_aao_win_fence_put.o \
         ADCL_change_sb_aao_win_fence_get.o \
         ADCL_change_sb_aao_post_start_put.o \
-        ADCL_change_sb_aao_post_start_get.o
+        ADCL_change_sb_aao_post_start_get.o \
+        ADCL_allgatherv_linear.o            \
+        ADCL_allgatherv_bruck.o             \
+        ADCL_allgatherv_neighborexchange.o  \
+        ADCL_allgatherv_ring.o              \
+        ADCL_allgatherv_two_procs.o          \
+        ADCL_allgatherv_recursivedoubling.o  \
+        ADCL_allreduce_linear.o              \
+        ADCL_allreduce_nonoverlapping.o      \
+        ADCL_allreduce_ring.o                \
+        ADCL_allreduce_native.o              \
+        ADCL_allreduce_recursivedoubling.o   \
+        ADCL_reduce_linear.o                 \
+        ADCL_bcast_linear.o              
 
 
 .SUFFIXES: .o.c

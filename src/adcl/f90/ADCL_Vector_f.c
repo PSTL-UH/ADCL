@@ -13,9 +13,14 @@
 /* Note: Vector_allocate, vector_free and vector_get_data_ptr are
    intentionally not offered in the fortran interface. */
 
-#pragma weak adcl_vector_register_  = adcl_vector_register
-#pragma weak adcl_vector_register__ = adcl_vector_register
-#pragma weak ADCL_VECTOR_REGISTER   = adcl_vector_register
+#ifndef _SX
+//#pragma weak adcl_vector_register_  = adcl_vector_register
+//#pragma weak adcl_vector_register__ = adcl_vector_register
+//#pragma weak ADCL_VECTOR_REGISTER   = adcl_vector_register
+
+#pragma weak adcl_vector_register_generic_  = adcl_vector_register_generic
+#pragma weak adcl_vector_register_generic__ = adcl_vector_register_generic
+#pragma weak ADCL_VECTOR_REGISTER_GENERIC   = adcl_vector_register_generic
 
 #pragma weak adcl_vector_deregister_  = adcl_vector_deregister
 #pragma weak adcl_vector_deregister__ = adcl_vector_deregister
@@ -28,29 +33,104 @@
 #pragma weak adcl_vectset_free_  = adcl_vectset_free
 #pragma weak adcl_vectset_free__ = adcl_vectset_free
 #pragma weak ADCL_VECTSET_FREE   = adcl_vectset_free
+#endif
+
+//#ifdef _SX
+//void adcl_vector_register_( int *ndims, int *dims, int *nc, int *vectype, int *hwidth,
+//                            int *dat, void *data, int *vec, int *ierror)
+//#else
+//void adcl_vector_register ( int *ndims, int *dims, int *nc, int *vectype, int *hwidth,
+//                            int *dat, void *data, int *vec, int *ierror)
+//#endif
+//{
+//    int i;
+//    ADCL_vector_t *cvec;
+//    MPI_Datatype cdat;
+//
+//    if ( ( NULL == ndims ) ||
+//         ( NULL == dims )  ||
+//         ( NULL == nc   )  ||
+//         ( NULL == hwidth) ||
+//         ( NULL == dat )   ||
+//         ( NULL == data )  ||
+//         ( NULL == vec )   ) {
+//        *ierror = ADCL_INVALID_ARG;
+//        return;
+//    }
+//    /* Verification of the input parameters */
+//    if ( 0 > *ndims ) {
+//        *ierror = ADCL_INVALID_NDIMS;
+//        return;
+//    }
+//    for ( i=0; i<*ndims; i++ ) {
+//        if ( 0 > dims[i] ) {
+//            *ierror = ADCL_INVALID_DIMS;
+//            return;
+//        }
+//    }
+//    if ( 0 > *hwidth ) {
+//        *ierror = ADCL_INVALID_HWIDTH;
+//        return;
+//    }
+//    if ( 0 > *nc ) {
+//        *ierror = ADCL_INVALID_NC;
+//        return;
+//    }
+//    if (  0 >= *vectype || 4 < *vectype ) {
+//        *ierror = ADCL_INVALID_VECTYPE;
+//        return;
+//    }
+//
+//    cdat = MPI_Type_f2c (*dat);
+//    if ( cdat == MPI_DATATYPE_NULL ) {
+//        *ierror = ADCL_INVALID_TYPE;
+//        return;
+//    }
+//
+//    if ( cdat == MPI_DOUBLE_PRECISION ) {
+//        cdat = MPI_DOUBLE;
+//    }
+//    else if ( cdat == MPI_REAL ) {
+//        cdat = MPI_FLOAT;
+//    }
+//    else if ( cdat == MPI_INTEGER ) {
+//        cdat = MPI_INT;
+//    }
+//
+//    *ierror = ADCL_vector_register (*ndims, dims, *nc, *vectype, *hwidth,
+//                                    cdat, data, &cvec );
+//    if ( *ierror == ADCL_SUCCESS ) {
+//        *vec = cvec->v_findex;
+//    }
+//    //free (cdat); 
+//
+//    return;
+//}
 
 #ifdef _SX
-void adcl_vector_register_( int *ndims, int *dims, int *nc, int *comtype, int *hwidth,
-                            int *dat, void *data, int *vec, int *ierror)
+void adcl_vector_register_generic_ ( int *ndims, int *dims, int *nc, int *vmap,
+                           int *dat, void *data, int *vec, int *ierror )
 #else
-void adcl_vector_register ( int *ndims, int *dims, int *nc, int *comtype, int *hwidth,
-                            int *dat, void *data, int *vec, int *ierror)
+void adcl_vector_register_generic  ( int *ndims, int *dims, int *nc, int *vmap,
+                           int *dat, void *data, int *vec, int* ierror )
 #endif
 {
     int i;
+    ADCL_vmap_t *cvmap;
     ADCL_vector_t *cvec;
     MPI_Datatype cdat;
 
     if ( ( NULL == ndims ) ||
          ( NULL == dims )  ||
          ( NULL == nc   )  ||
-         ( NULL == hwidth) ||
+         ( NULL == vmap)   ||
          ( NULL == dat )   ||
          ( NULL == data )  ||
          ( NULL == vec )   ) {
         *ierror = ADCL_INVALID_ARG;
         return;
     }
+
     /* Verification of the input parameters */
     if ( 0 > *ndims ) {
         *ierror = ADCL_INVALID_NDIMS;
@@ -62,16 +142,8 @@ void adcl_vector_register ( int *ndims, int *dims, int *nc, int *comtype, int *h
             return;
         }
     }
-    if ( 0 > *hwidth ) {
-        *ierror = ADCL_INVALID_HWIDTH;
-        return;
-    }
     if ( 0 > *nc ) {
         *ierror = ADCL_INVALID_NC;
-        return;
-    }
-    if (  0 >= *comtype || 4 < *comtype ) {
-        *ierror = ADCL_INVALID_COMTYPE;
         return;
     }
 
@@ -91,14 +163,15 @@ void adcl_vector_register ( int *ndims, int *dims, int *nc, int *comtype, int *h
         cdat = MPI_INT;
     }
 
-    *ierror = ADCL_vector_register (*ndims, dims, *nc, *comtype, *hwidth,
-                                    cdat, data, &cvec );
+    cvmap = (ADCL_vmap_t *) ADCL_array_get_ptr_by_pos ( ADCL_vmap_farray, *vmap );
+    *ierror = ADCL_vector_register_generic ( *ndims, dims, *nc, cvmap, cdat, data, &cvec );
     if ( *ierror == ADCL_SUCCESS ) {
         *vec = cvec->v_findex;
     }
 
-    return;
+
 }
+
 
 #ifdef _SX
 void adcl_vector_deregister_( int *vec, int *ierror )
@@ -112,6 +185,7 @@ void adcl_vector_deregister ( int *vec, int *ierror )
                                                          *vec );
     *ierror = ADCL_vector_deregister ( &cvec );
 
+    *vec = ADCL_FVECTOR_NULL;
     return;
 }
 
@@ -187,5 +261,8 @@ void adcl_vectset_free ( int *vectset, int *ierror )
     }
 
     *ierror = ADCL_vectset_free ( &cvectset );
+    
+    *vectset = ADCL_FVECTSET_NULL;
+    
     return;
 }

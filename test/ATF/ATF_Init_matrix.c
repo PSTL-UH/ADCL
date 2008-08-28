@@ -80,6 +80,7 @@ int ATF_Reset()
 
 /*Allocate and initialize matrix and vectors*/
 
+ADCL_Vmap adcl_vmap;
 ADCL_Vector adcl_Vec_dq;
 ADCL_Vector adcl_Vec_loes;
 ADCL_Vector adcl_Vec_rhs;
@@ -156,9 +157,10 @@ int ATF_Init_matrix(int px, int py, int pz)
     dim3[2] = ATF_dim[2]+2;
 
     /*Vector register here!*/
-    ADCL_Vector_register( 3, dim3, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &(ATF_dq[0][0][0][0]), &adcl_Vec_dq );
-    ADCL_Vector_register( 3, dim3, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &(ATF_loes[0][0][0][0]), &adcl_Vec_loes );
-    ADCL_Vector_register( 3, dim3, nc, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &(ATF_rhs[0][0][0][0]), &adcl_Vec_rhs );
+    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, &adcl_vmap);
+    ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(ATF_dq[0][0][0][0]), &adcl_Vec_dq );
+    ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(ATF_loes[0][0][0][0]), &adcl_Vec_loes );
+    ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(ATF_rhs[0][0][0][0]), &adcl_Vec_rhs );
 
     /*Describe the neigborhood relations*/
     MPI_Dims_create( size, 3, cdims );

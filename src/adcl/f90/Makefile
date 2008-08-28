@@ -15,8 +15,9 @@ OBJ =  	ADCL_f.o		  \
 	ADCL_Vector_f.o           \
 	ADCL_Topology_f.o         \
 	ADCL_Request_f.o          \
+	ADCL_Vmap_f.o             \
 	ADCL_strings.o
-
+        
 
 .SUFFIXES: .o.c
 

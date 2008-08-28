@@ -10,7 +10,7 @@
 #include "ADCL_internal.h"
 #include "ADCL_fprototypes.h"
 
-
+#ifndef _SX
 #pragma weak adcl_topology_create_  = adcl_topology_create
 #pragma weak adcl_topology_create__ = adcl_topology_create
 #pragma weak ADCL_TOPOLOGY_CREATE   = adcl_topology_create
@@ -22,7 +22,7 @@
 #pragma weak adcl_topology_free_  = adcl_topology_free
 #pragma weak adcl_topology_free__ = adcl_topology_free
 #pragma weak ADCL_TOPOLOGY_FREE   = adcl_topology_free
-
+#endif
 
 #ifdef _SX
 void adcl_topology_create_generic_ ( int *ndims, int *lneighb, int *rneighb, int *coords, 
@@ -115,6 +115,9 @@ void adcl_topology_free ( int *topo, int *ierror )
     ctopo = (ADCL_topology_t *) ADCL_array_get_ptr_by_pos (ADCL_topology_farray, 
 							   *topo );
     *ierror = ADCL_Topology_free ( &ctopo );
+
+    *topo = ADCL_FTOPOLOGY_NULL;
+
     return;
 }
 

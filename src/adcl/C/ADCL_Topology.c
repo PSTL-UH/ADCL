@@ -60,6 +60,7 @@ int ADCL_Topology_create ( MPI_Comm cart_comm, ADCL_Topology *topo)
 int ADCL_Topology_free ( ADCL_Topology *topo )
 {
     ADCL_topology_t *ptopo = *topo;
+    int ret;
 
     if ( NULL == topo  ) {
         return ADCL_INVALID_ARG;
@@ -68,6 +69,9 @@ int ADCL_Topology_free ( ADCL_Topology *topo )
         return ADCL_INVALID_TOPOLOGY;
     }
 
-    return ADCL_topology_free ( topo );
+    ret = ADCL_topology_free ( topo );
+    topo = ADCL_TOPOLOGY_NULL;
+
+    return ret; 
 }
 

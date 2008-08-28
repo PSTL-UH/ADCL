@@ -28,7 +28,7 @@ static void check_data_3D ( double ***data, int rank, int *dim,
 int main ( int argc, char ** argv ) 
 {
     /* General variables */
-    int hwidth, rank, size;
+    int hwidth, rank, size, err;
     
     /* Definition of the 2-D vector */
     int dims[2], neighbors[4];
@@ -38,6 +38,7 @@ int main ( int argc, char ** argv )
     /* Variables for the process topology information */
     int cdims[]={0,0};
     int periods[]={0,0};
+    ADCL_Vmap vmap;
     MPI_Comm cart_comm;
     ADCL_Topology topo;
     ADCL_Request request;
@@ -62,7 +63,10 @@ int main ( int argc, char ** argv )
     hwidth=1;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data, &vec );
+    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    if ( ADCL_SUCCESS != err) goto exit;
+    err = ADCL_Vector_allocate_generic ( 2,  dims, 0, vmap, MPI_DOUBLE, &data, &vec );
+    if ( ADCL_SUCCESS != err) goto exit;
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_2D ( data, rank, dims, hwidth );
@@ -74,14 +78,18 @@ int main ( int argc, char ** argv )
     check_data_2D ( data, rank, dims, hwidth, neighbors );
 
     ADCL_Request_free ( &request );
-    ADCL_Vector_free ( &vec );
+    ADCL_Vector_free  ( &vec );
+    ADCL_Vmap_free    ( &vmap );
 
     /**********************************************************************/
     /* Test 2: hwidth=2, nc=0 */
     hwidth=2;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  dims, 0, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data, &vec );
+    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    if ( ADCL_SUCCESS != err) goto exit;
+    err = ADCL_Vector_allocate_generic ( 2,  dims, 0, vmap, MPI_DOUBLE, &data, &vec );
+    if ( ADCL_SUCCESS != err) goto exit;
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_2D ( data, rank, dims, hwidth );
@@ -94,13 +102,17 @@ int main ( int argc, char ** argv )
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
+    ADCL_Vmap_free    ( &vmap );
 
     /**********************************************************************/
     /* Test 3: hwidth=1, nc=1 */
     hwidth=1;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  dims, 1, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data2, &vec );
+    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    if ( ADCL_SUCCESS != err) goto exit;
+    err = ADCL_Vector_allocate_generic ( 2,  dims, 1, vmap, MPI_DOUBLE, &data2, &vec );
+    if ( ADCL_SUCCESS != err) goto exit;
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data2, rank, dims, hwidth, 1 );
@@ -113,13 +125,17 @@ int main ( int argc, char ** argv )
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
+    ADCL_Vmap_free    ( &vmap );
 
     /**********************************************************************/
     /* Test 4: hwidth=2, nc=1 */
     hwidth=2;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  dims, 1, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data2, &vec );
+    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    if ( ADCL_SUCCESS != err) goto exit;
+    err = ADCL_Vector_allocate_generic ( 2,  dims, 1, vmap, MPI_DOUBLE, &data2, &vec );
+    if ( ADCL_SUCCESS != err) goto exit;
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data2, rank, dims, hwidth, 1 );
@@ -132,13 +148,17 @@ int main ( int argc, char ** argv )
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
+    ADCL_Vmap_free    ( &vmap );
 
     /**********************************************************************/
     /* Test 5: hwidth=2, nc=2 */
     hwidth=2;
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  dims, 2, ADCL_VECTOR_HALO, hwidth, MPI_DOUBLE, &data2, &vec );
+    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    if ( ADCL_SUCCESS != err) goto exit;
+    err = ADCL_Vector_allocate_generic ( 2,  dims, 2, vmap, MPI_DOUBLE, &data2, &vec );
+    if ( ADCL_SUCCESS != err) goto exit;
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
     
     set_data_3D ( data2, rank, dims, hwidth, 2 );
@@ -151,8 +171,10 @@ int main ( int argc, char ** argv )
 
     ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
+    ADCL_Vmap_free    ( &vmap );
 
     /**********************************************************************/
+exit: 
     ADCL_Topology_free ( &topo );
     MPI_Comm_free ( &cart_comm );
     
