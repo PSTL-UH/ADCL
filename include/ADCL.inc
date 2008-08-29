@@ -89,8 +89,9 @@
        parameter ( ADCL_VECTOR_LIST      = 5 )
        parameter ( ADCL_VECTOR_ALLREDUCE = 6 )
 
-       integer ADCL_FNCTSET_NEIGHBORHOOD, ADCL_FNCTSET_SHIFT_LTOR
-       integer ADCL_FNCTSET_SHIFT_RTOL
+       integer ADCL_FNCTSET_NEIGHBORHOOD 
+       !integer ADCL_FNCTSET_SHIFT_LTOR
+       !integer ADCL_FNCTSET_SHIFT_RTOL
        integer ADCL_FNCTSET_ALLGATHERV, ADCL_FNCTSET_ALLREDUCE
        parameter ( ADCL_FNCTSET_NEIGHBORHOOD = 0 )
        parameter ( ADCL_FNCTSET_ALLGATHERV   = 1 )

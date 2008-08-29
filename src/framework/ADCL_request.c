@@ -29,6 +29,9 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     int i, ret = ADCL_SUCCESS;
     ADCL_request_t *newreq;
     int ident_vecs=1;
+#ifdef MPI_WIN
+    int tcount, tsize;
+#endif
     //int vectype;
 
     /*
@@ -232,13 +235,13 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
         if ( 0 == strcmp ( newreq->r_emethod->em_fnctset.fs_name,
                            "Neighborhood communication") ) {
             ADCL_fnctset_shrink_by_attr( &(newreq->r_emethod->em_fnctset), 2,
-                                         ADCL_attr_transfer_FenceGet );
+                                         ADCL_attr_transfer_nn_FenceGet );
             ADCL_fnctset_shrink_by_attr( &(newreq->r_emethod->em_fnctset), 2,
-                                         ADCL_attr_transfer_FencePut );
+                                         ADCL_attr_transfer_nn_FencePut );
             ADCL_fnctset_shrink_by_attr( &(newreq->r_emethod->em_fnctset), 2,
-                                         ADCL_attr_transfer_PostStartGet );
+                                         ADCL_attr_transfer_nn_PostStartGet );
             ADCL_fnctset_shrink_by_attr( &(newreq->r_emethod->em_fnctset), 2,
-                                         ADCL_attr_transfer_PostStartPut );
+                                         ADCL_attr_transfer_nn_PostStartPut );
         }
         newreq->r_win        = MPI_WIN_NULL;
         newreq->r_group      = MPI_GROUP_NULL;

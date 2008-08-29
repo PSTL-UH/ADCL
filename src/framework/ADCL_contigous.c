@@ -88,7 +88,7 @@ void ADCL_contiguous_free_generic ( int num, MPI_Datatype **dats, int **cnts )
     if ( NULL != tdats ) {
        for ( i=0; i<num; i++ ){
           if ( MPI_DATATYPE_NULL != tdats[i]) {
-             MPI_Type_free ( tdats[i] );
+             MPI_Type_free ( &tdats[i] );
           }
        }
        free ( tdats );

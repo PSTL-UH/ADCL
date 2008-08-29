@@ -13,13 +13,13 @@
 #include "ADCL_internal.h"
 #include "mpi.h"
 
-void allgatherv_test1(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
-void allgatherv_test2(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
-void allgatherv_test3(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
+static void allgatherv_test1(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
+static void allgatherv_test2(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
+static void allgatherv_test3(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
 
 static void dump_vector_1D ( double *data, int rank, int dim);
 static void set_data_1D ( double *data, int rank, int dim); 
-int check_data_1D ( double *data, int* rcounts, int *rdispl, int rank, int size);
+static int check_data_1D ( double *data, int* rcounts, int *rdispl, int rank, int size);
 
 int main ( int argc, char ** argv ) 
 {

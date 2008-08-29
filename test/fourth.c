@@ -34,6 +34,7 @@ int main ( int argc, char ** argv )
     /* Definition of the 2-D vector */
     int dims[2]={DIM0+2*HWIDTH, DIM1+2*HWIDTH};
     double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH][NC];
+    ADCL_Vmap vmap;
     ADCL_Topology topo;
     ADCL_Vector vec;
 
@@ -51,7 +52,8 @@ int main ( int argc, char ** argv )
 
     /* Initiate the ADCL library and register a 2D vector with ADCL */
     ADCL_Init ();
-    ADCL_Vector_register ( 2,  dims, NC, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, matrix, &vec );
+    ADCL_Vmap_halo_allocate (  ADCL_VECTOR_HALO, 1, &vmap );
+    ADCL_Vector_register_generic ( 2,  dims, NC, vmap, MPI_DOUBLE, matrix, &vec );
 
     /* Describe the neighborhood relations */
     MPI_Dims_create ( size, 2, cdims );

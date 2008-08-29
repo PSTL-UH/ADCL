@@ -272,7 +272,7 @@ subroutine dump_vector_double ( data, rank, dim)
 
     implicit none
     integer, intent(in) :: rank, dim
-    double precision, dimension(dim), intent(out) :: data
+    double precision, dimension(dim), intent(in) :: data
     integer i
 
     print *, rank, ": ", data

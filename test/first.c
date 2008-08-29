@@ -28,7 +28,8 @@ int main ( int argc, char ** argv )
     int cdims[]={0,0,0};
     int periods[]={0,0,0};
     int ***data;
-    
+
+    ADCL_Vmap vmap;    
     ADCL_Vector vec;
     ADCL_Topology topo;
     ADCL_Request request;
@@ -40,7 +41,8 @@ int main ( int argc, char ** argv )
     MPI_Comm_size ( MPI_COMM_WORLD, &size );
 
     ADCL_Init ();
-    ADCL_Vector_allocate ( 3,  dims, 0, ADCL_VECTOR_HALO, 1, MPI_DOUBLE, &data, &vec );
+    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, &vmap );
+    ADCL_Vector_allocate_generic ( 3, dims, 0, vmap, MPI_DOUBLE, &data, &vec );
 
     MPI_Dims_create ( size, 3, cdims );
     MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, &cart_comm);
@@ -55,8 +57,9 @@ int main ( int argc, char ** argv )
 	ADCL_Request_start( request );
     }
 
-    ADCL_Request_free ( &request );
     ADCL_Vector_free ( &vec );
+    ADCL_Vmap_free (&vmap);
+    ADCL_Request_free ( &request );
     ADCL_Topology_free ( &topo );
 
     MPI_Comm_free ( &cart_comm );

@@ -13,15 +13,15 @@
 #include "ADCL_internal.h"
 #include "mpi.h"
 
-void allreduce_test1(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
-void allreduce_test2(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
+static void allreduce_test1(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
+static void allreduce_test2(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
 
 static void dump_vector_double    ( double *data, int rank, int dim);
 static void set_data_double       ( double *data, int rank, int dim); 
-int check_data_double_sum ( double *data, int rank, int dim, int size);
+static int check_data_double_sum ( double *data, int rank, int dim, int size);
 static void dump_vector_int       ( int *data, int rank, int dim);
 static void set_data_int          ( int *data, int rank, int dim); 
-int check_data_int_min    ( int *data, int rank, int dim, int size);
+static int check_data_int_min    ( int *data, int rank, int dim, int size);
 
 int main ( int argc, char ** argv ) 
 {

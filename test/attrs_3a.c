@@ -11,65 +11,65 @@
 #include <mpi.h> 
 #include "ADCL.h" 
 
-void test_func_0 ( ADCL_Request req );
+static void test_func_0 ( ADCL_Request req );
 #define TIME0 0
-void test_func_1 ( ADCL_Request req );
+static void test_func_1 ( ADCL_Request req );
 #define TIME1 1000
-void test_func_2 ( ADCL_Request req );
+static void test_func_2 ( ADCL_Request req );
 #define TIME2 2000
-void test_func_3 ( ADCL_Request req );
+static void test_func_3 ( ADCL_Request req );
 #define TIME3 3000
-void test_func_4 ( ADCL_Request req );
+static void test_func_4 ( ADCL_Request req );
 #define TIME4 4000
-void test_func_5 ( ADCL_Request req );
+static void test_func_5 ( ADCL_Request req );
 #define TIME5 5000
-void test_func_6 ( ADCL_Request req );
+static void test_func_6 ( ADCL_Request req );
 #define TIME6 6000
-void test_func_7 ( ADCL_Request req );
+static void test_func_7 ( ADCL_Request req );
 #define TIME7 7000
-void test_func_8 ( ADCL_Request req );
+static void test_func_8 ( ADCL_Request req );
 #define TIME8 8000
-void test_func_9 ( ADCL_Request req );
+static void test_func_9 ( ADCL_Request req );
 #define TIME9 9000
-void test_func_10 ( ADCL_Request req );
+static void test_func_10 ( ADCL_Request req );
 #define TIME10 10000
-void test_func_11 ( ADCL_Request req );
+static void test_func_11 ( ADCL_Request req );
 #define TIME11 11000
-void test_func_12 ( ADCL_Request req );
+static void test_func_12 ( ADCL_Request req );
 #define TIME12 12000
-void test_func_13 ( ADCL_Request req );
+static void test_func_13 ( ADCL_Request req );
 #define TIME13 13000
-void test_func_14 ( ADCL_Request req );
+static void test_func_14 ( ADCL_Request req );
 #define TIME14 14000
-void test_func_15 ( ADCL_Request req );
+static void test_func_15 ( ADCL_Request req );
 #define TIME15 15000
-void test_func_16 ( ADCL_Request req );
+static void test_func_16 ( ADCL_Request req );
 #define TIME16 16000
-void test_func_17 ( ADCL_Request req );
+static void test_func_17 ( ADCL_Request req );
 #define TIME17 17000
-void test_func_18 ( ADCL_Request req );
+static void test_func_18 ( ADCL_Request req );
 #define TIME18 18000
-void test_func_19 ( ADCL_Request req );
+static void test_func_19 ( ADCL_Request req );
 #define TIME19 19000
-void test_func_20 ( ADCL_Request req );
+static void test_func_20 ( ADCL_Request req );
 #define TIME20 20000
-void test_func_21 ( ADCL_Request req );
+static void test_func_21 ( ADCL_Request req );
 #define TIME21 21000
-void test_func_22 ( ADCL_Request req );
+static void test_func_22 ( ADCL_Request req );
 #define TIME22 22000
-void test_func_23 ( ADCL_Request req );
+static void test_func_23 ( ADCL_Request req );
 #define TIME23 23000
-void test_func_24 ( ADCL_Request req );
+static void test_func_24 ( ADCL_Request req );
 #define TIME24 24000
-void test_func_25 ( ADCL_Request req );
+static void test_func_25 ( ADCL_Request req );
 #define TIME25 25000
-void test_func_26 ( ADCL_Request req );
+static void test_func_26 ( ADCL_Request req );
 #define TIME26 26000
-void test_func_27 ( ADCL_Request req );
+static void test_func_27 ( ADCL_Request req );
 #define TIME27 27000
-void test_func_28 ( ADCL_Request req );
+static void test_func_28 ( ADCL_Request req );
 #define TIME28 28000
-void test_func_29 ( ADCL_Request req );
+static void test_func_29 ( ADCL_Request req );
 #define TIME29 29000
 
 int main ( int argc, char ** argv )

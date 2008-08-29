@@ -13,9 +13,9 @@
 
 #define NIT 500
 
-void test_func_1 ( ADCL_Request req, int *a, int* b, int *c );
-void test_func_2 ( ADCL_Request req, int *a, int* b, int *c );
-void test_func_3 ( ADCL_Request req, int *a, int* b, int *c );
+static void test_func_1 ( ADCL_Request req, int *a, int* b, int *c );
+static void test_func_2 ( ADCL_Request req, int *a, int* b, int *c );
+static void test_func_3 ( ADCL_Request req, int *a, int* b, int *c );
 
 
 

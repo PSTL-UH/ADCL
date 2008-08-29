@@ -50,19 +50,19 @@ int ADCL_Finalize ( void )
     /* free the predefined function set  */
     ADCL_predefined_finalize ();
     /* free the request and vector fortran pointer arrays */
-    ADCL_array_free ( &(ADCL_vector_farray));
-    ADCL_array_free ( &(ADCL_vectset_farray));
-    ADCL_array_free ( &(ADCL_emethod_array));
-    ADCL_array_free ( &(ADCL_data_array));
-    ADCL_array_free ( &(ADCL_request_farray));
-    ADCL_array_free ( &(ADCL_topology_farray));
-    ADCL_array_free ( &(ADCL_attribute_farray));
-    ADCL_array_free ( &(ADCL_attrset_farray));
-    ADCL_array_free ( &(ADCL_function_farray));
-    ADCL_array_free ( &(ADCL_fnctset_farray));
-    ADCL_array_free ( &(ADCL_vmap_farray));
+    ret = ADCL_array_free ( &(ADCL_vector_farray));
+    ret = ADCL_array_free ( &(ADCL_vectset_farray));
+    ret = ADCL_array_free ( &(ADCL_emethod_array));
+    ret = ADCL_array_free ( &(ADCL_data_array));
+    ret = ADCL_array_free ( &(ADCL_request_farray));
+    ret = ADCL_array_free ( &(ADCL_topology_farray));
+    ret = ADCL_array_free ( &(ADCL_attribute_farray));
+    ret = ADCL_array_free ( &(ADCL_attrset_farray));
+    ret = ADCL_array_free ( &(ADCL_function_farray));
+    ret = ADCL_array_free ( &(ADCL_fnctset_farray));
+    ret = ADCL_array_free ( &(ADCL_vmap_farray));
 #ifdef ADCL_PAPI
-    ADCL_array_free ( &(ADCL_papi_farray));
+    ret = ADCL_array_free ( &(ADCL_papi_farray));
 #endif
 
     ADCL_printf_finalize ();

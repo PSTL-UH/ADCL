@@ -24,6 +24,7 @@ OBJ = 	ADCL_array.o 		\
 	ADCL_data.o 		\
 	ADCL_hypothesis.o       \
 	ADCL_predefined.o       \
+	ADCL_reduce.o             \
 	ADCL_vmap.o             \
 	ADCL_reduce.o           \
 	ADCL_contigous.o        \
