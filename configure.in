@@ -344,13 +344,15 @@ int main(int argc, char **argv)
     int	gsizes=1, lsizes=1, start_indices=0;
     MPI_Datatype newtype;
 
+    MPI_Init(&argc, &argv);
     MPI_Type_create_subarray(1, &gsizes, &lsizes, &start_indices,
                              MPI_ORDER_C, MPI_FLOAT, &newtype);    
+    MPI_Finalize();
     return MPI_SUCCESS;
 }
 EOF
 
-$mpi_cc -Wall -o TestCreateSubarray TestCreateSubarray.c > /dev/null 2>&1
+$mpi_cc -o TestCreateSubarray TestCreateSubarray.c > /dev/null 2>&1
 if test ! -s TestCreateSubarray; then
     AC_MSG_RESULT(no)
 else
@@ -385,12 +387,14 @@ int main(int argc, char **argv)
 {
     int sum;
     MPI_Win sum_win;
+    MPI_Init(&argc, &argv);
     MPI_Win_create(&sum, sizeof(sum), sizeof(sum), 0, MPI_COMM_WORLD, &sum_win);
+    MPI_Finalize();
     return MPI_SUCCESS;
 }
 EOF
 
-$mpi_cc -Wall -o TestWinCreate TestWinCreate.c > /dev/null 2>&1
+$mpi_cc -o TestWinCreate TestWinCreate.c > /dev/null 2>&1
 if test ! -s TestWinCreate ; then
     AC_MSG_RESULT(no)
 else
@@ -408,26 +412,28 @@ dnl Test MPI_Win_fence put in MPI library
 AC_MSG_CHECKING(if MPI library supports MPI_Win_fence with MPI_Put)
 cat >  TestFencePut.c <<EOF
 #include <mpi.h>
-int main()
+int main(int argc, char **argv)
 {
-	int assert=0;	
-	int orgaddr, orgcnt=1,rank=0,targcnt = 0;
-	
-	MPI_Aint tardisp=0;
-	MPI_Datatype targtype;
-	MPI_Win win;
+    int assert=0;	
+    int orgaddr, orgcnt=1,rank=0,targcnt = 0;
+    
+    MPI_Aint tardisp=0;
+    MPI_Datatype targtype;
+    MPI_Win win;
 
-	MPI_Win_fence(assert, win);
-	MPI_Put(&orgaddr, orgcnt, MPI_INT, rank,
-        	tardisp, targcnt, targtype,win);
+    MPI_Init(&argc, &argv);
+    MPI_Win_fence(assert, win);
+    MPI_Put(&orgaddr, orgcnt, MPI_INT, rank,
+    	tardisp, targcnt, targtype,win);
+    
+    MPI_Win_fence(assert, win);
+    MPI_Finalize();
 
-	MPI_Win_fence(assert, win);
-
-	return MPI_SUCCESS;
+    return MPI_SUCCESS;
 }
 EOF
 
-$mpi_cc -Wall -o TestFencePut TestFencePut.c > /dev/null 2>&1
+$mpi_cc -o TestFencePut TestFencePut.c > /dev/null 2>&1
 if test ! -s TestFencePut; then
     AC_MSG_RESULT(no)
 else
@@ -443,25 +449,27 @@ AC_MSG_CHECKING(if MPI library supports MPI_Win_fence with MPI_Get)
 cat >  TestFenceGet.c <<EOF
 
 #include <mpi.h>
-int main()
+int main(int argc, char **argv)
 {
-	int assert=0;
-	int orgaddr, orgcnt=1,tarrank=0, targcnt = 0;
-	
-	MPI_Aint tardisp=0;
-	MPI_Datatype targtype;
-	MPI_Win win;
-
-	MPI_Win_fence(assert, win);
-	MPI_Get(&orgaddr, orgcnt, MPI_INT, tarrank, tardisp, targcnt, targtype,win);
-
-	MPI_Win_fence(assert, win);
-
-	return MPI_SUCCESS;
+    int assert=0;
+    int orgaddr, orgcnt=1,tarrank=0, targcnt = 0;
+    
+    MPI_Aint tardisp=0;
+    MPI_Datatype targtype;
+    MPI_Win win;
+    
+    MPI_Init(&argc, &argv);
+    MPI_Win_fence(assert, win);
+    MPI_Get(&orgaddr, orgcnt, MPI_INT, tarrank, tardisp, targcnt, targtype,win);
+    
+    MPI_Win_fence(assert, win);
+    MPI_Finalize();
+    
+    return MPI_SUCCESS;
 }
 EOF
 
-$mpi_cc -Wall -o TestFenceGet TestFenceGet.c > /dev/null 2>&1
+$mpi_cc -o TestFenceGet TestFenceGet.c > /dev/null 2>&1
 if test ! -s TestFenceGet; then
     AC_MSG_RESULT(no)
 else
@@ -480,29 +488,31 @@ AC_MSG_CHECKING(if MPI library supports MPI_Win_post/start with MPI_Put)
 cat >  TestPostPut.c <<EOF
 
 #include <mpi.h>
-int main()
+int main(int argc, char **argv)
 {
-	int orgaddr, orgcnt=1,rank=0,targcnt = 0,assert=0;
-
-	MPI_Group group;
-	MPI_Win win;
-	MPI_Aint tardisp=0;
-	MPI_Datatype targtype;
-	
-	MPI_Win_post(group, assert, win);
-	MPI_Win_start(group, assert, win);
-
-	MPI_Put(&orgaddr, orgcnt, MPI_INT, rank,tardisp, targcnt, targtype,win);
-
-
-	MPI_Win_complete(win);
-	MPI_Win_wait(win);
-
-	return MPI_SUCCESS;
+    int orgaddr, orgcnt=1,rank=0,targcnt = 0,assert=0;
+    
+    MPI_Group group;
+    MPI_Win win;
+    MPI_Aint tardisp=0;
+    MPI_Datatype targtype;
+    
+    MPI_Init(&argc, &argv);
+    MPI_Win_post(group, assert, win);
+    MPI_Win_start(group, assert, win);
+    
+    MPI_Put(&orgaddr, orgcnt, MPI_INT, rank,tardisp, targcnt, targtype,win);
+    
+    
+    MPI_Win_complete(win);
+    MPI_Win_wait(win);
+    MPI_Finalize();
+    
+    return MPI_SUCCESS;
 }
 EOF
 
-$mpi_cc -Wall -o TestPostPut TestPostPut.c > /dev/null 2>&1
+$mpi_cc -o TestPostPut TestPostPut.c > /dev/null 2>&1
 if test ! -s TestPostPut; then
     AC_MSG_RESULT(no)
 else
@@ -518,29 +528,31 @@ dnl Test MPI_Win_Post_start get in MPI library
 AC_MSG_CHECKING(if MPI library supports MPI_Win_post/start with MPI_Get)
 cat >  TestPostGet.c <<EOF
 #include <mpi.h>
-int main()
+int main(int argc, char **argv)
 {
-	int orgaddr, orgcnt=1,tarrank=0,targcnt = 0,assert=0;
-
-	MPI_Group group;
-	MPI_Win win;
-	MPI_Aint tardisp=0;
-	MPI_Datatype targtype;
-	
-	MPI_Win_post(group, assert, win);
-	MPI_Win_start(group, assert, win);
-
-	MPI_Get(&orgaddr, orgcnt, MPI_INT, tarrank,tardisp, targcnt, targtype,win);
-
-
-	MPI_Win_complete(win);
-	MPI_Win_wait(win);
-
-	return MPI_SUCCESS;
+    int orgaddr, orgcnt=1,tarrank=0,targcnt = 0,assert=0;
+    
+    MPI_Group group;
+    MPI_Win win;
+    MPI_Aint tardisp=0;
+    MPI_Datatype targtype;
+    
+    MPI_Init(&argc, &argv);
+    MPI_Win_post(group, assert, win);
+    MPI_Win_start(group, assert, win);
+    
+    MPI_Get(&orgaddr, orgcnt, MPI_INT, tarrank,tardisp, targcnt, targtype,win);
+    
+    
+    MPI_Win_complete(win);
+    MPI_Win_wait(win);
+    MPI_Finalize();
+    
+    return MPI_SUCCESS;
 }
 EOF
 
-$mpi_cc -Wall -o TestPostGet TestPostGet.c > /dev/null 2>&1
+$mpi_cc -o TestPostGet TestPostGet.c > /dev/null 2>&1
 if test ! -s TestPostGet; then
     AC_MSG_RESULT(no)
 else
