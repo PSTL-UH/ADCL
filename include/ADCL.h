@@ -84,6 +84,7 @@
 #define ADCL_VECTOR_LO_TRIANG  4
 #define ADCL_VECTOR_LIST       5 
 #define ADCL_VECTOR_ALLREDUCE  6 
+#define ADCL_VECTOR_INPLACE    7 
 
 /* define the object types visible to the user */
 typedef struct ADCL_vmap_s*      ADCL_Vmap;
@@ -126,6 +127,7 @@ int ADCL_Vmap_halo_allocate ( int vectype, int hwidth, ADCL_Vmap *vec );
 int ADCL_Vmap_list_allocate ( int vectype, int size, int* rcnts, int* displ, ADCL_Vmap *vec );
 int ADCL_Vmap_allreduce_allocate ( int vectype, MPI_Op op, ADCL_Vmap *vec );
 int ADCL_Vmap_all_allocate ( int vectype, ADCL_Vmap *vec );
+int ADCL_Vmap_inplace_allocate ( int vectype, ADCL_Vmap *vec );
 int ADCL_Vmap_free  ( ADCL_Vmap *vec );
 
 /* ADCL Vector functions and ADCL Vectorset functions */

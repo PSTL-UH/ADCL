@@ -59,20 +59,22 @@
 
 void  ADCL_allreduce_linear( ADCL_request_t *req)
 { 
-    /* int rank;
-      ADCL_topology_t *topo = req->r_emethod->em_topo;
-      MPI_Comm comm = topo->t_comm;
-      ADCL_vmap_t *s_vmap = req->r_svecs[0]->v_map;
-      MPI_Op op = s_vmap->m_op;
-      void *sbuf = req->r_svecs[0]->v_data;
-      void *rbuf = req->r_rvecs[0]->v_data; */
+    /*  MPI_Comm comm = topo->t_comm;
+      ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
+      MPI_Op op = rvmap->m_op; */
+    int rank, err;
+    MPI_Aint true_lb, true_extent, lb, extent;
+    ADCL_topology_t *topo = req->r_emethod->em_topo;
+    void *sbuf = req->r_svecs[0]->v_data;
+    void *rbuf = req->r_rvecs[0]->v_data;
+    int bcount;
 
-    /* Caution, this might be a hack */
-    /*MPI_Datatype dtype = req->r_sdats[0]; 
-      int count = req->r_svecs[0]->v_dims[0]; */
+    /* use receive vector */
+    MPI_Datatype dtype = req->r_rdats[0]; 
+    int count = req->r_svecs[0]->v_dims[0]; 
 
-    /*size = topo->t_size;
-      rank = topo->t_rank; */
+    /*size = topo->t_size; */
+    rank = topo->t_rank; 
 
     /* Reduce to 0 and broadcast. */
     /*if (MPI_IN_PLACE == sbuf) {
@@ -85,6 +87,16 @@ void  ADCL_allreduce_linear( ADCL_request_t *req)
         err = ADCL_reduce_linear(sbuf, rbuf, count, dtype, op, 0, comm);
     } */
     ADCL_reduce_linear( req );
+
+    if ( 0 == rank && MPI_IN_PLACE != sbuf ) {
+       /* result of reduce operation is in rbuf, but we need it in sbuf for
+	* broadcast */
+       MPI_Type_get_extent(dtype, &lb, &extent);
+       MPI_Type_get_true_extent(dtype, &true_lb, &true_extent);
+       bcount = true_extent + (count - 1) * extent;
+       err = ADCL_ddt_copy_content_same_ddt(dtype, bcount, (char*) sbuf, (char*) rbuf);
+    }
+
     ADCL_bcast_linear( req );
 
     return; 

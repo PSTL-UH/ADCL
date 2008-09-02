@@ -67,19 +67,28 @@ void ADCL_reduce_linear( ADCL_request_t *req )
 
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
-   ADCL_vmap_t *s_vmap = req->r_svecs[0]->v_map;
-   MPI_Op op = s_vmap->m_op; 
-   //ADCL_vmap_t *r_vmap = req->r_rvecs[0]->v_map;
-   void *sbuf = req->r_svecs[0]->v_data;
-   void *rbuf = req->r_rvecs[0]->v_data;
+   ADCL_vmap_t *svmap = req->r_svecs[0]->v_map;
+   ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
+   /* careful, pointers to sbuf are modified! */
+   void *req_sbuf = req->r_svecs[0]->v_data;
+   void *req_rbuf = req->r_rvecs[0]->v_data;
+   void *sbuf, *rbuf;
+   int bcount;
 
-   /* Caution, this might be a hack */
-   MPI_Datatype dtype = req->r_sdats[0]; 
-   int count = req->r_svecs[0]->v_dims[0];
+   /* use receive vector */
+   MPI_Datatype dtype = req->r_rdats[0]; 
+   int count = req->r_rvecs[0]->v_dims[0];
+   MPI_Op op = rvmap->m_op; 
 
     /* Initialize */
    size = topo->t_size;
    rank = topo->t_rank;
+   sbuf = req_sbuf;
+   rbuf = req_rbuf;
+
+    if (MPI_IN_PLACE == sbuf) {
+        sbuf = rbuf;
+    }
 
     /* If not root, send data to the root. */
     if (rank != root) {
@@ -88,14 +97,16 @@ void ADCL_reduce_linear( ADCL_request_t *req )
         return;
     }
 
+    /* so this is root */
+
     /* see discussion in ompi_coll_basic_reduce_lin_intra about extent and true extend */
     /* for reducing buffer allocation lengths.... */
 
     MPI_Type_get_extent(dtype, &lb, &extent);
     MPI_Type_get_true_extent(dtype, &true_lb, &true_extent);
+    bcount = true_extent + (count - 1) * extent;
 
-    if (MPI_IN_PLACE == sbuf) {
-        sbuf = rbuf;
+    if (MPI_IN_PLACE == req_sbuf) {
         inplace_temp = (char*)malloc(true_extent + (count - 1) * extent);
         if (NULL == inplace_temp) {
             return;
@@ -113,8 +124,8 @@ void ADCL_reduce_linear( ADCL_request_t *req )
 
     /* Initialize the receive buffer. */
 
-    if (rank == (size - 1)) {
-        err = ADCL_ddt_copy_content_same_ddt(dtype, count, (char*)rbuf, (char*)sbuf);
+    if (root == (size - 1)) {
+        err = ADCL_ddt_copy_content_same_ddt(dtype, bcount, (char*)rbuf, (char*)sbuf);
     } else {
         err = MPI_Recv(rbuf, count, dtype, size - 1,
                                 ADCL_TAG_REDUCE, comm, MPI_STATUS_IGNORE);
@@ -129,7 +140,7 @@ void ADCL_reduce_linear( ADCL_request_t *req )
     /* Loop receiving and calling reduction function (C or Fortran). */
 
     for (i = size - 2; i >= 0; --i) {
-        if (rank == i) {
+        if (root == i) {
             inbuf = (char*)sbuf;
         } else {
             err = MPI_Recv(pml_buffer, count, dtype, i,
@@ -149,7 +160,7 @@ void ADCL_reduce_linear( ADCL_request_t *req )
     }
 
     if (NULL != inplace_temp) {
-        err = ADCL_ddt_copy_content_same_ddt(dtype, count, (char*)sbuf, inplace_temp);
+        err = ADCL_ddt_copy_content_same_ddt(dtype, bcount, (char*)req_rbuf, inplace_temp);
         free(inplace_temp);
     }
     if (NULL != free_buffer) {

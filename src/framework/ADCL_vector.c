@@ -106,12 +106,19 @@ int ADCL_vector_allocate_generic ( int ndims, int *dims, int nc,
     tvec->v_alloc   = TRUE;
     tvec->v_dat     = dat;
 
-    /* allocate the according data array */
-    tvec->v_data = ADCL_allocate_matrix ( rndims, rdims, dat, &(tvec->v_matrix) );
-    if ( NULL == tvec->v_data ) {
-        ADCL_vector_free ( &(tvec) );
-        *vec = NULL;
-        return ADCL_ERROR_INTERNAL;
+    if ( 0 < tvec->v_ndims) {
+       /* allocate the according data array */
+       tvec->v_data = ADCL_allocate_matrix ( rndims, rdims, dat, &(tvec->v_matrix) );
+       if ( NULL == tvec->v_data ) {
+           ADCL_vector_free ( &(tvec) );
+           *vec = NULL;
+           return ADCL_ERROR_INTERNAL;
+       }
+    }
+    else {
+       if ( ADCL_VECTOR_INPLACE == vmap->m_vectype ) {
+	  tvec->v_data = MPI_IN_PLACE; 
+       }
     }
 
     *vec = tvec;

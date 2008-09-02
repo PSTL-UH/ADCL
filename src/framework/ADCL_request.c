@@ -30,7 +30,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     ADCL_request_t *newreq;
     int ident_vecs=1;
 #ifdef MPI_WIN
-    int tcount, tsize;
+    int tsize, tcount=1;
 #endif
     //int vectype;
 
@@ -141,7 +141,8 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
         }
         else { 
            // ADCL_VECTOR_ALL  / ADCL_VECTOR_LIST 
-
+           ident_vecs = 0; 
+           
            newreq->r_svecs = (ADCL_vector_t **) malloc ( sizeof (ADCL_vector_t *));
            newreq->r_rvecs = (ADCL_vector_t **) malloc ( sizeof (ADCL_vector_t *));
            if ( NULL == newreq->r_rvecs || NULL == newreq->r_svecs ) {
@@ -168,6 +169,9 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
 	   case ADCL_VECTOR_LIST:
            case ADCL_VECTOR_ALLREDUCE:
               ret = ADCL_basic_init (svecs[0]->v_dat, svecs[0]->v_dims[0], &(newreq->r_sdats), &(newreq->r_scnts));
+	      break;
+	   case ADCL_VECTOR_INPLACE:
+	      vec = rvecs[0];
 	      break;
            default:
 	      ret = ADCL_ERROR_INTERNAL; 
@@ -262,6 +266,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
            break;
        case ADCL_VECTOR_ALL: 
        case ADCL_VECTOR_ALLREDUCE:
+       case ADCL_VECTOR_INPLACE:
            newreq->r_sreqs=(MPI_Request *)malloc(topo->t_ndims*
                         sizeof(MPI_Request));
            break;
@@ -336,7 +341,8 @@ exit:
                  break;
 	      case ADCL_VECTOR_LIST:
 	      case ADCL_VECTOR_ALLREDUCE:
-                 ADCL_basic_free (&(newreq->r_sdats), &(newreq->r_scnts));
+	      case ADCL_VECTOR_INPLACE:
+	         ADCL_basic_free (&(newreq->r_sdats), &(newreq->r_scnts));
 		 break;
               }
 
@@ -414,6 +420,8 @@ int ADCL_request_free ( ADCL_request_t **req )
             if ( NULL != preq->r_sdats  && NULL != preq->r_rdats ) {
                ADCL_basic_free (&(preq->r_sdats), &(preq->r_scnts));
             }
+	    break;
+	 case ADCL_VECTOR_INPLACE:
 	    break;
          default:
              ret = ADCL_ERROR_INTERNAL;

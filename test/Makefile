@@ -10,21 +10,17 @@ include ../Makefile.defs
 
 all: ctests ftests
 
-ctests: one-dim  \
+ctests: first second third fourth \
+	one-dim two-dim three-dim \
 	test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
-	test-fnctset-allgatherv-1d test-fnctset-allreduce \
-	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 
+	test-fnctset-allgatherv-1d \
+	test-fnctset-allreduce \
+	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
+	data_1 PbSizes_1D PbSizes_2D PbSizes_3D
 
 ftests: test-fnctset-noattrs_f test-fnctset-single_f     \
         test-fnctset-allgatherv_f test-fnctset-allreduce_f 
 
-#ctests: first second third fourth \
-#	one-dim two-dim three-dim \
-#	test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
-#	test-fnctset-allgatherv-1d \
-#	test-fnctset-allreduce \
-#	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
-#	data_1 PbSizes_1D PbSizes_2D PbSizes_3D
 #         
 #ftests: one-dim-f two-dim-f three-dim-f three-dim-large  \
 #	first_f second_f                                 \

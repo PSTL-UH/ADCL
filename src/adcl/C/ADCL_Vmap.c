@@ -106,6 +106,25 @@ int ADCL_Vmap_all_allocate ( int vectype, ADCL_Vmap *vmap )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
+int ADCL_Vmap_inplace_allocate ( int vectype, ADCL_Vmap *vmap )
+{
+    ADCL_vmap_t *tvmap=NULL;
+    int err = ADCL_SUCCESS;         
+          
+    /* Halo cells are to be communicated */
+    if (ADCL_VECTOR_INPLACE != vectype) {
+        return ADCL_INVALID_VECTYPE;
+    }
+
+    err = ADCL_vmap_inplace_allocate ( vectype, &tvmap );
+
+    *vmap = tvmap;
+    return err;
+}
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_Vmap_free  ( ADCL_Vmap *vmap )
 {
     int ret; 

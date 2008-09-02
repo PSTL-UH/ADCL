@@ -71,13 +71,15 @@ ADCL_bcast_linear ( ADCL_request_t *req )
 
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
-   /*ADCL_vmap_t *s_vmap = req->r_svecs[0]->v_map;
-     ADCL_vmap_t *r_vmap = req->r_rvecs[0]->v_map;
-     void *sbuf = req->r_svecs[0]->v_data; */
+   ADCL_vmap_t *svmap = req->r_svecs[0]->v_map;
+   void *sbuf = req->r_svecs[0]->v_data; 
    void *rbuf = req->r_rvecs[0]->v_data;
-   MPI_Datatype btype =  req->r_sdats[0];
+   void *buf; 
    MPI_Request *mpi_reqs;
-   int count = req->r_svecs[0]->v_dims[0];
+ 
+   /* use receive data */
+   MPI_Datatype btype =  req->r_rdats[0];
+   int count = req->r_rvecs[0]->v_dims[0];
 
    size = topo->t_size;
    rank = topo->t_rank;
@@ -92,13 +94,19 @@ ADCL_bcast_linear ( ADCL_request_t *req )
 
 
     /* Other processes returned, root sends data to all others. */
-
+    if ( MPI_IN_PLACE == sbuf ) {
+       /* this is a hack in case allgatherv_linear calls this routine */
+       buf = rbuf;
+    }
+    else {
+       buf = sbuf;
+    }
     for (i = 0; i < size; i++) {
        if (i == rank) {
 	  mpi_reqs[i] = MPI_REQUEST_NULL;
 	  continue;
        }
-       err = MPI_Isend(rbuf, count, btype, i, ADCL_TAG_BCAST, comm, &mpi_reqs[i]);
+       err = MPI_Isend(buf, count, btype, i, ADCL_TAG_BCAST, comm, &mpi_reqs[i]);
     }
     err = MPI_Waitall(size, mpi_reqs, MPI_STATUSES_IGNORE);
 

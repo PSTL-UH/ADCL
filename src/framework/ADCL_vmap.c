@@ -153,6 +153,35 @@ int ADCL_vmap_all_allocate ( int vectype, ADCL_vmap_t **vmap )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
+int ADCL_vmap_inplace_allocate ( int vectype, ADCL_vmap_t **vmap )
+{
+    ADCL_vmap_t *tvmap=NULL;
+          
+    /* Allocate a new vmap object */ 
+    tvmap = (ADCL_vmap_t *) calloc ( 1, sizeof (ADCL_vmap_t) );
+    if ( NULL == tvmap ) {
+        return ADCL_NO_MEMORY;
+    }
+
+    /* Set the according elements of the structure */
+    tvmap->m_id     = ADCL_local_vmap_counter++;
+    tvmap->m_rfcnt  = 1;
+    
+    ADCL_array_get_next_free_pos ( ADCL_vmap_farray, &(tvmap->m_findex) );
+    ADCL_array_set_element ( ADCL_vmap_farray,
+                 tvmap->m_findex,
+                 tvmap->m_id,
+                 tvmap );
+    
+    tvmap->m_vectype = vectype;
+    
+    *vmap = tvmap;
+    return ADCL_SUCCESS;
+}
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_vmap_free  ( ADCL_vmap_t **vmap )
 {
     ADCL_vmap_t *tvmap=*vmap;

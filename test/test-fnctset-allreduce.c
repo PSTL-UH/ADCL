@@ -15,6 +15,7 @@
 
 static void allreduce_test1(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
 static void allreduce_test2(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
+static void allreduce_test3(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
 
 static void dump_vector_double    ( double *data, int rank, int dim);
 static void set_data_double       ( double *data, int rank, int dim); 
@@ -45,7 +46,7 @@ int main ( int argc, char ** argv )
     err = ADCL_Topology_create ( cart_comm, &topo );
     if ( ADCL_SUCCESS != err) goto exit;   
 
-    cnt = 200;
+    cnt = 20; //200;
     dims = 3;
 
     /* MPI_DOUBLE, MPI_SUM, Vector_allocate */
@@ -53,6 +54,9 @@ int main ( int argc, char ** argv )
 
     /* MPI_INT, MPI_MIN, Vector_allocate */
     allreduce_test2(cnt, dims, rank, size, topo);
+
+    /* MPI_DOUBLE, MPI_SUM, Vector_allocate, MPI_INPLACE */
+    allreduce_test3(cnt, dims, rank, size, topo);
 
 exit:
     if ( ADCL_TOPOLOGY_NULL != topo)   ADCL_Topology_free ( &topo );
@@ -174,6 +178,59 @@ exit:
    return;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+void allreduce_test3(int cnt, int dim, int rank, int size, ADCL_Topology topo)
+/**********************************************************************/
+/**********************************************************************/
+{
+    double *data;
+    int i, err, cerr; 
+    ADCL_Vector svec, rvec;
+    ADCL_Vmap svmap, rvmap;
+    ADCL_Request request;
+    
+    /* ADCL_Vmap_all_allocate( ADCL_VECTOR_IN_PLACE , &svmap ); */ 
+    err = ADCL_Vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &svmap ); 
+    if ( ADCL_SUCCESS != err) goto exit;
+    err = ADCL_Vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, &rvmap ); 
+    if ( ADCL_SUCCESS != err) goto exit;
+
+    err = ADCL_Vector_allocate_generic ( 0,  0, 0, svmap, MPI_DATATYPE_NULL, NULL, &svec );
+    if ( ADCL_SUCCESS != err) goto exit;   
+    err = ADCL_Vector_allocate_generic ( 1,  &dim, 0, rvmap, MPI_DOUBLE, &data, &rvec );
+    if ( ADCL_SUCCESS != err) goto exit;   
+
+    err = ADCL_Request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_ALLREDUCE, &request );
+    if ( ADCL_SUCCESS != err) goto exit;   
+
+    for (i=0; i<cnt; i++){
+       set_data_double ( data, rank, dim);
+
+#ifdef VERBOSE
+       dump_vector_double ( data, rank, dim);
+#endif
+
+       err = ADCL_Request_start( request );
+       if ( ADCL_SUCCESS != err) goto exit;   
+
+       cerr = check_data_double_sum ( data, rank, dim, size);
+       if (cerr) goto exit;   
+    }
+
+    MPI_Barrier ( MPI_COMM_WORLD);
+
+exit:
+    if ( ADCL_SUCCESS != err) { printf("ADCL error nr. %d\n", err); } 
+
+    if ( ADCL_REQUEST_NULL != request) ADCL_Request_free ( &request );
+    if ( ADCL_VECTOR_NULL  != svec)     ADCL_Vector_free ( &svec );
+    if ( ADCL_VECTOR_NULL  != rvec)     ADCL_Vector_free ( &rvec );
+    if ( ADCL_VMAP_NULL    != svmap)    ADCL_Vmap_free (&svmap);
+    if ( ADCL_VMAP_NULL    != rvmap)    ADCL_Vmap_free (&rvmap);
+
+   return;
+}
 /**********************************************************************/
 /**********************************************************************/
 int check_data_double_sum ( double *data, int rank, int dim, int size) 
