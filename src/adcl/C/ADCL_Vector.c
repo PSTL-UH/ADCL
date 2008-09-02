@@ -194,6 +194,20 @@ int ADCL_Vector_register_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
     int numints, numaddr, numdats, combiner;
 
     /* Verification of the input parameters */
+    /* check first for vmap */
+    if ( NULL == vmap ) {
+        return ADCL_INVALID_VMAP;
+    }
+    if ( ADCL_VECTOR_INPLACE == vmap->m_vectype ) {
+       if ( MPI_IN_PLACE != data ) {
+          return ADCL_INVALID_DAT; 
+       } 
+       else {
+          goto allocate;
+       }
+    }
+
+    /* if it is not ADCL_VECTOR_INPLACE, verify rest of input parameters */
     if ( 0 > ndims ) {
         return ADCL_INVALID_NDIMS;
     }
@@ -207,9 +221,6 @@ int ADCL_Vector_register_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
             }
     if ( 0 > nc ) {
         return ADCL_INVALID_NC;
-    }
-    if ( NULL == vmap ) {
-        return ADCL_INVALID_VMAP;
     }
     if ( MPI_DATATYPE_NULL == dat ) {
         return ADCL_INVALID_DAT;
@@ -229,6 +240,7 @@ int ADCL_Vector_register_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
         return ADCL_INVALID_ARG;
     }
 
+allocate:
     return ADCL_vector_register_generic ( ndims, dims, nc, vmap, dat, data, vec );
 }
 

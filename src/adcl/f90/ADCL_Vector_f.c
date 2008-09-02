@@ -120,10 +120,23 @@ void adcl_vector_register_generic  ( int *ndims, int *dims, int *nc, int *vmap,
     ADCL_vector_t *cvec;
     MPI_Datatype cdat;
 
+    /* Verification of the input parameters */
+    /* check first for vmap */
+    if ( NULL == vmap ) {
+       *ierror = ADCL_INVALID_VMAP;
+       return;
+    }
+    cvmap = (ADCL_vmap_t *) ADCL_array_get_ptr_by_pos ( ADCL_vmap_farray, *vmap );
+    if ( ADCL_VECTOR_INPLACE == cvmap->m_vectype ) {
+       /* how do I verify that the user set data == MPI_IN_PLACE? */
+       data = MPI_IN_PLACE;
+       goto allocate;
+    }
+
+    /* if it is not ADCL_VECTOR_INPLACE, check rest of input parameters */
     if ( ( NULL == ndims ) ||
          ( NULL == dims )  ||
          ( NULL == nc   )  ||
-         ( NULL == vmap)   ||
          ( NULL == dat )   ||
          ( NULL == data )  ||
          ( NULL == vec )   ) {
@@ -163,7 +176,7 @@ void adcl_vector_register_generic  ( int *ndims, int *dims, int *nc, int *vmap,
         cdat = MPI_INT;
     }
 
-    cvmap = (ADCL_vmap_t *) ADCL_array_get_ptr_by_pos ( ADCL_vmap_farray, *vmap );
+allocate:
     *ierror = ADCL_vector_register_generic ( *ndims, dims, *nc, cvmap, cdat, data, &cvec );
     if ( *ierror == ADCL_SUCCESS ) {
         *vec = cvec->v_findex;

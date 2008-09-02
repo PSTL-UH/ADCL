@@ -28,6 +28,10 @@
 #pragma weak adcl_vmap_all_allocate__ = adcl_vmap_all_allocate
 #pragma weak ADCL_VMAP_ALL_ALLOCATE   = adcl_vmap_all_allocate
 
+#pragma weak adcl_vmap_inplace_allocate_  = adcl_vmap_inplace_allocate
+#pragma weak adcl_vmap_inplace_allocate__ = adcl_vmap_inplace_allocate
+#pragma weak ADCL_VMAP_INPLACE_ALLOCATE   = adcl_vmap_inplace_allocate
+
 #pragma weak adcl_vmap_free_  = adcl_vmap_free
 #pragma weak adcl_vmap_free__ = adcl_vmap_free
 #pragma weak ADCL_VMAP_FREE   = adcl_vmap_free
@@ -127,6 +131,7 @@ void adcl_vmap_allreduce_allocate  ( int *vectype, int *op, int *vmap, int *ierr
          return;
     }
 
+    /* verification of the input parameters */
     if (ADCL_VECTOR_ALLREDUCE != *vectype) {
         *ierror = ADCL_INVALID_VECTYPE;
         return;
@@ -162,13 +167,43 @@ void adcl_vmap_all_allocate ( int *vectype, int *vmap, int* ierror )
          return;
     }
 
-    /* Halo cells are to be communicated */
+    /* verification of the input parameters */
     if (ADCL_VECTOR_ALL != *vectype) {
         *ierror = ADCL_INVALID_VECTYPE;
         return;
     }
 
     *ierror = ADCL_vmap_all_allocate ( *vectype, &tvmap );
+    if ( ADCL_SUCCESS == *ierror) {
+        *vmap = tvmap->m_findex;
+    }
+
+    return;
+}
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+#ifdef _SX
+void adcl_vmap_inplace_allocate_ ( int *vectype, int *vmap, int* ierror )
+#else
+void adcl_vmap_inplace_allocate ( int *vectype, int *vmap, int* ierror )
+#endif
+{
+    ADCL_vmap_t *tvmap=NULL;
+
+    if ( ( NULL == vectype ) ){
+         *ierror = ADCL_INVALID_ARG;
+         return;
+    }
+
+    /* verification of the input parameters */
+    if (ADCL_VECTOR_INPLACE != *vectype) {
+        *ierror = ADCL_INVALID_VECTYPE;
+        return;
+    }
+
+    *ierror = ADCL_vmap_inplace_allocate ( *vectype, &tvmap );
     if ( ADCL_SUCCESS == *ierror) {
         *vmap = tvmap->m_findex;
     }

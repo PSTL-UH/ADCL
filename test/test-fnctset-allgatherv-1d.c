@@ -16,6 +16,7 @@
 static void allgatherv_test1(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
 static void allgatherv_test2(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
 static void allgatherv_test3(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
+static void allgatherv_test4(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
 
 static void dump_vector_1D ( double *data, int rank, int dim);
 static void set_data_1D ( double *data, int rank, int dim); 
@@ -47,13 +48,16 @@ int main ( int argc, char ** argv )
     dims = 13;
 
     /* AllGather with Vector_allocate */ 
-    allgatherv_test1(cnt, dims, rank, size, topo);
+    //allgatherv_test1(cnt, dims, rank, size, topo);
 
     /* true AllGatherV with Vector_allocate */ 
-    allgatherv_test2(cnt, dims, rank, size, topo);
+    //allgatherv_test2(cnt, dims, rank, size, topo);
 
     /* AllGather with Vector_register */ 
-    allgatherv_test3(cnt, dims, rank, size, topo);
+    //allgatherv_test3(cnt, dims, rank, size, topo);
+
+    /* true AllGatherV with Vector_allocate and MPI_IN_PLACE */ 
+    allgatherv_test4(cnt, dims, rank, size, topo);
 
 exit:
     if ( ADCL_TOPOLOGY_NULL != topo)   ADCL_Topology_free ( &topo );
@@ -79,8 +83,6 @@ void allgatherv_test1(int cnt, int dims, int rank, int size, ADCL_Topology topo)
  
     sdim = dims;
     rdim = dims*size;
-    //sdata = (double*) calloc(sdim, sizeof(double));
-    //rdata = (double*) calloc(rdim, sizeof(double));
 
     rcnts = (int*) calloc ( size, sizeof(int) ); 
     displ = (int*) calloc ( size, sizeof(int) );
@@ -89,7 +91,6 @@ void allgatherv_test1(int cnt, int dims, int rank, int size, ADCL_Topology topo)
        displ[i] = dims * i; 
     }
 
-    /* ADCL_Vmap_all_allocate( ADCL_VECTOR_IN_PLACE , &svmap ); */ 
     err = ADCL_Vmap_all_allocate( ADCL_VECTOR_ALL , &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
     ADCL_Vmap_list_allocate( ADCL_VECTOR_LIST, size, rcnts, displ, &rvmap ); 
@@ -152,8 +153,6 @@ void allgatherv_test2(int cnt, int dims, int rank, int size, ADCL_Topology topo)
     sdim = dims+rank;
 
     rdim = dims*size + size*(size-1)/2;
-    //sdata = (double*) calloc(sdim, sizeof(double));
-    //rdata = (double*) calloc(rdim, sizeof(double));
 
     rcnts = (int*) calloc ( size, sizeof(int) ); 
     displ = (int*) calloc ( size, sizeof(int) );
@@ -164,7 +163,6 @@ void allgatherv_test2(int cnt, int dims, int rank, int size, ADCL_Topology topo)
        offset += rcnts[i];
     }
 
-    /* ADCL_Vmap_all_allocate( ADCL_VECTOR_IN_PLACE , &svmap ); */ 
     err = ADCL_Vmap_all_allocate( ADCL_VECTOR_ALL , &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
     ADCL_Vmap_list_allocate( ADCL_VECTOR_LIST, size, rcnts, displ, &rvmap ); 
@@ -240,7 +238,6 @@ void allgatherv_test3(int cnt, int dims, int rank, int size, ADCL_Topology topo)
        displ[i] = dims * i; 
     }
 
-    /* ADCL_Vmap_all_allocate( ADCL_VECTOR_IN_PLACE , &svmap ); */ 
     err = ADCL_Vmap_all_allocate( ADCL_VECTOR_ALL , &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
     ADCL_Vmap_list_allocate( ADCL_VECTOR_LIST, size, rcnts, displ, &rvmap ); 
@@ -290,9 +287,83 @@ exit:
 
     return;
 }
+
+/**********************************************************************/
+/**********************************************************************/
+void allgatherv_test4(int cnt, int dims, int rank, int size, ADCL_Topology topo)
+/**********************************************************************/
+/**********************************************************************/
+{
+    double *data;
+    int sdim, rdim, i; 
+    int* rcnts, *displ;
+    int err, errc, offset; 
+    ADCL_Vector svec, rvec;
+    ADCL_Vmap svmap, rvmap;
+    ADCL_Request request;
+    
+    sdim = dims+rank;
+
+    rdim = dims*size + size*(size-1)/2;
+
+    rcnts = (int*) calloc ( size, sizeof(int) ); 
+    displ = (int*) calloc ( size, sizeof(int) );
+    offset = 0; 
+    for ( i=0;i<size;i++){
+       rcnts[i] = dims+i;
+       displ[i] = offset;
+       offset += rcnts[i];
+    }
+
+    err = ADCL_Vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &svmap );
+    if ( ADCL_SUCCESS != err) goto exit;
+    ADCL_Vmap_list_allocate( ADCL_VECTOR_LIST, size, rcnts, displ, &rvmap ); 
+    if ( ADCL_SUCCESS != err) goto exit;   
+
+    err = ADCL_Vector_allocate_generic ( 0, NULL, 0, svmap, MPI_DATATYPE_NULL, NULL, &svec );
+    if ( ADCL_SUCCESS != err) goto exit;
+    err = ADCL_Vector_allocate_generic ( 1,  &rdim, 0, rvmap, MPI_DOUBLE, &data, &rvec );
+    if ( ADCL_SUCCESS != err) goto exit;   
+
+    err = ADCL_Request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_ALLGATHERV, &request );
+    if ( ADCL_SUCCESS != err) goto exit;   
+
+    for (i=0; i<cnt; i++){
+       set_data_1D ( data, -1, rdim);
+       set_data_1D ( &(data[displ[rank]]), rank, sdim);
+
+#ifdef VERBOSE
+       dump_vector_1D ( data, rank, sdim);
+#endif
+
+       err = ADCL_Request_start( request );
+       if ( ADCL_SUCCESS != err) goto exit;   
+
+       errc = check_data_1D ( data, rcnts, displ, rank, size);
+       if (errc) goto exit;   
+    }
+
+    MPI_Barrier ( MPI_COMM_WORLD);
+
+exit:
+    if ( ADCL_SUCCESS != err) { printf("ADCL error nr. %d\n", err); } 
+
+    if ( NULL != rcnts) free(rcnts);
+    if ( NULL != displ) free(displ);
+    if ( ADCL_REQUEST_NULL != request) ADCL_Request_free ( &request );
+    if ( ADCL_VECTOR_NULL  != svec)    ADCL_Vector_free ( &svec );
+    if ( ADCL_VECTOR_NULL  != rvec)    ADCL_Vector_free ( &rvec );
+    if ( ADCL_VMAP_NULL    != svmap)   ADCL_Vmap_free (&svmap);
+    if ( ADCL_VMAP_NULL    != rvmap)   ADCL_Vmap_free (&rvmap);
+    return;
+}
+
+
 /**********************************************************************/
 /**********************************************************************/
 int check_data_1D ( double *data, int *rcounts, int *rdispl, int rank, int size) 
+/**********************************************************************/
+/**********************************************************************/
 {
     int proc, j;
     int err = 0, gerr = 0; 
@@ -322,8 +393,9 @@ int check_data_1D ( double *data, int *rcounts, int *rdispl, int rank, int size)
 
 /**********************************************************************/
 /**********************************************************************/
-/**********************************************************************/
 static void set_data_1D ( double *data, int value, int dim) 
+/**********************************************************************/
+/**********************************************************************/
 {
     int i;
 
@@ -336,8 +408,9 @@ static void set_data_1D ( double *data, int value, int dim)
 
 /**********************************************************************/
 /**********************************************************************/
-/**********************************************************************/
 static void dump_vector_1D ( double *data, int rank, int dim)
+/**********************************************************************/
+/**********************************************************************/
 {
     int i;
     

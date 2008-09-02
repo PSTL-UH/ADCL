@@ -186,7 +186,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
 	   case ADCL_VECTOR_LIST:
 	      /* no derived data types required for OpenMPI algorithms, basic data types are used */
               //ret = ADCL_list_init (topo->t_size,  rvecs[0]->v_map->m_rcnts, rvecs[0]->v_dat, &(newreq->r_rdats));
-              ret = ADCL_basic_init (rvecs[0]->v_dat, svecs[0]->v_dims[0], &(newreq->r_rdats), &(newreq->r_rcnts));
+              ret = ADCL_basic_init (rvecs[0]->v_dat, rvecs[0]->v_dims[0], &(newreq->r_rdats), &(newreq->r_rcnts));
               break;
            case ADCL_VECTOR_ALLREDUCE:
               ret = ADCL_basic_init (rvecs[0]->v_dat, rvecs[0]->v_dims[0], &(newreq->r_rdats), &(newreq->r_rcnts));

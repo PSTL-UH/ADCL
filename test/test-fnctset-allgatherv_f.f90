@@ -31,12 +31,14 @@ program test_fnctset_allgatherv
    cnt = 20 !200 
    dims = 3
  
-   ! AllGather with Vector_register  
-   call allgatherv_test1(cnt, dims, rank, size, topo)
+   ! AllGather
+   !call allgatherv_test1(cnt, dims, rank, size, topo)
  
-   ! true AllGatherV with Vector_register
+   ! true AllGatherV 
    !call allgatherv_test2(cnt, dims, rank, size, topo)
  
+   ! true AllGatherV with MPI_IN_PLACE 
+   call allgatherv_test3(cnt, dims, rank, size, topo)
 
    if ( ADCL_TOPOLOGY_NULL .ne. topo)   call adcl_topology_free ( topo, ierror )
    call MPI_Comm_free ( cart_comm, ierror )
@@ -199,6 +201,81 @@ subroutine allgatherv_test2(cnt, dims, rank, size, topo)
     return
 
 end subroutine allgatherv_test2
+
+!*******************************************************************************
+subroutine allgatherv_test3(cnt, dims, rank, size, topo)
+!*******************************************************************************
+
+    implicit none
+    include 'ADCL.inc'
+    integer, intent(in) :: cnt, dims, rank, size, topo 
+    double precision, allocatable, dimension(:) :: data
+    integer sdim, rdim, i 
+    integer rcnts(size), displ(size)
+    integer err, errc, offset 
+    integer svec, rvec
+    integer svmap, rvmap
+    integer request
+    integer ierror
+
+    sdim = dims+rank
+
+    rdim = dims*size + size*(size-1)/2
+
+    allocate(data(rdim))
+
+    offset = 0
+    do i = 1, size
+       rcnts(i) = dims+i-1
+       displ(i) = offset
+       offset   = offset + rcnts(i)
+    end do 
+
+    call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, svmap, ierror ) 
+    if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_inplace_allocate not successful"   
+    call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, size, rcnts, displ, rvmap, ierror ) 
+    if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_list_allocate not successful"   
+
+    call adcl_vector_register_generic ( 0, 0, 0, svmap, MPI_DATATYPE_NULL, MPI_IN_PLACE, svec, ierror )
+    if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_vector_register for sdim not successful"   
+    call adcl_vector_register_generic ( 1,  rdim, 0, rvmap, MPI_DOUBLE_PRECISION, data, rvec, ierror )
+    if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_vector_register for rdim not successful"   
+
+    call adcl_request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_ALLGATHERV, request, ierror )
+    if ( ADCL_SUCCESS .ne. ierror) print *, "request_create not successful"   
+
+    do i = 1, cnt
+       call set_data_1D ( data, -1, rdim)
+       call set_data_1D ( data(displ(rank+1)+1), rank, sdim)
+
+!#ifdef VERBOSE
+!       call dump_vector_1D ( data, rank, sdim)
+!#endif
+
+       call adcl_request_start( request, ierror )
+       if ( ADCL_SUCCESS .ne. ierror) then
+           print *, "request_start not successful"   
+           stop
+       endif 
+       call check_data_1D ( data, rcnts, displ, rank, size, ierror )
+       if ( ADCL_SUCCESS .ne. ierror) print *, "check_data_1D not successful"   
+    end do
+
+
+    call adcl_vector_deregister( svec, ierror )
+    call adcl_vector_deregister( rvec, ierror )
+    call MPI_Barrier ( MPI_COMM_WORLD, ierror)
+
+    if ( ADCL_SUCCESS .ne. ierror) print *, "ADCL ierror nr.", ierror
+
+    deallocate(data)
+
+    if ( ADCL_REQUEST_NULL .ne. request) call adcl_request_free ( request, ierror )
+    if ( ADCL_VMAP_NULL    .ne. svmap)   call adcl_vmap_free ( svmap, ierror )
+    if ( ADCL_VMAP_NULL    .ne. rvmap)   call adcl_vmap_free ( rvmap, ierror )
+    return
+
+end subroutine allgatherv_test3
 
 !*******************************************************************************
 subroutine check_data_1D ( data, rcounts, rdispl, rank, size, ierror ) 

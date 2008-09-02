@@ -82,12 +82,14 @@
        integer ADCL_VECTOR_HALO, ADCL_VECTOR_ALL
        integer ADCL_VECTOR_UP_TRIANG, ADCL_VECTOR_LO_TRIANG
        integer ADCL_VECTOR_LIST, ADCL_VECTOR_ALLREDUCE
-       parameter ( ADCL_VECTOR_HALO = 1 )
+       integer ADCL_VECTOR_INPLACE
+       parameter ( ADCL_VECTOR_HALO = 1 ) 
        parameter ( ADCL_VECTOR_ALL = 2 )
        parameter ( ADCL_VECTOR_UP_TRIANG = 3 )
        parameter ( ADCL_VECTOR_LO_TRIANG = 4 )
        parameter ( ADCL_VECTOR_LIST      = 5 )
        parameter ( ADCL_VECTOR_ALLREDUCE = 6 )
+       parameter ( ADCL_VECTOR_INPLACE   = 7 )
 
        integer ADCL_FNCTSET_NEIGHBORHOOD 
        !integer ADCL_FNCTSET_SHIFT_LTOR

@@ -1,14 +1,17 @@
 !
-!  Copyright (c) 2006-2007      University of Houston. All rights reserved.
-!  $COPYRIGHT$
-! 
-!  Additional copyrights may follow
-! 
-!  $HEADER$
-! 
+!* Copyright (c) 2006-2007      University of Houston. All rights reserved.
+!* $COPYRIGHT$
+!*
+!* Additional copyrights may follow
+!*
+!* $HEADER$
+!*
 
-
+!******************************************************************************
+!******************************************************************************
 program test_fnctset_allreduce
+!******************************************************************************
+!******************************************************************************
 
     implicit none
     include 'ADCL.inc'
@@ -34,14 +37,17 @@ program test_fnctset_allreduce
 
     call adcl_topology_create ( cart_comm, topo, ierror )
 
-    cnt = 200
+    cnt = 10 !200
     dims = 3
     
-    !MPI_DOUBLE, MPI_SUM, Vector_allocate
-    call allreduce_test1(cnt, dims, rank, size, topo)
+    !MPI_DOUBLE, MPI_SUM, Vector_register
+    !call allreduce_test1(cnt, dims, rank, size, topo)
 
-    !MPI_INT, MPI_MIN, Vector_allocate
-    call allreduce_test2(cnt, dims, rank, size, topo)
+    !MPI_INT, MPI_MIN, Vector_register
+    !call allreduce_test2(cnt, dims, rank, size, topo)
+
+    !MPI_DOUBLE, MPI_SUM, Vector_register, MPI_IN_PLACE
+    call allreduce_test3(cnt, dims, rank, size, topo)
 
     if ( ADCL_TOPOLOGY_NULL .ne. topo)  call adcl_topology_free ( topo, ierror )
     call MPI_Comm_free ( cart_comm, ierror )
@@ -51,8 +57,11 @@ program test_fnctset_allreduce
 end program test_fnctset_allreduce
 
 
-
+!******************************************************************************
+!******************************************************************************
 subroutine allreduce_test1(cnt, dim, rank, size, topo)
+!******************************************************************************
+!******************************************************************************
 
     implicit none
     include 'ADCL.inc'
@@ -65,7 +74,6 @@ subroutine allreduce_test1(cnt, dim, rank, size, topo)
     
     allocate(sdata(dim), rdata(dim))
 
-    !/* ADCL_Vmap_all_allocate( ADCL_VECTOR_IN_PLACE , &svmap ); */ 
     call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, svmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_allreduce_allocate not successful"   
     call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, rvmap, ierror ) 
@@ -85,8 +93,8 @@ subroutine allreduce_test1(cnt, dim, rank, size, topo)
        call set_data_double ( rdata, -1,   dim);
 
 !#ifdef VERBOSE
-!       dump_vector_double ( sdata, rank, dim);
-!       dump_vector_double ( rdata, rank, dim);
+!*      dump_vector_double ( sdata, rank, dim);
+!*      dump_vector_double ( rdata, rank, dim);
 !#endif
 
        call adcl_request_start( request, ierror );
@@ -122,7 +130,11 @@ subroutine allreduce_test1(cnt, dim, rank, size, topo)
 end subroutine allreduce_test1
 
 
+!******************************************************************************
+!******************************************************************************
 subroutine allreduce_test2( cnt, dim, rank, size, topo )
+!******************************************************************************
+!******************************************************************************
 
     implicit none
     include 'ADCL.inc'
@@ -155,8 +167,8 @@ subroutine allreduce_test2( cnt, dim, rank, size, topo )
        call set_data_int ( rdata, -1,   dim)
 
 !#ifdef VERBOSE
-!       dump_vector_int ( sdata, rank, dim);
-!       dump_vector_int ( rdata, rank, dim);
+!*      dump_vector_int ( sdata, rank, dim);
+!*      dump_vector_int ( rdata, rank, dim);
 !#endif
 
        call adcl_request_start( request, ierror )
@@ -187,7 +199,82 @@ subroutine allreduce_test2( cnt, dim, rank, size, topo )
 end subroutine allreduce_test2
 
 
+!******************************************************************************
+!******************************************************************************
+subroutine allreduce_test3(cnt, dim, rank, size, topo)
+!******************************************************************************
+!******************************************************************************
+
+    implicit none
+    include 'ADCL.inc'
+
+    double precision, allocatable, dimension (:) :: data
+    integer :: i, ierror, dim, cnt, size, topo, rank
+    integer :: svec, rvec
+    integer :: svmap, rvmap
+    integer request
+    
+    allocate(data(dim))
+
+    call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, svmap, ierror ) 
+    if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_inplace_allocate not successful"   
+    call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, rvmap, ierror ) 
+    if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_allreduce_allocate not successful"   
+
+    call adcl_vector_register_generic ( 0, 0, 0, svmap, MPI_DATATYPE_NULL, MPI_IN_PLACE, svec, ierror )
+    if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_vector_register for sdim not successful"   
+    call adcl_vector_register_generic ( 1,  dim, 0, rvmap, MPI_DOUBLE_PRECISION, data, rvec, ierror )
+    if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_vector_register for rdim not successful"   
+
+    call adcl_request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_ALLREDUCE, request, ierror )
+    if ( ADCL_SUCCESS .ne. ierror) print *, "request_create not successful"   
+
+
+    do i = 1, cnt
+       call set_data_double ( data, rank, dim);
+
+!#ifdef VERBOSE
+!*      dump_vector_double ( data, rank, dim);
+!#endif
+
+       call adcl_request_start( request, ierror );
+       if ( ADCL_SUCCESS .ne. ierror) then
+           print *, "request_start not successful"   
+           stop
+       endif 
+
+    call check_data_double_sum ( data, rank, dim, size, ierror )
+       if ( ADCL_SUCCESS .ne. ierror) print *, "check_data_double_sum not successful"   
+    end do
+
+    call adcl_vector_deregister( svec, ierror )
+    call adcl_vector_deregister( rvec, ierror )
+
+    call MPI_Barrier ( MPI_COMM_WORLD, ierror );
+
+
+    if ( ADCL_SUCCESS .ne. ierror) then 
+      print *, "ADCL ierror nr.", ierror
+    end if
+    deallocate (data)
+
+
+
+    if ( ADCL_REQUEST_NULL .ne. request) call adcl_request_free ( request, ierror )
+    if ( ADCL_VMAP_NULL    .ne. svmap)   call adcl_vmap_free ( svmap, ierror )
+    if ( ADCL_VMAP_NULL    .ne. rvmap)   call adcl_vmap_free ( rvmap, ierror )
+
+    return
+
+
+end subroutine allreduce_test3
+
+
+!******************************************************************************
+!******************************************************************************
 subroutine check_data_double_sum ( data, rank, dim, size, ierror) 
+!******************************************************************************
+!******************************************************************************
 
     implicit none
     include "mpif.h"
@@ -220,9 +307,12 @@ subroutine check_data_double_sum ( data, rank, dim, size, ierror)
 
 end subroutine check_data_double_sum 
 
+
+!******************************************************************************
+!******************************************************************************
 subroutine check_data_int_min ( data, rank, dim, size, ierror) 
-
-
+!******************************************************************************
+!******************************************************************************
     implicit none
     include "mpif.h"
 
@@ -252,7 +342,12 @@ subroutine check_data_int_min ( data, rank, dim, size, ierror)
 end subroutine check_data_int_min
 
 
+
+!******************************************************************************
+!******************************************************************************
 subroutine set_data_double ( data, rank, dim )
+!******************************************************************************
+!******************************************************************************
 
 implicit none
     integer, intent(in) :: rank, dim
@@ -268,7 +363,11 @@ implicit none
 end subroutine set_data_double
 
 
+!******************************************************************************
+!******************************************************************************
 subroutine dump_vector_double ( data, rank, dim)
+!******************************************************************************
+!******************************************************************************
 
     implicit none
     integer, intent(in) :: rank, dim
@@ -282,7 +381,11 @@ subroutine dump_vector_double ( data, rank, dim)
 end subroutine dump_vector_double
 
 
+!******************************************************************************
+!******************************************************************************
 subroutine set_data_int ( data, rank, dim) 
+!******************************************************************************
+!******************************************************************************
 
 implicit none
     integer, intent(in) :: rank, dim
@@ -298,7 +401,11 @@ implicit none
 end subroutine set_data_int
 
 
+!******************************************************************************
+!******************************************************************************
 subroutine dump_vector_int ( data, rank, dim)
+!******************************************************************************
+!******************************************************************************
 
     implicit none
     integer, intent(in) :: rank, dim

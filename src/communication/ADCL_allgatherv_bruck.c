@@ -108,14 +108,12 @@ void ADCL_allgatherv_bruck( ADCL_request_t *req )
 
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
-   //ADCL_vmap_t *s_vmap = req->r_svecs[0]->v_map;
    ADCL_vmap_t *r_vmap = req->r_rvecs[0]->v_map;
    void *sbuf = req->r_svecs[0]->v_data;
    void *rbuf = req->r_rvecs[0]->v_data;
 
-   /* Caution, this might be a hack */
-   MPI_Datatype sdtype = req->r_sdats[0]; 
-   int scount = req->r_scnts[0];
+   MPI_Datatype sdtype; 
+   int scount;
    MPI_Datatype rdtype = req->r_rdats[0];
 
    //int scount = req->r_svecs[0]->v_dims[0];
@@ -134,6 +132,8 @@ void ADCL_allgatherv_bruck( ADCL_request_t *req )
    */
    tmprecv = (char*) rbuf + rdispls[rank] * rext;
    if (MPI_IN_PLACE != sbuf) {
+      scount = req->r_scnts[0];
+      sdtype = req->r_sdats[0];
       tmpsend = (char*) sbuf;
       err = MPI_Sendrecv (tmpsend, scount, sdtype, rank, ADCL_TAG_ALLGATHERV, 
                     tmprecv, rcounts[rank], rdtype, rank, ADCL_TAG_ALLGATHERV,

@@ -78,10 +78,10 @@ void ADCL_allgatherv_linear ( ADCL_request_t *req )
     void *rbuf = req->r_rvecs[0]->v_data;
     MPI_Comm comm = topo->t_comm;
     
-    /* Caution, this might be a hack */
-    MPI_Datatype sdtype = req->r_sdats[0];
-    int scount = req->r_scnts[0];
+    MPI_Datatype sdtype;
+    int scount;
     MPI_Datatype rdtype = req->r_rdats[0];
+
     int *rcounts = r_vmap->m_rcnts;
     int *rdispls = r_vmap->m_displ;
   
@@ -96,6 +96,7 @@ void ADCL_allgatherv_linear ( ADCL_request_t *req )
     if (MPI_IN_PLACE == sbuf) {
         MPI_Type_get_extent(rdtype, &lb, &extent);
         send_type = rdtype;
+        scount = rcounts[rank];
         send_buf = ((char*) rbuf) + rdispls[rank] * extent;
         /*send_buf = (char*) sbuf;
         for (i = 0; i < rank; ++i) {
@@ -103,7 +104,8 @@ void ADCL_allgatherv_linear ( ADCL_request_t *req )
         }*/
     } else {
         send_buf = (char*) sbuf;
-        send_type = sdtype;
+        scount = req->r_scnts[0];
+        send_type = req->r_sdats[0];
     }
 
     err = MPI_Gatherv(send_buf, scount, send_type, 

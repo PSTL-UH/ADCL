@@ -264,8 +264,6 @@ int ADCL_vector_register_generic ( int ndims, int *dims, int nc, ADCL_vmap_t *vm
     ADCL_vector_get_realdim ( ndims, dims, nc, &rndims, &rdims );
     tvec->v_ndims   = rndims;
     tvec->v_nc      = nc;
-    //tvec->v_vectype = ADCL_VECTYPE_NULL;
-    //tvec->v_hwidth  = 0;
     tvec->v_map     = vmap;
     tvec->v_map->m_rfcnt++;
 
