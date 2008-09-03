@@ -101,7 +101,7 @@ extern const int ADCL_attr_numblocks_dual;
 #else
 #define ADCL_METHOD_NN_TOTAL_NUM 12
 #endif
-#define ADCL_METHOD_ALLGATHERV_TOTAL_NUM 5 
+#define ADCL_METHOD_ALLGATHERV_TOTAL_NUM 6 
 
 #define ADCL_METHOD_ALLREDUCE_TOTAL_NUM 5 
 

@@ -30,6 +30,7 @@ OBJ =	ADCL_change_sb_aao_debug.o \
         ADCL_change_sb_aao_win_fence_get.o \
         ADCL_change_sb_aao_post_start_put.o \
         ADCL_change_sb_aao_post_start_get.o \
+        ADCL_allgatherv_native.o            \
         ADCL_allgatherv_linear.o            \
         ADCL_allgatherv_bruck.o             \
         ADCL_allgatherv_neighborexchange.o  \

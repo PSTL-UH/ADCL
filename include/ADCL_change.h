@@ -369,6 +369,7 @@ void ADCL_change_sb_aao_post_start_put (ADCL_request_t *req );
 void ADCL_change_sb_pair_post_start_get( ADCL_request_t *req );
 void ADCL_change_sb_aao_post_start_get( ADCL_request_t *req );
 
+void ADCL_allgatherv_native(ADCL_request_t *req);
 void ADCL_allgatherv_linear( ADCL_request_t *req );
 void ADCL_allgatherv_bruck( ADCL_request_t *req );
 void ADCL_allgatherv_neighborexchange( ADCL_request_t *req );

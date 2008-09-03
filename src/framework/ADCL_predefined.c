@@ -383,6 +383,12 @@ int ADCL_predefined_init ( void )
     /* Register function aao, ddt, IsendIrecv */
     //m_allgatherv_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_allgatherv_linear;
 
+    ADCL_function_create_async ( ADCL_allgatherv_native, NULL,
+                                 ADCL_ATTRSET_NULL,
+                                 m_allgatherv_attr, "Allgatherv native",
+                                 & ADCL_allgatherv_functions[count]);
+    count++;
+
     ADCL_function_create_async ( ADCL_allgatherv_recursivedoubling, NULL,
                                  ADCL_ATTRSET_NULL,
                                  m_allgatherv_attr, "Allgatherv recursive doubling",
