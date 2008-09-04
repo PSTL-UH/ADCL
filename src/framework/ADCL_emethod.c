@@ -31,64 +31,64 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     int i, ret=ADCL_SUCCESS;
 
     if ( ADCL_merge_requests && v != ADCL_VECTOR_NULL ) {
-        int j, last, found=-1;
-        int result;
-        ADCL_topology_t *topo;
-        ADCL_vector_t *vec;
+       int j, last, found=-1;
+       int result;
+       ADCL_topology_t *topo;
+       ADCL_vector_t *vec;
 
-        /* Check first, whether we have an entry in the ADCL_emethods_array,
-           which fulfills already our requirements;
-        */
-        last = ADCL_array_get_last ( ADCL_emethod_array );
-        for ( i=0; i<= last; i++ ) {
-            e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos (
-            ADCL_emethod_array, i );
-            topo = e->em_topo;
-            vec  = e->em_vec;
-            if ( ADCL_VECTOR_NULL == vec  ) {
-                continue;
-            }
+       /* Check first, whether we have an entry in the ADCL_emethods_array,
+          which fulfills already our requirements;
+       */
+       last = ADCL_array_get_last ( ADCL_emethod_array );
+       for ( i=0; i<= last; i++ ) {
+          e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos (
+          ADCL_emethod_array, i );
+          topo = e->em_topo;
+          vec  = e->em_vec;
+          if ( ADCL_VECTOR_NULL == vec  ) {
+              continue;
+          }
 
-            MPI_Comm_compare ( topo->t_comm, t->t_comm, &result );
-            if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
-                continue;
-            }
+          MPI_Comm_compare ( topo->t_comm, t->t_comm, &result );
+          if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
+              continue;
+          }
 
-            found = i;
-            if ( ( e->em_orgfnctset == f )          &&
-                 ( topo->t_ndims   == t->t_ndims  ) &&
-                 ( vec->v_ndims    == v->v_ndims  ) &&
-                 ( vec->v_nc       == v->v_nc     ) &&
-                 ( vec->v_map->m_hwidth  == v->v_map->m_hwidth  ) && 
-                 ( vec->v_map->m_vectype == v->v_map->m_vectype ) ) { 
+          if ( ( e->em_orgfnctset == f )          &&
+               ( topo->t_ndims   == t->t_ndims  ) &&
+               ( vec->v_ndims    == v->v_ndims  ) &&
+               ( vec->v_nc       == v->v_nc     ) &&
+               ( vec->v_map->m_hwidth  == v->v_map->m_hwidth  ) && 
+               ( vec->v_map->m_vectype == v->v_map->m_vectype ) ) { 
+             found = i;
 
-                if ( ADCL_VECTOR_HALO == vec->v_map->m_vectype ){
-                   for ( j=0; j< (2*topo->t_ndims); j++ ) {
-                       if ( topo->t_neighbors[i] != t->t_neighbors [i] ) {
-                           found = -1;
-                           break;
-                       }
-                   }
-                   if ( found == -1 ) {
-                       continue;
-                   }
-                   for ( j=0 ; j< vec->v_ndims; j++ ){
-                       if ( vec->v_dims[i] != v->v_dims[i] ) {
-                           found = -1;
-                           break;
-                       }
-                   }
-                   if ( found != -1 ) {
-                       break;
-                   }
-		}
-            }
-        }
+             if ( ADCL_VECTOR_HALO == vec->v_map->m_vectype ){
+                for ( j=0; j< (2*topo->t_ndims); j++ ) {
+                    if ( topo->t_neighbors[i] != t->t_neighbors [i] ) {
+                        found = -1;
+                        break;
+                    }
+                }
+                if ( found == -1 ) {
+                    continue;
+                }
+                for ( j=0 ; j< vec->v_ndims; j++ ){
+                    if ( vec->v_dims[i] != v->v_dims[i] ) {
+                        found = -1;
+                        break;
+                    }
+                }
+                if ( found != -1 ) {
+                    break;
+                }
+             }
+          }
+       }
 
-        if ( found > -1 ) {
-            e->em_rfcnt++;
-            return e;
-        }
+       if ( found > -1 ) {
+           e->em_rfcnt++;
+           return e;
+       }
     }
 
     /* we did not find this configuraion yet, so we have to add it */
