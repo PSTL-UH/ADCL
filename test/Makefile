@@ -140,7 +140,7 @@ clean:
 	rm -f $(ADCL_BIN_DIR)/three-dim-large
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-noattrs $(ADCL_BIN_DIR)/test-fnctset-noattrs_f
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-single $(ADCL_BIN_DIR)/test-fnctset-single_f	
-	rm -f $(ADCL_BIN_DIR)/test-fnctset-single-2 $(ADCL_BIN_DIR)/PbSizes_1D
-	rm -f $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d 
-	rm -f $(ADCL_BIN_DIR)/test-fnctset-allreduce
-	rm -f $(ADCL_BIN_DIR)/Pbsizes_2D $(ADCL_BIN_DIR)/PbSizes_3D
+	rm -f $(ADCL_BIN_DIR)/test-fnctset-single-2 $(ADCL_BIN_DIR)/PbSizes_1D 
+	rm -f $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d  $(ADCL_BIN_DIR)/test-fnctset-allgatherv_f
+	rm -f $(ADCL_BIN_DIR)/test-fnctset-allreduce $(ADCL_BIN_DIR)/test-fnctset-allreduce_f
+	rm -f $(ADCL_BIN_DIR)/PbSizes_2D $(ADCL_BIN_DIR)/PbSizes_3D

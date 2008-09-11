@@ -54,7 +54,7 @@ int main ( int argc, char ** argv )
 
     /* Initiate the ADCL library and register a 2D vector with ADCL */
     ADCL_Init ();
-    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, &vmap );
+    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, HWIDTH, &vmap );
     ADCL_Vector_register_generic ( 2,  dims, 0, vmap, MPI_DOUBLE, &matrix, &vec );
 
     /* Describe the neighborhood relations */

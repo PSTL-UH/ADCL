@@ -30,7 +30,9 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     ADCL_request_t *newreq;
     int ident_vecs=1;
 #ifdef MPI_WIN
-    int tsize, tcount=1;
+    MPI_Aint lb, extent;
+    //int tsize;
+    MPI_Aint tcount=1;
 #endif
     //int vectype;
 
@@ -222,14 +224,14 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     /*  Doesn't work in this concept anymore!!! */
     /*  But only if all vectors are identical   */
     if ( ident_vecs && (NULL != vec) && (ADCL_VECTOR_NULL != vec) ) {
-        MPI_Type_size ( vec->v_dat, &tsize);
+        MPI_Type_get_extent (vec->v_dat, &lb, &extent);
         if ( vec->v_nc > 0 ) {
             tcount = vec->v_nc;
         }
         for (i=0; i <vec->v_ndims; i++){
             tcount *= vec->v_dims[i];
         }
-        MPI_Win_create ( vec->v_data, tcount , tsize, MPI_INFO_NULL,
+        MPI_Win_create ( vec->v_data, tcount*extent , extent, MPI_INFO_NULL,
                          topo->t_comm, &(newreq->r_win));
         MPI_Comm_group ( topo->t_comm, &(newreq->r_group) );
     }

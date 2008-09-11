@@ -134,6 +134,11 @@ void adcl_fnctset_free__ ( int *fctset, int *ierr );
 void ADCL_FNCTSET_FREE   ( int *fctset, int *ierr );
 
 /* ADCL vmap functions */
+void adcl_vmap_inplace_allocate   ( int* vectype, int *vmap, int* ierror );
+void adcl_vmap_inplace_allocate_  ( int* vectype, int *vmap, int* ierror );
+void adcl_vmap_inplace_allocate__ ( int* vectype, int *vmap, int* ierror );
+void ADCL_VMAP_INPLACE_ALLOCATE   ( int* vectype, int *vmap, int* ierror );
+
 void adcl_vmap_halo_allocate   ( int* vectype, int* hwidth, int *vmap, int* ierror );
 void adcl_vmap_halo_allocate_  ( int* vectype, int* hwidth, int *vmap, int* ierror );
 void adcl_vmap_halo_allocate__ ( int* vectype, int* hwidth, int *vmap, int* ierror );
