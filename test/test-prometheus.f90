@@ -240,16 +240,6 @@
       ! register in_place dummy send vector
       call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &
          svmap_inplace, ierror )
-      if ( ADCL_SUCCESS .ne. ierror) &
-         print *, "vmap_inplace_allocate not successful"  
-      call adcl_vector_register_generic ( 0, 0, 0, svmap_inplace, & 
-         MPI_DATATYPE_NULL, MPI_IN_PLACE, svec_inplace, ierror )
-      if ( ADCL_SUCCESS .ne. ierror) &
-         print *, "vector_register for svec_inplace not successful"
-   
-      ! register in_place dummy send vector
-      call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &
-         svmap_inplace, ierror )
       call check_success( ierror, "vmap_inplace_allocate")
       call adcl_vector_register_generic ( 0, 0, 0, svmap_inplace, &
          MPI_DATATYPE_NULL, MPI_IN_PLACE, svec_inplace, ierror )

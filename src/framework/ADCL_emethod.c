@@ -35,6 +35,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
        int result;
        ADCL_topology_t *topo;
        ADCL_vector_t *vec;
+       ADCL_vmap_t *vec_map, *v_map;
 
        /* Check first, whether we have an entry in the ADCL_emethods_array,
           which fulfills already our requirements;
@@ -53,36 +54,50 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
           if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
               continue;
           }
+          vec_map = vec->v_map;
+	  v_map   = v->v_map;
 
-          if ( ( e->em_orgfnctset == f )          &&
-               ( topo->t_ndims   == t->t_ndims  ) &&
-               ( vec->v_ndims    == v->v_ndims  ) &&
-               ( vec->v_nc       == v->v_nc     ) &&
-               ( vec->v_map->m_hwidth  == v->v_map->m_hwidth  ) && 
-               ( vec->v_map->m_vectype == v->v_map->m_vectype ) ) { 
-             found = i;
-
-             if ( ADCL_VECTOR_HALO == vec->v_map->m_vectype ){
-                for ( j=0; j< (2*topo->t_ndims); j++ ) {
-                    if ( topo->t_neighbors[i] != t->t_neighbors [i] ) {
-                        found = -1;
-                        break;
-                    }
-                }
-                if ( found == -1 ) {
-                    continue;
-                }
-                for ( j=0 ; j< vec->v_ndims; j++ ){
-                    if ( vec->v_dims[i] != v->v_dims[i] ) {
-                        found = -1;
-                        break;
-                    }
-                }
-                if ( found != -1 ) {
-                    break;
-                }
-             }
+          if ( ( e->em_orgfnctset != f )          ||
+               ( topo->t_ndims   != t->t_ndims  ) ||
+               ( vec->v_ndims    != v->v_ndims  ) ||
+               ( vec->v_nc       != v->v_nc     ) ||
+               ( vec_map->m_vectype != v_map->m_vectype ) ) {
+	       continue;
           }
+
+          for ( j=0 ; j<vec->v_ndims; j++ ){
+             if ( vec->v_dims[i] != v->v_dims[i] ) {
+                goto nextemethod;
+             }
+	  }
+
+          switch (vec_map->m_vectype) {
+	  case ADCL_VECTOR_HALO:
+             if ( vec_map->m_hwidth != v_map->m_hwidth  ) {
+	        continue;
+	     }
+
+             for ( j=0; j< (2*topo->t_ndims); j++ ) {
+                if ( topo->t_neighbors[i] != t->t_neighbors [i] ) {
+                   goto nextemethod;
+	        }
+             }
+	     break;
+	  case ADCL_VECTOR_LIST:
+             for ( i=0; i<topo->t_size; i++){
+                if ((vec_map->m_rcnts[i] != v_map->m_rcnts[i]) || 
+	           (vec_map->m_displ[i] != v_map->m_rcnts[i])) {
+	          goto nextemethod;
+	        }
+             }
+	     break;
+	  }
+
+          /* all tests OK */
+          found = i;
+          break;
+nextemethod:
+          continue;
        }
 
        if ( found > -1 ) {
