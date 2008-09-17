@@ -19,8 +19,8 @@ ctests: first second third fourth \
 	data_1 PbSizes_1D PbSizes_2D PbSizes_3D
 
 ftests: test-fnctset-noattrs_f test-fnctset-single_f     \
-        test-fnctset-allgatherv_f test-fnctset-allreduce_f 
-
+        test-fnctset-allgatherv_f test-fnctset-allreduce_f  \
+        test-prometheus
 #         
 #ftests: one-dim-f two-dim-f three-dim-f three-dim-large  \
 #	first_f second_f                                 \
@@ -125,6 +125,8 @@ test-fnctset-allgatherv_f:  test-fnctset-allgatherv_f.f90
 test-fnctset-allreduce_f:  test-fnctset-allreduce_f.f90 	
 	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-allreduce_f test-fnctset-allreduce_f.f90 $(FLDFLAGS)
 
+test-prometheus:  test-prometheus.f90 	
+	$(FC) $(FFLAGS) -o $(ADCL_BIN_DIR)/test-prometheus test-prometheus.f90 $(FLDFLAGS)
 clean:
 	rm -rf *.o *~ *.out
 	rm -rf $(ADCL_BIN_DIR)/*.out

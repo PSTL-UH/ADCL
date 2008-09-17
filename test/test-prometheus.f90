@@ -11,7 +11,7 @@
       integer, parameter :: nymom = 4
       
       ! rsweep
-      integer, parameter :: qx = 2, qz = 3
+      integer, parameter :: qx = 12, qz = 3
       integer :: vecdim, loopcnt 
    
       integer :: ierror
@@ -37,12 +37,16 @@
 !!! properly with new function sets
 
       ! running two request with different function sets simultaneously
-      call test_two_requests(loopcnt, nymom, rank, nprocs, topo)
+      !call test_two_requests(loopcnt, nymom, rank, nprocs, topo)
         
-      ! buffer is of length x*4 and defined as ADCL_VECTOR_HALO
-      ! needed e.g. for rsweep
-      vecdim = qx*4*qz
+      !! buffer is of length x*4 and defined as ADCL_VECTOR_HALO
+      !! needed e.g. for rsweep
+      !vecdim = qx*4*qz
       !call test_halo(loopcnt, vecdim, rank, nprocs, topo)
+
+      ! order of creation of vectors and requests is different to order 
+      ! of calls to request_start
+      call test_request_order(loopcnt, nymom, rank, nprocs, topo)
 
 
       call adcl_topology_free ( topo, ierror )
@@ -206,6 +210,123 @@
 
       end subroutine test_halo
 
+!-----------------------------------------------------------------------
+      subroutine test_request_order(loopcnt, nymom, rank, nprocs, topo)
+!-----------------------------------------------------------------------
+!     tests if for multiple request, the order of creation can differ 
+!     from the order of calls to request_start 
+!-----------------------------------------------------------------------
+      implicit none
+      include 'ADCL.inc' 
+      integer, intent(in) :: loopcnt, nymom, rank, nprocs, topo
+  
+      integer svmap_inplace, svec_inplace
+   
+      ! HTO: compute hydro timestep: dtmin (rady/rady.F)
+      double precision  :: adcl_dtmin
+      integer rvmap_dtmin, rvec_dtmin, req_dtmin
+
+      ! H2: rsweep
+      double precision, dimension(:), allocatable :: adcl_rsweep
+      integer :: vmap_rsweep, vec_rsweep, req_rsweep
+
+      ! H5: solve poison equation (multipoles/poison_grv.F)
+      integer, parameter :: adcl_nleg = 10
+      double precision, dimension(:), allocatable :: adcl_multi
+      integer :: rvmap_multi, rvec_multi, req_multi
+
+      integer :: i, ierror, vecdim
+
+      ! register in_place dummy send vector
+      call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &
+         svmap_inplace, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) &
+         print *, "vmap_inplace_allocate not successful"  
+      call adcl_vector_register_generic ( 0, 0, 0, svmap_inplace, & 
+         MPI_DATATYPE_NULL, MPI_IN_PLACE, svec_inplace, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) &
+         print *, "vector_register for svec_inplace not successful"
+   
+      ! register in_place dummy send vector
+      call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &
+         svmap_inplace, ierror )
+      call check_success( ierror, "vmap_inplace_allocate")
+      call adcl_vector_register_generic ( 0, 0, 0, svmap_inplace, &
+         MPI_DATATYPE_NULL, MPI_IN_PLACE, svec_inplace, ierror )
+      call check_success( ierror, "vector_register for svec_inplace")
+
+      !-----------------------------------------------------------------
+      ! prepare communications
+      !-----------------------------------------------------------------
+      ! *** HT0 ***
+      ! - comm_dtmin -
+      call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, &
+         MPI_MIN, rvmap_dtmin, ierror )
+      call check_success( ierror, "vmap_allreduce_allocate for ", &
+         "rvmap_dtmin")
+      call adcl_vector_register_generic ( 1,  1, 0, rvmap_dtmin, &
+         MPI_DOUBLE_PRECISION, adcl_dtmin, rvec_dtmin, ierror )
+      call check_success( ierror, "vector_register for rvmap_dtmin" )
+      call adcl_request_create_generic ( svec_inplace, rvec_dtmin, &
+         topo, ADCL_FNCTSET_ALLREDUCE, req_dtmin, ierror )
+      call check_success( ierror, "request_create for req_dtmin")
+   
+      ! *** H2: r-sweep ***
+      vecdim = 4*nymom !qx*qz
+      print *, "initializing rsweep: vecdim=", vecdim
+      allocate ( adcl_rsweep(vecdim) )
+      call adcl_vmap_halo_allocate ( ADCL_VECTOR_HALO, vecdim/4, &
+          vmap_rsweep, ierror)
+      call check_success( ierror, "vmap_halo_allocate for vmap_rsweep")
+      call adcl_vector_register_generic ( 1, vecdim, 0, vmap_rsweep, &
+          MPI_DOUBLE_PRECISION, adcl_rsweep, vec_rsweep, ierror) 
+      call check_success( ierror, "vector register for vec_rsweep")
+      call adcl_request_create ( vec_rsweep, topo, & 
+         ADCL_FNCTSET_NEIGHBORHOOD, req_rsweep, ierror )
+      call check_success( ierror, "request_create for req_rsweep")
+
+      ! *** H5: comm_multipoles ***
+      vecdim = 8*nymom !8*qx+(nxtot+1)*(adcl_nleg+1)
+      print *, "initializing multi: vecdim=", vecdim
+      allocate( adcl_multi( vecdim ) )
+      adcl_multi = 0d0
+      call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, & 
+         MPI_SUM, rvmap_multi, ierror )
+      call check_success( ierror, "vmap_allreduce_allocate for ", & 
+         "rvmap_multi")
+      call adcl_vector_register_generic ( 1, vecdim, 0, rvmap_multi, & 
+         MPI_DOUBLE_PRECISION, adcl_multi, rvec_multi, ierror )
+      call check_success( ierror, "vector_register for rvec_multi")
+      call adcl_request_create_generic ( svec_inplace, rvec_multi, & 
+         topo, ADCL_FNCTSET_ALLREDUCE, req_multi, ierror )
+      call check_success( ierror, "request_create for req_multi")
+ 
+      do i = 1, 50
+          call adcl_request_start(req_multi, ierror)
+          call adcl_request_start(req_rsweep, ierror)
+          call adcl_request_start(req_dtmin, ierror)
+      end do
+
+      call adcl_vector_deregister( svec_inplace,  ierror )
+      call adcl_vmap_free        ( svmap_inplace, ierror )
+
+      call adcl_request_free      ( req_dtmin,   ierror )
+      call adcl_vector_deregister ( rvec_dtmin,  ierror )
+      call adcl_vmap_free         ( rvmap_dtmin, ierror )
+
+      ! H2
+      call adcl_request_free      ( req_rsweep,  ierror )
+      call adcl_vector_deregister ( vec_rsweep,  ierror )
+      call adcl_vmap_free         ( vmap_rsweep, ierror )
+      deallocate (adcl_rsweep)
+
+      ! H5
+      call adcl_request_free      ( req_multi,   ierror )
+      call adcl_vector_deregister ( rvec_multi,  ierror )
+      call adcl_vmap_free         ( rvmap_multi, ierror )
+      deallocate (adcl_multi)
+
+      end subroutine test_request_order
 
 
 !-----------------------------------------------------------------------
