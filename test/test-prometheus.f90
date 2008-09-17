@@ -46,8 +46,11 @@
 
       ! order of creation of vectors and requests is different to order 
       ! of calls to request_start
-      call test_request_order(loopcnt, nymom, rank, nprocs, topo)
+      ! call test_request_order(loopcnt, nymom, rank, nprocs, topo)
 
+      ! order of creation of vectors and requests is different to order 
+      ! of calls to request_start
+      call test_request_create(loopcnt, nymom, rank, nprocs, topo)
 
       call adcl_topology_free ( topo, ierror )
       call MPI_Comm_free ( cart_comm, ierror )
@@ -318,6 +321,144 @@
 
       end subroutine test_request_order
 
+!-----------------------------------------------------------------------
+      subroutine test_request_create(loopcnt, nymom, rank, nprocs, topo)
+!-----------------------------------------------------------------------
+!     tests if for multiple request, the order of creation can differ 
+!     from the order of calls to request_start 
+!-----------------------------------------------------------------------
+      implicit none
+      include 'ADCL.inc' 
+      integer, intent(in) :: loopcnt, nymom, rank, nprocs, topo
+
+      integer svmap_inplace, svec_inplace
+   
+      ! HTO: compute hydro timestep: dtmin (rady/rady.F)
+      double precision  :: adcl_dtmin
+      integer rvmap_dtmin, rvec_dtmin, req_dtmin
+     
+      double precision, dimension(:), allocatable :: adcl_rady_dp
+      integer rvmap_rady_dp, rvec_rady_dp, req_rady_dp
+
+      integer, dimension(:), allocatable  :: adcl_rady_int
+      integer rvmap_rady_int, rvec_rady_int, req_rady_int
+
+      ! T6: comm_qterms
+      double precision, dimension(:), allocatable :: adcl_hlp
+      integer rvmap_qterms, rvec_qterms, req_qterms
+
+      integer, dimension(0:nprocs-1) :: displ, rcnts
+      integer :: vecdim, ierror, i 
+      
+      ! register in_place dummy send vector
+      call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &
+         svmap_inplace, ierror )
+      call check_success( ierror, "vmap_inplace_allocate")
+      call adcl_vector_register_generic ( 0, 0, 0, svmap_inplace, &
+         MPI_DATATYPE_NULL, MPI_IN_PLACE, svec_inplace, ierror )
+      call check_success( ierror, "vector_register for svec_inplace")
+
+      !-----------------------------------------------------------------
+      ! prepare communications
+      !-----------------------------------------------------------------
+      ! *** HT0 ***
+      ! - comm_dtmin -
+      call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, &
+         MPI_MIN, rvmap_dtmin, ierror )
+      call check_success( ierror, "vmap_allreduce_allocate for ", &
+         "rvmap_dtmin")
+      call adcl_vector_register_generic ( 1,  1, 0, rvmap_dtmin, &
+         MPI_DOUBLE_PRECISION, adcl_dtmin, rvec_dtmin, ierror )
+      call check_success( ierror, "vector_register for rvmap_dtmin" )
+      call adcl_request_create_generic ( svec_inplace, rvec_dtmin, &
+         topo, ADCL_FNCTSET_ALLREDUCE, req_dtmin, ierror )
+      call check_success( ierror, "request_create for req_dtmin")
+   
+      ! - comm_rady: compute transport step -
+      vecdim = 12*nprocs
+      print *, "initializing rady int: vecdim=", vecdim
+      call set_displ(nprocs, 12, rcnts, displ)
+      allocate ( adcl_rady_int(vecdim) )
+
+      call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, nprocs, rcnts, &
+         displ, rvmap_rady_int, ierror )
+      call check_success(ierror, & 
+         "vmap_list_allocate for rvmap_rady_int")
+      call adcl_vector_register_generic ( 1, vecdim , 0, rvmap_rady_int, & 
+         MPI_INTEGER, adcl_rady_int, rvec_rady_int, ierror )
+      call check_success(ierror, & 
+         "vmap_vector_register for rvec_rady_int")
+      call adcl_request_create_generic ( svec_inplace, rvec_rady_int, & 
+         topo, ADCL_FNCTSET_ALLGATHERV, req_rady_int, ierror )
+      call check_success( ierror, "request_create for req_rady_int")
+
+      vecdim = 4*nprocs
+      print *, "initializing rady real: vecdim=", vecdim
+      call set_displ(nprocs, 4, rcnts, displ)
+      allocate (adcl_rady_dp(vecdim))
+
+      call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, nprocs, rcnts, &
+         displ, rvmap_rady_dp, ierror )
+      call check_success(ierror, "vmap_list_allocate for rvmap_rady_dp")
+      call adcl_vector_register_generic ( 1, vecdim, 0, rvmap_rady_dp, &
+          MPI_DOUBLE_PRECISION, adcl_rady_dp, rvec_rady_dp, ierror )
+      call check_success(ierror, &
+          "vmap_vector_register for rvec_rady_dp")
+      call adcl_request_create_generic ( svec_inplace, rvec_rady_dp, &
+         topo, ADCL_FNCTSET_ALLGATHERV, req_rady_dp, ierror )
+      call check_success( ierror, "request_create for req_rady_dp")
+      
+     ! *** T6: comm_qterms: AllGatherV to verify convergence on all rays ***
+      call set_displ(nprocs, 4, rcnts, displ)
+      vecdim = 4*nymom
+      print *, "initializing qterms: vecdim=", vecdim
+      if (rank .eq. 0) &
+          write(*,*) "displ", displ, "rcnts", rcnts
+      allocate (adcl_hlp(vecdim))
+      call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, nprocs, rcnts, & 
+         displ, rvmap_qterms, ierror )
+      print *, "after vmap"
+      call check_success(ierror, "vmap_list_allocate for rvmap_qterms")
+      call adcl_vector_register_generic ( 1,  vecdim, 0, rvmap_qterms, & 
+          MPI_DOUBLE_PRECISION, adcl_hlp, rvec_qterms, ierror )
+      call check_success(ierror, "vmap_vector_register for rvec_qterms")
+      print *, "after vector"
+      call adcl_request_create_generic ( svec_inplace, rvec_qterms, & 
+         topo, ADCL_FNCTSET_ALLGATHERV, req_qterms, ierror )
+      call check_success(ierror, "request_create for req_qterms")
+      print *, "after request"
+      
+      do i = 1, 50
+          call adcl_request_start(req_dtmin, ierror)
+          call adcl_request_start(req_rady_int, ierror)
+          call adcl_request_start(req_rady_dp, ierror)
+          call adcl_request_start(req_qterms, ierror)
+      end do
+
+      call adcl_vector_deregister( svec_inplace,  ierror )
+      call adcl_vmap_free        ( svmap_inplace, ierror )
+
+      ! HT0
+      call adcl_request_free      ( req_dtmin,   ierror )
+      call adcl_vector_deregister ( rvec_dtmin,  ierror )
+      call adcl_vmap_free         ( rvmap_dtmin, ierror )
+
+      call adcl_request_free      ( req_rady_dp,   ierror )
+      call adcl_vector_deregister ( rvec_rady_dp,  ierror )
+      call adcl_vmap_free         ( rvmap_rady_dp, ierror )
+      deallocate (adcl_rady_dp)
+      call adcl_request_free      ( req_rady_int,   ierror )
+      call adcl_vector_deregister ( rvec_rady_int,  ierror )
+      call adcl_vmap_free         ( rvmap_rady_int, ierror )
+      deallocate ( adcl_rady_int )
+      
+     ! T6
+      call adcl_request_free      ( req_qterms,   ierror )
+      call adcl_vector_deregister ( rvec_qterms,  ierror )
+      call adcl_vmap_free         ( rvmap_qterms, ierror )
+      deallocate (adcl_hlp)
+
+      end subroutine test_request_create
 
 !-----------------------------------------------------------------------
       subroutine set_displ(nprocs, num, rcnts, displ)

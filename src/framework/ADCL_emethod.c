@@ -66,7 +66,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
           }
 
           for ( j=0 ; j<vec->v_ndims; j++ ){
-             if ( vec->v_dims[i] != v->v_dims[i] ) {
+             if ( vec->v_dims[j] != v->v_dims[j] ) {
                 goto nextemethod;
              }
 	  }
@@ -78,15 +78,15 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	     }
 
              for ( j=0; j< (2*topo->t_ndims); j++ ) {
-                if ( topo->t_neighbors[i] != t->t_neighbors [i] ) {
+                if ( topo->t_neighbors[j] != t->t_neighbors [j] ) {
                    goto nextemethod;
 	        }
              }
 	     break;
 	  case ADCL_VECTOR_LIST:
-             for ( i=0; i<topo->t_size; i++){
-                if ((vec_map->m_rcnts[i] != v_map->m_rcnts[i]) || 
-	           (vec_map->m_displ[i] != v_map->m_rcnts[i])) {
+             for ( j=0; j<topo->t_size; j++){
+                if ((vec_map->m_rcnts[j] != v_map->m_rcnts[j]) || 
+	           (vec_map->m_displ[j] != v_map->m_rcnts[j])) {
 	          goto nextemethod;
 	        }
              }
