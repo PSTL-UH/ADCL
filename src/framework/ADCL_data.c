@@ -21,7 +21,7 @@ int ADCL_data_create ( ADCL_emethod_t *e )
     ADCL_data_t *data;
     ADCL_topology_t *topo = e->em_topo;
     ADCL_vector_t   *vec  = e->em_vec;
-    int i, topo_status;
+    int i, size, topo_status;
     int *dims, *coords;
 
     /* For now we support only cartesian topology */
@@ -29,8 +29,11 @@ int ADCL_data_create ( ADCL_emethod_t *e )
     if ( ( MPI_CART != topo_status ) || ( ADCL_VECTOR_NULL == vec ) ) {
         return ADCL_INVALID_ARG;
     }
+    size = topo->t_size;
     data = (ADCL_data_t *) calloc (1, sizeof(ADCL_data_t));
-    if ( NULL == data ) {
+    data->d_rcnts = (int *)calloc (size, sizeof(int));
+    data->d_displ = (int *)calloc (size, sizeof(int));
+    if ( (NULL == data) || (NULL == data->d_rcnts) || (NULL == data->d_displ) ) {
         return ADCL_NO_MEMORY;
     }
     /* Internal info for object management */
@@ -38,7 +41,9 @@ int ADCL_data_create ( ADCL_emethod_t *e )
     ADCL_array_get_next_free_pos ( ADCL_data_array, &data->d_findex );
     ADCL_array_set_element ( ADCL_data_array, data->d_findex, data->d_id, data );
     data->d_refcnt = 1;
-    /* Topology information */
+    /* Network Topology information */
+    data->d_np = size;
+    /* Logical Topology information */
     data->d_tndims = topo->t_ndims;
     data->d_tperiods = (int *)malloc( data->d_tndims*sizeof(int) );
     dims = (int *)malloc( data->d_tndims*sizeof(int) );
@@ -53,8 +58,23 @@ int ADCL_data_create ( ADCL_emethod_t *e )
         data->d_vdims[i] = vec->v_dims[i];
     }
     data->d_nc = vec->v_nc;
-    data->d_hwidth = vec->v_map->m_hwidth;
+    /* Vector map information */
     data->d_vectype = vec->v_map->m_vectype;
+    data->d_hwidth = vec->v_map->m_hwidth;
+    if ((NULL != vec->v_map->m_rcnts) && (NULL != vec->v_map->m_displ)) {
+        for ( i=0; i<size; i++ ) {
+            data->d_rcnts[i] = vec->v_map->m_rcnts[i];
+            data->d_displ[i] = vec->v_map->m_displ[i];
+        }
+    }
+    else {
+        for ( i=0; i<size; i++ ) {
+            data->d_rcnts[i] = 0;
+            data->d_displ[i] = 0;
+        }
+    }
+    data->d_op = vec->v_map->m_op;
+    data->d_inplace = vec->v_map->m_inplace;
     /* Attribute information */
     if (NULL != e->em_orgfnctset->fs_attrset && ADCL_ATTRSET_NULL !=  e->em_orgfnctset->fs_attrset){
        data->d_asmaxnum = e->em_orgfnctset->fs_attrset->as_maxnum;
@@ -83,7 +103,7 @@ void ADCL_data_free ( void )
     int i, last;
     ADCL_data_t *data;
 #ifdef ADCL_KNOWLEDGE_TOFILE
-    ADCL_data_dump_to_file ( );
+    ADCL_data_dump_to_file ();
 #endif
     last = ADCL_array_get_last ( ADCL_data_array );
     /* Free all the data objects */
@@ -96,6 +116,15 @@ void ADCL_data_free ( void )
             if ( NULL != data->d_vdims ) {
                 free ( data->d_vdims );
             }
+            if ( NULL != data->d_rcnts ) {
+                free ( data->d_rcnts );
+            }
+            if ( NULL != data->d_displ ) {
+                free ( data->d_displ );
+            }
+            if ( NULL != data->d_attrvals ) {
+                free ( data->d_attrvals );
+            }           
             if ( NULL != data->d_fsname ) {
                 free ( data->d_fsname );
             }
@@ -115,7 +144,7 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
     ADCL_topology_t *topo = e->em_topo;
     ADCL_vector_t   *vec  = e->em_vec;
     int ret = ADCL_UNEQUAL;
-    int i, j, last, explored_data, found;
+    int i, j, last, explored_data, found, size;
     int *dims, *periods, *coords;
 
     if ( ADCL_VECTOR_NULL == vec ) {
@@ -124,20 +153,24 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
     last = ADCL_array_get_last ( ADCL_data_array );
     explored_data = e->em_explored_data;
     if ( last > explored_data ) {
+        size = topo->t_size;   
         for ( i=(explored_data+1); i<= last; i++ ) {
             data = ( ADCL_data_t * ) ADCL_array_get_ptr_by_pos( ADCL_data_array, i );
+
             if ( ( topo->t_ndims    == data->d_tndims  ) &&
                  ( vec->v_ndims     == data->d_vndims  ) &&
                  ( vec->v_nc        == data->d_nc      ) &&
-                 ( vec->v_map->m_vectype   == data->d_vectype ) &&
-                 ( vec->v_map->m_hwidth    == data->d_hwidth  ) &&
+                 ( vec->v_map->m_vectype == data->d_vectype ) &&
+                 ( vec->v_map->m_hwidth  == data->d_hwidth ) &&
+                 ( vec->v_map->m_op      == data->d_op ) &&
+                 ( vec->v_map->m_inplace == data->d_inplace ) &&
                  ( 0 == strncmp (data->d_fsname,
                                  e->em_orgfnctset->fs_name,
                                  strlen(e->em_orgfnctset->fs_name))) ) {
                 found = i;
-                periods = (int *)malloc( topo->t_ndims*sizeof(int) );
-                dims = (int *)malloc( topo->t_ndims*sizeof(int) );
-                coords = (int *)malloc( topo->t_ndims*sizeof(int) );
+                periods = (int *)malloc( topo->t_ndims * sizeof(int) );
+                dims = (int *)malloc( topo->t_ndims * sizeof(int) );
+                coords = (int *)malloc( topo->t_ndims * sizeof(int) );
 
                 MPI_Cart_get ( topo->t_comm, topo->t_ndims, dims, periods, coords );
                 for ( j=0; j<topo->t_ndims; j++ ) {
@@ -155,6 +188,19 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
                     if ( vec->v_dims[j] != data->d_vdims[j] ) {
                         found = -1;
                         break;
+                    }
+                }
+                if ((NULL != vec->v_map->m_rcnts) && (NULL != vec->v_map->m_displ)) {
+                    if ( data->d_np != size ) {
+                        found = -1;
+                        break; 
+                    }
+                    for ( j=0 ; j<topo->t_size; j++ ){
+	                if ( ( vec->v_map->m_rcnts[j] != data->d_rcnts[j] ) ||
+                           ( vec->v_map->m_displ[j] != data->d_displ[j] ) ) {
+                            found = -1;
+                            break;
+                        }
                     }
                 }
             }
@@ -177,24 +223,28 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
 
 void ADCL_data_dump_to_file ( void )
 {
-    int i, j, rank, last, tndims, vndims ;
+  int i, j, rank, last, tndims, vndims ;
     ADCL_data_t *data;
     FILE *fp;
 
-    rank = 0;
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
+
     if ( 0 == rank ) {
         fp = fopen ("ADCL.xml", "w");
         last = ADCL_array_get_last ( ADCL_data_array );
         fprintf ( fp, "<?xml version=\"1.0\" ?>\n<?xml-stylesheet"
                   " type=\"text/xsl\" href=\"ADCL.xsl\"?>\n<ADCL>\n" );
         fprintf ( fp, "  <NUM>%d</NUM>\n", last+1 );
-
         for ( i=0; i<=last; i++ ) {
             fprintf ( fp, "  <RECORD>\n" );
             data = ( ADCL_data_t * ) ADCL_array_get_ptr_by_pos( ADCL_data_array, i );
-            /* Topology information */
-            fprintf ( fp, "    <TOPO>\n" );
+            /* Network Topology information */
+            fprintf ( fp, "    <NTOPO>\n" );
+            /* So far we have only np, later on this part might be extended significantly */
+            fprintf ( fp, "      <NP>%d</NP>\n", data->d_np );
+            fprintf ( fp, "    </NTOPO>\n" );
+            /* Logical Topology information */
+            fprintf ( fp, "    <LTOPO>\n" );
             tndims = data->d_tndims;
             fprintf ( fp, "      <NDIM>%d</NDIM>\n", tndims );
             fprintf ( fp, "      <PERIOD>\n");
@@ -202,7 +252,7 @@ void ADCL_data_dump_to_file ( void )
                 fprintf ( fp, "        <DIM>%d</DIM>\n", data->d_tperiods[j] );
             }
             fprintf ( fp, "      </PERIOD>\n");
-            fprintf ( fp, "    </TOPO>\n" );
+            fprintf ( fp, "    </LTOPO>\n" );
             /* Vector information */
             fprintf ( fp, "    <VECT>\n" );
             vndims = data->d_vndims;
@@ -213,8 +263,23 @@ void ADCL_data_dump_to_file ( void )
             }
             fprintf ( fp, "      </DIMS>\n");
             fprintf ( fp, "      <NC>%d</NC>\n", data->d_nc );
-            fprintf ( fp, "      <HWIDTH>%d</HWIDTH>\n", data->d_hwidth );
-            fprintf ( fp, "      <COMTYPE>%d</COMTYPE>\n", data->d_vectype );
+            /* Vector map information */
+            fprintf ( fp, "      <MAP>\n");
+            fprintf ( fp, "        <VECTYPE>%d</VECTYPE>\n", data->d_vectype );
+            fprintf ( fp, "        <HWIDTH>%d</HWIDTH>\n", data->d_hwidth );
+            fprintf ( fp, "        <CNTS>\n" );
+            for ( j=0; j<data->d_np; j++ ) {
+                fprintf ( fp, "          <CNT>%d</CNT>\n", data->d_rcnts[j] );
+            }
+            fprintf ( fp, "        </CNTS>\n" );
+            fprintf ( fp, "        <DISPLS>\n" );
+            for ( j=0; j<data->d_np; j++ ) {
+		     fprintf ( fp, "          <DISPL>%d</DISPL>\n", data->d_displ[j] );
+            }
+            fprintf ( fp, "        </DISPLS>\n" );
+            fprintf ( fp, "        <OP>%d</OP>\n", data->d_op );
+            fprintf ( fp, "        <INPLACE>%d</INPLACE>\n", data->d_inplace );
+            fprintf ( fp, "      </MAP>\n");
             fprintf ( fp, "    </VECT>\n" );
             /* Attribute information */
             fprintf ( fp, "    <ATTR>\n" );
@@ -263,16 +328,19 @@ void ADCL_data_read_from_file ( void )
         if ( NULL == data ) {
             return;
         }
-
         /* Internal info for object management */
         data->d_id = ADCL_local_id_counter++;
         ADCL_array_get_next_free_pos ( ADCL_data_array, &data->d_findex );
         ADCL_array_set_element ( ADCL_data_array, data->d_findex, data->d_id, data );
         data->d_refcnt = 1;
 	fgets( line, nchar, fp ); /* RECORD Tag */
-
-        /* Topology information */
-        fgets( line, nchar, fp ); /* TOPO Tag */
+        /* Network Topology information */
+        fgets( line, nchar, fp ); /* NTOPO Tag */
+        fgets( line, nchar, fp ); /* NP */
+        get_int_data_from_xml ( line, &data->d_np );
+        fgets( line, nchar, fp ); /* Close NTOPO Tag */
+        /* Logical Topology information */
+        fgets( line, nchar, fp ); /* LTOPO Tag */
         fgets( line, nchar, fp ); /* NDIM Tag */
         get_int_data_from_xml ( line, &data->d_tndims );
         fgets( line, nchar, fp ); /* PERIOD Tag */
@@ -282,8 +350,7 @@ void ADCL_data_read_from_file ( void )
             get_int_data_from_xml ( line, &(data->d_tperiods[j]) );
         }
         fgets( line, nchar, fp ); /* Close PERIOD Tag */
-        fgets( line, nchar, fp ); /* Close TOPO Tag */
-
+        fgets( line, nchar, fp ); /* Close LTOPO Tag */
         /* Vector information */
         fgets( line, nchar, fp ); /* VECT Tag */
         fgets( line, nchar, fp ); /* NDIM Tag */
@@ -297,12 +364,33 @@ void ADCL_data_read_from_file ( void )
         fgets( line, nchar, fp ); /* Close DIMS Tag */
         fgets( line, nchar, fp ); /* NC Tag */
         get_int_data_from_xml ( line, &data->d_nc );
+        /* Memory allocation for cnts and displ */
+        data->d_rcnts = (int *)calloc (data->d_np, sizeof(int));
+        data->d_displ = (int *)calloc (data->d_np, sizeof(int));
+        /* Reading the data */
+        fgets( line, nchar, fp ); /* Opening MAP Tag */
+        fgets( line, nchar, fp ); /* VECTYPE Tag */
+        get_int_data_from_xml ( line, &data->d_vectype );
         fgets( line, nchar, fp ); /* HWIDTH Tag */
         get_int_data_from_xml ( line, &data->d_hwidth );
-        fgets( line, nchar, fp ); /* COMTYPE Tag */
-        get_int_data_from_xml ( line, &data->d_vectype );
+        fgets( line, nchar, fp ); /* Opening CNTS Tag */
+        for ( j=0; j<data->d_np; j++ ) {
+            fgets( line, nchar, fp ); /* CNT Tag */
+	    get_int_data_from_xml ( line, &(data->d_rcnts[j]) );
+	}
+        fgets( line, nchar, fp ); /* CLOSE CNTS Tag */
+        fgets( line, nchar, fp ); /* Opening DISPL Tag */
+        for ( j=0; j<data->d_np; j++ ) {
+	    fgets( line, nchar, fp ); /* DISPL Tag */
+            get_int_data_from_xml ( line, &(data->d_displ[j]) );
+	}
+        fgets( line, nchar, fp ); /* Close DISPL Tag */
+        fgets( line, nchar, fp ); /* OP Tag */
+        get_int_data_from_xml ( line, &(data->d_op) );
+        fgets( line, nchar, fp ); /* INPLACE Tag */
+        get_int_data_from_xml ( line, &(data->d_inplace) );
+        fgets( line, nchar, fp ); /* Close MAP Tag */
         fgets( line, nchar, fp ); /* Close VECT Tag */
-
         /* Attribute information */
         fgets( line, nchar, fp ); /* ATTR Tag */
         fgets( line, nchar, fp ); /* NUM Tag */
@@ -315,7 +403,6 @@ void ADCL_data_read_from_file ( void )
         }
         fgets( line, nchar, fp ); /* Close ATTRVALS Tag */
         fgets( line, nchar, fp ); /* Close ATTR Tag */
-
         /* Function set and winner function */
         fgets( line, nchar, fp ); /* FUNC Tag */
         fgets( line, nchar, fp ); /* FNCTSET Tag */

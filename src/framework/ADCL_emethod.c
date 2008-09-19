@@ -385,6 +385,9 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
             e->em_wfunction = func;
             return ADCL_SOL_FOUND;
         }
+        else {
+            ADCL_printf("Function %s is not found in the function set\n", data->d_wfname );
+        }
         break;
     case ADCL_SIMILAR:
         /* one idea is to increment the confidance number for 

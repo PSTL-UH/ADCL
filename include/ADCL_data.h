@@ -19,15 +19,22 @@ struct ADCL_data_s{
     int                     d_id; /* id of the object */
     int                 d_findex; /* index of this object in the fortran array */
     int                 d_refcnt; /* reference counter of this object */
-    /* Topology information */
+    /* Network Topology information */
+    int                     d_np; /* Number of processors */
+    /* Logical Topology information */
     int                 d_tndims; /* Topology number of dimensions */
     int              *d_tperiods; /* periodicity for each cartesian dimension */
     /* Vector information */
     int                 d_vndims; /* Vector number of dimensions */
     int                 *d_vdims; /* Vector extent of each the dimensions */
     int                     d_nc; /* Extent of each data point  */
+   /* Vector map information */
+    int                d_vectype; /* Vector type */
     int                 d_hwidth; /* Halo cells width */
-    int                d_vectype; /* Communication type */
+    int*                 d_rcnts; /* receive counts for AllGatherV */ 
+    int*                 d_displ; /* displacements for AllGatherV */
+    MPI_Op                  d_op; /* MPI operator for AllReduce */
+    int                d_inplace; /* MPI_IN_PLACE */
     /* Attribute information */
     int               d_asmaxnum; /* Number of attributes in the attribute set */
     int              *d_attrvals; /* Values of the winning attributes */
