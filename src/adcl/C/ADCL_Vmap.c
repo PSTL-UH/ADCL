@@ -14,21 +14,16 @@
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_Vmap_halo_allocate ( int vectype, int hwidth,
-                 ADCL_Vmap *vmap )
+int ADCL_Vmap_halo_allocate ( int hwidth, ADCL_Vmap *vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
     int err = ADCL_SUCCESS;         
           
-    if (ADCL_VECTOR_HALO != vectype) {
-        return ADCL_INVALID_VECTYPE;
-    }
-
     if (hwidth < 0){
         return ADCL_INVALID_HWIDTH;
     }	
 
-    err = ADCL_vmap_halo_allocate ( vectype, hwidth, &tvmap );
+    err = ADCL_vmap_halo_allocate ( hwidth, &tvmap );
 
     *vmap = tvmap;
 
@@ -38,16 +33,11 @@ int ADCL_Vmap_halo_allocate ( int vectype, int hwidth,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_Vmap_list_allocate ( int vectype, int size, int* rcnts, int* displ, ADCL_Vmap *vmap )
+int ADCL_Vmap_list_allocate ( int size, int* rcnts, int* displ, ADCL_Vmap *vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
     int err = ADCL_SUCCESS;         
  
-    /* Halo cells are to be communicated */
-    if (ADCL_VECTOR_LIST != vectype) {
-        return ADCL_INVALID_VECTYPE;
-    }
-
     if ( NULL == rcnts){
         return ADCL_INVALID_ARG;
     }	
@@ -56,7 +46,7 @@ int ADCL_Vmap_list_allocate ( int vectype, int size, int* rcnts, int* displ, ADC
         return ADCL_INVALID_ARG; 
     }
 
-    err = ADCL_vmap_list_allocate ( vectype, size, rcnts, displ, &tvmap );
+    err = ADCL_vmap_list_allocate ( size, rcnts, displ, &tvmap );
 
     *vmap = tvmap;
     return err;
@@ -64,21 +54,16 @@ int ADCL_Vmap_list_allocate ( int vectype, int size, int* rcnts, int* displ, ADC
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_Vmap_allreduce_allocate ( int vectype, MPI_Op op, ADCL_Vmap *vmap )
+int ADCL_Vmap_allreduce_allocate ( MPI_Op op, ADCL_Vmap *vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
     int err = ADCL_SUCCESS;         
  
-    /* Halo cells are to be communicated */
-    if (ADCL_VECTOR_ALLREDUCE != vectype) {
-        return ADCL_INVALID_VECTYPE;
-    }
-
     if ( op != MPI_MIN && op != MPI_MAX && op != MPI_SUM){
        return ADCL_INVALID_ARG;
     }
 
-    err = ADCL_vmap_allreduce_allocate ( vectype, op, &tvmap );
+    err = ADCL_vmap_allreduce_allocate ( op, &tvmap );
 
     *vmap = tvmap;
     return err;
@@ -87,17 +72,12 @@ int ADCL_Vmap_allreduce_allocate ( int vectype, MPI_Op op, ADCL_Vmap *vmap )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_Vmap_all_allocate ( int vectype, ADCL_Vmap *vmap )
+int ADCL_Vmap_all_allocate ( ADCL_Vmap *vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
     int err = ADCL_SUCCESS;         
           
-    /* Halo cells are to be communicated */
-    if (ADCL_VECTOR_ALL != vectype) {
-        return ADCL_INVALID_VECTYPE;
-    }
-
-    err = ADCL_vmap_all_allocate ( vectype, &tvmap );
+    err = ADCL_vmap_all_allocate ( &tvmap );
 
     *vmap = tvmap;
     return err;
@@ -106,17 +86,12 @@ int ADCL_Vmap_all_allocate ( int vectype, ADCL_Vmap *vmap )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_Vmap_inplace_allocate ( int vectype, ADCL_Vmap *vmap )
+int ADCL_Vmap_inplace_allocate ( ADCL_Vmap *vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
     int err = ADCL_SUCCESS;         
           
-    /* Halo cells are to be communicated */
-    if (ADCL_VECTOR_INPLACE != vectype) {
-        return ADCL_INVALID_VECTYPE;
-    }
-
-    err = ADCL_vmap_inplace_allocate ( vectype, &tvmap );
+    err = ADCL_vmap_inplace_allocate ( &tvmap );
 
     *vmap = tvmap;
     return err;

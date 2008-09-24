@@ -42,7 +42,7 @@ int main ( int argc, char ** argv )
     MPI_Comm_size ( MPI_COMM_WORLD, &size );
 
     ADCL_Init ();
-    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, HWIDTH, &vmap );
+    err = ADCL_Vmap_halo_allocate ( HWIDTH, &vmap );
     if ( ADCL_SUCCESS != err) goto exit;
     err = ADCL_Vector_allocate_generic ( 3,  dims, 0, vmap, MPI_DOUBLE, &data, &vec );
     if ( ADCL_SUCCESS != err) goto exit;

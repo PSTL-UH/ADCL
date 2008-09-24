@@ -60,11 +60,11 @@ extern ADCL_array_t *ADCL_vmap_farray;
    @retval ADCL_INVALID_DAT      invalid dat input parameter
 */
 
-int ADCL_vmap_halo_allocate ( int vectype, int hwidth, ADCL_vmap_t **vec );
-int ADCL_vmap_list_allocate ( int vectype, int size, int* rcnts, int* displ, ADCL_vmap_t **vec );
-int ADCL_vmap_allreduce_allocate ( int vectype, MPI_Op op, ADCL_vmap_t **vec );
-int ADCL_vmap_all_allocate ( int vectype, ADCL_vmap_t **vec );
-int ADCL_vmap_inplace_allocate ( int vectype, ADCL_vmap_t **vec );
+int ADCL_vmap_halo_allocate ( int hwidth, ADCL_vmap_t **vec );
+int ADCL_vmap_list_allocate ( int size, int* rcnts, int* displ, ADCL_vmap_t **vec );
+int ADCL_vmap_allreduce_allocate ( MPI_Op op, ADCL_vmap_t **vec );
+int ADCL_vmap_all_allocate ( ADCL_vmap_t **vec );
+int ADCL_vmap_inplace_allocate ( ADCL_vmap_t **vec );
 
 /* ADCL_vmap_free
    Description: free an ADCL_vmap object including the allocated data field

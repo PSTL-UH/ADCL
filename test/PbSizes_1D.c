@@ -84,7 +84,7 @@ int main ( int argc, char ** argv )
             printf("Explored Problem Size %d\n", ProblemSizes[i]);
         }
 
-        err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+        err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
         if ( ADCL_SUCCESS != err) goto exit;
         err = ADCL_Vector_allocate_generic ( 1,  &dims, 0, vmap, MPI_DOUBLE, &data, &vec );
         ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );

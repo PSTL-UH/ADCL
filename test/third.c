@@ -32,7 +32,7 @@ int main ( int argc, char ** argv )
     MPI_Comm_size ( MPI_COMM_WORLD, &size );
 
     ADCL_Init ();
-    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, &vmap );
+    ADCL_Vmap_halo_allocate ( 1, &vmap );
     ADCL_Vector_allocate_generic ( 3,  dims, 0, vmap, MPI_DOUBLE, &data1, &vec1 );
     ADCL_Vector_allocate_generic ( 3,  dims, 0, vmap, MPI_DOUBLE, &data2, &vec2 );
     ADCL_Vector_allocate_generic ( 3,  dims, 0, vmap, MPI_DOUBLE, &data3, &vec3 );

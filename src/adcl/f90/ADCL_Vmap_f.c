@@ -41,24 +41,17 @@
 /**********************************************************************/
 /**********************************************************************/
 #ifdef _SX
-void adcl_vmap_halo_allocate_ ( int* vectype, int* hwidth, int *vmap, int* ierror )
+void adcl_vmap_halo_allocate_ ( int* hwidth, int *vmap, int* ierror )
 #else
-void adcl_vmap_halo_allocate  ( int* vectype, int* hwidth, int *vmap, int* ierror )
+void adcl_vmap_halo_allocate  ( int* hwidth, int *vmap, int* ierror )
 #endif
 
 {
     ADCL_vmap_t *tvmap=NULL;
 
-    if ( ( NULL == vectype ) ||
-         ( NULL == hwidth )  ){
-         *ierror = ADCL_INVALID_ARG;
-         return;
-    }
-
-    /* verification of the input parameters */
-    if (ADCL_VECTOR_HALO != *vectype) {
-        *ierror = ADCL_INVALID_VECTYPE;
-        return;
+    if ( NULL == hwidth ) {
+       *ierror = ADCL_INVALID_ARG;
+       return;
     }
 
     if ( 0 > hwidth){
@@ -66,7 +59,7 @@ void adcl_vmap_halo_allocate  ( int* vectype, int* hwidth, int *vmap, int* ierro
         return;
     }
 
-    *ierror = ADCL_Vmap_halo_allocate ( *vectype, *hwidth, &tvmap );
+    *ierror = ADCL_Vmap_halo_allocate ( *hwidth, &tvmap );
 
     if ( ADCL_SUCCESS  == *ierror ) {
         *vmap = tvmap->m_findex;
@@ -79,17 +72,16 @@ void adcl_vmap_halo_allocate  ( int* vectype, int* hwidth, int *vmap, int* ierro
 /**********************************************************************/
 /**********************************************************************/
 #ifdef _SX
-void adcl_vmap_list_allocate_ ( int *vectype, int *size, int *rcnts, 
-    int *displ, int *vmap, int *ierror )
+void adcl_vmap_list_allocate_ ( int *size, int *rcnts, int *displ, 
+   int *vmap, int *ierror )
 #else
-void adcl_vmap_list_allocate  ( int *vectype, int *size, int *rcnts, 
-    int *displ, int *vmap, int *ierror )
+void adcl_vmap_list_allocate  ( int *size, int *rcnts, int *displ, 
+   int *vmap, int *ierror )
 #endif
 {
     ADCL_vmap_t *tvmap=NULL;
 
-    if ( ( NULL == vectype ) ||
-         ( 0    >= *size )   ||
+    if ( ( 0    >= *size )   ||
          ( NULL == rcnts )   ||
          ( NULL == displ )   ||
          ( NULL == vmap )    ){
@@ -97,13 +89,7 @@ void adcl_vmap_list_allocate  ( int *vectype, int *size, int *rcnts,
          return;
     }
 
-    /* verification of the input parameters */
-    if (ADCL_VECTOR_LIST != *vectype) {
-        *ierror = ADCL_INVALID_VECTYPE;
-        return;
-    }
-
-    *ierror = ADCL_vmap_list_allocate ( *vectype, *size, rcnts, displ, &tvmap );
+    *ierror = ADCL_vmap_list_allocate ( *size, rcnts, displ, &tvmap );
     if ( ADCL_SUCCESS == *ierror) {
         *vmap = tvmap->m_findex;
     }
@@ -116,25 +102,18 @@ void adcl_vmap_list_allocate  ( int *vectype, int *size, int *rcnts,
 /**********************************************************************/
 /**********************************************************************/
 #ifdef _SX
-void adcl_vmap_allreduce_allocate_ ( int *vectype, int *op, int *vmap, int *ierror )
+void adcl_vmap_allreduce_allocate_ ( int *op, int *vmap, int *ierror )
 #else
-void adcl_vmap_allreduce_allocate  ( int *vectype, int *op, int *vmap, int *ierror )
+void adcl_vmap_allreduce_allocate  ( int *op, int *vmap, int *ierror )
 #endif
 
 {
     MPI_Op cop;
     ADCL_vmap_t *tvmap=NULL;
 
-    if ( ( NULL == vectype ) ||
-         ( NULL == op )      ){
-         *ierror = ADCL_INVALID_ARG;
-         return;
-    }
-
-    /* verification of the input parameters */
-    if (ADCL_VECTOR_ALLREDUCE != *vectype) {
-        *ierror = ADCL_INVALID_VECTYPE;
-        return;
+    if ( NULL == op ) {
+       *ierror = ADCL_INVALID_ARG;
+       return;
     }
 
     cop = MPI_Op_f2c(*op);
@@ -143,7 +122,7 @@ void adcl_vmap_allreduce_allocate  ( int *vectype, int *op, int *vmap, int *ierr
        return;
     }
 
-    *ierror = ADCL_vmap_allreduce_allocate ( *vectype, cop, &tvmap );
+    *ierror = ADCL_vmap_allreduce_allocate ( cop, &tvmap );
     if ( ADCL_SUCCESS == *ierror) {
         *vmap = tvmap->m_findex;
     }
@@ -155,25 +134,14 @@ void adcl_vmap_allreduce_allocate  ( int *vectype, int *op, int *vmap, int *ierr
 /**********************************************************************/
 /**********************************************************************/
 #ifdef _SX
-void adcl_vmap_all_allocate_ ( int *vectype, int *vmap, int* ierror )
+void adcl_vmap_all_allocate_ ( int *vmap, int* ierror )
 #else
-void adcl_vmap_all_allocate ( int *vectype, int *vmap, int* ierror )
+void adcl_vmap_all_allocate ( int *vmap, int* ierror )
 #endif
 {
     ADCL_vmap_t *tvmap=NULL;
 
-    if ( ( NULL == vectype ) ){
-         *ierror = ADCL_INVALID_ARG;
-         return;
-    }
-
-    /* verification of the input parameters */
-    if (ADCL_VECTOR_ALL != *vectype) {
-        *ierror = ADCL_INVALID_VECTYPE;
-        return;
-    }
-
-    *ierror = ADCL_vmap_all_allocate ( *vectype, &tvmap );
+    *ierror = ADCL_vmap_all_allocate ( &tvmap );
     if ( ADCL_SUCCESS == *ierror) {
         *vmap = tvmap->m_findex;
     }
@@ -185,25 +153,14 @@ void adcl_vmap_all_allocate ( int *vectype, int *vmap, int* ierror )
 /**********************************************************************/
 /**********************************************************************/
 #ifdef _SX
-void adcl_vmap_inplace_allocate_ ( int *vectype, int *vmap, int* ierror )
+void adcl_vmap_inplace_allocate_ ( int *vmap, int* ierror )
 #else
-void adcl_vmap_inplace_allocate ( int *vectype, int *vmap, int* ierror )
+void adcl_vmap_inplace_allocate  ( int *vmap, int* ierror )
 #endif
 {
     ADCL_vmap_t *tvmap=NULL;
 
-    if ( ( NULL == vectype ) ){
-         *ierror = ADCL_INVALID_ARG;
-         return;
-    }
-
-    /* verification of the input parameters */
-    if (ADCL_VECTOR_INPLACE != *vectype) {
-        *ierror = ADCL_INVALID_VECTYPE;
-        return;
-    }
-
-    *ierror = ADCL_vmap_inplace_allocate ( *vectype, &tvmap );
+    *ierror = ADCL_vmap_inplace_allocate ( &tvmap );
     if ( ADCL_SUCCESS == *ierror) {
         *vmap = tvmap->m_findex;
     }

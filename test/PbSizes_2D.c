@@ -88,7 +88,7 @@ int main ( int argc, char ** argv )
         if(rank == 0) {
             printf("Explored Problem Size %dX%d\n", ProblemSizes[i][0],ProblemSizes[i][1] );
         }
-        err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+        err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
         if ( ADCL_SUCCESS != err) goto exit;
         err = ADCL_Vector_allocate_generic ( 2,  dims, 0, vmap, MPI_DOUBLE, &data, &vec );
         if ( ADCL_SUCCESS != err) goto exit;

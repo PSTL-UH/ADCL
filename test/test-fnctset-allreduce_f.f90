@@ -74,9 +74,9 @@ subroutine allreduce_test1(cnt, dim, rank, size, topo)
     
     allocate(sdata(dim), rdata(dim))
 
-    call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, svmap, ierror ) 
+    call adcl_vmap_allreduce_allocate( MPI_SUM, svmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_allreduce_allocate not successful"   
-    call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, rvmap, ierror ) 
+    call adcl_vmap_allreduce_allocate( MPI_SUM, rvmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_allreduce_allocate not successful"   
 
     call adcl_vector_register_generic ( 1,  dim, 0, svmap, MPI_DOUBLE_PRECISION, sdata, svec, ierror )
@@ -148,9 +148,9 @@ subroutine allreduce_test2( cnt, dim, rank, size, topo )
     allocate(sdata(dim), rdata(dim))
 
 
-    call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_MIN, svmap, ierror ) 
+    call adcl_vmap_allreduce_allocate( MPI_MIN, svmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_allreduce_allocate not successful"   
-    call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_MIN, rvmap, ierror ) 
+    call adcl_vmap_allreduce_allocate( MPI_MIN, rvmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_allreduce_allocate not successful"   
 
     call adcl_vector_register_generic ( 1,  dim, 0, svmap, MPI_INTEGER, sdata, svec, ierror )
@@ -216,9 +216,9 @@ subroutine allreduce_test3(cnt, dim, rank, size, topo)
     
     allocate(data(dim))
 
-    call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, svmap, ierror ) 
+    call adcl_vmap_inplace_allocate( svmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_inplace_allocate not successful"   
-    call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, rvmap, ierror ) 
+    call adcl_vmap_allreduce_allocate( MPI_SUM, rvmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_allreduce_allocate not successful"   
 
     call adcl_vector_register_generic ( 0, 0, 0, svmap, MPI_DATATYPE_NULL, MPI_IN_PLACE, svec, ierror )

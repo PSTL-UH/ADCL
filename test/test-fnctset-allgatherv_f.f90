@@ -75,9 +75,9 @@ subroutine allgatherv_test1(cnt, dims, rank, size, topo)
        displ(i) = dims * (i-1) 
     end do 
 
-    call adcl_vmap_all_allocate( ADCL_VECTOR_ALL, svmap, ierror ) 
+    call adcl_vmap_all_allocate( svmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_all_allocate not successful"   
-    call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, size, rcnts, displ, rvmap, ierror ) 
+    call adcl_vmap_list_allocate( size, rcnts, displ, rvmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_list_allocate not successful"   
 
     call adcl_vector_register_generic ( 1,  sdim, 0, svmap, MPI_DOUBLE_PRECISION, sdata, svec, ierror )
@@ -155,9 +155,9 @@ subroutine allgatherv_test2(cnt, dims, rank, size, topo)
        offset   = offset + rcnts(i)
     end do 
 
-    call adcl_vmap_all_allocate( ADCL_VECTOR_ALL, svmap, ierror ) 
+    call adcl_vmap_all_allocate( svmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_all_allocate not successful"   
-    call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, size, rcnts, displ, rvmap, ierror ) 
+    call adcl_vmap_list_allocate( size, rcnts, displ, rvmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_list_allocate not successful"   
 
     call adcl_vector_register_generic ( 1,  sdim, 0, svmap, MPI_DOUBLE_PRECISION, sdata, svec, ierror )
@@ -231,9 +231,9 @@ subroutine allgatherv_test3(cnt, dims, rank, size, topo)
        offset   = offset + rcnts(i)
     end do 
 
-    call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, svmap, ierror ) 
+    call adcl_vmap_inplace_allocate( svmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_inplace_allocate not successful"   
-    call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, size, rcnts, displ, rvmap, ierror ) 
+    call adcl_vmap_list_allocate( size, rcnts, displ, rvmap, ierror ) 
     if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_list_allocate not successful"   
 
     call adcl_vector_register_generic ( 0, 0, 0, svmap, MPI_DATATYPE_NULL, MPI_IN_PLACE, svec, ierror )

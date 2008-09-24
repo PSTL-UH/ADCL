@@ -82,9 +82,9 @@ void allreduce_test1(int cnt, int dim, int rank, int size, ADCL_Topology topo)
     ADCL_Vmap svmap, rvmap;
     ADCL_Request request;
     
-    err = ADCL_Vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, &svmap ); 
+    err = ADCL_Vmap_allreduce_allocate( MPI_SUM, &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
-    err = ADCL_Vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, &rvmap ); 
+    err = ADCL_Vmap_allreduce_allocate( MPI_SUM, &rvmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
 
     err = ADCL_Vector_allocate_generic ( 1,  &dim, 0, svmap, MPI_DOUBLE, &sdata, &svec );
@@ -137,9 +137,9 @@ void allreduce_test2(int cnt, int dim, int rank, int size, ADCL_Topology topo)
     ADCL_Vmap svmap, rvmap;
     ADCL_Request request;
     
-    err = ADCL_Vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_MIN, &svmap ); 
+    err = ADCL_Vmap_allreduce_allocate( MPI_MIN, &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
-    err = ADCL_Vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_MIN, &rvmap ); 
+    err = ADCL_Vmap_allreduce_allocate( MPI_MIN, &rvmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
 
     sdata = (int *) calloc(dim, sizeof(int));
@@ -196,9 +196,9 @@ void allreduce_test3(int cnt, int dim, int rank, int size, ADCL_Topology topo)
     ADCL_Vmap svmap, rvmap;
     ADCL_Request request;
     
-    err = ADCL_Vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &svmap ); 
+    err = ADCL_Vmap_inplace_allocate( &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;
-    err = ADCL_Vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_SUM, &rvmap ); 
+    err = ADCL_Vmap_allreduce_allocate( MPI_SUM, &rvmap ); 
     if ( ADCL_SUCCESS != err) goto exit;
 
     err = ADCL_Vector_allocate_generic ( 0, NULL, 0, svmap, MPI_DATATYPE_NULL, NULL, &svec );
@@ -251,9 +251,9 @@ void allreduce_test4(int cnt, int dim, int rank, int size, ADCL_Topology topo)
 
     data = (int*) calloc(dim, sizeof(int));
 
-    err = ADCL_Vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &svmap ); 
+    err = ADCL_Vmap_inplace_allocate( &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;
-    err = ADCL_Vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, MPI_MIN, &rvmap ); 
+    err = ADCL_Vmap_allreduce_allocate( MPI_MIN, &rvmap ); 
     if ( ADCL_SUCCESS != err) goto exit;
 
     err = ADCL_Vector_register_generic ( 0,  NULL, 0, svmap, MPI_DATATYPE_NULL, MPI_IN_PLACE, &svec );

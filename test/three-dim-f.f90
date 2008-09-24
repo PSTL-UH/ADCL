@@ -48,7 +48,7 @@
         dims(3) = 6
         nc     = 0
         hwidth = 1
-        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        call adcl_vmap_halo_allocate( hwidth, vmap, ierror ) 
         if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
         call adcl_vector_register_generic ( 3,  dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data, vec, ierror)
@@ -69,7 +69,7 @@
         dims(3) = 8
         hwidth = 2
         nc   = 0
-        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        call adcl_vmap_halo_allocate( hwidth, vmap, ierror ) 
         if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
         call adcl_vector_register_generic ( 3, dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data1, vec, ierror)
@@ -90,7 +90,7 @@
         dims(3) = 6
         hwidth = 1
         nc     = 1
-        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        call adcl_vmap_halo_allocate( hwidth, vmap, ierror ) 
         if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
         call adcl_vector_register_generic ( 3,  dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data2, vec, ierror)
@@ -110,7 +110,7 @@
         dims(3) = 8
         hwidth = 2
         nc     = 1
-        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        call adcl_vmap_halo_allocate( hwidth, vmap, ierror ) 
         if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
         call adcl_vector_register_generic ( 3,  dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data3, vec, ierror)
@@ -131,7 +131,7 @@
         dims(3) = 8
         hwidth = 2
         nc     = 2
-        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        call adcl_vmap_halo_allocate( hwidth, vmap, ierror ) 
         if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
         call adcl_vector_register_generic ( 3,  dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data4, vec, ierror)

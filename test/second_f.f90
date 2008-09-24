@@ -45,7 +45,7 @@
         end if
 
         call ADCL_Init ( ierror )
-        call ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, vmap, ierror )
+        call ADCL_Vmap_halo_allocate ( 1, vmap, ierror )
         call ADCL_Vector_register_generic ( 2, dims, 1, vmap, MPI_DOUBLE_PRECISION,&
                                     data, vec, ierror)
 

@@ -70,7 +70,7 @@ int update_solution( double c_fact, double delta_t, double delta_x,
     dims[0] = grid[0];
     dims[1] = grid[1];
     dims[2] = grid[2];
-    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    ADCL_Vmap_halo_allocate ( hwidth, &vmap );
     ADCL_Vector_register_generic (3, dims, 0, vmap, MPI_DOUBLE, 
 			  (double***)(solution->old), &ovec);
     ADCL_Vector_register_generic (3, dims, 0, vmap, MPI_DOUBLE, 

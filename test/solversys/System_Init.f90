@@ -145,8 +145,7 @@
       dims(1) = n1+2
       dims(2) = n2+2
       dims(3) = n3+2
-      call ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, adcl_vmap, &
-           ierror )
+      call ADCL_Vmap_halo_allocate ( 1, adcl_vmap, ierror )
       call ADCL_Vector_register_generic ( 3, dims, nc, adcl_vmap, & 
            MPI_DOUBLE_PRECISION, dq, adcl_vec_dq, ierror )
       call ADCL_Vector_register_generic ( 3, dims, nc, adcl_vmap, &

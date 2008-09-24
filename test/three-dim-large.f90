@@ -47,7 +47,7 @@
         dims(3) = 66
         hwidth = 1
         nc     = 1
-        call adcl_vmap_halo_allocate( ADCL_VECTOR_HALO, hwidth, vmap, ierror ) 
+        call adcl_vmap_halo_allocate( hwidth, vmap, ierror ) 
         if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"   
         call adcl_vector_register_generic ( 3,  dims, nc, vmap, MPI_DOUBLE_PRECISION, & 
                                     data2, vec, ierror)

@@ -16,8 +16,7 @@ static int ADCL_local_vmap_counter=0;
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_vmap_halo_allocate ( int vectype, int hwidth,
-                 ADCL_vmap_t **vmap )
+int ADCL_vmap_halo_allocate ( int hwidth, ADCL_vmap_t **vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
           
@@ -37,7 +36,7 @@ int ADCL_vmap_halo_allocate ( int vectype, int hwidth,
                  tvmap->m_id,
                  tvmap );
     
-    tvmap->m_vectype = vectype;
+    tvmap->m_vectype = ADCL_VECTOR_HALO;
     tvmap->m_hwidth  = hwidth;
     
     *vmap = tvmap;
@@ -47,7 +46,8 @@ int ADCL_vmap_halo_allocate ( int vectype, int hwidth,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_vmap_list_allocate ( int vectype, int size, int *rcnts, int *displ, ADCL_vmap_t **vmap )
+int ADCL_vmap_list_allocate ( int size, int *rcnts, int *displ, 
+   ADCL_vmap_t **vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
     int i;
@@ -69,7 +69,7 @@ int ADCL_vmap_list_allocate ( int vectype, int size, int *rcnts, int *displ, ADC
                  tvmap->m_id,
                  tvmap );
     
-    tvmap->m_vectype = vectype;
+    tvmap->m_vectype = ADCL_VECTOR_LIST;
 
     trcnts = (int *) calloc ( size, sizeof (int) );
     if ( NULL == trcnts ) {
@@ -94,7 +94,7 @@ int ADCL_vmap_list_allocate ( int vectype, int size, int *rcnts, int *displ, ADC
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_vmap_allreduce_allocate ( int vectype, MPI_Op op, ADCL_vmap_t **vmap )
+int ADCL_vmap_allreduce_allocate ( MPI_Op op, ADCL_vmap_t **vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
           
@@ -114,7 +114,7 @@ int ADCL_vmap_allreduce_allocate ( int vectype, MPI_Op op, ADCL_vmap_t **vmap )
                  tvmap->m_id,
                  tvmap );
     
-    tvmap->m_vectype = vectype;
+    tvmap->m_vectype = ADCL_VECTOR_ALLREDUCE;
     tvmap->m_op      = op;
     
     *vmap = tvmap;
@@ -124,7 +124,7 @@ int ADCL_vmap_allreduce_allocate ( int vectype, MPI_Op op, ADCL_vmap_t **vmap )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_vmap_all_allocate ( int vectype, ADCL_vmap_t **vmap )
+int ADCL_vmap_all_allocate ( ADCL_vmap_t **vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
           
@@ -144,7 +144,7 @@ int ADCL_vmap_all_allocate ( int vectype, ADCL_vmap_t **vmap )
                  tvmap->m_id,
                  tvmap );
     
-    tvmap->m_vectype = vectype;
+    tvmap->m_vectype = ADCL_VECTOR_ALL;
     
     *vmap = tvmap;
     return ADCL_SUCCESS;
@@ -153,7 +153,7 @@ int ADCL_vmap_all_allocate ( int vectype, ADCL_vmap_t **vmap )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_vmap_inplace_allocate ( int vectype, ADCL_vmap_t **vmap )
+int ADCL_vmap_inplace_allocate ( ADCL_vmap_t **vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
           
@@ -173,7 +173,7 @@ int ADCL_vmap_inplace_allocate ( int vectype, ADCL_vmap_t **vmap )
                  tvmap->m_id,
                  tvmap );
     
-    tvmap->m_vectype = vectype;
+    tvmap->m_vectype = ADCL_VECTOR_INPLACE;
     
     *vmap = tvmap;
     return ADCL_SUCCESS;

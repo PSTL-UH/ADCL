@@ -41,7 +41,7 @@ int main ( int argc, char ** argv )
     MPI_Comm_size ( MPI_COMM_WORLD, &size );
 
     ADCL_Init ();
-    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, HWIDTH, &vmap );
+    ADCL_Vmap_halo_allocate ( HWIDTH, &vmap );
     ADCL_Vector_allocate_generic ( 3, dims, 0, vmap, MPI_DOUBLE, &data, &vec );
 
     MPI_Dims_create ( size, 3, cdims );

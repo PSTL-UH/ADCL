@@ -134,34 +134,34 @@ void adcl_fnctset_free__ ( int *fctset, int *ierr );
 void ADCL_FNCTSET_FREE   ( int *fctset, int *ierr );
 
 /* ADCL vmap functions */
-void adcl_vmap_inplace_allocate   ( int* vectype, int *vmap, int* ierror );
-void adcl_vmap_inplace_allocate_  ( int* vectype, int *vmap, int* ierror );
-void adcl_vmap_inplace_allocate__ ( int* vectype, int *vmap, int* ierror );
-void ADCL_VMAP_INPLACE_ALLOCATE   ( int* vectype, int *vmap, int* ierror );
+void adcl_vmap_inplace_allocate   ( int *vmap, int* ierror );
+void adcl_vmap_inplace_allocate_  ( int *vmap, int* ierror );
+void adcl_vmap_inplace_allocate__ ( int *vmap, int* ierror );
+void ADCL_VMAP_INPLACE_ALLOCATE   ( int *vmap, int* ierror );
 
-void adcl_vmap_halo_allocate   ( int* vectype, int* hwidth, int *vmap, int* ierror );
-void adcl_vmap_halo_allocate_  ( int* vectype, int* hwidth, int *vmap, int* ierror );
-void adcl_vmap_halo_allocate__ ( int* vectype, int* hwidth, int *vmap, int* ierror );
-void ADCL_VMAP_HALO_ALLOCATE   ( int* vectype, int* hwidth, int *vmap, int* ierror );
+void adcl_vmap_halo_allocate   ( int* hwidth, int *vmap, int* ierror );
+void adcl_vmap_halo_allocate_  ( int* hwidth, int *vmap, int* ierror );
+void adcl_vmap_halo_allocate__ ( int* hwidth, int *vmap, int* ierror );
+void ADCL_VMAP_HALO_ALLOCATE   ( int* hwidth, int *vmap, int* ierror );
 
-void adcl_vmap_list_allocate   ( int *vectype, int *size, int *rcnts, 
+void adcl_vmap_list_allocate   ( int *size, int *rcnts, 
     int *displ, int *vmap, int *ierror );
-void adcl_vmap_list_allocate_  ( int *vectype, int *size, int *rcnts, 
+void adcl_vmap_list_allocate_  ( int *size, int *rcnts, 
         int *displ, int *vmap, int *ierror );
-void adcl_vmap_list_allocate__ ( int *vectype, int *size, int *rcnts, 
+void adcl_vmap_list_allocate__ ( int *size, int *rcnts, 
     int *displ, int *vmap, int *ierror );
-void ADCL_VMAP_LIST_ALLOCATE  ( int *vectype, int *size, int *rcnts, 
+void ADCL_VMAP_LIST_ALLOCATE   ( int *size, int *rcnts, 
     int *displ, int *vmap, int *ierror );
 
-void adcl_vmap_allreduce_allocate   ( int *vectype, int *op, int *vmap, int *ierror );
-void adcl_vmap_allreduce_allocate_  ( int *vectype, int *op, int *vmap, int *ierror );
-void adcl_vmap_allreduce_allocate__ ( int *vectype, int *op, int *vmap, int *ierror );
-void ADCL_VMAP_ALLREDUCE_ALLOCATE   ( int *vectype, int *op, int *vmap, int *ierror );
+void adcl_vmap_allreduce_allocate   ( int *op, int *vmap, int *ierror );
+void adcl_vmap_allreduce_allocate_  ( int *op, int *vmap, int *ierror );
+void adcl_vmap_allreduce_allocate__ ( int *op, int *vmap, int *ierror );
+void ADCL_VMAP_ALLREDUCE_ALLOCATE   ( int *op, int *vmap, int *ierror );
 
-void adcl_vmap_all_allocate   ( int *vectype, int *vmap, int* ierror );
-void adcl_vmap_all_allocate_  ( int *vectype, int *vmap, int* ierror );
-void adcl_vmap_all_allocate__ ( int *vectype, int *vmap, int* ierror );
-void ADCL_VMAP_ALL_ALLOCATE   ( int *vectype, int *vmap, int* ierror );
+void adcl_vmap_all_allocate   ( int *vmap, int* ierror );
+void adcl_vmap_all_allocate_  ( int *vmap, int* ierror );
+void adcl_vmap_all_allocate__ ( int *vmap, int* ierror );
+void ADCL_VMAP_ALL_ALLOCATE   ( int *vmap, int* ierror );
 
 void adcl_vmap_free   ( int *vmap, int *ierror );
 void adcl_vmap_free_  ( int *vmap, int *ierror );

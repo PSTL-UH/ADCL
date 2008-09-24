@@ -49,7 +49,7 @@ int main ( int argc, char ** argv )
     /* Test 1: hwidth=1, nc=0 */
     hwidth=1;
     dims = DIM0+2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
     if ( ADCL_SUCCESS != err) goto exit;
     err = ADCL_Vector_allocate_generic ( 1,  &dims, 0, vmap, MPI_DOUBLE, &data, &vec );
     if ( ADCL_SUCCESS != err) goto exit;
@@ -73,7 +73,7 @@ int main ( int argc, char ** argv )
     /* Test 2: hwidth=2, nc=0 */
     hwidth=2;
     dims = DIM0+2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
     if ( ADCL_SUCCESS != err) goto exit;
     err = ADCL_Vector_allocate_generic ( 1,  &dims, 0, vmap, MPI_DOUBLE, &data, &vec );
     if ( ADCL_SUCCESS != err) goto exit;
@@ -96,7 +96,7 @@ int main ( int argc, char ** argv )
     /* Test 3: hwidth=1, nc=1 */
     hwidth=1;
     dims = DIM0+2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
     if ( ADCL_SUCCESS != err) goto exit;
     err = ADCL_Vector_allocate_generic ( 1,  &dims, 1, vmap, MPI_DOUBLE, &data2, &vec );
     if ( ADCL_SUCCESS != err) goto exit;
@@ -118,7 +118,7 @@ int main ( int argc, char ** argv )
     /* Test 4: hwidth=2, nc=1 */
     hwidth=2;
     dims = DIM0+2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
     if ( ADCL_SUCCESS != err) goto exit;
     err = ADCL_Vector_allocate_generic ( 1,  &dims, 1, vmap, MPI_DOUBLE, &data2, &vec );
     if ( ADCL_SUCCESS != err) goto exit;
@@ -141,7 +141,7 @@ int main ( int argc, char ** argv )
     /* Test 5: hwidth=2, nc=2 */
     hwidth=2;
     dims = DIM0+2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, hwidth, &vmap );
+    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
     if ( ADCL_SUCCESS != err) goto exit;
     err = ADCL_Vector_allocate_generic ( 1,  &dims, 2, vmap, MPI_DOUBLE, &data2, &vec );
     if ( ADCL_SUCCESS != err) goto exit;

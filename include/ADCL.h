@@ -123,11 +123,11 @@ int ADCL_Init (void );
 int ADCL_Finalize (void );
 
 /* ADCL Vmap functions */
-int ADCL_Vmap_halo_allocate ( int vectype, int hwidth, ADCL_Vmap *vec );
-int ADCL_Vmap_list_allocate ( int vectype, int size, int* rcnts, int* displ, ADCL_Vmap *vec );
-int ADCL_Vmap_allreduce_allocate ( int vectype, MPI_Op op, ADCL_Vmap *vec );
-int ADCL_Vmap_all_allocate ( int vectype, ADCL_Vmap *vec );
-int ADCL_Vmap_inplace_allocate ( int vectype, ADCL_Vmap *vec );
+int ADCL_Vmap_halo_allocate ( int hwidth, ADCL_Vmap *vec );
+int ADCL_Vmap_list_allocate ( int size, int* rcnts, int* displ, ADCL_Vmap *vec );
+int ADCL_Vmap_allreduce_allocate ( MPI_Op op, ADCL_Vmap *vec );
+int ADCL_Vmap_all_allocate ( ADCL_Vmap *vec );
+int ADCL_Vmap_inplace_allocate ( ADCL_Vmap *vec );
 int ADCL_Vmap_free  ( ADCL_Vmap *vec );
 
 /* ADCL Vector functions and ADCL Vectorset functions */

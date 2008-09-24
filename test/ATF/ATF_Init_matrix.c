@@ -157,7 +157,7 @@ int ATF_Init_matrix(int px, int py, int pz)
     dim3[2] = ATF_dim[2]+2;
 
     /*Vector register here!*/
-    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, &adcl_vmap);
+    ADCL_Vmap_halo_allocate ( 1, &adcl_vmap);
     ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(ATF_dq[0][0][0][0]), &adcl_Vec_dq );
     ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(ATF_loes[0][0][0][0]), &adcl_Vec_loes );
     ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(ATF_rhs[0][0][0][0]), &adcl_Vec_rhs );

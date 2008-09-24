@@ -80,7 +80,7 @@ int ATF_Solver_tfqmr( int nreal)
     ATF_allocate_4D_double_matrix(&tmp_vect,dim);
 
     /*For adcl library*/
-    ADCL_Vmap_halo_allocate ( ADCL_VECTOR_HALO, 1, &adcl_vmap );
+    ADCL_Vmap_halo_allocate ( 1, &adcl_vmap );
     ADCL_Vector_register_generic( 3, dim3, nc, adcl_vmap, MPI_DOUBLE, &(tfqmr_y[0][0][0][0]), &adcl_Vec_tfqmr_y );
     ADCL_Request_create( adcl_Vec_tfqmr_y, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_tfqmr_y );
 
