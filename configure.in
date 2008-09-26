@@ -578,7 +578,6 @@ if test "$ADCL_USE_BARRIER" = yes ; then
   AC_DEFINE(ADCL_USE_BARRIER)
 fi
 
-
 AC_ARG_ENABLE(printf_tofile,
 [  --disable-printf-tofile  dump printf statements to a file (default=yes)],
 [test "$enableval" = no && ADCL_FILE_PER_PROC=no])
@@ -613,9 +612,9 @@ if test "$ADCL_USE_MPIWTIME" = yes ; then
 fi
 
 AC_ARG_ENABLE(knowledge-tofile,
-[  --disable-knowledge-tofile  dump the ADCL knowledge to an XML file (default=yes)],
-[test "$enableval" = no && ADCL_KNOWLEDGE_TOFILE=no])
-test "$ADCL_KNOWLEDGE_TOFILE" = no || ADCL_KNOWLEDGE_TOFILE=yes
+[  --enable-knowledge-tofile  dump the ADCL knowledge to an XML file (default=no)],
+[test "$enableval" = yes && ADCL_KNOWLEDGE_TOFILE=yes])
+test "$ADCL_KNOWLEDGE_TOFILE" = yes || ADCL_KNOWLEDGE_TOFILE=no
 
 AC_MSG_CHECKING([whether to dump the ADCL knowledge to an XML file])
 AC_MSG_RESULT(${ADCL_KNOWLEDGE_TOFILE})
