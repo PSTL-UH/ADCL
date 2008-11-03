@@ -26,6 +26,8 @@ struct ADCL_emethod_s {
                                       optimization? */
     int          em_explored_data; /* number of explored data objects for identical
                                       and similar problems */
+    int              em_filtering; /* state if the decision was based on filtered or 
+                                      unflitered data */
     ADCL_topology_t      *em_topo; /* pointer to topology object */
     ADCL_vector_t         *em_vec; /* pointer to vector object. Only the size of the
                                       data array is really required, not the buffer

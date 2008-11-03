@@ -50,22 +50,25 @@
 #include "ADCL_sysconfig.h"
 
 
-#define TRUE   1
-#define FALSE  0
+#define TRUE                           1
+#define FALSE                          0
 
-#define ADCL_STATE_REGULAR  -100
-#define ADCL_STATE_TESTING  -101
-#define ADCL_STATE_DECISION -102
+#define ADCL_STATE_REGULAR             -100
+#define ADCL_STATE_TESTING             -101
+#define ADCL_STATE_DECISION            -102
 
-#define ADCL_EVAL_DONE  -110
-#define ADCL_SOL_FOUND  -111
+#define ADCL_EVAL_DONE                 -110
+#define ADCL_SOL_FOUND                 -111
 
-#define ADCL_STATISTIC_VOTE 0
-#define ADCL_STATISTIC_MAX  1
+#define ADCL_STATISTIC_VOTE            0
+#define ADCL_STATISTIC_MAX             1
 
-#define ADCL_UNEQUAL 0
-#define ADCL_IDENT   1
-#define ADCL_SIMILAR 2
+#define ADCL_UNEQUAL                   0
+#define ADCL_IDENT                     1
+#define ADCL_SIMILAR                   2
+
+#define ADCL_UNFILTERED                0
+#define ADCL_FILTERED                  1
 
 /* Some prototypes of functions which do not deserve their own header file */
 int ADCL_printf_init     ( void );

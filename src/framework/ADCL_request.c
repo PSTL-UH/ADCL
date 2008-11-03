@@ -525,12 +525,12 @@ int ADCL_request_update ( ADCL_request_t *req,
     if ( (t1 == -1 ) && ( t2 == -1 ) ) {
         return ADCL_SUCCESS;
     }
-
+/*
     printf("method %d (%s) %8.4f \n",
         req->r_function->f_id,
         req->r_function->f_name, 
         t2>t1 ? (t2-t1):(1000000-t1+t2));
-
+*/
     ADCL_printf("%d: request %d method %d (%s) %8.4f \n",
         req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
         req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));

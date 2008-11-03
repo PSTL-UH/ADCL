@@ -41,6 +41,9 @@ struct ADCL_data_s{
     /* Function set and winner function */
     char               *d_fsname; /* Function set name */
     char               *d_wfname; /* Winner function name */
+    int                  d_fsnum; /* Number of available functions in the function set */
+    /* Performance Data */
+    double               *d_perf; /* Array of performance data of size = number of functions */
 };
 typedef struct ADCL_data_s ADCL_data_t;
 

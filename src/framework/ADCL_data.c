@@ -93,8 +93,14 @@ int ADCL_data_create ( ADCL_emethod_t *e )
     }
     /* Function set and winner function */
     data->d_fsname = strdup ( e->em_orgfnctset->fs_name );
+    data->d_fsnum = e->em_orgfnctset->fs_maxnum;
     data->d_wfname = strdup ( e->em_wfunction->f_name );
-
+    /* Performance data for H.L. */
+    /* Execution times */
+    data->d_perf = (double *)malloc(data->d_fsnum*sizeof(double));
+    for(i=0; i<data->d_fsnum ; i++) {
+        data->d_perf[i] = e->em_stats[i]->s_gpts[ e->em_filtering];
+    }
     return ADCL_SUCCESS;
 }
 
@@ -130,6 +136,9 @@ void ADCL_data_free ( void )
             }
             if ( NULL != data->d_wfname ) {
                 free ( data->d_wfname );
+            }
+            if ( NULL != data->d_perf ) {
+                free ( data->d_perf );
             }
             ADCL_array_remove_element ( ADCL_data_array, data->d_findex );
             free ( data );
@@ -223,7 +232,7 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
 
 void ADCL_data_dump_to_file ( void )
 {
-  int i, j, rank, last, tndims, vndims ;
+    int i, j, rank, last, tndims, vndims ;
     ADCL_data_t *data;
     FILE *fp;
 
@@ -294,7 +303,13 @@ void ADCL_data_dump_to_file ( void )
             fprintf ( fp, "    <FUNC>\n" );
             fprintf ( fp, "      <FNCTSET>%s</FNCTSET>\n", data->d_fsname );
             fprintf ( fp, "      <WINNER>%s</WINNER>\n", data->d_wfname );
+            fprintf ( fp, "      <FNCTNUM>%d</FNCTNUM>\n", data->d_fsnum );
             fprintf ( fp, "    </FUNC>\n" );
+            fprintf ( fp, "    <PERFS>\n" );
+            for ( j=0; j<data->d_fsnum; j++) {   
+                fprintf ( fp, "        <PERF>%.2f</PERF>\n", data->d_perf[j] );
+	    }
+            fprintf ( fp, "    </PERFS>\n" );
             fprintf ( fp, "  </RECORD>\n" );
         }
         fprintf ( fp, "</ADCL>" );
@@ -309,6 +324,7 @@ void ADCL_data_read_from_file ( void )
     int i, j, ndata;
     int nchar = 80;
     char *line;
+    char *perf;
     ADCL_data_t *data;
     FILE *fp;
 
@@ -386,7 +402,7 @@ void ADCL_data_read_from_file ( void )
 	}
         fgets( line, nchar, fp ); /* Close DISPL Tag */
         fgets( line, nchar, fp ); /* OP Tag */
-        get_int_data_from_xml ( line, &(data->d_op) );
+        get_int_data_from_xml ( line, (int *)&(data->d_op) );
         fgets( line, nchar, fp ); /* INPLACE Tag */
         get_int_data_from_xml ( line, &(data->d_inplace) );
         fgets( line, nchar, fp ); /* Close MAP Tag */
@@ -409,10 +425,21 @@ void ADCL_data_read_from_file ( void )
         get_str_data_from_xml ( line, &data->d_fsname );
         fgets( line, nchar, fp ); /* WINNER  Tag */
         get_str_data_from_xml ( line, &data->d_wfname );
+        fgets( line, nchar, fp ); /* FNCTNUM Tag */
+        get_int_data_from_xml ( line, &data->d_fsnum );
         fgets( line, nchar, fp ); /* Close FUNC Tag */
+        fgets( line, nchar, fp ); /* PERFS Tag */
+        data->d_perf = (double *)malloc(data->d_fsnum*sizeof(double));
+        for ( j=0; j<data->d_fsnum; j++ ) {
+            fgets( line, nchar, fp ); /* PERF Tag */
+            get_str_data_from_xml ( line, &perf );
+            data->d_perf[j] = atof(perf);
+        }
+        fgets( line, nchar, fp ); /* Clsoe PERFS Tag */
         fgets( line, nchar, fp ); /* Close RECORD Tag */
     }
     fclose ( fp );
+    free ( perf );
     free ( line );
     return;
 }

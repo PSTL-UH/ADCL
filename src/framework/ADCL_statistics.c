@@ -150,7 +150,7 @@ int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
 int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count,
                     int *winner )
 {
-    int i;
+    int i, retval;
     struct lininf tline_filtered, tline_unfiltered;
     TLINE_INIT ( tline_unfiltered );
     TLINE_INIT ( tline_filtered );
@@ -167,11 +167,12 @@ int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count,
     if ( statistics[tline_filtered.minloc]->s_gpts[2] < ADCL_OUTLIER_FRACTION){
         *winner = tline_filtered.minloc;
         ADCL_printf("# winner is %d (filtered) \n", *winner);
+        retval = ADCL_FILTERED;
     }
     else {
         *winner = tline_unfiltered.minloc;
         ADCL_printf("# winner is %d (unfiltered) \n",   *winner );
+        retval = ADCL_UNFILTERED;
     }
-
-    return ADCL_SUCCESS;
+    return retval;
 }
