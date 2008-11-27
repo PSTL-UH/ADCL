@@ -11,13 +11,10 @@
 static int ADCL_local_id_counter = 0;
 ADCL_array_t *ADCL_data_array = NULL;
 
-static void ADCL_data_dump_to_file ( void );
-static int get_int_data_from_xml (char *str, int *res);
-static int get_str_data_from_xml (char *str, char **dest);
+static void ADCL_data_add_to_file( ADCL_data_t* data, ADCL_emethod_t *e );
 
 int ADCL_data_create ( ADCL_emethod_t *e ) 
 {
-
     ADCL_data_t *data;
     ADCL_topology_t *topo = e->em_topo;
     ADCL_vector_t   *vec  = e->em_vec;
@@ -101,6 +98,10 @@ int ADCL_data_create ( ADCL_emethod_t *e )
     for(i=0; i<data->d_fsnum ; i++) {
         data->d_perf[i] = e->em_stats[i]->s_gpts[ e->em_filtering];
     }
+#ifdef ADCL_KNOWLEDGE_TOFILE
+    /* Update the data file */
+    ADCL_data_add_to_file( data, e );
+#endif
     return ADCL_SUCCESS;
 }
 
@@ -108,9 +109,7 @@ void ADCL_data_free ( void )
 {
     int i, last;
     ADCL_data_t *data;
-#ifdef ADCL_KNOWLEDGE_TOFILE
-    ADCL_data_dump_to_file ();
-#endif
+
     last = ADCL_array_get_last ( ADCL_data_array );
     /* Free all the data objects */
     for ( i=0; i<= last; i++ ) {
@@ -159,13 +158,23 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
     if ( ADCL_VECTOR_NULL == vec ) {
         return ret;
     }
+
+#ifdef ADCL_KNOWLEDGE_TOFILE
+    if( -2 == e->em_explored_data ) {
+        ADCL_data_read_from_file (e);
+        e->em_explored_data = -1;
+    }
+#else
+        e->em_explored_data = -1;
+#endif
+
     last = ADCL_array_get_last ( ADCL_data_array );
     explored_data = e->em_explored_data;
-    if ( last > explored_data ) {
-        size = topo->t_size;   
+    if (last > explored_data) {
+        e->em_explored_data = last;
+        size = topo->t_size;
         for ( i=(explored_data+1); i<= last; i++ ) {
             data = ( ADCL_data_t * ) ADCL_array_get_ptr_by_pos( ADCL_data_array, i );
-
             if ( ( topo->t_ndims    == data->d_tndims  ) &&
                  ( vec->v_ndims     == data->d_vndims  ) &&
                  ( vec->v_nc        == data->d_nc      ) &&
@@ -230,103 +239,61 @@ int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
     return ret;
 }
 
-void ADCL_data_dump_to_file ( void )
+void ADCL_data_add_to_file( ADCL_data_t* data, ADCL_emethod_t *e )
 {
-    int i, j, rank, last, tndims, vndims ;
-    ADCL_data_t *data;
+    int rank, ndata;
     FILE *fp;
+    int nchar = 80, nch;
+    char *line = NULL;
 
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
 
     if ( 0 == rank ) {
-        fp = fopen ("ADCL.xml", "w");
-        last = ADCL_array_get_last ( ADCL_data_array );
-        fprintf ( fp, "<?xml version=\"1.0\" ?>\n<?xml-stylesheet"
-                  " type=\"text/xsl\" href=\"ADCL.xsl\"?>\n<ADCL>\n" );
-        fprintf ( fp, "  <NUM>%d</NUM>\n", last+1 );
-        for ( i=0; i<=last; i++ ) {
-            fprintf ( fp, "  <RECORD>\n" );
-            data = ( ADCL_data_t * ) ADCL_array_get_ptr_by_pos( ADCL_data_array, i );
-            /* Network Topology information */
-            fprintf ( fp, "    <NTOPO>\n" );
-            /* So far we have only np, later on this part might be extended significantly */
-            fprintf ( fp, "      <NP>%d</NP>\n", data->d_np );
-            fprintf ( fp, "    </NTOPO>\n" );
-            /* Logical Topology information */
-            fprintf ( fp, "    <LTOPO>\n" );
-            tndims = data->d_tndims;
-            fprintf ( fp, "      <NDIM>%d</NDIM>\n", tndims );
-            fprintf ( fp, "      <PERIOD>\n");
-            for ( j=0; j<tndims; j++) {
-                fprintf ( fp, "        <DIM>%d</DIM>\n", data->d_tperiods[j] );
-            }
-            fprintf ( fp, "      </PERIOD>\n");
-            fprintf ( fp, "    </LTOPO>\n" );
-            /* Vector information */
-            fprintf ( fp, "    <VECT>\n" );
-            vndims = data->d_vndims;
-            fprintf ( fp, "      <NDIM>%d</NDIM>\n", vndims );
-            fprintf ( fp, "      <DIMS>\n");            
-            for ( j=0; j<vndims; j++) {
-                fprintf ( fp, "        <DIM>%d</DIM>\n", data->d_vdims[j] );
-            }
-            fprintf ( fp, "      </DIMS>\n");
-            fprintf ( fp, "      <NC>%d</NC>\n", data->d_nc );
-            /* Vector map information */
-            fprintf ( fp, "      <MAP>\n");
-            fprintf ( fp, "        <VECTYPE>%d</VECTYPE>\n", data->d_vectype );
-            fprintf ( fp, "        <HWIDTH>%d</HWIDTH>\n", data->d_hwidth );
-            fprintf ( fp, "        <CNTS>\n" );
-            for ( j=0; j<data->d_np; j++ ) {
-                fprintf ( fp, "          <CNT>%d</CNT>\n", data->d_rcnts[j] );
-            }
-            fprintf ( fp, "        </CNTS>\n" );
-            fprintf ( fp, "        <DISPLS>\n" );
-            for ( j=0; j<data->d_np; j++ ) {
-		     fprintf ( fp, "          <DISPL>%d</DISPL>\n", data->d_displ[j] );
-            }
-            fprintf ( fp, "        </DISPLS>\n" );
-            fprintf ( fp, "        <OP>%d</OP>\n", data->d_op );
-            fprintf ( fp, "        <INPLACE>%d</INPLACE>\n", data->d_inplace );
-            fprintf ( fp, "      </MAP>\n");
-            fprintf ( fp, "    </VECT>\n" );
-            /* Attribute information */
-            fprintf ( fp, "    <ATTR>\n" );
-            fprintf ( fp, "      <NUM>%d</NUM>\n", data->d_asmaxnum );
-            fprintf ( fp, "      <ATTRVALS>\n" );
-            for ( j=0; j<data->d_asmaxnum; j++) {
-                fprintf ( fp, "        <VAL>%d</VAL>\n", data->d_attrvals[j] );
-            }
-            fprintf ( fp, "      </ATTRVALS>\n" );
-            fprintf ( fp, "    </ATTR>\n" );
-            /* Function set and winner function */
-            fprintf ( fp, "    <FUNC>\n" );
-            fprintf ( fp, "      <FNCTSET>%s</FNCTSET>\n", data->d_fsname );
-            fprintf ( fp, "      <WINNER>%s</WINNER>\n", data->d_wfname );
-            fprintf ( fp, "      <FNCTNUM>%d</FNCTNUM>\n", data->d_fsnum );
-            fprintf ( fp, "    </FUNC>\n" );
-            fprintf ( fp, "    <PERFS>\n" );
-            for ( j=0; j<data->d_fsnum; j++) {   
-                fprintf ( fp, "        <PERF>%.2f</PERF>\n", data->d_perf[j] );
+        
+        fp = fopen ("ADCL.xml", "r");
+        if(NULL == fp) {
+            fp = fopen ("ADCL.xml", "w");
+            fprintf ( fp, "<?xml version=\"1.0\" ?>\n<?xml-stylesheet"
+                      " type=\"text/xsl\" href=\"ADCL.xsl\"?>\n<ADCL>\n" );
+            fprintf ( fp, "  <NUM>1</NUM>\n" );
+	}
+	else {
+            fclose(fp);
+            fp = fopen ("ADCL.xml", "r+");
+            line = (char *)malloc( nchar * sizeof(char) );
+            /* Read the XML file line by line */
+            fgets( line, nchar, fp ); /* XML header lines */
+            fgets( line, nchar, fp );
+            fgets( line, nchar, fp ); /* ADCL Tag */
+            fgets( line, nchar, fp );
+            nch = strlen(line);
+            get_int_data_from_xml ( line, &ndata );
+            fseek(fp, -nch, SEEK_CUR);
+            fprintf ( fp, "  <NUM>%d</NUM>\n", ndata+1 );
+            fseek(fp, -7, SEEK_END);
+	}
+        /* Use the user defined writing function of the according function set */
+        if( NULL != e->em_orgfnctset->fs_data_functions ) {
+            if( NULL != e->em_orgfnctset->fs_data_functions->df_writer ) {
+                e->em_orgfnctset->fs_data_functions->df_writer(fp, data);
 	    }
-            fprintf ( fp, "    </PERFS>\n" );
-            fprintf ( fp, "  </RECORD>\n" );
         }
         fprintf ( fp, "</ADCL>" );
         fclose ( fp );
     }
-
     return;
 }
 
-void ADCL_data_read_from_file ( void )
+void ADCL_data_read_from_file ( ADCL_emethod_t *e )
 {
     int i, j, ndata;
     int nchar = 80;
-    char *line;
-    char *perf;
+    char *line = NULL;
+    char *perf = NULL;
     ADCL_data_t *data;
     FILE *fp;
+    long int pos;
+    ADCL_fnctset_t *fnctset = e->em_orgfnctset;
 
     fp = fopen ("ADCL.xml", "r");
     if ( NULL == fp ) {
@@ -339,112 +306,39 @@ void ADCL_data_read_from_file ( void )
     fgets( line, nchar, fp ); /* ADCL Tag */
     fgets( line, nchar, fp );
     get_int_data_from_xml ( line, &ndata );
+    
     for ( i=0; i<ndata; i++ ) {
         data = (ADCL_data_t *) calloc (1, sizeof(ADCL_data_t));
         if ( NULL == data ) {
             return;
         }
+        
         /* Internal info for object management */
         data->d_id = ADCL_local_id_counter++;
         ADCL_array_get_next_free_pos ( ADCL_data_array, &data->d_findex );
         ADCL_array_set_element ( ADCL_data_array, data->d_findex, data->d_id, data );
         data->d_refcnt = 1;
-	fgets( line, nchar, fp ); /* RECORD Tag */
-        /* Network Topology information */
-        fgets( line, nchar, fp ); /* NTOPO Tag */
-        fgets( line, nchar, fp ); /* NP */
-        get_int_data_from_xml ( line, &data->d_np );
-        fgets( line, nchar, fp ); /* Close NTOPO Tag */
-        /* Logical Topology information */
-        fgets( line, nchar, fp ); /* LTOPO Tag */
-        fgets( line, nchar, fp ); /* NDIM Tag */
-        get_int_data_from_xml ( line, &data->d_tndims );
-        fgets( line, nchar, fp ); /* PERIOD Tag */
-        data->d_tperiods = (int *)malloc( data->d_tndims*sizeof(int) );
-        for ( j=0; j<data->d_tndims; j++ ) {
-            fgets( line, nchar, fp ); /* DIM Tag */
-            get_int_data_from_xml ( line, &(data->d_tperiods[j]) );
+        /* Use the user defined reading function of the according function set */
+	if( NULL != fnctset->fs_data_functions ) {
+            if( NULL != fnctset->fs_data_functions->df_reader ) {
+                fnctset->fs_data_functions->df_reader( fp, data );
+            }
         }
-        fgets( line, nchar, fp ); /* Close PERIOD Tag */
-        fgets( line, nchar, fp ); /* Close LTOPO Tag */
-        /* Vector information */
-        fgets( line, nchar, fp ); /* VECT Tag */
-        fgets( line, nchar, fp ); /* NDIM Tag */
-        get_int_data_from_xml ( line, &data->d_vndims );
-        fgets( line, nchar, fp ); /* DIMS Tag */
-        data->d_vdims = (int *)malloc( data->d_vndims*sizeof(int) );
-        for ( j=0; j<data->d_vndims; j++ ) {
-            fgets( line, nchar, fp ); /* DIM Tag */
-	    get_int_data_from_xml ( line, &(data->d_vdims[j]) );
-	}
-        fgets( line, nchar, fp ); /* Close DIMS Tag */
-        fgets( line, nchar, fp ); /* NC Tag */
-        get_int_data_from_xml ( line, &data->d_nc );
-        /* Memory allocation for cnts and displ */
-        data->d_rcnts = (int *)calloc (data->d_np, sizeof(int));
-        data->d_displ = (int *)calloc (data->d_np, sizeof(int));
-        /* Reading the data */
-        fgets( line, nchar, fp ); /* Opening MAP Tag */
-        fgets( line, nchar, fp ); /* VECTYPE Tag */
-        get_int_data_from_xml ( line, &data->d_vectype );
-        fgets( line, nchar, fp ); /* HWIDTH Tag */
-        get_int_data_from_xml ( line, &data->d_hwidth );
-        fgets( line, nchar, fp ); /* Opening CNTS Tag */
-        for ( j=0; j<data->d_np; j++ ) {
-            fgets( line, nchar, fp ); /* CNT Tag */
-	    get_int_data_from_xml ( line, &(data->d_rcnts[j]) );
-	}
-        fgets( line, nchar, fp ); /* CLOSE CNTS Tag */
-        fgets( line, nchar, fp ); /* Opening DISPL Tag */
-        for ( j=0; j<data->d_np; j++ ) {
-	    fgets( line, nchar, fp ); /* DISPL Tag */
-            get_int_data_from_xml ( line, &(data->d_displ[j]) );
-	}
-        fgets( line, nchar, fp ); /* Close DISPL Tag */
-        fgets( line, nchar, fp ); /* OP Tag */
-        get_int_data_from_xml ( line, (int *)&(data->d_op) );
-        fgets( line, nchar, fp ); /* INPLACE Tag */
-        get_int_data_from_xml ( line, &(data->d_inplace) );
-        fgets( line, nchar, fp ); /* Close MAP Tag */
-        fgets( line, nchar, fp ); /* Close VECT Tag */
-        /* Attribute information */
-        fgets( line, nchar, fp ); /* ATTR Tag */
-        fgets( line, nchar, fp ); /* NUM Tag */
-        get_int_data_from_xml ( line, &data->d_asmaxnum );
-        fgets( line, nchar, fp ); /* ATTRVALS Tag */
-        data->d_attrvals = (int *)malloc( data->d_asmaxnum*sizeof(int) );
-        for ( j=0; j<data->d_asmaxnum; j++ ) {
-            fgets( line, nchar, fp ); /* VAL Tag */
-            get_int_data_from_xml ( line, &(data->d_attrvals[j]) );
+        else {
+            break;
         }
-        fgets( line, nchar, fp ); /* Close ATTRVALS Tag */
-        fgets( line, nchar, fp ); /* Close ATTR Tag */
-        /* Function set and winner function */
-        fgets( line, nchar, fp ); /* FUNC Tag */
-        fgets( line, nchar, fp ); /* FNCTSET Tag */
-        get_str_data_from_xml ( line, &data->d_fsname );
-        fgets( line, nchar, fp ); /* WINNER  Tag */
-        get_str_data_from_xml ( line, &data->d_wfname );
-        fgets( line, nchar, fp ); /* FNCTNUM Tag */
-        get_int_data_from_xml ( line, &data->d_fsnum );
-        fgets( line, nchar, fp ); /* Close FUNC Tag */
-        fgets( line, nchar, fp ); /* PERFS Tag */
-        data->d_perf = (double *)malloc(data->d_fsnum*sizeof(double));
-        for ( j=0; j<data->d_fsnum; j++ ) {
-            fgets( line, nchar, fp ); /* PERF Tag */
-            get_str_data_from_xml ( line, &perf );
-            data->d_perf[j] = atof(perf);
-        }
-        fgets( line, nchar, fp ); /* Clsoe PERFS Tag */
-        fgets( line, nchar, fp ); /* Close RECORD Tag */
     }
     fclose ( fp );
-    free ( perf );
-    free ( line );
+    if(NULL != perf) {
+        free ( perf );
+    }
+    if (NULL != line) {
+        free ( line );
+    }
     return;
 }
 
-static int get_int_data_from_xml (char *str, int *res)
+int get_int_data_from_xml (char *str, int *res)
 {
     char *n, *p;
     char *ext;
@@ -463,7 +357,7 @@ static int get_int_data_from_xml (char *str, int *res)
     return ret;
 }
 
-static int get_str_data_from_xml (char *str, char **dest)
+int get_str_data_from_xml (char *str, char **dest)
 {
     char *n, *p;
     int num;

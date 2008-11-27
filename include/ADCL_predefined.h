@@ -109,6 +109,13 @@ extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_NN_TOTAL_NUM];
 extern ADCL_attrset_t *ADCL_neighborhood_attrset;
 
 extern ADCL_function_t *ADCL_neighborhood_functions[ADCL_METHOD_NN_TOTAL_NUM];
+
+struct ADCL_neighborhood_criteria_s {
+    char    *c_fsname; /* Function set name */
+    int      c_tndims; /* Dimensions */
+};
+typedef struct ADCL_neighborhood_criteria_s ADCL_neighborhood_criteria_t;
+
 extern ADCL_function_t *ADCL_allgatherv_functions[ADCL_METHOD_ALLGATHERV_TOTAL_NUM];
 extern ADCL_function_t *ADCL_allreduce_functions[ADCL_METHOD_ALLREDUCE_TOTAL_NUM];
 

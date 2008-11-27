@@ -19,7 +19,6 @@
 #include "ADCL.h"
 #include "ADCL_attribute.h"
 
-
 struct ADCL_function_s {
     int                     f_id; /* id of the object */
     int                 f_findex; /* index of this object in the fortran array */
@@ -44,23 +43,22 @@ int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
 int ADCL_function_free ( ADCL_function_t **fnct );
 int ADCL_function_get_attrval ( ADCL_function_t *func, int attr_pos );
 
-
-
 struct ADCL_fnctset_s{
-    int                    fs_id; /* id of the object */
-    int                fs_findex; /* index of this object in the fortran array */
-    int           fs_single_fnct; /* a flag set to 1 if the function set is created
-                                     by a single function, set to 0 otherwise */
-    int                fs_maxnum; /* no. of functions in this function-group */
-    ADCL_function_t   **fs_fptrs; /* list of function pointers of this group. */
-    ADCL_attrset_t   *fs_attrset; /* attribute set used to characterize the function */
-    char                *fs_name; /* Name of the function set */
+    int                                fs_id; /* id of the object */
+    int                            fs_findex; /* index of this object in the fortran array */
+    int                       fs_single_fnct; /* a flag set to 1 if the function set is created
+                                                 by a single function, set to 0 otherwise */
+    int                            fs_maxnum; /* no. of functions in this function-group */
+    ADCL_function_t               **fs_fptrs; /* list of function pointers of this group. */
+    ADCL_attrset_t               *fs_attrset; /* attribute set used to characterize the function */
+    ADCL_data_functions_t *fs_data_functions; /* struct containing functions to manipulate data objects */
+    char                            *fs_name; /* Name of the function set */
 };
 typedef struct ADCL_fnctset_s ADCL_fnctset_t;
 extern ADCL_array_t *ADCL_fnctset_farray;
 
-int ADCL_fnctset_create ( int maxnum, ADCL_function_t **fncts, char *name,
-                          ADCL_fnctset_t **fnctset );
+int ADCL_fnctset_create ( int maxnum, ADCL_function_t **fncts, char *name, 
+                          ADCL_data_functions_t *data_functions, ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
                                  ADCL_work_fnct_ptr *wait_fnct,
                                  ADCL_attrset_t * attrset, char *name,

@@ -102,5 +102,9 @@ int ADCL_request_restore_status ( ADCL_request_t *req, int tested_num,
                                   double *filtered_avg,
                                   double *outliers );
 
+int ADCL_request_get_fsname ( ADCL_request_t *req, char **fsname );
+
+int ADCL_request_get_tndims ( ADCL_request_t *req, int *tndims );
+
 #endif /* __ADCL_REQUEST_H__ */
 

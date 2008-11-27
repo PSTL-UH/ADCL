@@ -363,3 +363,25 @@ int ADCL_Request_restore_status ( ADCL_Request req, int tested_num,
     return ADCL_request_restore_status ( req, tested_num, unfiltered_avg,
                                          filtered_avg, outliers );
 }
+
+int ADCL_Request_get_fsname( ADCL_Request req, char **fsname )
+{
+    if ( req->r_id < 0 ) {
+        return ADCL_INVALID_REQUEST;
+    }
+    if (NULL == fsname) {
+        return ADCL_INVALID_ARG;
+    }
+    return ADCL_request_get_fsname ( req, fsname );
+}
+
+int ADCL_Request_get_tndims( ADCL_Request req, int *tndims )
+{
+    if ( req->r_id < 0 ) {
+        return ADCL_INVALID_REQUEST;
+    }
+    if (NULL == tndims) {
+        return ADCL_INVALID_ARG;
+    }
+    return ADCL_request_get_tndims ( req, tndims );
+}

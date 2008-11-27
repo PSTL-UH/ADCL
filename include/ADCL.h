@@ -9,7 +9,7 @@
  */
 #ifndef __ADCL_H__
 #define __ADCL_H__
-
+#include <stdio.h>
 #include "ADCL_config.h"
 
 #ifdef ADCL_DUMMY_MPI
@@ -86,6 +86,39 @@
 #define ADCL_VECTOR_ALLREDUCE  6 
 #define ADCL_VECTOR_INPLACE    7 
 
+/* Define ADCL public structures */
+struct ADCL_data_s{
+    int                     d_id; /* id of the object */
+    int                 d_findex; /* index of this object in the fortran array */
+    int                 d_refcnt; /* reference counter of this object */
+    /* Network Topology information */
+    int                     d_np; /* Number of processors */
+    /* Logical Topology information */
+    int                 d_tndims; /* Topology number of dimensions */
+    int              *d_tperiods; /* periodicity for each cartesian dimension */
+    /* Vector information */
+    int                 d_vndims; /* Vector number of dimensions */
+    int                 *d_vdims; /* Vector extent of each the dimensions */
+    int                     d_nc; /* Extent of each data point  */
+   /* Vector map information */
+    int                d_vectype; /* Vector type */
+    int                 d_hwidth; /* Halo cells width */
+    int                 *d_rcnts; /* receive counts for AllGatherV */ 
+    int                 *d_displ; /* displacements for AllGatherV */
+    MPI_Op                  d_op; /* MPI operator for AllReduce */
+    int                d_inplace; /* MPI_IN_PLACE */
+    /* Attribute information */
+    int               d_asmaxnum; /* Number of attributes in the attribute set */
+    int              *d_attrvals; /* Values of the winning attributes */
+    /* Function set and winner function */
+    char               *d_fsname; /* Function set name */
+    char               *d_wfname; /* Winner function name */
+    int                  d_fsnum; /* Number of available functions in the function set */
+    /* Performance Data */
+    double               *d_perf; /* Array of performance data of size = number of functions */
+};
+typedef struct ADCL_data_s ADCL_data_t;
+
 /* define the object types visible to the user */
 typedef struct ADCL_vmap_s*      ADCL_Vmap;
 typedef struct ADCL_vector_s*    ADCL_Vector;
@@ -96,10 +129,10 @@ typedef struct ADCL_attribute_s* ADCL_Attribute;
 typedef struct ADCL_attrset_s*   ADCL_Attrset;
 typedef struct ADCL_function_s*  ADCL_Function;
 typedef struct ADCL_fnctset_s*   ADCL_Fnctset;
+typedef struct ADCL_data_s*      ADCL_Data;
 #ifdef ADCL_PAPI
 typedef struct ADCL_papi_s*      ADCL_Papi;
 #endif
-
 
 /* define predefined functionsets */
 extern struct ADCL_fnctset_s *ADCL_neighborhood_fnctset;
@@ -174,6 +207,26 @@ int ADCL_Attrset_create   ( int maxnum, ADCL_Attribute *array_of_attributes,
                             ADCL_Attrset *attrset );
 int ADCL_Attrset_free     ( ADCL_Attrset *attrset );
 
+/* ADCL Data/History functions types definition */
+typedef void ADCL_data_reader ( FILE *fp, ADCL_Data data);
+typedef void ADCL_data_writer ( FILE *fp, ADCL_Data data);
+typedef void ADCL_data_set_criteria ( ADCL_Request request, void *filter_criteria );
+typedef int ADCL_data_filter ( ADCL_Data data, void *filter_criteria );
+typedef double ADCL_data_distance ( ADCL_Data data1 , ADCL_Data data2 );
+
+/* Structure holding the data functions and related information */
+struct ADCL_data_functions_s{
+    ADCL_data_reader             *df_reader; /* Data reading function */
+    ADCL_data_writer             *df_writer; /* Data writing function */
+    void                *df_filter_criteria; /* Filter criteria structure */
+    ADCL_data_set_criteria *df_set_criteria; /* Function setting the filter criteria structure */
+    int                     df_criteria_set; /* Flag whether the filtering criteria are set */
+    ADCL_data_filter             *df_filter; /* Filter function according to the given criteria */
+    ADCL_data_distance         *df_distance; /* Distance function between two Data */
+};
+typedef struct ADCL_data_functions_s ADCL_data_functions_t;
+typedef struct ADCL_data_functions_s  *ADCL_Data_functions;
+
 /* ADCL Function and ADCL Functionset functions */
 typedef void ADCL_work_fnct_ptr ( ADCL_Request req );
 
@@ -190,15 +243,15 @@ int ADCL_Function_create_async ( ADCL_work_fnct_ptr *init_fnct,
 
 int ADCL_Function_free         ( ADCL_Function *fnct );
 
-int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name,
-                          ADCL_Fnctset *fnctset );
+int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name, 
+                          ADCL_Data_functions data_functions, ADCL_Fnctset *fnctset );
 int ADCL_Fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
                                  ADCL_work_fnct_ptr *wait_fnct,
                                  ADCL_Attrset attrset, char *name,
                                  int **without_attribute_combinations,
                                  int num_without_attribute_combinations,
                                  ADCL_Fnctset *fnctset );
-int ADCL_Fnctset_free   ( ADCL_Fnctset *fnctset );
+int ADCL_Fnctset_free ( ADCL_Fnctset *fnctset );
 
 
 /* ADCL Request functions */
@@ -243,5 +296,9 @@ int ADCL_Request_restore_status ( ADCL_Request req, int tested_num,
                                   double *unfiltered_avg,
                                   double *filtered_avg,
                                   double *outliers );
+
+int ADCL_Request_get_fsname ( ADCL_Request req, char **fsname );
+int ADCL_Request_get_tndims ( ADCL_Request req, int *tndims );
+
 
 #endif /* __ADCL_H__ */

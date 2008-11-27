@@ -119,7 +119,7 @@ nextemethod:
     e->em_id          = ADCL_local_id_counter++;
     e->em_rfcnt       = 1;
     e->em_state       = ADCL_STATE_TESTING;
-    e->em_explored_data = -1;
+    e->em_explored_data = -2;
     e->em_topo        = t;
     e->em_vec         = v;
     if ( NULL != v && ADCL_VECTOR_NULL != v) {
@@ -375,30 +375,30 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
     ADCL_data_t *data;
     ADCL_function_t *func;
 
+
     /* Search for solution/hints in the data stored from previous runs */
     data_search_res = ADCL_data_find( e, &data );
     switch (data_search_res) {
-    case ADCL_IDENT:
-        func = ADCL_fnctset_get_fnct_by_name ( e->em_orgfnctset,
-                                               data->d_wfname );
-        if ( ADCL_FUNCTION_NULL != func ) {
-            e->em_state = ADCL_STATE_REGULAR;
-            e->em_wfunction = func;
-            return ADCL_SOL_FOUND;
-        }
-        else {
-            ADCL_printf("Function %s is not found in the function set\n", data->d_wfname );
-        }
-        break;
-    case ADCL_SIMILAR:
-        /* one idea is to increment the confidance number for 
-           attributes values of the winning function */
-        break;
-    case ADCL_UNEQUAL:
-    default:
-        break;
+        case ADCL_IDENT:
+            func = ADCL_fnctset_get_fnct_by_name ( e->em_orgfnctset,
+                                                   data->d_wfname );
+            if ( ADCL_FUNCTION_NULL != func ) {
+                e->em_state = ADCL_STATE_REGULAR;
+                e->em_wfunction = func;
+                return ADCL_SOL_FOUND;
+            }
+            else {
+                ADCL_printf("Function %s is not found in the function set\n", data->d_wfname );
+            }
+            break;
+        case ADCL_SIMILAR:
+            /* one idea is to increment the confidance number for 
+               attributes values of the winning function */
+            break;
+        case ADCL_UNEQUAL:
+        default:
+            break;
     }
-
     if ( e->em_stats[last]->s_count < ADCL_emethod_numtests ) {
         *flag = ADCL_FLAG_PERF;
         e->em_stats[last]->s_count++;

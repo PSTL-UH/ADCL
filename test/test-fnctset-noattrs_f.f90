@@ -33,7 +33,7 @@
              "test_fun3", funcs(3), ierror ) 
         
         
-        call ADCL_Fnctset_create ( 3, funcs, "trivial fortran funcs", fnctset, &
+        call ADCL_Fnctset_create ( 3, funcs, "trivial fortran funcs", 0, fnctset, &
              ierror)
 
         call ADCL_Topology_create_generic ( 0, 0, 0, 0, ADCL_DIRECTION_BOTH, &

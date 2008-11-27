@@ -95,8 +95,8 @@ int ADCL_Function_free ( ADCL_Function *fnct )
     return ret; 
 }
 
-int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts,
-                          char *name, ADCL_Fnctset *fnctset )
+int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name,
+                          ADCL_Data_functions data_functions, ADCL_Fnctset *fnctset )
 {
     int i;
 
@@ -112,7 +112,7 @@ int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts,
         }
     }
 
-    return ADCL_fnctset_create ( maxnum, fncts, name, fnctset );
+    return ADCL_fnctset_create ( maxnum, fncts, name, data_functions, fnctset );
 }
 
 int ADCL_Fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,

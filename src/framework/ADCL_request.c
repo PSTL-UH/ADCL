@@ -153,7 +153,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
            }
            
 	   newreq->r_svecs[0] = svecs[0];
-	   ADCL_vector_add_reference( svecs[0] ); 
+	   ADCL_vector_add_reference( svecs[0] );
            newreq->r_rvecs[0] = rvecs[0];
 	   ADCL_vector_add_reference( rvecs[0] );
 
@@ -283,31 +283,43 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     }
 
     if ( NULL != newreq->r_rvecs ) {
-       switch ( newreq->r_rvecs[0]->v_map->m_vectype ) {
-       case ADCL_VECTOR_HALO:
-           if ( 0 != topo->t_ndims ) {
-              newreq->r_rreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
-                        sizeof(MPI_Request));
-           }
-	   break;
-       case ADCL_VECTOR_ALL:
-       case ADCL_VECTOR_ALLREDUCE:
-           newreq->r_rreqs=(MPI_Request *)malloc(topo->t_ndims*
-                        sizeof(MPI_Request));
-           break;
-       case ADCL_VECTOR_LIST:
-           newreq->r_rreqs=(MPI_Request *)malloc(topo->t_size*
-                        sizeof(MPI_Request));
-           break;
-       default:
-           ret = ADCL_ERROR_INTERNAL;
-           goto exit;
-       }
-       if ( NULL == newreq->r_rreqs ) { 
+        switch ( newreq->r_rvecs[0]->v_map->m_vectype ) {
+        case ADCL_VECTOR_HALO:
+            if ( 0 != topo->t_ndims ) {
+                newreq->r_rreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
+                                                      sizeof(MPI_Request));
+            }
+            break;
+        case ADCL_VECTOR_ALL:
+        case ADCL_VECTOR_ALLREDUCE:
+            newreq->r_rreqs=(MPI_Request *)malloc(topo->t_ndims*
+                                                  sizeof(MPI_Request));
+            break;
+        case ADCL_VECTOR_LIST:
+            newreq->r_rreqs=(MPI_Request *)malloc(topo->t_size*
+                                                  sizeof(MPI_Request));
+            break;
+        default:
+            ret = ADCL_ERROR_INTERNAL;
+            goto exit;
+        }
+        if ( NULL == newreq->r_rreqs ) { 
             ret = ADCL_NO_MEMORY;
             goto exit;
-       }
-   }
+        }
+    }
+
+    /* Execute the data function to set the filter criteria st */
+    if (NULL != fnctset->fs_data_functions) {
+        if ((NULL != fnctset->fs_data_functions->df_set_criteria) &&
+            (NULL != fnctset->fs_data_functions->df_filter_criteria) &&
+            (0 == fnctset->fs_data_functions->df_criteria_set) ) {
+            /* The filtering criteria could be set in a previous similar request creation */
+            fnctset->fs_data_functions->df_set_criteria( fnctset->fs_data_functions->df_filter_criteria,
+                                                         newreq );
+            fnctset->fs_data_functions->df_criteria_set = 1;
+	}
+    }
 
 exit:
     if ( ret != ADCL_SUCCESS ) {
@@ -632,7 +644,7 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_request_get_comm ( ADCL_request_t *req, MPI_Comm *comm, int *rank, int *size)
+int ADCL_request_get_comm ( ADCL_request_t *req, MPI_Comm *comm, int *rank, int *size )
 {
     ADCL_topology_t *topo=req->r_emethod->em_topo;
 
@@ -866,6 +878,29 @@ int ADCL_request_restore_status ( ADCL_request_t *req, int tested_num,
         }
 
         req->r_emethod->em_last = tested_num;
+    }
+    return ADCL_SUCCESS;
+}
+
+int ADCL_request_get_fsname ( ADCL_request_t *req, char **fsname )
+{
+    ADCL_fnctset_t *fnctset = req->r_emethod->em_orgfnctset;
+
+    *fsname = strdup( fnctset->fs_name );
+    
+    return ADCL_SUCCESS;
+}
+
+
+int ADCL_request_get_tndims ( ADCL_request_t *req, int *tndims )
+{
+    ADCL_topology_t *topo = req->r_emethod->em_topo;
+
+    if( NULL != topo) {
+        *tndims = topo->t_ndims;
+    }
+    else {
+        return ADCL_INVALID_TOPOLOGY;
     }
     return ADCL_SUCCESS;
 }
