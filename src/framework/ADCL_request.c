@@ -309,18 +309,6 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
         }
     }
 
-    /* Execute the data function to set the filter criteria st */
-    if (NULL != fnctset->fs_data_functions) {
-        if ((NULL != fnctset->fs_data_functions->df_set_criteria) &&
-            (NULL != fnctset->fs_data_functions->df_filter_criteria) &&
-            (0 == fnctset->fs_data_functions->df_criteria_set) ) {
-            /* The filtering criteria could be set in a previous similar request creation */
-            fnctset->fs_data_functions->df_set_criteria( fnctset->fs_data_functions->df_filter_criteria,
-                                                         newreq );
-            fnctset->fs_data_functions->df_criteria_set = 1;
-	}
-    }
-
 exit:
     if ( ret != ADCL_SUCCESS ) {
         if ( NULL != newreq->r_svecs ) {
@@ -562,6 +550,26 @@ int ADCL_request_update ( ADCL_request_t *req,
             __FILE__, req->r_id, req->r_emethod->em_state );
         break;
     }
+
+    return ADCL_SUCCESS;
+}
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+int ADCL_request_reg_hist_criteria ( ADCL_request_t *req, ADCL_hist_criteria_t *hist_criteria )
+{
+
+    /* Check if NULL function or structure */
+    if ((NULL != hist_criteria->hc_set_criteria ) &&
+        (NULL != hist_criteria->hc_filter_criteria ) &&
+	(0 == hist_criteria->hc_criteria_set )) {
+        /* Execute the function to set the filter criteria st */
+        hist_criteria->hc_set_criteria(req, hist_criteria->hc_filter_criteria);
+        hist_criteria->hc_criteria_set = 1;
+    }
+    /* Attach the whole structure to the emethod */
+    req->r_emethod->em_hist_criteria = hist_criteria;
 
     return ADCL_SUCCESS;
 }

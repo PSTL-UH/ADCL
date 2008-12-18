@@ -7,6 +7,7 @@
  * $HEADER$
  */
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "ADCL.h"
 #include "mpi.h"
@@ -32,9 +33,19 @@ int main ( int argc, char ** argv )
     ADCL_Vmap vmap; 
     ADCL_Vector vec;
     ADCL_Topology topo;
+    /* ADCL Request Objects */
     ADCL_Request request0;
     ADCL_Request request1;
     ADCL_Request request2;
+    /* ADCL criteria structure for neighborhood com fnctset */
+    ADCL_neighborhood_criteria_t *ADCL_neighborhood_criteria0;
+    ADCL_neighborhood_criteria_t *ADCL_neighborhood_criteria1;
+    ADCL_neighborhood_criteria_t *ADCL_neighborhood_criteria2;
+    /* ADCL criteria objects */
+    ADCL_Hist_criteria hist_criteria0;
+    ADCL_Hist_criteria hist_criteria1;
+    ADCL_Hist_criteria hist_criteria2;
+
     MPI_Comm cart_comm;
 
     MPI_Init ( &argc, &argv );
@@ -55,6 +66,17 @@ int main ( int argc, char ** argv )
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request0 );
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request1 );
 
+    hist_criteria0 = (ADCL_Hist_criteria)malloc(sizeof(ADCL_hist_criteria_t));
+    ADCL_Request_reg_hist_criteria ( request0, hist_criteria0);
+
+    hist_criteria0->hc_filter_criteria = (void *)ADCL_neighborhood_criteria0;
+    hist_criteria0->hc_set_criteria = (ADCL_hist_set_criteria *)ADCL_neighborhood_set_criteria;
+    hist_criteria0->hc_criteria_set = 0;
+
+
+    hist_criteria1 = (ADCL_Hist_criteria)malloc(sizeof(ADCL_hist_criteria_t));
+    ADCL_Request_reg_hist_criteria ( request1, hist_criteria1);
+
     for ( i=0; i<NIT; i++ ) {
 	ADCL_Request_start( request0 );
     }
@@ -74,6 +96,10 @@ int main ( int argc, char ** argv )
     /* Although request0 and request1 objects are destroyed, request1 will run with the
        fastest implmentation stored in the ADCL_data object. */
     ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request2 );
+
+    hist_criteria2 = (ADCL_Hist_criteria)malloc(sizeof(ADCL_hist_criteria_t));
+    ADCL_Request_reg_hist_criteria ( request2, hist_criteria2);
+
     for ( i=0; i<NIT; i++ ) {
 	ADCL_Request_start( request2 );
     }

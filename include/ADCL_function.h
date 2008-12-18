@@ -51,14 +51,14 @@ struct ADCL_fnctset_s{
     int                            fs_maxnum; /* no. of functions in this function-group */
     ADCL_function_t               **fs_fptrs; /* list of function pointers of this group. */
     ADCL_attrset_t               *fs_attrset; /* attribute set used to characterize the function */
-    ADCL_data_functions_t *fs_data_functions; /* struct containing functions to manipulate data objects */
+    ADCL_hist_functions_t *fs_hist_functions; /* struct containing functions to manipulate history objects */
     char                            *fs_name; /* Name of the function set */
 };
 typedef struct ADCL_fnctset_s ADCL_fnctset_t;
 extern ADCL_array_t *ADCL_fnctset_farray;
 
 int ADCL_fnctset_create ( int maxnum, ADCL_function_t **fncts, char *name, 
-                          ADCL_data_functions_t *data_functions, ADCL_fnctset_t **fnctset );
+                          ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
                                  ADCL_work_fnct_ptr *wait_fnct,
                                  ADCL_attrset_t * attrset, char *name,
@@ -71,6 +71,8 @@ int ADCL_fnctset_create_single_fnct ( ADCL_work_fnct_ptr *init_fnct,
                                       int **without_attribute_combinations,
                                       int num_without_attribute_combinations,
                                       ADCL_fnctset_t **fnctset );
+int ADCL_fnctset_reg_hist_fnct ( ADCL_hist_functions_t *hist_functions, ADCL_fnctset_t *fnctset );
+
 int ADCL_fnctset_free   ( ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_dup    ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy );
 ADCL_function_t* ADCL_fnctset_get_fnct_by_name ( ADCL_fnctset_t *fnctset, char *fname );

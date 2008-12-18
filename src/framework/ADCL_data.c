@@ -273,9 +273,9 @@ void ADCL_data_add_to_file( ADCL_data_t* data, ADCL_emethod_t *e )
             fseek(fp, -7, SEEK_END);
 	}
         /* Use the user defined writing function of the according function set */
-        if( NULL != e->em_orgfnctset->fs_data_functions ) {
-            if( NULL != e->em_orgfnctset->fs_data_functions->df_writer ) {
-                e->em_orgfnctset->fs_data_functions->df_writer(fp, data);
+        if( NULL != e->em_orgfnctset->fs_hist_functions ) {
+            if( NULL != e->em_orgfnctset->fs_hist_functions->hf_writer ) {
+                e->em_orgfnctset->fs_hist_functions->hf_writer(fp, data);
 	    }
         }
         fprintf ( fp, "</ADCL>" );
@@ -319,9 +319,9 @@ void ADCL_data_read_from_file ( ADCL_emethod_t *e )
         ADCL_array_set_element ( ADCL_data_array, data->d_findex, data->d_id, data );
         data->d_refcnt = 1;
         /* Use the user defined reading function of the according function set */
-	if( NULL != fnctset->fs_data_functions ) {
-            if( NULL != fnctset->fs_data_functions->df_reader ) {
-                fnctset->fs_data_functions->df_reader( fp, data );
+	if( NULL != fnctset->fs_hist_functions ) {
+            if( NULL != fnctset->fs_hist_functions->hf_reader ) {
+                fnctset->fs_hist_functions->hf_reader( fp, data );
             }
         }
         else {

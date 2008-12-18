@@ -101,7 +101,7 @@ int main ( int argc, char ** argv )
     ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_1_2_1, attrset, funcvals11, 
                            "test_func_1_2_1", &(funcs[11]));
 
-    ADCL_Fnctset_create ( 12, funcs, "test functions", NULL, &fnctset );
+    ADCL_Fnctset_create ( 12, funcs, "test functions", &fnctset );
     /* Creation of the topology */
     ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
 				   MPI_COMM_WORLD, &topo );

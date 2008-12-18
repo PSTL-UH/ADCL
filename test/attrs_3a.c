@@ -295,7 +295,7 @@ int main ( int argc, char ** argv )
     ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_29,  attrset, funcvals, "test_func_29", &(funcs[29]));
 
     /* Generate the ADCL function set */
-    ADCL_Fnctset_create ( 30, funcs, "trivial functions", NULL, &fnctset);
+    ADCL_Fnctset_create ( 30, funcs, "trivial functions", &fnctset);
 
     /* Generate the ADCL request */
     ADCL_Request_create ( ADCL_VECTOR_NULL, topo, fnctset, &req );

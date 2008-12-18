@@ -16,7 +16,6 @@ extern int ADCL_emethod_use_perfhypothesis;
 /* Static functions declaration */
 static void ADCL_neighborhood_read( FILE *fp, ADCL_Data data );
 static void ADCL_neighborhood_write( FILE *fp, ADCL_Data data );
-static void ADCL_neighborhood_set_criteria( void *filter_criteria, ADCL_request_t *req );
 static int ADCL_neighborhood_filter( ADCL_Data data, void *filter_criteria );
 static double ADCL_neighborhood_distance( ADCL_Data data1 , ADCL_Data data2 );
 
@@ -87,6 +86,7 @@ int ADCL_predefined_init ( void )
 #endif
     //char *ADCL_attr_transfer_allgatherv_names[ADCL_ATTR_TRANSFER_MAX] = { "linear" };
        /* bruck, linear, neighbor_exchange, ring, two_procs */
+    ADCL_hist_functions_t *ADCL_neighborhood_hist_functions;
 
 /* ******************************************************************** */
 /* NEIGHBORHOOD  - Fortran function set 0                               */
@@ -363,26 +363,20 @@ int ADCL_predefined_init ( void )
     count++;
 #  endif /* POSTSTARTGET */
 #endif /* MPI_WIN */
-
-    ADCL_neighborhood_criteria_t *ADCL_neighborhood_criteria;
-    ADCL_data_functions_t *ADCL_neighborhood_data_functions;
-
-    ADCL_neighborhood_criteria = (ADCL_neighborhood_criteria_t *)malloc(sizeof(ADCL_neighborhood_criteria_t));
-    ADCL_neighborhood_data_functions = (ADCL_data_functions_t *)malloc(sizeof(ADCL_data_functions_t));
-
-    ADCL_neighborhood_data_functions->df_reader = (ADCL_data_reader *)ADCL_neighborhood_read;
-    ADCL_neighborhood_data_functions->df_writer = (ADCL_data_reader *)ADCL_neighborhood_write;
-    ADCL_neighborhood_data_functions->df_filter_criteria = (void *)ADCL_neighborhood_criteria;
-    ADCL_neighborhood_data_functions->df_set_criteria = (ADCL_data_set_criteria *)ADCL_neighborhood_set_criteria;
-    ADCL_neighborhood_data_functions->df_criteria_set = 0;
-    ADCL_neighborhood_data_functions->df_filter = (ADCL_data_filter *)ADCL_neighborhood_filter;
-    ADCL_neighborhood_data_functions->df_distance = (ADCL_data_distance *)ADCL_neighborhood_distance;
+    /* Memory allocation for the structure */
+    ADCL_neighborhood_hist_functions = (ADCL_hist_functions_t *)malloc(sizeof(ADCL_hist_functions_t));
+    /* Initializing the structure */
+    ADCL_neighborhood_hist_functions->hf_reader = (ADCL_hist_reader *)ADCL_neighborhood_read;
+    ADCL_neighborhood_hist_functions->hf_writer = (ADCL_hist_reader *)ADCL_neighborhood_write;
+    ADCL_neighborhood_hist_functions->hf_filter = (ADCL_hist_filter *)ADCL_neighborhood_filter;
+    ADCL_neighborhood_hist_functions->hf_distance = (ADCL_hist_distance *)ADCL_neighborhood_distance;
 
     ADCL_fnctset_create ( ADCL_METHOD_NN_TOTAL_NUM,
                           ADCL_neighborhood_functions,
                           "Neighborhood communication",
-                          ADCL_neighborhood_data_functions,
                           &ADCL_neighborhood_fnctset );
+
+    ADCL_fnctset_reg_hist_fnct ( ADCL_neighborhood_hist_functions , ADCL_neighborhood_fnctset );
 
     if ( count != ADCL_METHOD_NN_TOTAL_NUM) {
         ADCL_printf("Total Number wrong\n");
@@ -460,7 +454,6 @@ int ADCL_predefined_init ( void )
     ADCL_fnctset_create ( ADCL_METHOD_ALLGATHERV_TOTAL_NUM,
                           ADCL_allgatherv_functions,
                           "AllGatherV",
-                          NULL,
                           &ADCL_allgatherv_fnctset );
 
     if ( count != ADCL_METHOD_ALLGATHERV_TOTAL_NUM) {
@@ -508,7 +501,6 @@ int ADCL_predefined_init ( void )
     ADCL_fnctset_create ( ADCL_METHOD_ALLREDUCE_TOTAL_NUM,
                           ADCL_allreduce_functions,
                           "AllReduce",
-                          NULL,
                           &ADCL_allreduce_fnctset );
 
 
@@ -706,20 +698,6 @@ static void ADCL_neighborhood_write( FILE *fp, ADCL_Data data )
     return;
 }
 
-static void ADCL_neighborhood_set_criteria( void *filter_criteria, ADCL_request_t *req )
-{
-    ADCL_neighborhood_criteria_t *criteria;
-    criteria= (ADCL_neighborhood_criteria_t *)filter_criteria;
-
-    /* Get the function set name */
-    ADCL_Request_get_fsname( req, &(criteria->c_fsname) );
-    /* Get the topology dimensions */
-    ADCL_Request_get_tndims( req, &(criteria->c_tndims) );
-    /* Other criteria may follow */
-
-    return;
-}
-
 static int ADCL_neighborhood_filter(ADCL_Data data, void *filter_criteria )
 {
     int retval;
@@ -746,4 +724,18 @@ static double ADCL_neighborhood_distance(ADCL_Data data1 , ADCL_Data data2 )
 	distance += pow( (data1->d_vdims[i] - data2->d_vdims[i]) , 2);
     }
     return sqrt(distance);
+}
+
+void ADCL_neighborhood_set_criteria( void *filter_criteria, ADCL_request_t *req )
+{
+    ADCL_neighborhood_criteria_t *criteria;
+    criteria= (ADCL_neighborhood_criteria_t *)filter_criteria;
+
+    /* Get the function set name */
+    ADCL_Request_get_fsname( req, &(criteria->c_fsname) );
+    /* Get the topology dimensions */
+    ADCL_Request_get_tndims( req, &(criteria->c_tndims) );
+    /* Other criteria may follow */
+
+    return;
 }

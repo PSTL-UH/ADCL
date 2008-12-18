@@ -147,6 +147,14 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 #define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
 #define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
 
+struct ADCL_neighborhood_criteria_s {
+    char    *c_fsname; /* Function set name */
+    int      c_tndims; /* Dimensions */
+};
+typedef struct ADCL_neighborhood_criteria_s ADCL_neighborhood_criteria_t;
+
+void ADCL_neighborhood_set_criteria( void *filter_criteria, ADCL_Request req );
+
 #define TIME_TYPE double
 
 /* Prototypes of the User level interface functions */
@@ -207,25 +215,32 @@ int ADCL_Attrset_create   ( int maxnum, ADCL_Attribute *array_of_attributes,
                             ADCL_Attrset *attrset );
 int ADCL_Attrset_free     ( ADCL_Attrset *attrset );
 
-/* ADCL Data/History functions types definition */
-typedef void ADCL_data_reader ( FILE *fp, ADCL_Data data);
-typedef void ADCL_data_writer ( FILE *fp, ADCL_Data data);
-typedef void ADCL_data_set_criteria ( ADCL_Request request, void *filter_criteria );
-typedef int ADCL_data_filter ( ADCL_Data data, void *filter_criteria );
-typedef double ADCL_data_distance ( ADCL_Data data1 , ADCL_Data data2 );
+/* ADCL History functions types definition */
+typedef void ADCL_hist_reader ( FILE *fp, ADCL_Data data);
+typedef void ADCL_hist_writer ( FILE *fp, ADCL_Data data);
+typedef int ADCL_hist_filter ( ADCL_Data data, void *filter_criteria );
+typedef double ADCL_hist_distance ( ADCL_Data data1 , ADCL_Data data2 );
+typedef void ADCL_hist_set_criteria ( ADCL_Request request, void *filter_criteria );
 
-/* Structure holding the data functions and related information */
-struct ADCL_data_functions_s{
-    ADCL_data_reader             *df_reader; /* Data reading function */
-    ADCL_data_writer             *df_writer; /* Data writing function */
-    void                *df_filter_criteria; /* Filter criteria structure */
-    ADCL_data_set_criteria *df_set_criteria; /* Function setting the filter criteria structure */
-    int                     df_criteria_set; /* Flag whether the filtering criteria are set */
-    ADCL_data_filter             *df_filter; /* Filter function according to the given criteria */
-    ADCL_data_distance         *df_distance; /* Distance function between two Data */
+/* Structure holding the hstory functions and related information */
+struct ADCL_hist_functions_s{
+    ADCL_hist_reader             *hf_reader; /* Data reading function */
+    ADCL_hist_writer             *hf_writer; /* Data writing function */
+    ADCL_hist_filter             *hf_filter; /* Filter function according to the given criteria */
+    ADCL_hist_distance         *hf_distance; /* Distance function between two Data */
 };
-typedef struct ADCL_data_functions_s ADCL_data_functions_t;
-typedef struct ADCL_data_functions_s  *ADCL_Data_functions;
+typedef struct ADCL_hist_functions_s ADCL_hist_functions_t;
+typedef struct ADCL_hist_functions_s  *ADCL_Hist_functions;
+
+/* Structure holding the criteria and function to set them */
+struct ADCL_hist_criteria_s{
+
+    void                *hc_filter_criteria; /* Filter criteria structure */
+    ADCL_hist_set_criteria *hc_set_criteria; /* Function setting the filter criteria structure */
+    int                     hc_criteria_set; /* Flag whether the filtering criteria are set */
+};
+typedef struct ADCL_hist_criteria_s ADCL_hist_criteria_t;
+typedef struct ADCL_hist_criteria_s *ADCL_Hist_criteria;
 
 /* ADCL Function and ADCL Functionset functions */
 typedef void ADCL_work_fnct_ptr ( ADCL_Request req );
@@ -243,16 +258,18 @@ int ADCL_Function_create_async ( ADCL_work_fnct_ptr *init_fnct,
 
 int ADCL_Function_free         ( ADCL_Function *fnct );
 
-int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name, 
-                          ADCL_Data_functions data_functions, ADCL_Fnctset *fnctset );
+int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name,
+                          ADCL_Fnctset *fnctset );
 int ADCL_Fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
                                  ADCL_work_fnct_ptr *wait_fnct,
                                  ADCL_Attrset attrset, char *name,
                                  int **without_attribute_combinations,
                                  int num_without_attribute_combinations,
                                  ADCL_Fnctset *fnctset );
-int ADCL_Fnctset_free ( ADCL_Fnctset *fnctset );
+/* Function to register history functions to a function set */
+int ADCL_Fnctset_reg_hist_fnct ( ADCL_Hist_functions hist_functions, ADCL_Fnctset fnctset );
 
+int ADCL_Fnctset_free ( ADCL_Fnctset *fnctset );
 
 /* ADCL Request functions */
 int ADCL_Request_create         ( ADCL_Vector vec, ADCL_Topology topo,
@@ -271,6 +288,8 @@ int ADCL_Request_update ( ADCL_Request req, TIME_TYPE time );
 int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
                                  ADCL_work_fnct_ptr *endfcnt,
                                  ADCL_work_fnct_ptr *totalfcnt );
+/* Function to register creteria function to a given ADCL request */
+int ADCL_Request_reg_hist_criteria ( ADCL_Request req, ADCL_Hist_criteria hist_criteria);
 
 int ADCL_Request_get_comm  ( ADCL_Request req, MPI_Comm *comm, int *rank, int *size );
 int ADCL_Request_get_curr_function ( ADCL_Request req, char **function_name,

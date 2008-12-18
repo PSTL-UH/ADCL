@@ -98,13 +98,13 @@ void adcl_function_free_  ( int *fnct, int *ierr  );
 void adcl_function_free__ ( int *fnct, int *ierr  );
 void ADCL_FUNCTION_FREE   ( int *fnct, int *ierr  );
 
-void adcl_fnctset_create   ( int* maxnum, int *array_of_fncts, char *name, void *data_functions,
+void adcl_fnctset_create   ( int* maxnum, int *array_of_fncts, char *name,
                              int *fctset, int *ierr, int name_len  );
-void adcl_fnctset_create_  ( int* maxnum, int *array_of_fncts, char *name, void *data_functions,
+void adcl_fnctset_create_  ( int* maxnum, int *array_of_fncts, char *name,
                              int *fctset, int *ierr, int name_len  );
-void adcl_fnctset_create__ ( int* maxnum, int *array_of_fncts, char *name, void *data_functions,
+void adcl_fnctset_create__ ( int* maxnum, int *array_of_fncts, char *name,
                              int *fctset, int *ierr, int name_len  );
-void ADCL_FNCTSET_CREATE   ( int* maxnum, int *array_of_fncts, char *name, void *data_functions,
+void ADCL_FNCTSET_CREATE   ( int* maxnum, int *array_of_fncts, char *name,
                              int *fctset, int *ierr, int name_len );
 
 void adcl_fnctset_create_single   ( void *init_fnct, void *wait_fnct,

@@ -111,7 +111,7 @@ int ADCL_function_get_attrval ( ADCL_function_t *func, int attr_pos )
 /********************************************************************************/
 
 int ADCL_fnctset_create( int maxnum, ADCL_function_t **fncts, char *name, 
-                         ADCL_data_functions_t *data_functions, ADCL_fnctset_t **fnctset )
+                         ADCL_fnctset_t **fnctset )
 {
     int i, ret = ADCL_SUCCESS;
     ADCL_fnctset_t *newfnctset=NULL;
@@ -144,7 +144,6 @@ int ADCL_fnctset_create( int maxnum, ADCL_function_t **fncts, char *name,
         goto exit;
     }
     memcpy ( newfnctset->fs_fptrs, fncts, maxnum * sizeof (ADCL_function_t *));
-    newfnctset->fs_data_functions = data_functions;
  
     if ( NULL != name ) {
         newfnctset->fs_name = strdup ( name );
@@ -290,6 +289,17 @@ exit:
 
     *fnctset = newfnctset;
     return ret;
+}
+
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+int ADCL_fnctset_reg_hist_fnct ( ADCL_hist_functions_t *hist_functions, ADCL_fnctset_t *fnctset )
+{
+
+    /* Copy the pointer to the history functions st given by user */
+    fnctset->fs_hist_functions = hist_functions;
+
 }
 
 /********************************************************************************/

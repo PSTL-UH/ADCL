@@ -34,15 +34,14 @@ struct ADCL_request_s{
     ADCL_vector_t         **r_rvecs; /* ptr to the vectors describing recv data items */
     ADCL_emethod_t       *r_emethod; /* ptr to the emethod describing everything */
     ADCL_function_t     *r_function; /* ADCL function currently being used. This pointer
-                    will also contain the 'winner' function once
-                    the evaluation part is over. */
-
+                                        will also contain the 'winner' function once
+                                        the evaluation part is over. */
 
     /* Elements used for the communication */
     int                   *r_spsize; /* size of each individual temporary sbuf used
-                            for pack/unpack */
+                                        for pack/unpack */
     int                   *r_rpsize; /* size of each individual temporary rbuf used
-                    for pack/unpack */
+                                        for pack/unpack */
     MPI_Win                   r_win; /* window used for one-sided operations */
     MPI_Group               r_group; /* Group used for some window operations */
     MPI_Datatype           *r_sdats; /* array of MPI datatypes used for sending */
@@ -58,7 +57,7 @@ struct ADCL_request_s{
     int                     r_erlast; /* last method used */
     int                     r_erflag; /* flag to be passed to the state machine */
     TIME_TYPE                 r_time; /* temporary buffer to store the exeuction
-                     time for dual-block operations */
+                                         time for dual-block operations */
 };
 typedef struct ADCL_request_s ADCL_request_t;
 
@@ -76,6 +75,9 @@ int ADCL_request_wait ( ADCL_request_t *req );
 
 int ADCL_request_update ( ADCL_request_t *req,
                           TIME_TYPE t1, TIME_TYPE t2 );
+
+int ADCL_request_reg_hist_criteria ( ADCL_request_t *req, ADCL_hist_criteria_t *hist_criteria );
+
 int ADCL_request_get_comm ( ADCL_request_t *req, MPI_Comm *comm, int *rank, int *size);
 
 int ADCL_request_get_curr_function ( ADCL_request_t *req, char **function_name,

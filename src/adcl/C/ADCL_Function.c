@@ -96,7 +96,7 @@ int ADCL_Function_free ( ADCL_Function *fnct )
 }
 
 int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name,
-                          ADCL_Data_functions data_functions, ADCL_Fnctset *fnctset )
+                          ADCL_Fnctset *fnctset )
 {
     int i;
 
@@ -112,7 +112,7 @@ int ADCL_Fnctset_create ( int maxnum, ADCL_Function *fncts, char *name,
         }
     }
 
-    return ADCL_fnctset_create ( maxnum, fncts, name, data_functions, fnctset );
+    return ADCL_fnctset_create ( maxnum, fncts, name, fnctset );
 }
 
 int ADCL_Fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
@@ -146,6 +146,15 @@ int ADCL_Fnctset_create_single ( ADCL_work_fnct_ptr *init_fnct,
     return ADCL_fnctset_create_single ( init_fnct, wait_fnct, attrset , name, 
                                         without_attribute_combinations,
                                         num_without_attribute_combinations, fnctset );
+}
+
+int ADCL_Fnctset_reg_hist_fnct ( ADCL_Hist_functions hist_functions, ADCL_Fnctset fnctset )
+{
+
+    if ( (NULL == fnctset) || (NULL == hist_functions) ) {
+        return ADCL_INVALID_ARG;
+    }
+    return ADCL_fnctset_reg_hist_fnct ( hist_functions, fnctset );
 }
 
 int ADCL_Fnctset_free ( ADCL_Fnctset *fnctset )

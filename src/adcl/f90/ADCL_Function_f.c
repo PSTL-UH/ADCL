@@ -159,9 +159,9 @@ void adcl_function_free ( int *fnct, int *ierr  )
 }
 
 #ifdef _SX
-void adcl_fnctset_create_( int* maxnum, int *array_of_fncts, char *name, void *data_functions,
+void adcl_fnctset_create_( int* maxnum, int *array_of_fncts, char *name,
 #else
-void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, void *data_functions,
+void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name,
 #endif
                            int *fnctset, int *ierr, int name_len )
 {
@@ -200,7 +200,7 @@ void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name, void *d
         *ierr = ADCL_ERROR_INTERNAL;
         return;
     }
-    *ierr = ADCL_fnctset_create ( *maxnum, cfncts, cname, data_functions, &cfnctset );
+    *ierr = ADCL_fnctset_create ( *maxnum, cfncts, cname, &cfnctset );
     if ( *ierr == ADCL_SUCCESS ) {
         *fnctset = cfnctset->fs_findex;
     }

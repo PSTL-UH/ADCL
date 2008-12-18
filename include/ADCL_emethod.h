@@ -17,32 +17,33 @@
 
 
 struct ADCL_emethod_s {
-    int                     em_id; /* unique identifier */
-    int                  em_rfcnt; /* reference counter */
-    int                 em_findex; /* index of this object in the fortran array */
-    int                  em_state; /* state of the object */
-    int                   em_last; /* last element given out */
-    int         em_perfhypothesis; /* use performance hypothesis for the runtime
-                                      optimization? */
-    int          em_explored_data; /* number of explored data objects for identical
-                                      and similar problems */
-    int              em_filtering; /* state if the decision was based on filtered or 
-                                      unflitered data */
-    ADCL_topology_t      *em_topo; /* pointer to topology object */
-    ADCL_vector_t         *em_vec; /* pointer to vector object. Only the size of the
-                                      data array is really required, not the buffer
-                                      pointers. */
-    ADCL_statistics_t  **em_stats; /* array of statistics objects containing the
-                                      measurements etc. Length of the array is equal
-                                      to the no. of fncts registered in the fnctset */
-    ADCL_fnctset_t *em_orgfnctset; /* pointer to the original function set. Only
-                                      required when a re-evaluation has been requested.
-                                      Not to be modified during optimization */
-    ADCL_fnctset_t     em_fnctset; /* copy of the function group associated with
-                                      this object */
-    ADCL_hypothesis_t     em_hypo; /* Performance hypothesis object of to this
-                                      emethod */
-    ADCL_function_t  *em_wfunction; /* winner function */
+    int                              em_id; /* unique identifier */
+    int                           em_rfcnt; /* reference counter */
+    int                          em_findex; /* index of this object in the fortran array */
+    int                           em_state; /* state of the object */
+    int                            em_last; /* last element given out */
+    int                  em_perfhypothesis; /* use performance hypothesis for the runtime
+                                            optimization? */
+    int                   em_explored_data; /* number of explored data objects for identical
+                                            and similar problems */
+    int                       em_filtering; /* state if the decision was based on filtered or 
+                                            unflitered data */
+    ADCL_topology_t               *em_topo; /* pointer to topology object */
+    ADCL_vector_t                  *em_vec; /* pointer to vector object. Only the size of the
+                                            data array is really required, not the buffer
+                                            pointers. */
+    ADCL_statistics_t           **em_stats; /* array of statistics objects containing the
+                                            measurements etc. Length of the array is equal
+                                            to the no. of fncts registered in the fnctset */
+    ADCL_fnctset_t          *em_orgfnctset; /* pointer to the original function set. Only
+                                            required when a re-evaluation has been requested.
+                                            Not to be modified during optimization */
+    ADCL_fnctset_t              em_fnctset; /* copy of the function group associated with
+                                            this object */
+    ADCL_hypothesis_t              em_hypo; /* Performance hypothesis object of to this
+                                            emethod */
+    ADCL_function_t          *em_wfunction; /* winner function */
+    ADCL_hist_criteria_t *em_hist_criteria; /* History entries filtering criteria */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 

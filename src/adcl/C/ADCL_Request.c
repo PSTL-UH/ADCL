@@ -265,6 +265,18 @@ int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
     return ret;
 }
 
+/* Function to register creteria function to a given ADCL request */
+int ADCL_Request_reg_hist_criteria ( ADCL_Request req, ADCL_Hist_criteria hist_criteria)
+{
+    if ( req->r_id < 0 ) {
+        return ADCL_INVALID_REQUEST;
+    }
+    if ( NULL ==  hist_criteria ) {
+        return ADCL_INVALID_ARG;
+    }
+    return ADCL_request_reg_hist_criteria ( req, hist_criteria );
+}
+
 int ADCL_Request_get_comm ( ADCL_Request req, MPI_Comm *comm, int *rank, int *size )
 {
     if ( req->r_id < 0 ) {

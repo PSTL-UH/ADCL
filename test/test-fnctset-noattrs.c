@@ -43,7 +43,7 @@ int main ( int argc, char ** argv )
     ADCL_Function_create ( (ADCL_work_fnct_ptr *)test_func_3, ADCL_ATTRSET_NULL, NULL, 
 			                "test_func_3", &(funcs[2]));
 
-    ADCL_Fnctset_create ( 3, funcs, "trivial functions", NULL, &fnctset );
+    ADCL_Fnctset_create ( 3, funcs, "trivial functions", &fnctset );
 
     ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
 				                   MPI_COMM_WORLD, &topo );
