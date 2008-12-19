@@ -690,7 +690,7 @@ static void ADCL_neighborhood_write( FILE *fp, ADCL_Data data )
     /* Performance data */
     fprintf ( fp, "    <PERFS>\n" );
     for ( j=0; j<data->d_fsnum; j++) {   
-       fprintf ( fp, "        <PERF>%.2f</PERF>\n", data->d_perf[j] );
+       fprintf ( fp, "        <PERF>%.4f</PERF>\n", data->d_perf[j] );
     }
     fprintf ( fp, "    </PERFS>\n" );
     fprintf ( fp, "  </RECORD>\n" );
