@@ -215,7 +215,7 @@ AC_ARG_WITH(papi_lib_dir,
  [  --with-papi-lib-dir=dir           PAPI lib directory (default=PAPI_DIR/lib)],
     papi_lib_dir="${withval}", papi_lib_dir="")
     if test "x$papi_lib_dir" = "x" ; then 
-       papi_lib_dir=${papi_dir}/lib64
+       papi_lib_dir=${papi_dir}/lib
     fi
     AC_MSG_RESULT(${papi_lib_dir})
 dnl ==================================================	
