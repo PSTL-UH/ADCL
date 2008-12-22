@@ -33,7 +33,7 @@ int ADCL_Init (void )
 #ifdef ADCL_PAPI
     ADCL_array_init ( &(ADCL_papi_farray),      "ADCL_Papi", 32 );
     /* Initialize the PAPI library */
-    ADCL_papi_init ( void );
+    ADCL_papi_init ();
 #endif
 
     ret = ADCL_predefined_init ();
