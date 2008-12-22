@@ -55,6 +55,9 @@
 /* enable PAPI module? */
 #undef ADCL_PAPI 
 
+/* Timer to be used */
+#define TIMER 0
+
 /* enable Dummy MPI library? */
 #undef ADCL_DUMMY_MPI
 

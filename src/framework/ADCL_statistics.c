@@ -106,9 +106,25 @@ int ADCL_statistics_filter_timings (ADCL_statistics_t **statistics, int count,
 double ADCL_statistics_time (void)
 {
     struct timeval tp;
+    double retval;
+
+#if TIMER == TIMER_MPI_WTIME
+    /* Use MPI_wtime as timer */
+    retval = MPI_Wtime();
+#elif TIMER == TIMER_GETTIMEOFDAY
+    /* Use gettime of day as timer */
     gettimeofday (&tp, NULL);
-    return tp.tv_usec;
+    retval = tp.tv_usec;
+#elif TIMER == TIMER_PAPI_REAL_USEC
+    /* Use PAPI functions as timer */
+    retval = (double)PAPI_get_real_usec();
+#else
+    retval = 0;
+#endif
+
+    return retval;
 }
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/

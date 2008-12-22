@@ -17,11 +17,7 @@
 #endif
 #include "ADCL_attribute.h"
 
-#ifdef ADCL_USE_MPIWTIME
-#define TIME MPI_Wtime()
-#else
 #define TIME ADCL_statistics_time()
-#endif
 
 #define ADCL_STAT_TIMEDIFF(_tstart,_tend,_exec) {         \
     if ( _tend > _tstart ) _exec = (double) (_tend-_tstart); \

@@ -1262,7 +1262,6 @@ Optional Features:
   --enable-use-barrier    use barrier synchronization for measurements (default=yes)
   --disable-printf-tofile  dump printf statements to a file (default=yes)
   --enable-userlevel-timings   disable ADCL internal timing routines (default=no)
-  --enable-mpi-wtime      use MPI_Wtime instead of gettimeofday for timing (default=no)
   --enable-knowledge-tofile  dump the ADCL knowledge to an XML file (default=no)
   --disable-saving-request-winner  save the winner of a request (default=yes)
   --enable-dummy-mpi           enable the usage of dummy-mpi (default=no)
@@ -1276,6 +1275,7 @@ Optional Packages:
   --with-adcl-lib-dir=dir           ADCL lib directory (default=ADCL_DIR/lib)
   --with-adcl-bin-dir=dir           ADCL bin directory (default=ADCL_DIR/bin)
   --with-adcl-lib-name=name         name of the ADCL library (default=libadcl.a)
+  --with-adcl-timer=timer           timer options (default=TIMER_GETTIMEOFDAY)
   --with-mpi-dir=dir                Installation directory of MPI
   --with-mpi-inc-dir=dir            Include directory of MPI (default=MPI_DIR/include)
   --with-mpi-lib-dir=dir            Library directory of MPI (default=MPI_DIR/lib)
@@ -3570,6 +3570,39 @@ fi
 echo "${ECHO_T}${adcl_lib_name}" >&6; }
 
 
+{ echo "$as_me:$LINENO: checking for timer options" >&5
+echo $ECHO_N "checking for timer options... $ECHO_C" >&6; }
+
+# Check whether --with-adcl-timer was given.
+if test "${with_adcl_timer+set}" = set; then
+  withval=$with_adcl_timer; timer="${withval}"
+else
+  timer=""
+fi
+
+    if test "x$timer" = "x" ; then
+      timer=TIMER_GETTIMEOFDAY
+    fi
+    if test "$timer" == "TIMER_GETTIMEOFDAY"; then
+      { echo "$as_me:$LINENO: result: ${timer}" >&5
+echo "${ECHO_T}${timer}" >&6; }
+    else if test "$timer" == "TIMER_MPI_WTIME"; then
+      { echo "$as_me:$LINENO: result: ${timer}" >&5
+echo "${ECHO_T}${timer}" >&6; }
+    else if test "$timer" == "TIMER_PAPI_REAL_USEC"; then
+      { echo "$as_me:$LINENO: result: ${timer}" >&5
+echo "${ECHO_T}${timer}" >&6; }
+    else
+      { { echo "$as_me:$LINENO: error: not recognized timer" >&5
+echo "$as_me: error: not recognized timer" >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    fi
+    fi
+    cat >>confdefs.h <<_ACEOF
+#define TIMER $timer
+_ACEOF
+
 
 { echo "$as_me:$LINENO: checking for MPI install directory" >&5
 echo $ECHO_N "checking for MPI install directory... $ECHO_C" >&6; }
@@ -3728,7 +3761,7 @@ else
 fi
 
     if test "x$papi_lib_dir" = "x" ; then
-       papi_lib_dir=${papi_dir}/lib64
+       papi_lib_dir=${papi_dir}/lib
     fi
     { echo "$as_me:$LINENO: result: ${papi_lib_dir}" >&5
 echo "${ECHO_T}${papi_lib_dir}" >&6; }
@@ -4177,24 +4210,6 @@ echo "${ECHO_T}${ADCL_USERLEVEL_TIMINGS}" >&6; }
 if test "$ADCL_USERLEVEL_TIMINGS" = yes ; then
   cat >>confdefs.h <<\_ACEOF
 #define ADCL_USERLEVEL_TIMINGS 1
-_ACEOF
-
-fi
-
-# Check whether --enable-mpi-wtime was given.
-if test "${enable_mpi_wtime+set}" = set; then
-  enableval=$enable_mpi_wtime; test "$enableval" = yes && ADCL_USE_MPIWTIME=yes
-fi
-
-test "$ADCL_USE_MPIWTIME" = yes || ADCL_USE_MPIWTIME=no
-
-{ echo "$as_me:$LINENO: checking whether to use MPI_Wtime instead of gettimeofday for timing" >&5
-echo $ECHO_N "checking whether to use MPI_Wtime instead of gettimeofday for timing... $ECHO_C" >&6; }
-{ echo "$as_me:$LINENO: result: ${ADCL_USE_MPIWTIME}" >&5
-echo "${ECHO_T}${ADCL_USE_MPIWTIME}" >&6; }
-if test "$ADCL_USE_MPIWTIME" = yes ; then
-  cat >>confdefs.h <<\_ACEOF
-#define ADCL_USE_MPIWTIME 1
 _ACEOF
 
 fi

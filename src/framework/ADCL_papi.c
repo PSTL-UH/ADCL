@@ -12,6 +12,18 @@
 ADCL_array_t *ADCL_papi_farray;
 static int ADCL_local_id_counter=0;
 
+int ADCL_papi_init(void)
+{
+    int code;
+    /* Initialization of the PAPI library */
+    if (!PAPI_is_initialized()) {
+        if ( (code = PAPI_library_init(PAPI_VER_CURRENT)) != PAPI_VER_CURRENT)
+        ADCL_handle_error(code,"library_init");
+    }
+    /* Initialization of the timer */
+
+}
+
 int ADCL_papi_create ( ADCL_papi_t **papi )
 {
     ADCL_papi_t *newpapi=NULL;
@@ -32,10 +44,11 @@ int ADCL_papi_create ( ADCL_papi_t **papi )
 
     newpapi->p_num_events = 0;
     newpapi->p_hwinfo = NULL;
-
-    if ( (code = PAPI_library_init(PAPI_VER_CURRENT)) != PAPI_VER_CURRENT)
-    ADCL_handle_error(code,"library_init");
-
+    if (!PAPI_is_initialized()) {
+        if ( (code = PAPI_library_init(PAPI_VER_CURRENT)) != PAPI_VER_CURRENT) {
+            ADCL_handle_error(code,"library_init");
+	}
+    }
     /* Query events to check availability and determine size of event set */
     if (PAPI_query_event(PAPI_L2_TCH) == PAPI_OK) /* Level 2 Total Cache Hits */
     newpapi->p_num_events ++;

@@ -26,6 +26,7 @@ struct ADCL_papi_s{
 typedef struct ADCL_papi_s ADCL_papi_t;
 extern ADCL_array_t *ADCL_papi_farray;
 
+int ADCL_papi_init   ( void );
 int ADCL_papi_create ( ADCL_papi_t **papi );
 int ADCL_papi_free   ( ADCL_papi_t **papi );
 int ADCL_papi_enter  ( ADCL_papi_t *papi );

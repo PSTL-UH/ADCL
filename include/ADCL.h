@@ -86,6 +86,11 @@
 #define ADCL_VECTOR_ALLREDUCE  6 
 #define ADCL_VECTOR_INPLACE    7 
 
+/* ADCL timer options */
+#define TIMER_GETTIMEOFDAY    0
+#define TIMER_MPI_WTIME       1
+#define TIMER_PAPI_REAL_USEC  2
+
 /* Define ADCL public structures */
 struct ADCL_data_s{
     int                     d_id; /* id of the object */
