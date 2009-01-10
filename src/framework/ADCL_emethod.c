@@ -12,6 +12,8 @@ static int ADCL_local_id_counter = 0;
 ADCL_array_t *ADCL_emethod_array = NULL;
 
 int ADCL_emethod_selection = -1;
+int ADCL_emethod_allreduce_selection = -1;
+int ADCL_emethod_allgatherv_selection = -1;
 int ADCL_merge_requests = 1;
 int ADCL_emethod_numtests = ADCL_EMETHOD_NUMTESTS;
 int ADCL_emethod_use_perfhypothesis = 0; /* false */
@@ -183,8 +185,20 @@ nextemethod:
             e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_selection );
         }
     }
+    if ( 0 == strcmp ( f->fs_name , "AllReduce") ) {
+        if ( -1 != ADCL_emethod_allreduce_selection ) {
+            e->em_state = ADCL_STATE_REGULAR;
+            e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_allreduce_selection );
+        }
+    }
+    if ( 0 == strcmp ( f->fs_name , "AllGatherV") ) {
+        if ( -1 != ADCL_emethod_allgatherv_selection ) {
+            e->em_state = ADCL_STATE_REGULAR;
+            e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_allgatherv_selection );
+        }
+    }
 
- exit:
+exit:
     if ( ret != ADCL_SUCCESS  ) {
         if ( NULL != e->em_stats  ) {
             for ( i=0; i< f->fs_maxnum; i++ ) {
