@@ -13,7 +13,7 @@ HEADER = $(ADCL_INC_DIR)/ADCL_array.h       \
 	 $(ADCL_INC_DIR)/ADCL_config.h	    \
 	 $(ADCL_INC_DIR)/ADCL_contiguous.h  \
 	 $(ADCL_INC_DIR)/ADCL_emethod.h     \
-	 $(ADCL_INC_DIR)/ADCL_data.h        \
+	 $(ADCL_INC_DIR)/ADCL_hist.h        \
 	 $(ADCL_INC_DIR)/ADCL_fprototypes.h \
 	 $(ADCL_INC_DIR)/ADCL.h             \
 	 $(ADCL_INC_DIR)/ADCL_internal.h    \
