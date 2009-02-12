@@ -15,7 +15,6 @@
 #include "ADCL_statistics.h"
 #include "ADCL_function.h"
 
-
 struct ADCL_emethod_s {
     int                              em_id; /* unique identifier */
     int                           em_rfcnt; /* reference counter */
@@ -24,7 +23,7 @@ struct ADCL_emethod_s {
     int                            em_last; /* last element given out */
     int                  em_perfhypothesis; /* use performance hypothesis for the runtime
                                             optimization? */
-    int                   em_explored_data; /* number of explored data objects for identical
+    int                   em_explored_hist; /* number of explored hist objects for identical
                                             and similar problems */
     int                       em_filtering; /* state if the decision was based on filtered or 
                                             unflitered data */
@@ -44,6 +43,12 @@ struct ADCL_emethod_s {
                                             emethod */
     ADCL_function_t          *em_wfunction; /* winner function */
     ADCL_hist_criteria_t *em_hist_criteria; /* History entries filtering criteria */
+    ADCL_hist_list_t         *em_hist_list; /* History list of "filtered" entries */
+    int                        em_hist_cnt; /* History entries count */
+    int                     **em_relations; /* Matrix cntXcnt of relations between history entries */
+    double                  **em_distances; /* Matrix cntXcnt of distances between history entries */
+    ADCL_hist_t                   *em_hist; /* History entry of the current pb without solution */
+
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 

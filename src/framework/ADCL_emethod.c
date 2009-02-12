@@ -12,11 +12,10 @@ static int ADCL_local_id_counter = 0;
 ADCL_array_t *ADCL_emethod_array = NULL;
 
 int ADCL_emethod_selection = -1;
-int ADCL_emethod_allreduce_selection = -1;
-int ADCL_emethod_allgatherv_selection = -1;
 int ADCL_merge_requests = 1;
 int ADCL_emethod_numtests = ADCL_EMETHOD_NUMTESTS;
 int ADCL_emethod_use_perfhypothesis = 0; /* false */
+int ADCL_emethod_learn_from_hist = 0;
 
 #define ADCL_ATTR_TOTAL_NUM 3
 extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
@@ -28,8 +27,9 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
                    ADCL_fnctset_t *f )
 
 {
-    ADCL_emethod_t *e=NULL;
-    ADCL_hypothesis_t *hypo=NULL;
+    ADCL_emethod_t *e = NULL;
+    ADCL_hypothesis_t *hypo = NULL;
+
     int i, ret=ADCL_SUCCESS;
 
     if ( ADCL_merge_requests && v != ADCL_VECTOR_NULL ) {
@@ -121,7 +121,7 @@ nextemethod:
     e->em_id          = ADCL_local_id_counter++;
     e->em_rfcnt       = 1;
     e->em_state       = ADCL_STATE_TESTING;
-    e->em_explored_data = -2;
+    e->em_explored_hist = -2;
     e->em_topo        = t;
     e->em_vec         = v;
     if ( NULL != v && ADCL_VECTOR_NULL != v) {
@@ -185,20 +185,16 @@ nextemethod:
             e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_selection );
         }
     }
-    if ( 0 == strcmp ( f->fs_name , "AllReduce") ) {
-        if ( -1 != ADCL_emethod_allreduce_selection ) {
-            e->em_state = ADCL_STATE_REGULAR;
-            e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_allreduce_selection );
-        }
-    }
-    if ( 0 == strcmp ( f->fs_name , "AllGatherV") ) {
-        if ( -1 != ADCL_emethod_allgatherv_selection ) {
-            e->em_state = ADCL_STATE_REGULAR;
-            e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_allgatherv_selection );
-        }
-    }
 
-exit:
+    /* History list initialization */
+    e->em_hist_list =  (ADCL_hist_list_t *)calloc(1, sizeof(ADCL_hist_list_t));
+    if ( NULL ==  e->em_hist_list ) {
+        ret = ADCL_NO_MEMORY;
+        goto exit;
+    }
+    /* Initialize history entries count to 0 */
+    e->em_hist_cnt = 0;
+ exit:
     if ( ret != ADCL_SUCCESS  ) {
         if ( NULL != e->em_stats  ) {
             for ( i=0; i< f->fs_maxnum; i++ ) {
@@ -262,7 +258,21 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
         if ( NULL != hypo->h_curr_attrvals ) {
             free ( hypo->h_curr_attrvals );
         }
+        if ( NULL != e->em_hist_criteria ) {   
+            if ( NULL != e->em_hist_criteria->hc_filter_criteria ){
+                free( e->em_hist_criteria->hc_filter_criteria );
+            }
+            free(e->em_hist_criteria);
+        }
 
+
+/* TBD
+        hist_list = e->em_hist_list;
+        do {
+            ADCL_hist_free(hist_list->hl_curr);
+            hist_list = hist_list->hl_next;
+        } while (NULL != hist_list);
+*/
         ADCL_array_remove_element ( ADCL_emethod_array, e->em_findex );
         free ( e );
     }
@@ -385,29 +395,44 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
 {
     int next = ADCL_EVAL_DONE;
     int last = e->em_last;
-    int data_search_res;
-    ADCL_data_t *data;
+    int hist_search_res;
+    ADCL_hist_t *hist;
     ADCL_function_t *func;
+    TIME_TYPE start, end;
 
-
-    /* Search for solution/hints in the data stored from previous runs */
-    data_search_res = ADCL_data_find( e, &data );
-    switch (data_search_res) {
+    if ( 1 == ADCL_emethod_learn_from_hist ) {
+        /* Search for solution/hints in the hist stored from previous runs */
+        start = TIME;
+        hist_search_res = ADCL_hist_find( e, &hist );
+	end = TIME;
+    }
+    else {
+        hist_search_res = ADCL_UNEQUAL;
+    }
+    switch (hist_search_res) {
         case ADCL_IDENT:
-            func = ADCL_fnctset_get_fnct_by_name ( e->em_orgfnctset,
-                                                   data->d_wfname );
+            func = e->em_orgfnctset->fs_fptrs[hist->h_wfnum];
             if ( ADCL_FUNCTION_NULL != func ) {
                 e->em_state = ADCL_STATE_REGULAR;
                 e->em_wfunction = func;
                 return ADCL_SOL_FOUND;
             }
             else {
-                ADCL_printf("Function %s is not found in the function set\n", data->d_wfname );
+                ADCL_printf("Function %s is not found in the function set\n", hist->h_wfname );
             }
             break;
         case ADCL_SIMILAR:
-            /* one idea is to increment the confidance number for 
-               attributes values of the winning function */
+#ifdef HL_VERBOSE
+                if(0 == e->em_topo->t_rank) {
+                    printf("Time for prediction: %f us\n", end-start);
+                }
+#endif
+                /* one idea is to increment the confidance number for 
+                   attributes values of the winning function */
+                e->em_state = ADCL_STATE_REGULAR;
+                e->em_wfunction = e->em_orgfnctset->fs_fptrs[e->em_hist->h_wfnum];
+                /* TO BE MONITORED for discarding in case bad results */
+                return ADCL_SOL_FOUND;
             break;
         case ADCL_UNEQUAL:
         default:
@@ -418,7 +443,6 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
         e->em_stats[last]->s_count++;
         return last;
     }
-
 
     if ( e->em_stats[last]->s_rescount < ADCL_emethod_numtests ) {
         /*

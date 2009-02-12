@@ -75,7 +75,8 @@ int ADCL_fnctset_reg_hist_fnct ( ADCL_hist_functions_t *hist_functions, ADCL_fnc
 
 int ADCL_fnctset_free   ( ADCL_fnctset_t **fnctset );
 int ADCL_fnctset_dup    ( ADCL_fnctset_t *org, ADCL_fnctset_t *copy );
-ADCL_function_t* ADCL_fnctset_get_fnct_by_name ( ADCL_fnctset_t *fnctset, char *fname );
+ADCL_function_t* ADCL_fnctset_get_fnct_by_name ( ADCL_fnctset_t *fnctset, char *fname, int *fnum );
+int ADCL_fnctset_get_fnct_num ( ADCL_fnctset_t *fnctset, ADCL_function_t*fnct );
 int ADCL_fnctset_shrink_by_attr ( ADCL_fnctset_t *fnctset, int attr_pos,
                                   int excluded_value);
 #endif

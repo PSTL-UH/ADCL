@@ -340,19 +340,33 @@ int ADCL_fnctset_free ( ADCL_fnctset_t **fnctset)
 /********************************************************************************/
 /********************************************************************************/
 /********************************************************************************/
-ADCL_function_t*  ADCL_fnctset_get_fnct_by_name ( ADCL_fnctset_t *fnctset, char *fname )
+ADCL_function_t*  ADCL_fnctset_get_fnct_by_name ( ADCL_fnctset_t *fnctset, char *fname, int *fnum )
 {
     ADCL_function_t* func;
     int i;
     for (i=0; i<fnctset->fs_maxnum; i++) {
         func = fnctset->fs_fptrs[i];
         if ( 0 == strncmp ( func->f_name, fname, strlen(fname))){
+            *fnum = i;
             return func;
         }
     }
     return  ADCL_FUNCTION_NULL;
 }
 
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+int ADCL_fnctset_get_fnct_num ( ADCL_fnctset_t *fnctset, ADCL_function_t*fnct )
+{
+    int i=-1;
+    for (i=0; i<fnctset->fs_maxnum; i++) {
+        if(fnct == fnctset->fs_fptrs[i])
+	{
+	    return i;
+	}
+    }
+}
 /********************************************************************************/
 /********************************************************************************/
 /********************************************************************************/

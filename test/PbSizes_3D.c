@@ -13,30 +13,33 @@
 #include "mpi.h"
 
 /* Constants Definition */
-#define NB_OF_ITERATIONS      5000
+#define NB_OF_ITERATIONS      3250
 #define BEST_CLASS            0
 #define BEST_CLASS_THRESHOLD  5
 #define MED_CLASS             1
 #define WORST_CLASS           2
 #define WORST_CLASS_THRESHOLD 50
 #define NB_OF_IMPL            12
-#define NB_OF_SIZES           35
+#define NB_OF_SIZES           50
 
 /* Implementations names */
 char *impl_names[NB_OF_IMPL] = {"IsendIrecv_aao","SendIrecv_aao","IsendIrecv_aao_pack","SendIrecv_aao_pack",
                                "IsendIrecv_pair","IsendIrecv_pair_pack","SendIrecv_pair","SendIrecv_pair_pack",
                                "Sendrecv_pair","Send_Recv_pair","Sendrecv_pair_pack","Send_Recv_pair_pack"};
 
-/* Dimensions of the data matrix per process */
-int ProblemSizes[NB_OF_SIZES][3] = { {32,32,32}, {40,32,32}, {40,40,32}, {40,40,40},
+int ProblemSizes[NB_OF_SIZES][3] = { {24,24,24}, {32,24,24}, {32,32,24},
+                                     {32,32,32}, {40,32,32}, {40,40,32}, {40,40,40},
                                      {48,32,32}, {48,40,32}, {48,40,40}, {48,48,32},
                                      {48,48,40}, {48,48,48}, {56,32,32} ,{56,40,32},
                                      {56,40,40}, {56,48,32}, {56,48,40}, {56,48,48},
                                      {56,56,32}, {56,56,40}, {56,56,48}, {56,56,56},
                                      {64,32,32}, {64,40,32}, {64,40,40}, {64,48,32},
-                                     {64,48,40}, {64,48,48}, {64,56,32} ,{64,56,40},
-                                     {64,56,48}, {64,56,56}, {64,64,32} ,{64,64,40},
-                                     {64,64,48}, {64,64,56}, {64,64,64} };
+                                     {64,48,40}, {64,48,48}, {64,56,32}, {64,56,40},
+                                     {64,56,48}, {64,56,56}, {64,64,32}, {64,64,40},
+                                     {64,64,48}, {64,64,56}, {64,64,64}, {72,64,64},
+                                     {72,72,64}, {72,72,72}, {80,64,64}, {80,72,64},
+                                     {80,72,72}, {80,80,64}, {80,80,72}, {80,80,80},
+                                     {88,80,80}, {88,88,80}, {88,88,88} };
 
 static void cluster_implementations(double *g_elapsed_time, int *impl_classes );
 static double compute_distance(int i,int j);
@@ -100,7 +103,7 @@ int main ( int argc, char ** argv )
         err = ADCL_Vector_allocate_generic ( 3,  dims, 0, vmap, MPI_DOUBLE, &data, &vec );
         if ( ADCL_SUCCESS != err) goto exit;
         ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
-        
+
         /* Evaluate implementation 1 */
         t_start = MPI_Wtime();
         for ( it=0; it<NB_OF_ITERATIONS; it++ ) {
@@ -184,7 +187,6 @@ int main ( int argc, char ** argv )
              ADCL_change_sb_pair_Send_Recv_pack( request );
         }
         elapsed_time[11] = MPI_Wtime()-t_start;
-
 
         /* Evaluate ADCL B.F amd P.H. */
         /* So far, ADCL will behace according to the config.adcl file */

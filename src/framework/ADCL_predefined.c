@@ -14,10 +14,10 @@
 extern int ADCL_emethod_use_perfhypothesis;
 
 /* Static functions declaration */
-static void ADCL_neighborhood_read( FILE *fp, ADCL_Data data );
-static void ADCL_neighborhood_write( FILE *fp, ADCL_Data data );
-static int ADCL_neighborhood_filter( ADCL_Data data, void *filter_criteria );
-static double ADCL_neighborhood_distance( ADCL_Data data1 , ADCL_Data data2 );
+static void ADCL_neighborhood_read( FILE *fp, ADCL_Hist hist );
+static void ADCL_neighborhood_write( FILE *fp, ADCL_Hist hist );
+static int ADCL_neighborhood_filter( ADCL_Hist hist, void *filter_criteria );
+static double ADCL_neighborhood_distance( ADCL_Hist hist1 , ADCL_Hist hist2 );
 
 ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_NN_TOTAL_NUM];
 ADCL_attrset_t *ADCL_neighborhood_attrset;
@@ -124,7 +124,6 @@ int ADCL_predefined_init ( void )
                           &ADCL_neighborhood_attrset);
 
 
-
     /* Register function aao, ddt, IsendIrecv */
     m_nn_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_aao;
     m_nn_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
@@ -216,7 +215,6 @@ int ADCL_predefined_init ( void )
                                  &ADCL_neighborhood_functions[count]);
     count++;
 
-
     /* pair, ddt, Send_Recv */
     m_nn_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     m_nn_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
@@ -228,7 +226,6 @@ int ADCL_predefined_init ( void )
                                  &ADCL_neighborhood_functions[count]);
     count++;
 
-
     /* pair, ddt, Sendrecv */
     m_nn_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
     m_nn_attr[ADCL_ATTR_NONCONT]   = ADCL_attr_noncont_ddt;
@@ -239,7 +236,6 @@ int ADCL_predefined_init ( void )
                                  m_nn_attr, "Sendrecv_pair",
                                  &ADCL_neighborhood_functions[count]);
     count++;
-
 
     /* pair, pack, Send_Recv */
     m_nn_attr[ADCL_ATTR_MAPPING]   = ADCL_attr_mapping_pair;
@@ -402,37 +398,37 @@ int ADCL_predefined_init ( void )
 
     ADCL_function_create_async ( ADCL_allgatherv_native, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_native",
+                                 m_allgatherv_attr, "Allgatherv native",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_recursivedoubling, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_recursive_doubling",
+                                 m_allgatherv_attr, "Allgatherv recursive doubling",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_linear, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_linear",
+                                 m_allgatherv_attr, "Allgatherv linear",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_bruck, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_bruck",
+                                 m_allgatherv_attr, "Allgatherv bruck",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_neighborexchange, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_neighbor_exchange",
+                                 m_allgatherv_attr, "Allgatherv neighbor exchange",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_ring, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_ring",
+                                 m_allgatherv_attr, "Allgatherv ring",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
@@ -440,7 +436,7 @@ int ADCL_predefined_init ( void )
     /* this algo only works for topo->t_size == 2
      * ADCL_function_create_async ( ADCL_allgatherv_two_procs, NULL,
      *                              ADCL_ATTRSET_NULL,
-     *                              m_allgatherv_attr, "Allgatherv_two_procs",
+     *                              m_allgatherv_attr, "Allgatherv two procs",
      *                              & ADCL_allgatherv_functions[count]);
      * count++; */
 
@@ -470,31 +466,31 @@ int ADCL_predefined_init ( void )
 
     ADCL_function_create_async ( ADCL_allreduce_native, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_native",
+                                 m_allreduce_attr, "Allreduce native",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allreduce_linear, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_linear",
+                                 m_allreduce_attr, "Allreduce linear",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allreduce_nonoverlapping, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_nonoverlapping",
+                                 m_allreduce_attr, "Allreduce nonoverlapping",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allreduce_recursivedoubling, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_recursive_doubling",
+                                 m_allreduce_attr, "Allreduce recursive doubling",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allreduce_ring, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_ring",
+                                 m_allreduce_attr, "Allreduce ring",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
@@ -522,7 +518,7 @@ int ADCL_predefined_finalize ( void )
     return ADCL_SUCCESS;
 }
 
-void ADCL_neighborhood_read( FILE *fp, ADCL_Data data )
+void ADCL_neighborhood_read( FILE *fp, ADCL_Hist hist )
 {
     int j;
     int nchar = 80;
@@ -534,95 +530,109 @@ void ADCL_neighborhood_read( FILE *fp, ADCL_Data data )
     /* Network Topology information */
     fgets( line, nchar, fp ); /* NTOPO Tag */
     fgets( line, nchar, fp ); /* NP */
-    get_int_data_from_xml ( line, &data->d_np );
+    get_int_data_from_xml ( line, &hist->h_np );
     fgets( line, nchar, fp ); /* Close NTOPO Tag */
     /* Logical Topology information */
     fgets( line, nchar, fp ); /* LTOPO Tag */
     fgets( line, nchar, fp ); /* NDIM Tag */
-    get_int_data_from_xml ( line, &data->d_tndims );
+    get_int_data_from_xml ( line, &hist->h_tndims );
     fgets( line, nchar, fp ); /* PERIOD Tag */
-    data->d_tperiods = (int *)malloc( data->d_tndims*sizeof(int) );
-    for ( j=0; j<data->d_tndims; j++ ) {
+    hist->h_tperiods = (int *)malloc( hist->h_tndims*sizeof(int) );
+    for ( j=0; j<hist->h_tndims; j++ ) {
         fgets( line, nchar, fp ); /* DIM Tag */
-        get_int_data_from_xml ( line, &(data->d_tperiods[j]) );
+        get_int_data_from_xml ( line, &(hist->h_tperiods[j]) );
     }
     fgets( line, nchar, fp ); /* Close PERIOD Tag */
     fgets( line, nchar, fp ); /* Close LTOPO Tag */
     /* Vector information */
     fgets( line, nchar, fp ); /* VECT Tag */
     fgets( line, nchar, fp ); /* NDIM Tag */
-    get_int_data_from_xml ( line, &data->d_vndims );
+    get_int_data_from_xml ( line, &hist->h_vndims );
     fgets( line, nchar, fp ); /* DIMS Tag */
-    data->d_vdims = (int *)malloc( data->d_vndims*sizeof(int) );
-    for ( j=0; j<data->d_vndims; j++ ) {
+    hist->h_vdims = (int *)malloc( hist->h_vndims*sizeof(int) );
+    for ( j=0; j<hist->h_vndims; j++ ) {
         fgets( line, nchar, fp ); /* DIM Tag */
-	get_int_data_from_xml ( line, &(data->d_vdims[j]) );
+	get_int_data_from_xml ( line, &(hist->h_vdims[j]) );
     }
     fgets( line, nchar, fp ); /* Close DIMS Tag */
     fgets( line, nchar, fp ); /* NC Tag */
-    get_int_data_from_xml ( line, &data->d_nc );
+    get_int_data_from_xml ( line, &hist->h_nc );
     /* Memory allocation for cnts and displ */
-    data->d_rcnts = (int *)calloc (data->d_np, sizeof(int));
-    data->d_displ = (int *)calloc (data->d_np, sizeof(int));
-    /* Reading the data */
+    hist->h_rcnts = (int *)calloc (hist->h_np, sizeof(int));
+    hist->h_displ = (int *)calloc (hist->h_np, sizeof(int));
+    /* Reading the hist */
     fgets( line, nchar, fp ); /* Opening MAP Tag */
     fgets( line, nchar, fp ); /* VECTYPE Tag */
-    get_int_data_from_xml ( line, &data->d_vectype );
+    get_int_data_from_xml ( line, &hist->h_vectype );
     fgets( line, nchar, fp ); /* HWIDTH Tag */
-    get_int_data_from_xml ( line, &data->d_hwidth );
+    get_int_data_from_xml ( line, &hist->h_hwidth );
     fgets( line, nchar, fp ); /* Opening CNTS Tag */
-    for ( j=0; j<data->d_np; j++ ) {
+    for ( j=0; j<hist->h_np; j++ ) {
        fgets( line, nchar, fp ); /* CNT Tag */
-       get_int_data_from_xml ( line, &(data->d_rcnts[j]) );
+       get_int_data_from_xml ( line, &(hist->h_rcnts[j]) );
     }
     fgets( line, nchar, fp ); /* CLOSE CNTS Tag */
     fgets( line, nchar, fp ); /* Opening DISPL Tag */
-    for ( j=0; j<data->d_np; j++ ) {
+    for ( j=0; j<hist->h_np; j++ ) {
 	fgets( line, nchar, fp ); /* DISPL Tag */
-        get_int_data_from_xml ( line, &(data->d_displ[j]) );
+        get_int_data_from_xml ( line, &(hist->h_displ[j]) );
     }
     fgets( line, nchar, fp ); /* Close DISPL Tag */
     fgets( line, nchar, fp ); /* OP Tag */
-    get_int_data_from_xml ( line, (int *)&(data->d_op) );
+    get_int_data_from_xml ( line, (int *)&(hist->h_op) );
     fgets( line, nchar, fp ); /* INPLACE Tag */
-    get_int_data_from_xml ( line, &(data->d_inplace) );
+    get_int_data_from_xml ( line, &(hist->h_inplace) );
     fgets( line, nchar, fp ); /* Close MAP Tag */
     fgets( line, nchar, fp ); /* Close VECT Tag */
     /* Attribute information */
     fgets( line, nchar, fp ); /* ATTR Tag */
     fgets( line, nchar, fp ); /* NUM Tag */
-    get_int_data_from_xml ( line, &data->d_asmaxnum );
+    get_int_data_from_xml ( line, &hist->h_asmaxnum );
     fgets( line, nchar, fp ); /* ATTRVALS Tag */
-    data->d_attrvals = (int *)malloc( data->d_asmaxnum*sizeof(int) );
-    for ( j=0; j<data->d_asmaxnum; j++ ) {
+    hist->h_attrvals = (int *)malloc( hist->h_asmaxnum*sizeof(int) );
+    for ( j=0; j<hist->h_asmaxnum; j++ ) {
        fgets( line, nchar, fp ); /* VAL Tag */
-       get_int_data_from_xml ( line, &(data->d_attrvals[j]) );
+       get_int_data_from_xml ( line, &(hist->h_attrvals[j]) );
     }
     fgets( line, nchar, fp ); /* Close ATTRVALS Tag */
     fgets( line, nchar, fp ); /* Close ATTR Tag */
     /* Function set and winner function */
     fgets( line, nchar, fp ); /* FUNC Tag */
     fgets( line, nchar, fp ); /* FNCTSET Tag */
-    get_str_data_from_xml ( line, &data->d_fsname );
-    fgets( line, nchar, fp ); /* WINNER  Tag */
-    get_str_data_from_xml ( line, &data->d_wfname );
+    get_str_data_from_xml ( line, &hist->h_fsname );
+    fgets( line, nchar, fp ); /* WFNAME  Tag */
+    get_str_data_from_xml ( line, &hist->h_wfname );
+    fgets( line, nchar, fp ); /* WFNUM  Tag */
+    get_int_data_from_xml ( line, &hist->h_wfnum );
     fgets( line, nchar, fp ); /* FNCTNUM Tag */
-    get_int_data_from_xml ( line, &data->d_fsnum );
+    get_int_data_from_xml ( line, &hist->h_fsnum );
     fgets( line, nchar, fp ); /* Close FUNC Tag */
     fgets( line, nchar, fp ); /* PERFS Tag */
-    data->d_perf = (double *)malloc(data->d_fsnum*sizeof(double));
-    for ( j=0; j<data->d_fsnum; j++ ) {
+    hist->h_perf = (double *)malloc(hist->h_fsnum*sizeof(double));
+    for ( j=0; j<hist->h_fsnum; j++ ) {
         fgets( line, nchar, fp ); /* PERF Tag */
         get_str_data_from_xml ( line, &perf );
-        data->d_perf[j] = atof(perf);
+        hist->h_perf[j] = atof(perf);
     }
     fgets( line, nchar, fp ); /* Close PERFS Tag */
+    fgets( line, nchar, fp ); /* PERF_WIN Tag */
+    get_int_data_from_xml ( line, &hist->h_perf_win );
+    hist->h_class = (int *)malloc(hist->h_fsnum*sizeof(int));
+    fgets( line, nchar, fp ); /* CLASSES Tag */
+    for ( j=0; j<hist->h_fsnum; j++ ) {
+        fgets( line, nchar, fp ); /* CLASS Tag */
+        get_int_data_from_xml ( line, &(hist->h_class[j]) );
+    }
+    fgets( line, nchar, fp ); /* Close CLASSES Tag */
+    fgets( line, nchar, fp ); /* DMAX Tag */
+    get_str_data_from_xml ( line, &perf );
+    hist->h_dmax = atof(perf);
     fgets( line, nchar, fp ); /* Close RECORD Tag */
 
     return;
 }
 
-static void ADCL_neighborhood_write( FILE *fp, ADCL_Data data )
+static void ADCL_neighborhood_write( FILE *fp, ADCL_Hist hist )
 {
     int i, j, tndims, vndims ;
     int nchar = 80, nch;
@@ -632,73 +642,84 @@ static void ADCL_neighborhood_write( FILE *fp, ADCL_Data data )
     /* Network Topology information */
     fprintf ( fp, "    <NTOPO>\n" );
     /* So far we have only np, later on this part might be extended significantly */
-    fprintf ( fp, "      <NP>%d</NP>\n", data->d_np );
+    fprintf ( fp, "      <NP>%d</NP>\n", hist->h_np );
     fprintf ( fp, "    </NTOPO>\n" );
     /* Logical Topology information */
     fprintf ( fp, "    <LTOPO>\n" );
-    tndims = data->d_tndims;
+    tndims = hist->h_tndims;
     fprintf ( fp, "      <NDIM>%d</NDIM>\n", tndims );
     fprintf ( fp, "      <PERIOD>\n");
     for ( j=0; j<tndims; j++) {
-        fprintf ( fp, "        <DIM>%d</DIM>\n", data->d_tperiods[j] );
+        fprintf ( fp, "        <DIM>%d</DIM>\n", hist->h_tperiods[j] );
     }
     fprintf ( fp, "      </PERIOD>\n");
     fprintf ( fp, "    </LTOPO>\n" );
     /* Vector information */
     fprintf ( fp, "    <VECT>\n" );
-    vndims = data->d_vndims;
+    vndims = hist->h_vndims;
     fprintf ( fp, "      <NDIM>%d</NDIM>\n", vndims );
     fprintf ( fp, "      <DIMS>\n");            
     for ( j=0; j<vndims; j++) {
-        fprintf ( fp, "        <DIM>%d</DIM>\n", data->d_vdims[j] );
+        fprintf ( fp, "        <DIM>%d</DIM>\n", hist->h_vdims[j] );
     }
     fprintf ( fp, "      </DIMS>\n");
-    fprintf ( fp, "      <NC>%d</NC>\n", data->d_nc );
+    fprintf ( fp, "      <NC>%d</NC>\n", hist->h_nc );
     /* Vector map information */
     fprintf ( fp, "      <MAP>\n");
-    fprintf ( fp, "        <VECTYPE>%d</VECTYPE>\n", data->d_vectype );
-    fprintf ( fp, "        <HWIDTH>%d</HWIDTH>\n", data->d_hwidth );
+    fprintf ( fp, "        <VECTYPE>%d</VECTYPE>\n", hist->h_vectype );
+    fprintf ( fp, "        <HWIDTH>%d</HWIDTH>\n", hist->h_hwidth );
     fprintf ( fp, "        <CNTS>\n" );
-    for ( j=0; j<data->d_np; j++ ) {
-        fprintf ( fp, "          <CNT>%d</CNT>\n", data->d_rcnts[j] );
+    for ( j=0; j<hist->h_np; j++ ) {
+        fprintf ( fp, "          <CNT>%d</CNT>\n", hist->h_rcnts[j] );
     }
     fprintf ( fp, "        </CNTS>\n" );
     fprintf ( fp, "        <DISPLS>\n" );
-    for ( j=0; j<data->d_np; j++ ) {
-        fprintf ( fp, "          <DISPL>%d</DISPL>\n", data->d_displ[j] );
+    for ( j=0; j<hist->h_np; j++ ) {
+        fprintf ( fp, "          <DISPL>%d</DISPL>\n", hist->h_displ[j] );
     }
     fprintf ( fp, "        </DISPLS>\n" );
-    fprintf ( fp, "        <OP>%d</OP>\n", data->d_op );
-    fprintf ( fp, "        <INPLACE>%d</INPLACE>\n", data->d_inplace );
+    fprintf ( fp, "        <OP>%d</OP>\n", hist->h_op );
+    fprintf ( fp, "        <INPLACE>%d</INPLACE>\n", hist->h_inplace );
     fprintf ( fp, "      </MAP>\n");
     fprintf ( fp, "    </VECT>\n" );
     /* Attribute information */
     fprintf ( fp, "    <ATTR>\n" );
-    fprintf ( fp, "      <NUM>%d</NUM>\n", data->d_asmaxnum );
+    fprintf ( fp, "      <NUM>%d</NUM>\n", hist->h_asmaxnum );
     fprintf ( fp, "      <ATTRVALS>\n" );
-    for ( j=0; j<data->d_asmaxnum; j++) {
-        fprintf ( fp, "        <VAL>%d</VAL>\n", data->d_attrvals[j] );
+    for ( j=0; j<hist->h_asmaxnum; j++) {
+        fprintf ( fp, "        <VAL>%d</VAL>\n", hist->h_attrvals[j] );
     }
     fprintf ( fp, "      </ATTRVALS>\n" );
     fprintf ( fp, "    </ATTR>\n" );
     /* Function set and winner function */
     fprintf ( fp, "    <FUNC>\n" );
-    fprintf ( fp, "      <FNCTSET>%s</FNCTSET>\n", data->d_fsname );
-    fprintf ( fp, "      <WINNER>%s</WINNER>\n", data->d_wfname );
-    fprintf ( fp, "      <FNCTNUM>%d</FNCTNUM>\n", data->d_fsnum );
+    fprintf ( fp, "      <FNCTSET>%s</FNCTSET>\n", hist->h_fsname );
+    fprintf ( fp, "      <WFNAME>%s</WFNAME>\n", hist->h_wfname );
+    fprintf ( fp, "      <WFNUM>%d</WFNUM>\n", hist->h_wfnum );
+    fprintf ( fp, "      <FNCTNUM>%d</FNCTNUM>\n", hist->h_fsnum );
     fprintf ( fp, "    </FUNC>\n" );
-    /* Performance data */
+    /* Performance hist */
     fprintf ( fp, "    <PERFS>\n" );
-    for ( j=0; j<data->d_fsnum; j++) {   
-       fprintf ( fp, "        <PERF>%.4f</PERF>\n", data->d_perf[j] );
+    for ( j=0; j<hist->h_fsnum; j++) {   
+       fprintf ( fp, "        <PERF>%.4f</PERF>\n", hist->h_perf[j] );
     }
     fprintf ( fp, "    </PERFS>\n" );
+    /* Performance window */
+    fprintf ( fp, "    <PERF_WIN>%d</PERF_WIN>\n", hist->h_perf_win );
+    /* Classification of the implementation according to the perf win */
+    fprintf ( fp, "    <CLASSES>\n" );
+    for ( j=0; j<hist->h_fsnum; j++) {   
+       fprintf ( fp, "        <CLASS>%d</CLASS>\n", hist->h_class[j] );
+    }
+    fprintf ( fp, "    </CLASSES>\n" );
+    /* maximum distance */
+    fprintf ( fp, "    <DMAX>%.2f</DMAX>\n", hist->h_dmax );
     fprintf ( fp, "  </RECORD>\n" );
 
     return;
 }
 
-static int ADCL_neighborhood_filter(ADCL_Data data, void *filter_criteria )
+static int ADCL_neighborhood_filter(ADCL_Hist hist, void *filter_criteria )
 {
     int retval;
     ADCL_neighborhood_criteria_t *criteria;
@@ -708,34 +729,34 @@ static int ADCL_neighborhood_filter(ADCL_Data data, void *filter_criteria )
     if ( NULL == criteria ) {
         return 1;
     }
-    if( (0 == strcmp( criteria->c_fsname, data->d_fsname)) &&
-        (criteria->c_tndims == data->d_tndims) ){
+    if( (0 == strcmp( criteria->c_fsname, hist->h_fsname)) &&
+        (criteria->c_tndims == hist->h_tndims) ){
 	retval = 1;
     }
     return retval;
 }
 
-static double ADCL_neighborhood_distance(ADCL_Data data1 , ADCL_Data data2 )
+static double ADCL_neighborhood_distance(ADCL_Hist hist1 , ADCL_Hist hist2 )
 {
     double distance = 0;
     int i; 
     /* Euclidian distance is used here */
-    for(i=0; i<data1->d_vndims; i++) {
-	distance += pow( (data1->d_vdims[i] - data2->d_vdims[i]) , 2);
+    for(i=0; i<hist2->h_vndims; i++) {
+	distance += (double)(pow( (hist1->h_vdims[i] - hist2->h_vdims[i]) , 2));
+//        printf("%d %d %f \n",hist1->h_vdims[i], hist2->h_vdims[i], distance);
     }
     return sqrt(distance);
 }
 
-void ADCL_neighborhood_set_criteria( void *filter_criteria, ADCL_request_t *req )
+void ADCL_neighborhood_set_criteria( ADCL_request_t *req, void *filter_criteria )
 {
-    ADCL_neighborhood_criteria_t *criteria;
-    criteria= (ADCL_neighborhood_criteria_t *)filter_criteria;
-
+    ADCL_neighborhood_criteria_t *criteria = (ADCL_neighborhood_criteria_t *)filter_criteria;
     /* Get the function set name */
     ADCL_Request_get_fsname( req, &(criteria->c_fsname) );
     /* Get the topology dimensions */
     ADCL_Request_get_tndims( req, &(criteria->c_tndims) );
-    /* Other criteria may follow */
 
+    /* Other criteria may follow */
+    
     return;
 }

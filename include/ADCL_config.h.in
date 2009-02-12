@@ -61,5 +61,14 @@
 /* enable Dummy MPI library? */
 #undef ADCL_DUMMY_MPI
 
+/* Acceptable performance window for historic learning */
+#define ADCL_PERF_WIN 10
+
+/* Minimum number of history entries to try to make a prediction */
+#define ADCL_MIN_HIST 5
+
+/* Prediction algorithm to be used for historic learning */
+//#define ADCL_CLOSEST  1
+#define ADCL_WMV      1
 
 #endif

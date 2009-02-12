@@ -28,6 +28,9 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
 {
     int i, ret = ADCL_SUCCESS;
     ADCL_request_t *newreq;
+    /* ADCL criteria structure for neighborhood com fnctset */
+    ADCL_neighborhood_criteria_t *ADCL_neighborhood_criteria = NULL;
+
     int ident_vecs=1;
 #ifdef MPI_WIN
     MPI_Aint lb, extent;
@@ -309,6 +312,23 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
         }
     }
 
+    /* Registering a filtering criteria st for neighborhood communication */
+    if ( 0 == strcmp ( fnctset->fs_name , "Neighborhood communication") ) {
+        if( NULL == newreq->r_emethod->em_hist_criteria ) {
+            /* Filtering criteria */
+            ADCL_neighborhood_criteria = (ADCL_neighborhood_criteria_t *)calloc(1, sizeof(ADCL_neighborhood_criteria_t));
+            newreq->r_emethod->em_hist_criteria = (ADCL_Hist_criteria)calloc(1, sizeof(ADCL_hist_criteria_t));
+            if ( (NULL == ADCL_neighborhood_criteria)||
+                 ( NULL == newreq->r_emethod->em_hist_criteria ) ) {
+                ret = ADCL_NO_MEMORY;
+                goto exit;
+            }
+            newreq->r_emethod->em_hist_criteria->hc_filter_criteria = (void *)ADCL_neighborhood_criteria;
+            newreq->r_emethod->em_hist_criteria->hc_set_criteria = (ADCL_hist_set_criteria *)ADCL_neighborhood_set_criteria;
+            ADCL_neighborhood_set_criteria( newreq, ADCL_neighborhood_criteria );
+            newreq->r_emethod->em_hist_criteria->hc_criteria_set = 1;
+	}
+    }   
 exit:
     if ( ret != ADCL_SUCCESS ) {
         if ( NULL != newreq->r_svecs ) {
@@ -367,6 +387,14 @@ exit:
         if ( MPI_WIN_NULL != newreq->r_win ) {
             MPI_Win_free ( &(newreq->r_win) );
         }
+
+        if ( NULL != newreq->r_emethod->em_hist_criteria ) {
+            free(newreq->r_emethod->em_hist_criteria);
+        }
+
+        if ( NULL != ADCL_neighborhood_criteria ){
+            free(ADCL_neighborhood_criteria);
+	}
 
         if ( NULL != newreq ) {
             free ( newreq );
@@ -486,11 +514,52 @@ int ADCL_request_free ( ADCL_request_t **req )
 /**********************************************************************/
 int ADCL_request_init ( ADCL_request_t *req, int *db )
 {
+    TIME_TYPE t1, t2;
+    MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
+    TIME_TYPE start_time, end_time;
+    static TIME_TYPE elapsed_time = 0;
 
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_AVAIL );
 
     req->r_function = ADCL_request_get_function ( req, ADCL_COMM_AVAIL );
+
+#ifdef PERF_DETAILS
+    start_time = TIME;
+#endif /* PERF_DETAILS */
+#ifdef ADCL_USE_BARRIER
+    if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
+        MPI_Barrier ( comm );
+    }
+#endif /* ADCL_USE_BARRIER */
+#ifdef PERF_DETAILS
+    end_time = TIME;
+    elapsed_time += (end_time - start_time);
+#endif /* PERF_DETAILS */
+    /* Get starting point in time after barrier */
+    t1 = TIME;
+    /* Execute the function */
     req->r_function->f_iptr ( req );
+
+#ifdef PERF_DETAILS
+    start_time = TIME;
+#endif /* PERF_DETAILS */
+#ifdef ADCL_USE_BARRIER
+    if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
+        MPI_Barrier ( comm );
+    }
+#endif /* ADCL_USE_BARRIER */
+#ifdef PERF_DETAILS
+    end_time = TIME;
+    elapsed_time += (end_time - start_time);
+    ADCL_printf("Total elapsed time in Barriers = %f\n",elapsed_time);    
+#endif /* PERF_DETAILS */
+    /* Get ending point in time after barrier */
+    t2 = TIME;
+
+#ifndef ADCL_USERLEVEL_TIMINGS
+    /* Update the request with the timings */
+    ADCL_request_update ( req, t1, t2 );
+#endif /* ADCL_USERLEVEL_TIMINGS */
 
     *db = req->r_function->f_db;
     if ( req->r_function->f_db ) {
@@ -632,7 +701,7 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
             rank, req->r_id, req->r_emethod->em_wfunction->f_id,
             req->r_emethod->em_wfunction->f_name);
 #ifdef ADCL_SAVE_REQUEST_WINNER
-	ADCL_data_create ( req->r_emethod );
+	ADCL_hist_create ( req->r_emethod );
 #endif
         req->r_emethod->em_state = ADCL_STATE_REGULAR;
         /* no break; statement here on purpose! */

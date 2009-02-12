@@ -20,12 +20,10 @@ extern int ADCL_OUTLIER_FRACTION;
 extern int ADCL_statistic_method;
 extern int ADCL_merge_requests;
 extern int ADCL_emethod_selection;
-extern int ADCL_emethod_allreduce_selection;
-extern int ADCL_emethod_allgatherv_selection;
 extern int ADCL_emethod_numtests;
 extern int ADCL_printf_silence;
 extern int ADCL_emethod_use_perfhypothesis;
-
+extern int ADCL_emethod_learn_from_hist;
 extern int ADCL_method_total_num;
 //extern ADCL_method_t * ADCL_method_array;
 
@@ -157,38 +155,12 @@ int ADCL_readenv()
         ADCL_printf("#ADCL_EMETHOD_SELECTION : %s\n", valstring);
 #endif
         for ( i=0; i< ADCL_neighborhood_fnctset->fs_maxnum; i++ ) {
-        if ( strcmp(valstring, ADCL_neighborhood_fnctset->fs_fptrs[i]->f_name) == 0) {
-            ADCL_emethod_selection = i;
-            break;
+            if ( strcmp(valstring, ADCL_neighborhood_fnctset->fs_fptrs[i]->f_name) == 0) {
+                ADCL_emethod_selection = i;
+                break;
+            }
         }
-        }
-        }
-    else if (strncmp(keyword,"ADCL_EMETHOD_ALLREDUCE_SELECTION",
-             strlen("ADCL_EMETHOD_ALLREDUCE_SELECTION"))==0) {
-        sscanf(ptr,"%s", valstring);
-#ifdef  Debug
-        ADCL_printf("#ADCL_EMETHOD_ALLREDUCE_SELECTION : %s\n", valstring);
-#endif
-        for ( i=0; i< ADCL_allreduce_fnctset->fs_maxnum; i++ ) {
-	if ( strcmp(valstring, ADCL_allreduce_fnctset->fs_fptrs[i]->f_name) == 0) {
-            ADCL_emethod_allreduce_selection = i;
-            break;
-        }
-        }
-        }
-    else if (strncmp(keyword,"ADCL_EMETHOD_ALLGATHERV_SELECTION",
-             strlen("ADCL_EMETHOD_ALLGATHERV_SELECTION"))==0) {
-        sscanf(ptr,"%s", valstring);
-#ifdef  Debug
-        ADCL_printf("#ADCL_EMETHOD_ALLGATHERV_SELECTION : %s\n", valstring);
-#endif
-        for ( i=0; i< ADCL_allgatherv_fnctset->fs_maxnum; i++ ) {
-        if ( strcmp(valstring, ADCL_allgatherv_fnctset->fs_fptrs[i]->f_name) == 0) {
-            ADCL_emethod_allgatherv_selection = i;
-            break;
-        }
-        }
-        }
+    }
 
     /*  ADCL_PRINTF_SILENCE  */
     else if ( strncmp(keyword, "ADCL_PRINTF_SILENCE",
@@ -199,7 +171,6 @@ int ADCL_readenv()
 #endif
     }
 
-
     /*  ADCL_EMETHOD_USE_PERFHYPOTHESIS  */
     else if ( strncmp(keyword, "ADCL_EMETHOD_USE_PERFHYPOTHESIS",
               strlen("ADCL_EMETHOD_USE_PERFHYPOTHESIS"))==0) {
@@ -209,6 +180,14 @@ int ADCL_readenv()
 #endif
     }
 
+    /*  ADCL_HIST_LEARNING */
+    else if ( strncmp(keyword, "ADCL_HIST_LEARNING",
+              strlen("ADCL_HIST_LEARNING"))==0) {
+        sscanf(ptr,"%d ", &ADCL_emethod_learn_from_hist );
+#ifdef  Debug
+        ADCL_printf("#ADCL_HIST_LEARNING: %d\n",ADCL_emethod_learn_from_hist );
+#endif
+    }
 
     }
 

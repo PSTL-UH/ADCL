@@ -9,13 +9,27 @@
 #include "ADCL_internal.h"
 
 static int ADCL_local_id_counter = 0;
-ADCL_array_t *ADCL_data_array = NULL;
+static int ADCL_filtering_window = 3;
 
-static void ADCL_data_add_to_file( ADCL_data_t* data, ADCL_emethod_t *e );
+ADCL_array_t *ADCL_hist_array = NULL;
 
-int ADCL_data_create ( ADCL_emethod_t *e ) 
+/* Create a new hist entry consisting on the problem characteristics */
+static int hist_create_new ( ADCL_emethod_t *e, ADCL_hist_t *hist );
+/* Re-initialization of the history object */
+static void hist_reinit(ADCL_hist_t *hist);
+/* Add a history entry to the history file */
+static void hist_add_to_file( ADCL_hist_t* hist, ADCL_emethod_t *e );
+/* Check if a given history entry is identical to a given emethod */
+static int hist_check_for_ident(ADCL_emethod_t *e, ADCL_hist_t *hist);
+/* Cluster the implementation according to a given acceptable performance window */
+static int hist_cluster_implementations( double *elapsed_time, int *impl_class, int nb_of_impl, int perf_win );
+/* Find the maximum distance */
+static double hist_find_dmax(double *distance, int *relation, int num_sizes );
+
+/* Function to create a history entry after solving a problem */
+int ADCL_hist_create ( ADCL_emethod_t *e )
 {
-    ADCL_data_t *data;
+    ADCL_hist_t *hist;
     ADCL_topology_t *topo = e->em_topo;
     ADCL_vector_t   *vec  = e->em_vec;
     int i, size, topo_status;
@@ -27,239 +41,572 @@ int ADCL_data_create ( ADCL_emethod_t *e )
         return ADCL_INVALID_ARG;
     }
     size = topo->t_size;
-    data = (ADCL_data_t *) calloc (1, sizeof(ADCL_data_t));
-    data->d_rcnts = (int *)calloc (size, sizeof(int));
-    data->d_displ = (int *)calloc (size, sizeof(int));
-    if ( (NULL == data) || (NULL == data->d_rcnts) || (NULL == data->d_displ) ) {
+    hist = (ADCL_hist_t *) calloc (1, sizeof(ADCL_hist_t));
+    hist->h_rcnts = (int *)calloc (size, sizeof(int));
+    hist->h_displ = (int *)calloc (size, sizeof(int));
+    if ( (NULL == hist) || (NULL == hist->h_rcnts) || (NULL == hist->h_displ) ) {
         return ADCL_NO_MEMORY;
     }
     /* Internal info for object management */
-    data->d_id = ADCL_local_id_counter++;
-    ADCL_array_get_next_free_pos ( ADCL_data_array, &data->d_findex );
-    ADCL_array_set_element ( ADCL_data_array, data->d_findex, data->d_id, data );
-    data->d_refcnt = 1;
+    hist->h_id = ADCL_local_id_counter++;
+    ADCL_array_get_next_free_pos ( ADCL_hist_array, &hist->h_findex );
+    ADCL_array_set_element ( ADCL_hist_array, hist->h_findex, hist->h_id, hist );
+    hist->h_refcnt = 1;
     /* Network Topology information */
-    data->d_np = size;
+    hist->h_np = size;
     /* Logical Topology information */
-    data->d_tndims = topo->t_ndims;
-    data->d_tperiods = (int *)malloc( data->d_tndims*sizeof(int) );
-    dims = (int *)malloc( data->d_tndims*sizeof(int) );
-    coords = (int *)malloc( data->d_tndims*sizeof(int) );
-    MPI_Cart_get ( topo->t_comm, topo->t_ndims, dims, data->d_tperiods, coords );
+    hist->h_tndims = topo->t_ndims;
+    hist->h_tperiods = (int *)malloc( hist->h_tndims*sizeof(int) );
+    dims = (int *)malloc( hist->h_tndims*sizeof(int) );
+    coords = (int *)malloc( hist->h_tndims*sizeof(int) );
+    MPI_Cart_get ( topo->t_comm, topo->t_ndims, dims, hist->h_tperiods, coords );
     free( dims );
     free( coords );
     /* Vector information */
-    data->d_vndims = vec->v_ndims;
-    data->d_vdims = (int *)malloc(data->d_vndims*sizeof(int) );
-    for ( i=0; i<data->d_vndims ;i++ ) {
-        data->d_vdims[i] = vec->v_dims[i];
+    hist->h_vndims = vec->v_ndims;
+    hist->h_vdims = (int *)malloc(hist->h_vndims*sizeof(int) );
+    for ( i=0; i<hist->h_vndims ;i++ ) {
+        hist->h_vdims[i] = vec->v_dims[i];
     }
-    data->d_nc = vec->v_nc;
+    hist->h_nc = vec->v_nc;
     /* Vector map information */
-    data->d_vectype = vec->v_map->m_vectype;
-    data->d_hwidth = vec->v_map->m_hwidth;
+    hist->h_vectype = vec->v_map->m_vectype;
+    hist->h_hwidth = vec->v_map->m_hwidth;
     if ((NULL != vec->v_map->m_rcnts) && (NULL != vec->v_map->m_displ)) {
         for ( i=0; i<size; i++ ) {
-            data->d_rcnts[i] = vec->v_map->m_rcnts[i];
-            data->d_displ[i] = vec->v_map->m_displ[i];
+            hist->h_rcnts[i] = vec->v_map->m_rcnts[i];
+            hist->h_displ[i] = vec->v_map->m_displ[i];
         }
     }
     else {
         for ( i=0; i<size; i++ ) {
-            data->d_rcnts[i] = 0;
-            data->d_displ[i] = 0;
+            hist->h_rcnts[i] = 0;
+            hist->h_displ[i] = 0;
         }
     }
-    data->d_op = vec->v_map->m_op;
-    data->d_inplace = vec->v_map->m_inplace;
+    hist->h_op = vec->v_map->m_op;
+    hist->h_inplace = vec->v_map->m_inplace;
     /* Attribute information */
     if (NULL != e->em_orgfnctset->fs_attrset && ADCL_ATTRSET_NULL !=  e->em_orgfnctset->fs_attrset){
-       data->d_asmaxnum = e->em_orgfnctset->fs_attrset->as_maxnum;
-       data->d_attrvals = (int *)malloc( data->d_asmaxnum * sizeof(int) );
+       hist->h_asmaxnum = e->em_orgfnctset->fs_attrset->as_maxnum;
+       hist->h_attrvals = (int *)malloc( hist->h_asmaxnum * sizeof(int) );
        /* Initialization */
-       for (i=0; i<data->d_asmaxnum ; i++){
-           data->d_attrvals[i] = -1;
+       for (i=0; i<hist->h_asmaxnum ; i++){
+           hist->h_attrvals[i] = -1;
        }
        if ( e->em_perfhypothesis ) {
-           for (i=0; i<data->d_asmaxnum ; i++){
+           for (i=0; i<hist->h_asmaxnum ; i++){
                if( e->em_hypo.h_attr_confidence[i] > 1 ) {
-                   data->d_attrvals[i] = e->em_fnctset.fs_fptrs[0]->f_attrvals[i];
+                   hist->h_attrvals[i] = e->em_fnctset.fs_fptrs[0]->f_attrvals[i];
                }
            }
        }
     }
     /* Function set and winner function */
-    data->d_fsname = strdup ( e->em_orgfnctset->fs_name );
-    data->d_fsnum = e->em_orgfnctset->fs_maxnum;
-    data->d_wfname = strdup ( e->em_wfunction->f_name );
-    /* Performance data for H.L. */
+    hist->h_fsname = strdup ( e->em_orgfnctset->fs_name );
+    hist->h_fsnum = e->em_orgfnctset->fs_maxnum;
+    hist->h_wfname = strdup ( e->em_wfunction->f_name );
+    hist->h_wfnum = ADCL_fnctset_get_fnct_num ( e->em_orgfnctset, e->em_wfunction );
+    /* Performance hist for H.L. */
     /* Execution times */
-    data->d_perf = (double *)malloc(data->d_fsnum*sizeof(double));
-    for(i=0; i<data->d_fsnum ; i++) {
-        data->d_perf[i] = e->em_stats[i]->s_gpts[ e->em_filtering];
+    hist->h_perf = (double *)malloc(hist->h_fsnum*sizeof(double));
+    for(i=0; i<hist->h_fsnum ; i++) {
+        hist->h_perf[i] = e->em_stats[i]->s_gpts[ e->em_filtering];
     }
+    /* The acceptable performance window */
+    hist->h_perf_win = ADCL_PERF_WIN;
+    hist->h_class = (int *)malloc(hist->h_fsnum*sizeof(int));
+    /* Clustering the implementations */
+    hist_cluster_implementations( hist->h_perf, hist->h_class, hist->h_fsnum, ADCL_PERF_WIN );
+    /* Set to Invalid dmax */
+    hist->h_dmax = -1.00;
+
 #ifdef ADCL_KNOWLEDGE_TOFILE
-    /* Update the data file */
-    ADCL_data_add_to_file( data, e );
+    /* Update the hist file */
+    hist_add_to_file( hist, e );
 #endif
     return ADCL_SUCCESS;
 }
 
-void ADCL_data_free ( void )
+/* Function to create a new history entry for a problem without a solution */
+static int hist_create_new ( ADCL_emethod_t *e, ADCL_hist_t *hist )
+{
+    ADCL_topology_t *topo = e->em_topo;
+    ADCL_vector_t   *vec  = e->em_vec;
+    int i, size, topo_status;
+    int *dims, *coords;
+
+    /* For now we support only cartesian topology */
+    MPI_Topo_test ( topo->t_comm, &topo_status );
+    if ( ( MPI_CART != topo_status ) || ( ADCL_VECTOR_NULL == vec ) ) {
+        return ADCL_INVALID_ARG;
+    }
+    size = topo->t_size;
+    hist->h_rcnts = (int *)calloc (size, sizeof(int));
+    hist->h_displ = (int *)calloc (size, sizeof(int));
+    if ( (NULL == hist) || (NULL == hist->h_rcnts) || (NULL == hist->h_displ) ) {
+        return ADCL_NO_MEMORY;
+    }
+    /* Internal info for object management */
+    hist->h_id = ADCL_local_id_counter++;
+    ADCL_array_get_next_free_pos ( ADCL_hist_array, &hist->h_findex );
+    ADCL_array_set_element ( ADCL_hist_array, hist->h_findex, hist->h_id, hist );
+    hist->h_refcnt = 1;
+    /* Network Topology information */
+    hist->h_np = size;
+    /* Logical Topology information */
+    hist->h_tndims = topo->t_ndims;
+    hist->h_tperiods = (int *)malloc( hist->h_tndims*sizeof(int) );
+    dims = (int *)malloc( hist->h_tndims*sizeof(int) );
+    coords = (int *)malloc( hist->h_tndims*sizeof(int) );
+    MPI_Cart_get ( topo->t_comm, topo->t_ndims, dims, hist->h_tperiods, coords );
+    free( dims );
+    free( coords );
+    /* Vector information */
+    hist->h_vndims = vec->v_ndims;
+    hist->h_vdims = (int *)malloc(hist->h_vndims*sizeof(int) );
+    for ( i=0; i<hist->h_vndims ;i++ ) {
+        hist->h_vdims[i] = vec->v_dims[i];
+    }
+    hist->h_nc = vec->v_nc;
+    /* Vector map information */
+    hist->h_vectype = vec->v_map->m_vectype;
+    hist->h_hwidth = vec->v_map->m_hwidth;
+    if ((NULL != vec->v_map->m_rcnts) && (NULL != vec->v_map->m_displ)) {
+        for ( i=0; i<size; i++ ) {
+            hist->h_rcnts[i] = vec->v_map->m_rcnts[i];
+            hist->h_displ[i] = vec->v_map->m_displ[i];
+        }
+    }
+    else {
+        for ( i=0; i<size; i++ ) {
+            hist->h_rcnts[i] = 0;
+            hist->h_displ[i] = 0;
+        }
+    }
+    hist->h_op = vec->v_map->m_op;
+    hist->h_inplace = vec->v_map->m_inplace;
+
+    return ADCL_SUCCESS;
+}
+
+void ADCL_hist_free ( void )
 {
     int i, last;
-    ADCL_data_t *data;
+    ADCL_hist_t *hist;
 
-    last = ADCL_array_get_last ( ADCL_data_array );
-    /* Free all the data objects */
+    last = ADCL_array_get_last ( ADCL_hist_array );
+    /* Free all the hist objects */
     for ( i=0; i<= last; i++ ) {
-        data = ( ADCL_data_t * ) ADCL_array_get_ptr_by_pos( ADCL_data_array, i );
-        if ( NULL != data  ) {
-            if ( NULL != data->d_tperiods ) {
-                free ( data->d_tperiods );
+        hist = ( ADCL_hist_t * ) ADCL_array_get_ptr_by_pos( ADCL_hist_array, i );
+        if ( NULL != hist  ) {
+            if ( NULL != hist->h_tperiods ) {
+                free ( hist->h_tperiods );
             }
-            if ( NULL != data->d_vdims ) {
-                free ( data->d_vdims );
+            if ( NULL != hist->h_vdims ) {
+                free ( hist->h_vdims );
             }
-            if ( NULL != data->d_rcnts ) {
-                free ( data->d_rcnts );
+            if ( NULL != hist->h_rcnts ) {
+                free ( hist->h_rcnts );
             }
-            if ( NULL != data->d_displ ) {
-                free ( data->d_displ );
+            if ( NULL != hist->h_displ ) {
+                free ( hist->h_displ );
             }
-            if ( NULL != data->d_attrvals ) {
-                free ( data->d_attrvals );
+            if ( NULL != hist->h_attrvals ) {
+                free ( hist->h_attrvals );
             }           
-            if ( NULL != data->d_fsname ) {
-                free ( data->d_fsname );
+            if ( NULL != hist->h_fsname ) {
+                free ( hist->h_fsname );
             }
-            if ( NULL != data->d_wfname ) {
-                free ( data->d_wfname );
+            if ( NULL != hist->h_wfname ) {
+                free ( hist->h_wfname );
             }
-            if ( NULL != data->d_perf ) {
-                free ( data->d_perf );
+            if ( NULL != hist->h_perf ) {
+                free ( hist->h_perf );
             }
-            ADCL_array_remove_element ( ADCL_data_array, data->d_findex );
-            free ( data );
+            ADCL_array_remove_element ( ADCL_hist_array, hist->h_findex );
+            free ( hist );
         }
     }
     return;
 }
 
-int ADCL_data_find ( ADCL_emethod_t *e, ADCL_data_t **found_data )
+/* Function to reinitialize an useless history object to be reused */
+static void hist_reinit(ADCL_hist_t *hist)
 {
-    ADCL_data_t *data;
-    ADCL_topology_t *topo = e->em_topo;
-    ADCL_vector_t   *vec  = e->em_vec;
+    if ( NULL != hist ) {
+        if ( NULL != hist->h_tperiods ) {
+            free ( hist->h_tperiods );
+	    hist->h_tperiods = NULL;
+        }
+        if ( NULL != hist->h_vdims ) {
+            free ( hist->h_vdims );
+	    hist->h_vdims = NULL;
+        }
+        if ( NULL != hist->h_rcnts ) {
+            free ( hist->h_rcnts );
+	    hist->h_rcnts = NULL;
+        }
+        if ( NULL != hist->h_displ ) {
+            free ( hist->h_displ );
+	    hist->h_displ = NULL;
+        }
+        if ( NULL != hist->h_attrvals ) {
+            free ( hist->h_attrvals );
+	    hist->h_attrvals = NULL;
+        }           
+        if ( NULL != hist->h_fsname ) {
+            free ( hist->h_fsname );
+	    hist->h_fsname = NULL;
+        }
+        if ( NULL != hist->h_wfname ) {
+            free ( hist->h_wfname );
+	    hist->h_wfname = NULL;
+        }
+        if ( NULL != hist->h_perf ) {
+            free ( hist->h_perf );
+	    hist->h_perf = NULL;
+        }
+        /* may be more stuff should be done */
+    }
+}
+
+/* Function to find a (identical or similar) solution in the history entries */
+int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
+{
+
+    ADCL_fnctset_t *fnctset = e->em_orgfnctset;
+    ADCL_hist_list_t *hist_list = e->em_hist_list;
+    ADCL_hist_list_t *hist_list1;
+    ADCL_hist_list_t *hist_list2;
+    ADCL_hist_t *hist;
+    ADCL_hist_t *hist1;
+    ADCL_hist_t *hist2;
     int ret = ADCL_UNEQUAL;
-    int i, j, last, explored_data, found, size;
-    int *dims, *periods, *coords;
+    FILE *fp;
+    int nchar = 80;
+    char *line = NULL;
+    int nhist = 0;
+    int filtering = 0;
+    char *perf = NULL;
+    int ident, explored_hist, pass_filter;
+    int i, j, k;
 
-    if ( ADCL_VECTOR_NULL == vec ) {
-        return ret;
-    }
-
-#ifdef ADCL_KNOWLEDGE_TOFILE
-    if( -2 == e->em_explored_data ) {
-        ADCL_data_read_from_file (e);
-        e->em_explored_data = -1;
-    }
-#else
-        e->em_explored_data = -1;
+#ifdef ADCL_CLOSEST
+    int init = 0;
+    double dist, min_dist;
+#endif
+#ifdef ADCL_WMV
+    double dist, max_weight;
+    double *prediction_weight;
+    int predicted_winner;
 #endif
 
-    last = ADCL_array_get_last ( ADCL_data_array );
-    explored_data = e->em_explored_data;
-    if (last > explored_data) {
-        e->em_explored_data = last;
-        size = topo->t_size;
-        for ( i=(explored_data+1); i<= last; i++ ) {
-            data = ( ADCL_data_t * ) ADCL_array_get_ptr_by_pos( ADCL_data_array, i );
-            if ( ( topo->t_ndims    == data->d_tndims  ) &&
-                 ( vec->v_ndims     == data->d_vndims  ) &&
-                 ( vec->v_nc        == data->d_nc      ) &&
-                 ( vec->v_map->m_vectype == data->d_vectype ) &&
-                 ( vec->v_map->m_hwidth  == data->d_hwidth ) &&
-                 ( vec->v_map->m_op      == data->d_op ) &&
-                 ( vec->v_map->m_inplace == data->d_inplace ) &&
-                 ( 0 == strncmp (data->d_fsname,
-                                 e->em_orgfnctset->fs_name,
-                                 strlen(e->em_orgfnctset->fs_name))) ) {
-                found = i;
-                periods = (int *)malloc( topo->t_ndims * sizeof(int) );
-                dims = (int *)malloc( topo->t_ndims * sizeof(int) );
-                coords = (int *)malloc( topo->t_ndims * sizeof(int) );
+    if( -2 == e->em_explored_hist ) {
 
-                MPI_Cart_get ( topo->t_comm, topo->t_ndims, dims, periods, coords );
-                for ( j=0; j<topo->t_ndims; j++ ) {
-                    if ( periods[j] != data->d_tperiods[j] ) {
-                        found = -1;
-                        break;
-                    }
-                }
-
-                free( periods );
-                free( dims );
-                free( coords );
-
-                for ( j=0 ; j<vec->v_ndims; j++ ){
-                    if ( vec->v_dims[j] != data->d_vdims[j] ) {
-                        found = -1;
-                        break;
-                    }
-                }
-                if ((NULL != vec->v_map->m_rcnts) && (NULL != vec->v_map->m_displ)) {
-                    if ( data->d_np != size ) {
-                        found = -1;
-                        break; 
-                    }
-                    for ( j=0 ; j<topo->t_size; j++ ){
-	                if ( ( vec->v_map->m_rcnts[j] != data->d_rcnts[j] ) ||
-                           ( vec->v_map->m_displ[j] != data->d_displ[j] ) ) {
-                            found = -1;
-                            break;
-                        }
-                    }
-                }
+#ifdef ADCL_KNOWLEDGE_TOFILE //TBD adjust config options
+        /* Check if a reading function of the according function set do exist */
+        if( NULL != fnctset->fs_hist_functions ) {
+            if( NULL == fnctset->fs_hist_functions->hf_reader ) {
+                ADCL_printf("No history reader function registered \n");
+                goto exit;    
             }
-            else {
-                continue;
-            }
-            if ( found == -1 ) {
-                continue;
-            }
-	    else {
-                *found_data = data;
-                ret = ADCL_IDENT;
-                ADCL_printf("#%d An identical problem is found, winner is %s \n",
-                            topo->t_rank, data->d_wfname);
+            if( NULL == fnctset->fs_hist_functions->hf_distance ) {
+                ADCL_printf("No history distance function registered \n");
+                goto exit;    
             }
         }
+        else {
+            ADCL_printf("No history functions registered \n");
+            goto exit;
+        }
+        /* Check if a filtering mechanism is set up */
+        if( (NULL == fnctset->fs_hist_functions->hf_filter)||(NULL == e->em_hist_criteria) ) {
+            ADCL_printf("No filtering function/criteria st registered \n");
+        }
+	else {
+	    filtering =1;
+	}
+
+        /*** TBD: READ HEADER, To be a seperate function later on ***/
+
+        /* Open history file and read the header */
+        fp = fopen ("hist.adcl", "r");
+        if ( NULL == fp ) {
+            goto exit;
+        }
+        /* Read the history file header */
+        line = (char *)malloc( nchar * sizeof(char) );
+        fgets( line, nchar, fp ); /* XML header lines */
+        fgets( line, nchar, fp );
+        fgets( line, nchar, fp ); /* ADCL Tag */
+        fgets( line, nchar, fp );
+        get_int_data_from_xml ( line, &nhist );
+
+        /************/
+
+        /* If no filtering mechanism, we check only for Identical history */
+        /* Then only a single history object is enough */
+        hist = (ADCL_hist_t *) calloc (1, sizeof(ADCL_hist_t));
+        if ( NULL == hist ) {
+            goto exit;
+        }
+        /* Internal info for object management */
+        hist->h_id = ADCL_local_id_counter++;
+        ADCL_array_get_next_free_pos ( ADCL_hist_array, &hist->h_findex );
+        ADCL_array_set_element ( ADCL_hist_array, hist->h_findex, hist->h_id, hist );
+        hist->h_refcnt = 1;
+
+        /*** Reading of the history entries and checking for indentical solved problems ***/
+        for ( i=0; i<nhist; i++ ) {
+            /* Use the user defined functions of the according function set for reading and filtering */
+            /* Read the entry using the user predefined reading function */
+            fnctset->fs_hist_functions->hf_reader( fp, hist );
+            /* Check if it is an identical history entry */
+            ident = hist_check_for_ident( e, hist);
+            /*** An identical solution has been found ***/
+            if( ADCL_IDENT==ident ) {
+                *found_hist = hist;
+		ret = ADCL_IDENT;
+                goto exit;
+	    }
+	    else if( ADCL_UNEQUAL == ident ){/* Not an identical problem */
+                if( 0 == filtering){
+                    hist_reinit(hist);
+		}
+                else {
+                    /* Filter the history entry */
+                    pass_filter = fnctset->fs_hist_functions->hf_filter(hist,
+                                  e->em_hist_criteria->hc_filter_criteria);
+		    if( 0 == pass_filter) { /* did not pass */
+                        hist_reinit(hist);
+                    }
+                    else {
+                        /* Increment the count of history entries */
+                        e->em_hist_cnt++;
+                        /* Copy the history object handle in current */
+                        hist_list->hl_curr = hist;
+                        /* Update the classes if the performance window has been changed */
+                        if(ADCL_PERF_WIN != hist->h_perf_win) {
+                            /* Re-cluster the implementations */
+                            hist_cluster_implementations( hist->h_perf, hist->h_class, hist->h_fsnum, ADCL_PERF_WIN );
+                            /* Set to Invalid dmax */
+                            hist->h_dmax = -1;
+		        }
+                        /* Next */
+	        	hist_list->hl_next = (ADCL_hist_list_t *)calloc(1, sizeof(ADCL_hist_list_t));
+                        hist_list = hist_list->hl_next;
+                        /* Allocate a new history object */
+                        hist = (ADCL_hist_t *) calloc (1, sizeof(ADCL_hist_t));
+                        if ( NULL == hist ) {
+                            goto exit;
+                        }
+                        /* Internal info for object management */
+                        hist->h_id = ADCL_local_id_counter++;
+                        ADCL_array_get_next_free_pos ( ADCL_hist_array, &hist->h_findex );
+                        ADCL_array_set_element ( ADCL_hist_array, hist->h_findex, hist->h_id, hist );
+                        hist->h_refcnt = 1;
+	            }
+	        }
+	    }
+	}
+        fclose ( fp );
+        if( NULL != perf ) {
+            free ( perf );
+        }
+        if ( NULL != line ) {
+            free ( line );
+        }
+
+#endif
+	e->em_explored_hist = -1;
     }
+
+    /*** Prediction of a solution from similar solved problems ***/
+    if ( (-1 == e->em_explored_hist) && (1 == filtering) ) {
+        /* Check if a sufficient number of history entries 
+           is available to try to make a prediction */
+        if( ADCL_MIN_HIST > e->em_hist_cnt ) {
+	    ADCL_printf("The number of history entries is unsifficient to make a prediction\n");
+            goto exit;
+	}
+        /* Create a hist entry of the current problem without a solution */
+        e->em_hist = (ADCL_hist_t *)calloc(1, sizeof(ADCL_hist_t));
+        hist_create_new ( e, e->em_hist );
+#ifdef ADCL_WMV
+        prediction_weight = (double *)calloc(e->em_orgfnctset->fs_maxnum, sizeof(double));
+#endif
+        /* Memory allocation for distances and relations */
+        e->em_relations = (int **)malloc(e->em_hist_cnt*sizeof(int *));
+        e->em_distances = (double **)malloc(e->em_hist_cnt*sizeof(double *));
+	for(i=0;i<e->em_hist_cnt;i++){
+            e->em_relations[i] = (int *)malloc(e->em_hist_cnt*sizeof(int));
+            e->em_distances[i] = (double *)malloc(e->em_hist_cnt*sizeof(double));
+	}
+        /* Computing distances and relations */
+        /* Outer loop on hist1 */
+        hist_list1 = e->em_hist_list;
+	i=0;
+        while ( NULL != hist_list1 ) {
+            /* Get history entry handle */
+            hist1 = hist_list1->hl_curr;
+            /* Check if it is not NULL */
+            if(NULL == hist1) {
+                break;
+	    }
+            /* Inner loop on hist2 */
+            hist_list2 = e->em_hist_list;
+            j = 0;
+            while ( NULL != hist_list2 ) {
+                /* Get history entry handle */
+                hist2 = hist_list2->hl_curr;
+                /* Check if it is not NULL */
+                if( NULL == hist2 ) {
+                    break;
+		}
+                /* Compute distance */
+                //can be optimized since it is a symmetric matrix
+                e->em_distances[i][j] = fnctset->fs_hist_functions->hf_distance(hist1, hist2);
+                /* Compute relation */
+                e->em_relations[i][j] = 0;
+                /* Is the winner of pb size i among the best impl of pb size j ? */
+                if ( ADCL_BEST_CLASS == hist2->h_class[hist1->h_wfnum] ) {
+                    e->em_relations[i][j] = 1;
+                }
+                /* Go to the next */
+	        hist_list2 = hist_list2->hl_next;
+                j++;
+            }
+            /* Compute dmax of hist 1 */
+	    hist1->h_dmax = hist_find_dmax( e->em_distances[i], e->em_relations[i], e->em_hist_cnt );
+            /* Compute the distance of the emethod hist and hist1 */
+            dist = fnctset->fs_hist_functions->hf_distance(e->em_hist, hist1);
+#ifdef HL_VERBOSE
+            if(0 == e->em_topo->t_rank) {
+                printf("hist id %d dmax %f dist=%f\n", hist1->h_id, hist1->h_dmax, dist);
+            }
+#endif
+            if( dist <= hist1->h_dmax ) {
+#ifdef ADCL_WMV
+                /* Add the weight to the predicted winner by hist1 */
+                prediction_weight[hist1->h_wfnum]+=1/dist;
+#ifdef HL_VERBOSE
+                if(0 == e->em_topo->t_rank) {
+                    printf("pbsize %dx%dx%d suggestedwinner %d dist %f dmax %f\n",
+                           hist1->h_vdims[0],hist1->h_vdims[1],hist1->h_vdims[2],
+                           hist1->h_wfnum, dist, hist1->h_dmax);
+                }
+#endif
+
+#endif
+#ifdef ADCL_CLOSEST
+                if( 0 == init ) {
+                    /* set minimum distance */
+                    min_dist = dist;
+                    /* set the estimated winner */
+                    e->em_hist->h_wfnum = hist1->h_wfnum;
+#ifdef HL_VERBOSE
+                    if(0 == e->em_topo->t_rank) {
+                        printf("*** winner %d dist %f ***\n",e->em_hist->h_wfnum, dist);
+                    }
+#endif
+                    /* return the pointer to the similar hist */
+                    *found_hist = hist1;
+                    /* set initted */
+                    init = 1;
+                    /* Here we are sure at least we have one prediction */
+                    ret = ADCL_SIMILAR;
+                }
+                else if( dist < min_dist ){
+                    /* set minimum distance */
+                    min_dist = dist;
+                    /* set the estimated winner */
+                    e->em_hist->h_wfnum = hist1->h_wfnum;
+#ifdef HL_VERBOSE
+	            if(0 == e->em_topo->t_rank) {
+                        printf("*** winner %d dist %f ***\n",e->em_hist->h_wfnum, dist);
+                    }
+#endif
+                    /* return the pointer to the similar hist */
+		    *found_hist = hist1;
+                }
+#endif
+	    }
+            /* Go to the next */
+	    hist_list1 = hist_list1->hl_next;
+            i++;
+	}
+#ifdef ADCL_WMV
+        max_weight = 0;
+        predicted_winner = -1;
+        for(i=0; i<e->em_orgfnctset->fs_maxnum; i++) {
+            if ( prediction_weight[i] > max_weight ) {
+                max_weight = prediction_weight[i];
+                predicted_winner = i;
+            }
+        }
+        if( 0 <= predicted_winner ) {
+            e->em_hist->h_wfnum = predicted_winner;
+            ret = ADCL_SIMILAR;
+	}
+	free(prediction_weight);
+#endif
+	if ( ADCL_SIMILAR == ret ) {
+            ADCL_printf("#%d A solution to the problem is predicted from similar problem(s), winner is %d\n",
+                        e->em_topo->t_rank, e->em_hist->h_wfnum);
+#ifdef HL_VERBOSE
+            if(0 == e->em_topo->t_rank) {
+                printf("#%d A solution to the problem is predicted from similar problem(s), winner is %d\n",
+                        e->em_topo->t_rank, e->em_hist->h_wfnum);
+	    }
+#endif
+	}
+	else if ( ADCL_UNEQUAL == ret ) {
+            ADCL_printf("No prediction can be done for this PS with the current history file\n");
+	}
+    }
+
+exit:
+
+    e->em_explored_hist = 0;
     return ret;
 }
 
-void ADCL_data_add_to_file( ADCL_data_t* data, ADCL_emethod_t *e )
+/* Function to add a hist object to the history file */
+static void hist_add_to_file( ADCL_hist_t* hist, ADCL_emethod_t *e )
 {
-    int rank, ndata;
+    int rank, nhist;
     FILE *fp;
     int nchar = 80, nch;
     char *line = NULL;
 
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
-
+    /* Only rank 0 process will be in charge of writing in the history file */
     if ( 0 == rank ) {
-        
-        fp = fopen ("ADCL.xml", "r");
+        /* Make sure that history functions are registered */
+        if( NULL == e->em_orgfnctset->fs_hist_functions ) {
+	    return;
+	}
+	else {
+             /* Make sure that history writer function is registered */
+            if( NULL == e->em_orgfnctset->fs_hist_functions->hf_writer ) {
+		return;
+	    }
+        }
+        /* Check if the file exists */
+        fp = fopen ("hist.adcl", "r");
         if(NULL == fp) {
-            fp = fopen ("ADCL.xml", "w");
+            /* First entry ever */
+            fp = fopen ("hist.adcl", "w");
             fprintf ( fp, "<?xml version=\"1.0\" ?>\n<?xml-stylesheet"
                       " type=\"text/xsl\" href=\"ADCL.xsl\"?>\n<ADCL>\n" );
             fprintf ( fp, "  <NUM>1</NUM>\n" );
 	}
 	else {
+            /* Close in read mode */
             fclose(fp);
-            fp = fopen ("ADCL.xml", "r+");
+            /* Open in read write mode */
+            fp = fopen ("hist.adcl", "r+");
             line = (char *)malloc( nchar * sizeof(char) );
             /* Read the XML file line by line */
             fgets( line, nchar, fp ); /* XML header lines */
@@ -267,77 +614,204 @@ void ADCL_data_add_to_file( ADCL_data_t* data, ADCL_emethod_t *e )
             fgets( line, nchar, fp ); /* ADCL Tag */
             fgets( line, nchar, fp );
             nch = strlen(line);
-            get_int_data_from_xml ( line, &ndata );
+            get_int_data_from_xml ( line, &nhist );
             fseek(fp, -nch, SEEK_CUR);
-            fprintf ( fp, "  <NUM>%d</NUM>\n", ndata+1 );
+            fprintf ( fp, "  <NUM>%d</NUM>\n", nhist+1 );
             fseek(fp, -7, SEEK_END);
 	}
         /* Use the user defined writing function of the according function set */
-        if( NULL != e->em_orgfnctset->fs_hist_functions ) {
-            if( NULL != e->em_orgfnctset->fs_hist_functions->hf_writer ) {
-                e->em_orgfnctset->fs_hist_functions->hf_writer(fp, data);
-	    }
-        }
+        e->em_orgfnctset->fs_hist_functions->hf_writer(fp, hist);
+        /* End of file */
         fprintf ( fp, "</ADCL>" );
+        /* Close the file */
         fclose ( fp );
     }
     return;
 }
 
-void ADCL_data_read_from_file ( ADCL_emethod_t *e )
+static int hist_check_for_ident(ADCL_emethod_t *e, ADCL_hist_t *hist)
 {
-    int i, j, ndata;
-    int nchar = 80;
-    char *line = NULL;
-    char *perf = NULL;
-    ADCL_data_t *data;
-    FILE *fp;
-    long int pos;
-    ADCL_fnctset_t *fnctset = e->em_orgfnctset;
+    ADCL_topology_t *topo = e->em_topo;
+    ADCL_vector_t   *vec  = e->em_vec;
+    int size = topo->t_size;
+    int *dims, *periods, *coords;
+    int i, found = -1;
+    int ret = ADCL_UNEQUAL;
 
-    fp = fopen ("ADCL.xml", "r");
-    if ( NULL == fp ) {
-        return;
+    /* Case of a NULL vector object */
+    if ( (ADCL_VECTOR_NULL == vec) && (0 != hist->h_vndims)) {
+        return ret;
     }
-    line = (char *)malloc( nchar * sizeof(char) );
-    /* Read the XML file line by line */
-    fgets( line, nchar, fp ); /* XML header lines */
-    fgets( line, nchar, fp );
-    fgets( line, nchar, fp ); /* ADCL Tag */
-    fgets( line, nchar, fp );
-    get_int_data_from_xml ( line, &ndata );
-    
-    for ( i=0; i<ndata; i++ ) {
-        data = (ADCL_data_t *) calloc (1, sizeof(ADCL_data_t));
-        if ( NULL == data ) {
-            return;
-        }
-        
-        /* Internal info for object management */
-        data->d_id = ADCL_local_id_counter++;
-        ADCL_array_get_next_free_pos ( ADCL_data_array, &data->d_findex );
-        ADCL_array_set_element ( ADCL_data_array, data->d_findex, data->d_id, data );
-        data->d_refcnt = 1;
-        /* Use the user defined reading function of the according function set */
-	if( NULL != fnctset->fs_hist_functions ) {
-            if( NULL != fnctset->fs_hist_functions->hf_reader ) {
-                fnctset->fs_hist_functions->hf_reader( fp, data );
+    /* Case of a NULL topology object */
+    if ( (ADCL_VECTOR_NULL == topo) && (0 != hist->h_tndims)) {
+        return ret;
+    }
+
+    /* Check for number of dimensions */
+    if ( ( topo->t_ndims    == hist->h_tndims  ) &&
+         ( vec->v_ndims     == hist->h_vndims  ) &&
+         ( vec->v_nc        == hist->h_nc      ) &&
+         ( vec->v_map->m_vectype == hist->h_vectype ) &&
+         ( vec->v_map->m_hwidth  == hist->h_hwidth ) &&
+         ( vec->v_map->m_op      == hist->h_op ) &&
+         ( vec->v_map->m_inplace == hist->h_inplace ) &&
+         ( 0 == strncmp (hist->h_fsname,
+                         e->em_orgfnctset->fs_name,
+                         strlen(e->em_orgfnctset->fs_name))) ) {
+        found = 0;
+        periods = (int *)malloc( topo->t_ndims * sizeof(int) );
+        dims = (int *)malloc( topo->t_ndims * sizeof(int) );
+        coords = (int *)malloc( topo->t_ndims * sizeof(int) );
+        /* Check for identical logical topology dimensions */
+        MPI_Cart_get ( topo->t_comm, topo->t_ndims, dims, periods, coords );
+        for ( i=0; i<topo->t_ndims; i++ ) {
+            if ( periods[i] != hist->h_tperiods[i] ) {
+                found = -1;
+                break;
             }
         }
+        free( periods );
+        free( dims );
+        free( coords );
+        if(found == -1) {
+	    return ret;
+	}
+        /* Check for identical vector/data dimensions */
+        for ( i=0 ; i<vec->v_ndims; i++ ){
+            if ( vec->v_dims[i] != hist->h_vdims[i] ) {
+                return ret;
+            }
+        }
+        /* Check for identical vmap */
+        if ((NULL != vec->v_map->m_rcnts) && (NULL != vec->v_map->m_displ)) {
+            if ( hist->h_np != size ) {
+	    /* So far we don't worry about np, to be studied later on in details */
+               // return ret;
+            }
+            /* Check for identical rcnts and displ */
+            for ( i=0 ; i<topo->t_size; i++ ){
+                if ( ( vec->v_map->m_rcnts[i] != hist->h_rcnts[i] ) ||
+                     ( vec->v_map->m_displ[i] != hist->h_displ[i] ) ) {
+
+		    return ret;
+                }
+            }
+        }
+	else{
+            /* Perhaps we should check that hist vmap data are zeros */
+	}
+    }
+
+    if ( found != -1 ) {
+        ret = ADCL_IDENT;
+        ADCL_printf("#%d An identical problem/solution is found, winner is %s \n",
+                    topo->t_rank, hist->h_wfname);
+    }
+    /* Return */
+    return ret;
+}
+
+/* Function to cluster the implementation to best and worst according to perf res and perf_win */
+static int hist_cluster_implementations( double *elapsed_time, int *impl_class, int nb_of_impl, int perf_win )
+{
+    int i, cnt, best_impl;
+    double best_threshold;
+
+    /* Initialization */
+    cnt = 0;
+    best_impl = 0;
+    best_threshold = 1 + (perf_win/100.00);
+    /* Searching for the best performing implementation */
+    /* Might be done more efficiently later on */
+    for(i=1; i<nb_of_impl; i++) {
+        if(elapsed_time[i] < elapsed_time[best_impl]) {
+            best_impl = i;
+	}
+    }
+    /* Classification of the implementations */
+    for(i=0; i<nb_of_impl; i++) {
+        if(elapsed_time[i]/elapsed_time[best_impl] <= best_threshold) {
+            impl_class[i] = ADCL_BEST_CLASS;
+            cnt ++;
+	}  
         else {
-            break;
+            impl_class[i] = ADCL_WORST_CLASS;
+	}
+    }
+
+    return cnt;// TBD check if we really need that
+}
+
+/* A function that filter an array of zeros and ones according to a window size */
+static void filter_array( int *relation, int num_sizes )
+{
+    int i, j, cnt;
+    int p = ADCL_filtering_window/2;
+    int *tmp;
+
+    /* Allocate a temporary buffer for a copy of the original array */
+    tmp = (int *)malloc(num_sizes*sizeof(int));
+    memcpy(tmp, relation, num_sizes*sizeof(int));
+    /* Filtering operation */
+    for(i=p+1; i<num_sizes-p;i++) {
+        cnt = 0;
+        for (j=(i-p); j<=(i+p); j++) {
+            if (1 == tmp[j]){
+                cnt ++;
+            }
+        }
+        if(cnt > p) {
+            relation[i] = 1;
         }
     }
-    fclose ( fp );
-    if(NULL != perf) {
-        free ( perf );
-    }
-    if (NULL != line) {
-        free ( line );
-    }
+    /* Free allocated memory */
+    free(tmp);
     return;
 }
 
+/* Function to find dmax given an array of distances and relations */
+static double hist_find_dmax(double *distance, int *relation, int num_sizes )
+{
+    int i, r, k, extendable, bound, last_swap;
+    double d, dmax;
+
+    bound = num_sizes-1;
+    dmax = 0;
+
+    /* Sort distance array and move relation array with it */
+    while (bound) {
+      last_swap = 0;
+      for ( k=0; k<bound; k++ ) {
+         d = distance[k]; /* t is a maximum of A[0]..A[k] */
+         r = relation[k];
+         if ( d > distance[k+1] ) {
+           distance[k] = distance[k+1];
+           distance[k+1] = d; /*swap*/
+           relation[k] = relation[k+1];
+           relation[k+1] = r; /*swap*/           
+           last_swap = k; /* mark the last swap position */
+         }
+      }
+      bound=last_swap;
+    }
+#ifdef SMOOTH
+    /* Filtering of the relation array */
+    filter_array( relation, num_sizes );
+#endif
+    /* searching the first 0 in the sorted and filtered array */
+    extendable = 1;
+    for (i=0; i<num_sizes; i++) {
+        if ((relation[i]==1) && (extendable==1)) {
+            dmax = distance[i];
+        }
+        if(relation[i] == 0) {
+            extendable = 0;
+	}
+    }
+    return dmax;
+}
+
+/* Get an integer data from XML line */
 int get_int_data_from_xml (char *str, int *res)
 {
     char *n, *p;
@@ -357,6 +831,7 @@ int get_int_data_from_xml (char *str, int *res)
     return ret;
 }
 
+/* Get a string data from XML line */
 int get_str_data_from_xml (char *str, char **dest)
 {
     char *n, *p;

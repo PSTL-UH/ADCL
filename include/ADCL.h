@@ -92,37 +92,50 @@
 #define TIMER_PAPI_REAL_USEC  2
 
 /* Define ADCL public structures */
-struct ADCL_data_s{
-    int                     d_id; /* id of the object */
-    int                 d_findex; /* index of this object in the fortran array */
-    int                 d_refcnt; /* reference counter of this object */
+struct ADCL_hist_s{
+    int                     h_id; /* id of the object */
+    int                 h_findex; /* index of this object in the fortran array */
+    int                 h_refcnt; /* reference counter of this object */
     /* Network Topology information */
-    int                     d_np; /* Number of processors */
+    int                     h_np; /* Number of processors */
     /* Logical Topology information */
-    int                 d_tndims; /* Topology number of dimensions */
-    int              *d_tperiods; /* periodicity for each cartesian dimension */
+    int                 h_tndims; /* Topology number of dimensions */
+    int              *h_tperiods; /* periodicity for each cartesian dimension */
     /* Vector information */
-    int                 d_vndims; /* Vector number of dimensions */
-    int                 *d_vdims; /* Vector extent of each the dimensions */
-    int                     d_nc; /* Extent of each data point  */
+    int                 h_vndims; /* Vector number of dimensions */
+    int                 *h_vdims; /* Vector extent of each the dimensions */
+    int                     h_nc; /* Extent of each data point  */
    /* Vector map information */
-    int                d_vectype; /* Vector type */
-    int                 d_hwidth; /* Halo cells width */
-    int                 *d_rcnts; /* receive counts for AllGatherV */ 
-    int                 *d_displ; /* displacements for AllGatherV */
-    MPI_Op                  d_op; /* MPI operator for AllReduce */
-    int                d_inplace; /* MPI_IN_PLACE */
+    int                h_vectype; /* Vector type */
+    int                 h_hwidth; /* Halo cells width */
+    int                 *h_rcnts; /* receive counts for AllGatherV */ 
+    int                 *h_displ; /* displacements for AllGatherV */
+    MPI_Op                  h_op; /* MPI operator for AllReduce */
+    int                h_inplace; /* MPI_IN_PLACE */
     /* Attribute information */
-    int               d_asmaxnum; /* Number of attributes in the attribute set */
-    int              *d_attrvals; /* Values of the winning attributes */
+    int               h_asmaxnum; /* Number of attributes in the attribute set */
+    int              *h_attrvals; /* Values of the winning attributes */
     /* Function set and winner function */
-    char               *d_fsname; /* Function set name */
-    char               *d_wfname; /* Winner function name */
-    int                  d_fsnum; /* Number of available functions in the function set */
+    char               *h_fsname; /* Function set name */
+    char               *h_wfname; /* Winner function name */
+    int                  h_wfnum; /* Winner function number */
+    int                  h_fsnum; /* Number of available functions in the function set */
     /* Performance Data */
-    double               *d_perf; /* Array of performance data of size = number of functions */
+    double               *h_perf; /* Array of performance data of size = number of functions */
+    int                 *h_class; /* Class of the function/implementation */
+    int               h_perf_win; /* The acceptable perofrmance window used for the clasification
+                                     and to compute dmax */
+    double            h_distance; /* Distance to the target problem (To be predicted) */
+    int               h_relation; /* Relation between the history entry and the target problem */
+    double                h_dmax; /* Maximum distance for a given problem size */
 };
-typedef struct ADCL_data_s ADCL_data_t;
+typedef struct ADCL_hist_s ADCL_hist_t;
+
+struct ADCL_hist_list_s{
+    ADCL_hist_t             *hl_curr;
+    struct ADCL_hist_list_s *hl_next;
+};
+typedef struct ADCL_hist_list_s ADCL_hist_list_t;
 
 /* define the object types visible to the user */
 typedef struct ADCL_vmap_s*      ADCL_Vmap;
@@ -134,7 +147,7 @@ typedef struct ADCL_attribute_s* ADCL_Attribute;
 typedef struct ADCL_attrset_s*   ADCL_Attrset;
 typedef struct ADCL_function_s*  ADCL_Function;
 typedef struct ADCL_fnctset_s*   ADCL_Fnctset;
-typedef struct ADCL_data_s*      ADCL_Data;
+typedef struct ADCL_hist_s*      ADCL_Hist;
 #ifdef ADCL_PAPI
 typedef struct ADCL_papi_s*      ADCL_Papi;
 #endif
@@ -158,7 +171,7 @@ struct ADCL_neighborhood_criteria_s {
 };
 typedef struct ADCL_neighborhood_criteria_s ADCL_neighborhood_criteria_t;
 
-void ADCL_neighborhood_set_criteria( void *filter_criteria, ADCL_Request req );
+void ADCL_neighborhood_set_criteria( ADCL_Request req, void *filter_criteria );
 
 #define TIME_TYPE double
 
@@ -221,18 +234,18 @@ int ADCL_Attrset_create   ( int maxnum, ADCL_Attribute *array_of_attributes,
 int ADCL_Attrset_free     ( ADCL_Attrset *attrset );
 
 /* ADCL History functions types definition */
-typedef void ADCL_hist_reader ( FILE *fp, ADCL_Data data);
-typedef void ADCL_hist_writer ( FILE *fp, ADCL_Data data);
-typedef int ADCL_hist_filter ( ADCL_Data data, void *filter_criteria );
-typedef double ADCL_hist_distance ( ADCL_Data data1 , ADCL_Data data2 );
+typedef void ADCL_hist_reader ( FILE *fp, ADCL_Hist hist);
+typedef void ADCL_hist_writer ( FILE *fp, ADCL_Hist hist);
+typedef int ADCL_hist_filter ( ADCL_Hist hist, void *filter_criteria );
+typedef double ADCL_hist_distance ( ADCL_Hist hist1 , ADCL_Hist hist2 );
 typedef void ADCL_hist_set_criteria ( ADCL_Request request, void *filter_criteria );
 
 /* Structure holding the hstory functions and related information */
 struct ADCL_hist_functions_s{
-    ADCL_hist_reader             *hf_reader; /* Data reading function */
-    ADCL_hist_writer             *hf_writer; /* Data writing function */
+    ADCL_hist_reader             *hf_reader; /* Hist reading function */
+    ADCL_hist_writer             *hf_writer; /* Hist writing function */
     ADCL_hist_filter             *hf_filter; /* Filter function according to the given criteria */
-    ADCL_hist_distance         *hf_distance; /* Distance function between two Data */
+    ADCL_hist_distance         *hf_distance; /* Distance function between two Hist */
 };
 typedef struct ADCL_hist_functions_s ADCL_hist_functions_t;
 typedef struct ADCL_hist_functions_s  *ADCL_Hist_functions;

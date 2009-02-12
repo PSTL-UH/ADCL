@@ -67,6 +67,9 @@
 #define ADCL_IDENT                     1
 #define ADCL_SIMILAR                   2
 
+#define ADCL_WORST_CLASS               0
+#define ADCL_BEST_CLASS                1
+
 #define ADCL_UNFILTERED                0
 #define ADCL_FILTERED                  1
 
