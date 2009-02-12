@@ -51,6 +51,6 @@ System_objdebug.o: System_objdebug.c
 clean:
 	rm -f $(OBJ)
 	rm -f System
-	rm -f *.mod *.out
+	rm -f *.mod 
 	rm -f *~ i.* 
 

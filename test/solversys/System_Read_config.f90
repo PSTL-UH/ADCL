@@ -25,7 +25,7 @@
         double precision, dimension ( 2 ) :: rarraz
         logical :: ex, belegt
         logical, save :: isallocated
-        character *80 :: s 
+        character *250 :: s 
         character*7 :: s_chen
 
 

@@ -20,7 +20,7 @@
       integer :: px, py, pz
       integer :: size, rank
       integer ::  solv
-
+      double precision :: start_time, all_ps_time_l, all_ps_time_g
 !...Initialize parallel environment
 
       call MPI_Init ( ierror )
@@ -42,6 +42,9 @@
          write (*,*)rank, 'Error in System_Init'
       end if
 
+!start a timer for execution of all pb sizes
+      start_time = MPI_WTIME()
+
 !...Loop over problem sizes
       do nproblem=1, maxproblem 
 
@@ -55,7 +58,7 @@
          if ( ierror.ne. 0 ) then
             write (*,*)rank, 'Error in System_Init_matrix'
          end if
-         
+
 !.......Loop over solvers
          do nsolver=1, maxsolver
             call System_Get_solver(nsolver, solv, ierror )
@@ -75,8 +78,17 @@
          end do
 
 !.......free matrix and vector etc..
-       call System_Free_matrix ( ierror )
+         call System_Free_matrix ( ierror )
       end do
+!.....end of the timer for execution of all pb sizes
+      all_ps_time_l = MPI_WTIME() - start_time
+!.....Reduction operation to take the max in all processes
+      call MPI_Reduce( all_ps_time_l, all_ps_time_g, 1, MPI_DOUBLE_PRECISION, &
+                       MPI_MAX, 0, MPI_COMM_WORLD, ierror)
+!.....printing overall execution time of all pb sizes
+      if ( rank .eq. 0 ) then
+         write (*,*)'The overall execution time of all problem sizes is:', all_ps_time_g
+      end if
 
 
 !...Close parallel environment
