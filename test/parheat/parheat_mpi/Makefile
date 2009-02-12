@@ -1,4 +1,4 @@
-include ../../Makefile.defs
+include ../../../Makefile.defs
 
 OBJ  = get_dimlist.o read_input.o int_sort.o get_domain.o \
        get_mesh_mem.o get_coords.o write_step.o \
