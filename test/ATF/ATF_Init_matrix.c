@@ -104,7 +104,6 @@ int ATF_Init_matrix(int px, int py, int pz)
     int rank,size;
     int nc;
 
-
     /*New added*/
     
     int cdims[]={0,0,0};
@@ -172,7 +171,7 @@ int ATF_Init_matrix(int px, int py, int pz)
     ADCL_Request_create( adcl_Vec_dq, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_dq );
     ADCL_Request_create( adcl_Vec_loes, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_loes );
     ADCL_Request_create( adcl_Vec_rhs, ADCL_topo, ADCL_FNCTSET_NEIGHBORHOOD, &adcl_Req_rhs );
-      
+
     /* Initiate timing variables */
     ATF_solv_ende   = 0.0 ;
     ATF_solv_anfang = 0.0;

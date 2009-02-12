@@ -8,7 +8,7 @@
  */
 #include "ATF.h"
 
-#define MAXLINE 100
+#define MAXLINE 120
 #define MAXKEYLEN 100
 
 /* The global variables: */

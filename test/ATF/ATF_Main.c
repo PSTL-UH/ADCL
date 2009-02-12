@@ -32,7 +32,9 @@ int main(int argc, char **argv)
     /*Temporary variables for solver and pattern */
     int solv;
     int pat;
-   
+    /* Timing variables */
+    double start_time, all_ps_time_l, all_ps_time_g;
+
     int size, rank;
 
     MaxProblem = 0;
@@ -54,7 +56,8 @@ int main(int argc, char **argv)
     if (!ATF_Init()){
 	fprintf(stderr, "%d: Error in Init@ATF_Init", rank);
     }
-    
+    /* Start time for all pb sizes */
+    start_time = MPI_Wtime();
     /* Loop over problem size */
 
     for ( nproblem = 0; nproblem < MaxProblem; nproblem++){
@@ -94,9 +97,14 @@ int main(int argc, char **argv)
 	}
         ATF_Free_matrix();
     }
+    /* Timing for all ps, reduction, print */
+    all_ps_time_l = MPI_Wtime() - start_time;
+    MPI_Reduce ( &all_ps_time_l, &all_ps_time_g, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    if( 0 == rank ) {
+        printf("The overall execution time of all problem sizes is: %f\n", all_ps_time_g );
+    }
 
     ADCL_Finalize();
     MPI_Finalize();
     return ATF_SUCCESS;
 }
-
