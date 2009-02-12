@@ -26,34 +26,34 @@ int get_domain( int *grid, int *coords, int *dimlist,
     double h;
     
     help = (int *)malloc( dimlist[0]*sizeof( int ) );
-    if( help==NULL )
-    {
+    if( help==NULL ) {
 	printf( "Not enough memory for %d integers.\n", dimlist[0] );
 	MPI_Abort ( MPI_COMM_WORLD, 1);
     }
     
-    for( i=0 ; i<3 ; i++ )
-    {
+    for( i=0 ; i<3 ; i++ ) {
 	num_middle = (int)( ( grid[i] - 2 ) / dimlist[i] );
-	for( j=0 ; j<dimlist[i] ; j++ )
+	for( j=0 ; j<dimlist[i] ; j++ ) {
 	    help[j] = num_middle;
+        }
 	help[0]++;
 	help[dimlist[i]-1]++;
 	rest = grid[i] - ( num_middle * dimlist[i] + 2 );
 	right = (int)( rest / 2 );
 	left = rest - right;
 
-	for( j=0 ; j<left ; j++ )
+	for( j=0 ; j<left ; j++ ) {
 	    help[j]++;
-	
-	for( j=dimlist[i]-right ; j<dimlist[i] ; j++ )
+	}
+	for( j=dimlist[i]-right ; j<dimlist[i] ; j++ ) {
 	    help[j]++;
-
+        }
 	ppnode[i] = help[ coords[i] ];
 	
 	offset = 0;
-	for( j=0 ; j<coords[i] ; j++ )
+	for( j=0 ; j<coords[i] ; j++ ) {
 	    offset += help[j];
+        }
 	h = ( max[i] - min[i] ) / (double)( grid[i] -1 );
 	lmin[i] = h * offset;
 	lmax[i] = lmin[i] + h * ( ppnode[i] - 1 );

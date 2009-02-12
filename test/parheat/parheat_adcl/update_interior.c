@@ -22,12 +22,9 @@ int update_interior( double c_fact, double delta_t, double delta_x,  \
     int xm1, xp1, ym1, yp1, zm1, zp1;
     double xdiff, ydiff, zdiff, diff;
 
-    for( i=start[0]+1 ; i<end[0] ; i++ )
-    {
-	for( j=start[1]+1 ; j<end[1] ; j++ )
-	{
-	    for( k=start[2]+1 ; k<end[2] ; k++ )
-	    {
+    for( i=start[0]+1 ; i<end[0] ; i++ ) {
+	for( j=start[1]+1 ; j<end[1] ; j++ ) {
+	    for( k=start[2]+1 ; k<end[2] ; k++ ) {
 		index = ( i * grid[1] + j ) * grid[2] + k;
 		
 		xm1 = index - grid[1] * grid[2];

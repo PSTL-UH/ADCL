@@ -60,12 +60,11 @@ int update_solution( double c_fact, double delta_t, double delta_x,
     lambda = delta_t / (delta_x * delta_x); 
  
     num_ifaces = 0;
-    for( i=0 ; i<6 ; i++ )
-    {
-	if( neighbor[i] != MPI_PROC_NULL )
+    for( i=0 ; i<6 ; i++ ) {
+	if( neighbor[i] != MPI_PROC_NULL ) {
 	    num_ifaces++;
+        }
     }
-    
     ADCL_Topology_create(newcomm, &topo);
     dims[0] = grid[0];
     dims[1] = grid[1];
@@ -78,10 +77,8 @@ int update_solution( double c_fact, double delta_t, double delta_x,
     ADCL_Request_create( ovec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request);
     ADCL_Request_create( nvec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &nrequest);
     struct req requests = {&request, &nrequest};
-
     /* finally: THE TIME LOOP!    */
-    do
-    {
+    do {
 	/* post a receive for all neighbors */
 	/* Get time values for initiating messages */
 	msg_start = MPI_Wtime();
@@ -128,7 +125,7 @@ int update_solution( double c_fact, double delta_t, double delta_x,
 
     (*num_iter) += 1;
 
-    } while (  global_done == 0);
+    } while ( global_done == 0 );
     
     cpt_end = MPI_Wtime();
     duration = cpt_end - cpt_start;

@@ -67,7 +67,7 @@ int get_dimlist( int num_nodes, int *ndim, int *dim );
 int get_coords( int *grid, int *start, int *end, \
                 double *min, double *max, struct point *set );
 
-int read_input( int *grid, \
+int read_input( int *nb_of_problems, int ***grid,            \
                 int *mem_fac, int *msg_fac, int *cpt_fac, \
                 double *accuracy, double *tstep_fac, double *c_fact,  \
                 double *min, double *max );

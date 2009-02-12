@@ -9,15 +9,15 @@
 
 int switch_steps( struct tstep *solution, struct req *requests )
 {
-  double *help;
-  ADCL_Request *helpreq;
-  help = (*solution).old;
-  (*solution).old = (*solution).neu;
-  (*solution).neu = help;
+    double *help;
+    ADCL_Request *helpreq;
+    help = (*solution).old;
+    (*solution).old = (*solution).neu;
+    (*solution).neu = help;
 
-  helpreq = (*requests).oreq;
-  (*requests).oreq = (*requests).nreq;
-  (*requests).nreq = helpreq;
+    helpreq = (*requests).oreq;
+    (*requests).oreq = (*requests).nreq;
+    (*requests).nreq = helpreq;
 
-  return 0;
+    return 0;
 }

@@ -13,41 +13,37 @@
 int write_step( int *grid, struct point *set, \
                 double *step, char *filename )
 {
-  int slice, i, j,k, index;
-  int x, y, z;
-  FILE *fp;
+    int slice, i, j,k, index;
+    int x, y, z;
+    FILE *fp;
 
-  x = grid[0];
-  y = grid[1];
-  z = grid[2];
+    x = grid[0];
+    y = grid[1];
+    z = grid[2];
 
-  slice = x*y;
+    slice = x*y;
 
-  printf( "Writing to file %s ...\n", filename );
+    printf( "Writing to file %s ...\n", filename );
 
-  if( (fp = fopen( filename, "w" )) == NULL )
-    {
-    fprintf( fp, "write_step: couldn't open file %s to write!\n", filename );
-    return 1;
+    if( (fp = fopen( filename, "w" )) == NULL ) {
+        fprintf( fp, "write_step: couldn't open file %s to write!\n", filename );
+        return 1;
     }
 
-  index = 0;
-  for( i=0 ; i<x ; i++ )
-    {
-    for( j=0 ; j<y ; j++ )
-      {
-      for( k=0 ; k<z ; k++ )
-	{
-        fprintf( fp, "%6d %10.5f %10.5f %10.5f %10.5f\n", \
-               index, set[index].x, set[index].y, set[index].z, step[index] );
-        index += 1;
+    index = 0;
+    for( i=0 ; i<x ; i++ ) {
+        for( j=0 ; j<y ; j++ ) {
+            for( k=0 ; k<z ; k++ ) {
+                fprintf( fp, "%6d %10.5f %10.5f %10.5f %10.5f\n",       \
+                         index, set[index].x, set[index].y, set[index].z, step[index] );
+                index += 1;
+            }
+            fprintf( fp, "\n" );
         }
-      fprintf( fp, "\n" );
-      }
-    fprintf( fp, "\n" );
+        fprintf( fp, "\n" );
     }
 
-  fclose( fp );
+    fclose( fp );
 
-  return 0;
+    return 0;
 }

@@ -13,8 +13,7 @@ int set_initial( int *grid, double *mem )
     int i, imax;
 
     imax = grid[0]*grid[1]*grid[2];
-    for( i=0 ; i<imax ; i++ )
-    {
+    for( i=0 ; i<imax ; i++ ) {
 	mem[i] = 0.0;
     }
     return 0;

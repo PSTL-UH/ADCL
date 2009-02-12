@@ -21,19 +21,16 @@ int check_done( double eps, int *flag, int *grid, int *start, \
     int count = 0;
     double diff;
    
-int myid;
-MPI_Comm_rank( MPI_COMM_WORLD, &myid); 
+    int myid;
+    MPI_Comm_rank( MPI_COMM_WORLD, &myid); 
     *flag = 0;
-    for( i=start[0] ; i<=end[0]&&count==0 ; i++ )
-    {
-	for( j=start[1] ; j<=end[1]&&count==0 ; j++ )
-	{
+    for( i=start[0] ; i<=end[0]&&count==0 ; i++ ) {
+	for( j=start[1] ; j<=end[1]&&count==0 ; j++ ) {
 	    for( k=start[2] ; k<=end[2] ; k++ )
 	    {
 		index = ( i * grid[1] + j ) * grid[2] + k;
 		diff = fabs( (*solution).neu[index] - (*solution).old[index] );
-		if( diff > eps ) 
-		{
+		if( diff > eps ) {
 		    count++;
 		    break;
 		}
@@ -41,6 +38,8 @@ MPI_Comm_rank( MPI_COMM_WORLD, &myid);
 	}
     }
 
-    if( count == 0 ) *flag = 1;
+    if( 0 == count ) {
+        *flag = 1;
+    }
     return 0;
 }

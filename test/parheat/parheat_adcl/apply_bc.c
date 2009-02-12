@@ -16,12 +16,11 @@ int apply_bc( int num_bnodes, struct point *set, \
 {
     int i;
     double val;
-    
-    for( i=0 ; i<num_bnodes ; i++ )
-    {
+
+    for( i=0 ; i<num_bnodes ; i++ ) {
 	val = set[bnode[i]].x;
 	step[bnode[i]] = val;
     }
-    
+
     return 0;
 }

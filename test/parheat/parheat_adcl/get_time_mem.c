@@ -14,20 +14,19 @@
 
 int get_time_mem( int *grid, struct tstep *solution )
 {
-  int x, y, z;
+    int x, y, z;
 
-  x = grid[0];
-  y = grid[1];
-  z = grid[2];
+    x = grid[0];
+    y = grid[1];
+    z = grid[2];
 
-  (*solution).start = (double *)malloc( 2*x*y*z*sizeof( double ) );
-  if( (*solution).start == NULL )
-  {
-    printf( "get_time_mem: Not enough memory for solution->start\n" );
-    return 1;
-  }
+    (*solution).start = (double *)malloc( 2*x*y*z*sizeof( double ) );
+    if( (*solution).start == NULL ) {
+        printf( "get_time_mem: Not enough memory for solution->start\n" );
+        return 1;
+    }
 
-  (*solution).old = (*solution).start;
-  (*solution).neu = (*solution).start + x*y*z;
-  return 0;
+    (*solution).old = (*solution).start;
+    (*solution).neu = (*solution).start + x*y*z;
+    return 0;
 }
