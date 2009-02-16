@@ -70,7 +70,7 @@ int get_coords( int *grid, int *start, int *end, \
 int read_input( int *nb_of_problems, int ***grid,            \
                 int *mem_fac, int *msg_fac, int *cpt_fac, \
                 double *accuracy, double *tstep_fac, double *c_fact,  \
-                double *min, double *max );
+                double *min, double *max, int *max_iter);
 
 int get_mesh_mem( int k, int *grid, struct point ***setlist );
 
@@ -84,10 +84,11 @@ int find_bcnodes( int *grid, int *start, int *end, \
 int set_initial( int *grid, double *mem );
 
 int update_solution( double c_fact, double delta_t, double delta_x, \
-              int *grid, int *start, int *end, int *neighbor, \
-              double tstep_fac, double accuracy, int msg_fac, \
-              int cpt_fac, int *num_iter, struct point *set, struct timing *data, \
-              struct tstep *solution, MPI_Comm newcomm );
+                     int *grid, int *start, int *end, int *neighbor,    \
+                     double tstep_fac, double accuracy, int msg_fac,    \
+                     int cpt_fac, int max_iter, int *num_iter, \
+                     struct point *set, struct timing *data,    \
+                     struct tstep *solution, MPI_Comm newcomm );
 
 int write_step( int *grid, struct point *set, \
                 double *step, char *filename );

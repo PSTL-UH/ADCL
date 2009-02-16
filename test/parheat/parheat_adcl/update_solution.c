@@ -25,10 +25,11 @@
 #include "ADCL.h"
 
 int update_solution( double c_fact, double delta_t, double delta_x,  
-              int *grid, int *start, int *end, int *neighbor, 
-              double tstep_fac, double accuracy, int msg_fac, 
-              int cpt_fac, int *num_iter, struct point *set, struct timing *data, 
-              struct tstep *solution, MPI_Comm newcomm )
+                     int *grid, int *start, int *end, int *neighbor, 
+                     double tstep_fac, double accuracy, int msg_fac, 
+                     int cpt_fac, int max_iter, int *num_iter,
+                     struct point *set, struct timing *data,
+                     struct tstep *solution, MPI_Comm newcomm )
 {
     MPI_Datatype faces[3];
     int ierr, i, j, num_ifaces;
@@ -121,11 +122,15 @@ int update_solution( double c_fact, double delta_t, double delta_x,
 	    }
 	}
 	
-    MPI_Allreduce ( &local_done, &global_done, 1, MPI_INT, MPI_MIN, newcomm );
+        MPI_Allreduce ( &local_done, &global_done, 1, MPI_INT, MPI_MIN, newcomm );
 
-    (*num_iter) += 1;
+        (*num_iter) += 1;
+        /* Check if max # of iterations (if set by user) is reached */
+        if( (max_iter>0) && ((*num_iter)>= max_iter) ) {
+            global_done = 1;
+        }
 
-    } while ( global_done == 0 );
+    } while ( 0 == global_done );
     
     cpt_end = MPI_Wtime();
     duration = cpt_end - cpt_start;

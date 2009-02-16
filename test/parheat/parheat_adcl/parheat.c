@@ -23,7 +23,7 @@ int main( int argc, char *argv[] )
     int ierr;
     
     /* iteration counter            */
-    int num_iter;
+    int max_iter, num_iter;
 
     /* variables for the input file */
     int **grid;
@@ -112,10 +112,10 @@ int main( int argc, char *argv[] )
     }
     
     if ( 0 > read_input( &nb_of_problems, &grid, &mem_fac, &msg_fac, &cpt_fac, \
-                         &accuracy, &tstep_fac, &c_fact, min, max ) ) {
+                         &accuracy, &tstep_fac, &c_fact, min, max, &max_iter  ) ) {
         printf("Error in memory allocation\n");
         return 0;
-    }  
+    }
 
     /* Start time for solving all pb sizes */
     for( i=0 ; i<ndim ; i++ ) {
@@ -226,8 +226,8 @@ int main( int argc, char *argv[] )
         data.total = 0;
         /* Here comes the actual computation ! */
         if( ierr=update_solution( c_fact, delta_t, delta_x, ppnode,   
-                                  start, end, neighbor,		
-                                  tstep_fac, accuracy, msg_fac, cpt_fac, &num_iter,
+                                  start, end, neighbor, tstep_fac, accuracy,
+                                  msg_fac, cpt_fac, max_iter, &num_iter,
                                   *setlist, &data, &solution, newcomm ) != 0 ) {
             printf( "update_ solution failed with code %d.\n", ierr );
             MPI_Abort ( MPI_COMM_WORLD, ierr );
