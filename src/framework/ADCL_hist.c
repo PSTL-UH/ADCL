@@ -9,7 +9,6 @@
 #include "ADCL_internal.h"
 
 static int ADCL_local_id_counter = 0;
-static int ADCL_filtering_window = 3;
 
 ADCL_array_t *ADCL_hist_array = NULL;
 
@@ -292,11 +291,11 @@ int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
     int ident, explored_hist, pass_filter;
     int i, j, k;
 
-#ifdef ADCL_CLOSEST
+#if (ADCL_PRED_ALGO == ADCL_CLOSEST)
     int init = 0;
     double dist, min_dist;
-#endif
-#ifdef ADCL_WMV
+
+#elif (ADCL_PRED_ALGO == ADCL_WMV)
     double dist, max_weight;
     double *prediction_weight;
     int predicted_winner;
@@ -433,7 +432,7 @@ int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
         /* Create a hist entry of the current problem without a solution */
         e->em_hist = (ADCL_hist_t *)calloc(1, sizeof(ADCL_hist_t));
         hist_create_new ( e, e->em_hist );
-#ifdef ADCL_WMV
+#if (ADCL_PRED_ALGO == ADCL_WMV)
         prediction_weight = (double *)calloc(e->em_orgfnctset->fs_maxnum, sizeof(double));
 #endif
         /* Memory allocation for distances and relations */
@@ -487,7 +486,7 @@ int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
             }
 #endif
             if( dist <= hist1->h_dmax ) {
-#ifdef ADCL_WMV
+#if (ADCL_PRED_ALGO == ADCL_WMV)
                 /* Add the weight to the predicted winner by hist1 */
                 prediction_weight[hist1->h_wfnum]+=1/dist;
 #ifdef HL_VERBOSE
@@ -499,7 +498,7 @@ int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
 #endif
 
 #endif
-#ifdef ADCL_CLOSEST
+#if (ADCL_PRED_ALGO == ADCL_CLOSEST)
                 if( 0 == init ) {
                     /* set minimum distance */
                     min_dist = dist;
@@ -536,7 +535,7 @@ int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
 	    hist_list1 = hist_list1->hl_next;
             i++;
 	}
-#ifdef ADCL_WMV
+#if (ADCL_PRED_ALGO == ADCL_WMV)
         max_weight = 0;
         predicted_winner = -1;
         for(i=0; i<e->em_orgfnctset->fs_maxnum; i++) {
@@ -746,7 +745,7 @@ static int hist_cluster_implementations( double *elapsed_time, int *impl_class, 
 static void filter_array( int *relation, int num_sizes )
 {
     int i, j, cnt;
-    int p = ADCL_filtering_window/2;
+    int p = ADCL_SMOOTH_WIN/2;
     int *tmp;
 
     /* Allocate a temporary buffer for a copy of the original array */
@@ -794,7 +793,7 @@ static double hist_find_dmax(double *distance, int *relation, int num_sizes )
       }
       bound=last_swap;
     }
-#ifdef SMOOTH
+#ifdef ADCL_SMOOTH_HIST
     /* Filtering of the relation array */
     filter_array( relation, num_sizes );
 #endif

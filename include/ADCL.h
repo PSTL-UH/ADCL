@@ -91,6 +91,11 @@
 #define TIMER_MPI_WTIME       1
 #define TIMER_PAPI_REAL_USEC  2
 
+/* ADCL prediction algorithm options */
+#define ADCL_CLOSEST  0
+#define ADCL_WMV      1
+#define ADCL_SVM      2
+
 /* Define ADCL public structures */
 struct ADCL_hist_s{
     int                     h_id; /* id of the object */

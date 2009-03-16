@@ -1256,16 +1256,17 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-papi           enable the usage of papi (default=no)
-  --enable-gsl           enable the usage of gsl (default=no)
-  --enable-onesided       enable the usage of one-sided communication (default=no)
-  --enable-use-barrier    use barrier synchronization for measurements (default=yes)
-  --disable-printf-tofile  dump printf statements to a file (default=yes)
-  --enable-userlevel-timings   disable ADCL internal timing routines (default=no)
-  --enable-knowledge-tofile  dump the ADCL knowledge to an XML file (default=no)
-  --disable-saving-request-winner  save the winner of a request (default=yes)
-  --enable-dummy-mpi           enable the usage of dummy-mpi (default=no)
-  --disable-fortran          compile fortran wrappers (default=yes)
+  --enable-papi                     enable the usage of papi (default=no)
+  --enable-gsl                      enable the usage of gsl (default=no)
+  --enable-onesided                 enable the usage of one-sided communication (default=no)
+  --enable-use-barrier              use barrier synchronization for measurements (default=yes)
+  --disable-printf-tofile           dump printf statements to a file (default=yes)
+  --enable-userlevel-timings        disable ADCL internal timing routines (default=no)
+  --enable-knowledge-tofile         dump the ADCL knowledge to an XML file (default=no)
+  --disable-saving-request-winner   save the winner of a request (default=yes)
+  --enable-smooth-hist              smooth the history data (default=no)
+  --enable-dummy-mpi                enable the usage of dummy-mpi (default=no)
+  --disable-fortran                 compile fortran wrappers (default=yes)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1274,8 +1275,8 @@ Optional Packages:
   --with-adcl-inc-dir=dir           ADCL include directory (default=ADCL_DIR/include)
   --with-adcl-lib-dir=dir           ADCL lib directory (default=ADCL_DIR/lib)
   --with-adcl-bin-dir=dir           ADCL bin directory (default=ADCL_DIR/bin)
-  --with-adcl-lib-name=name         name of the ADCL library (default=libadcl.a)
-  --with-adcl-timer=timer           timer options (default=TIMER_GETTIMEOFDAY)
+  --with-adcl-lib-name=name         Name of the ADCL library (default=libadcl.a)
+  --with-adcl-timer=timer           Timer options (default=TIMER_GETTIMEOFDAY)
   --with-mpi-dir=dir                Installation directory of MPI
   --with-mpi-inc-dir=dir            Include directory of MPI (default=MPI_DIR/include)
   --with-mpi-lib-dir=dir            Library directory of MPI (default=MPI_DIR/lib)
@@ -1286,11 +1287,14 @@ Optional Packages:
   --with-papi-inc-dir=dir           PAPI include directory (default=PAPI_DIR/include)
   --with-papi-lib-dir=dir           PAPI lib directory (default=PAPI_DIR/lib)
   --with-papi-bin-dir=dir           PAPI bin directory (default=PAPI_DIR/bin)
-  --with-papi-lib-name=name         name of the PAPI library (default=papi)
+  --with-papi-lib-name=name         Name of the PAPI library (default=papi)
   --with-gsl-dir=dir                Main GSL directory (default=/usr/local)
   --with-gsl-inc-dir=dir            GSL include directory (default=GSL_DIR/include/gsl)
   --with-gsl-lib-dir=dir            GSL lib directory (default=GSL_DIR/lib)
   --with-num-tests=NUMTESTS         Number of measurements per implementation (default=30)
+  --with-perf-win=PERF-WIN          Acceptable performance window (default=10)
+  --with-pred-algo=algorithm        Prediction algorithm options (default=ADCL_WMV)
+  --with-smooth-win=WIN-SIZE        Size of the smoothing window (default=3)
 
 Some influential environment variables:
   CC          C compiler command
@@ -4250,6 +4254,24 @@ _ACEOF
 
 fi
 
+# Check whether --enable-smooth-hist was given.
+if test "${enable_smooth_hist+set}" = set; then
+  enableval=$enable_smooth_hist; test "$enableval" = yes && ADCL_SMOOTH_HIST=yes
+fi
+
+test "$ADCL_SMOOTH_HIST" = yes || ADCL_SMOOTH_HIST=no
+
+{ echo "$as_me:$LINENO: checking whether to apply a smoothing operation to the history data" >&5
+echo $ECHO_N "checking whether to apply a smoothing operation to the history data... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: result: ${ADCL_SMOOTH_HIST}" >&5
+echo "${ECHO_T}${ADCL_SMOOTH_HIST}" >&6; }
+if test "$ADCL_SMOOTH_HIST" = yes ; then
+  cat >>confdefs.h <<\_ACEOF
+#define ADCL_SMOOTH_HIST 1
+_ACEOF
+
+fi
+
 { echo "$as_me:$LINENO: checking for number of measurements per method" >&5
 echo $ECHO_N "checking for number of measurements per method... $ECHO_C" >&6; }
 
@@ -4262,6 +4284,77 @@ fi
 
     { echo "$as_me:$LINENO: result: ${adcl_emethod_numtests}" >&5
 echo "${ECHO_T}${adcl_emethod_numtests}" >&6; }
+
+{ echo "$as_me:$LINENO: checking for acceptable performance window" >&5
+echo $ECHO_N "checking for acceptable performance window... $ECHO_C" >&6; }
+
+# Check whether --with-perf_win was given.
+if test "${with_perf_win+set}" = set; then
+  withval=$with_perf_win; perf_win="${withval}"
+else
+  perf_win="10"
+fi
+
+    if test "x$perf_win" = "x" ; then
+      perf_win==10
+    fi
+    { echo "$as_me:$LINENO: result: ${perf_win}" >&5
+echo "${ECHO_T}${perf_win}" >&6; }
+    cat >>confdefs.h <<_ACEOF
+#define ADCL_PERF_WIN $perf_win
+_ACEOF
+
+{ echo "$as_me:$LINENO: checking for prediction algorithm options" >&5
+echo $ECHO_N "checking for prediction algorithm options... $ECHO_C" >&6; }
+
+# Check whether --with-pred-algo was given.
+if test "${with_pred_algo+set}" = set; then
+  withval=$with_pred_algo; algorithm="${withval}"
+else
+  algorithm=""
+fi
+
+    if test "x$algorithm" = "x" ; then
+      algorithm=ADCL_WMV
+    fi
+    if test "$algorithm" == "ADCL_WMV"; then
+      { echo "$as_me:$LINENO: result: ${algorithm}" >&5
+echo "${ECHO_T}${algorithm}" >&6; }
+    else if test "$algorithm" == "ADCL_CLOSEST"; then
+      { echo "$as_me:$LINENO: result: ${algorithm}" >&5
+echo "${ECHO_T}${algorithm}" >&6; }
+    else if test "$algorithm" == "ADCL_SVM"; then
+      { echo "$as_me:$LINENO: result: ${algorithm}" >&5
+echo "${ECHO_T}${algorithm}" >&6; }
+    else
+      { { echo "$as_me:$LINENO: error: not recognized prediction algorithm" >&5
+echo "$as_me: error: not recognized prediction algorithm" >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    fi
+    fi
+    cat >>confdefs.h <<_ACEOF
+#define ADCL_PRED_ALGO $algorithm
+_ACEOF
+
+{ echo "$as_me:$LINENO: checking for size of smoothing window" >&5
+echo $ECHO_N "checking for size of smoothing window... $ECHO_C" >&6; }
+
+# Check whether --with-smooth_win was given.
+if test "${with_smooth_win+set}" = set; then
+  withval=$with_smooth_win; smooth_win="${withval}"
+else
+  smooth_win="3"
+fi
+
+    if test "x$smooth_win" = "x" ; then
+      smooth_win==3
+    fi
+    { echo "$as_me:$LINENO: result: ${smooth_win}" >&5
+echo "${ECHO_T}${smooth_win}" >&6; }
+    cat >>confdefs.h <<_ACEOF
+#define ADCL_SMOOTH_WIN $smooth_win
+_ACEOF
 
 
 # Check whether --enable-dummy-mpi was given.

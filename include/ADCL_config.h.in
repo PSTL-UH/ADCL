@@ -67,8 +67,13 @@
 /* Minimum number of history entries to try to make a prediction */
 #define ADCL_MIN_HIST 5
 
+/* The use of a smoothing operation on the history data */
+#undef ADCL_SMOOTH_HIST
+
+/* Define the size of the smoothing window */
+#define ADCL_SMOOTH_WIN 3
+
 /* Prediction algorithm to be used for historic learning */
-//#define ADCL_CLOSEST  1
-#define ADCL_WMV      1
+#define ADCL_PRED_ALGO 1
 
 #endif
