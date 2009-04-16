@@ -37,6 +37,7 @@
 #include "ADCL_vmap.h"
 #include "ADCL_contiguous.h"
 #include "ADCL_list.h"
+#include "ADCL_hist.h"
 
 #ifdef ADCL_PAPI
 #include "ADCL_papi.h"

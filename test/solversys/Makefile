@@ -29,8 +29,6 @@ OBJ =   System_modules.o              \
         System_Transmatmul.blocking.o \
         System_Transmatmul.o
 
-
-
 #        ADCL_request.o
 .SUFFIXES: .c .f90
 
@@ -39,7 +37,7 @@ all: System
 
 compile: $(OBJ)
 
-$(EXENAME):  $(OBJ) $(HEADER)
+$(EXENAME):  $(OBJ) $(HEADER) $(ADCL_LIB_DIR)/$(ADCL_LIB) 
 	$(FC) -o $@ $(OBJ) $(LDFLAGS)
 
 .f90.o: $(HEADER)

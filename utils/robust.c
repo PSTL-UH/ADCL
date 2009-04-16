@@ -25,6 +25,7 @@
 
 // GSL:
 // gcc -DGSL -DMAIN robust.c dfpmin.c lnsrch.c nrutil.c -I/usr/include/gsl -lm -L/usr/local/lib -lgsl -lgslcblas -g  -o test.x
+#if defined(GSL) || defined(NR)
 
 #ifdef NR
 #include <stdlib.h>
@@ -887,3 +888,7 @@ int  gsl_minimize_loglikelihood_old(const double step_size, const double tol,
 }
 //endif GSL
 #endif
+
+
+#endif 
+// GSL || NR

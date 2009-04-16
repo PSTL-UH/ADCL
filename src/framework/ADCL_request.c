@@ -26,7 +26,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
                                   ADCL_fnctset_t *fnctset,
                                   ADCL_request_t **req, int order )
 {
-    int i, ret = ADCL_SUCCESS;
+    int i, ret = ADCL_SUCCESS, dims;
     ADCL_request_t *newreq;
     /* ADCL criteria structure for neighborhood com fnctset */
     ADCL_neighborhood_criteria_t *ADCL_neighborhood_criteria = NULL;
@@ -165,15 +165,18 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
            // ! only temorarily: disables state machine
            //vec = ADCL_VECTOR_NULL;
 
-           /* !!! Makes only sense for sbuf != MPI_IN_PLACE */
-           switch (svecs[0]->v_map->m_vectype) {
-           case ADCL_VECTOR_ALL:
+           dims = 1;
+           for ( i=0; i<svecs[0]->v_ndims; i++ ) { 
+	      dims = dims * svecs[0]->v_dims[i];
+	   }
+	   switch (svecs[0]->v_map->m_vectype) {
+	   case ADCL_VECTOR_ALL:
               //ret = ADCL_contiguous_init_generic (svecs[0]->v_dat, svecs[0]->v_dims[0], &(newreq->r_sdats), &(newreq->r_scnts));
-              ret = ADCL_basic_init (svecs[0]->v_dat, svecs[0]->v_dims[0], &(newreq->r_sdats), &(newreq->r_scnts));
+              ret = ADCL_basic_init (svecs[0]->v_dat, dims, &(newreq->r_sdats), &(newreq->r_scnts));
 	      break;
 	   case ADCL_VECTOR_LIST:
            case ADCL_VECTOR_ALLREDUCE:
-              ret = ADCL_basic_init (svecs[0]->v_dat, svecs[0]->v_dims[0], &(newreq->r_sdats), &(newreq->r_scnts));
+              ret = ADCL_basic_init (svecs[0]->v_dat, dims, &(newreq->r_sdats), &(newreq->r_scnts));
 	      break;
 	   case ADCL_VECTOR_INPLACE:
 	      vec = rvecs[0];
@@ -183,18 +186,22 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
 	      goto exit;
            }
 
+           dims = 1;
+           for ( i=0; i<rvecs[0]->v_ndims; i++ ) { 
+	      dims = dims * rvecs[0]->v_dims[i];
+	   }
            switch (rvecs[0]->v_map->m_vectype) {
            case ADCL_VECTOR_ALL:
-              ret = ADCL_basic_init (rvecs[0]->v_dat, svecs[0]->v_dims[0], &(newreq->r_rdats), &(newreq->r_rcnts));
+              ret = ADCL_basic_init (rvecs[0]->v_dat, dims, &(newreq->r_rdats), &(newreq->r_rcnts));
               //ret = ADCL_contiguous_init_generic (rvecs[0]->v_dat, rvecs[0]->v_dims[0], &(newreq->r_rdats), &(newreq->r_rcnts));
               break;
 	   case ADCL_VECTOR_LIST:
 	      /* no derived data types required for OpenMPI algorithms, basic data types are used */
               //ret = ADCL_list_init (topo->t_size,  rvecs[0]->v_map->m_rcnts, rvecs[0]->v_dat, &(newreq->r_rdats));
-              ret = ADCL_basic_init (rvecs[0]->v_dat, rvecs[0]->v_dims[0], &(newreq->r_rdats), &(newreq->r_rcnts));
+              ret = ADCL_basic_init (rvecs[0]->v_dat, dims, &(newreq->r_rdats), &(newreq->r_rcnts));
               break;
            case ADCL_VECTOR_ALLREDUCE:
-              ret = ADCL_basic_init (rvecs[0]->v_dat, rvecs[0]->v_dims[0], &(newreq->r_rdats), &(newreq->r_rcnts));
+              ret = ADCL_basic_init (rvecs[0]->v_dat, dims, &(newreq->r_rdats), &(newreq->r_rcnts));
 	      break;
 	   default:
 	      ret = ADCL_ERROR_INTERNAL; 
@@ -234,7 +241,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
         for (i=0; i <vec->v_ndims; i++){
             tcount *= vec->v_dims[i];
         }
-        MPI_Win_create ( vec->v_data, tcount*extent , extent, MPI_INFO_NULL,
+        MPI_Win_create ( vec->v_data, tcount*extent, extent, MPI_INFO_NULL,
                          topo->t_comm, &(newreq->r_win));
         MPI_Comm_group ( topo->t_comm, &(newreq->r_group) );
     }

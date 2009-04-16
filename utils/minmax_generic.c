@@ -143,6 +143,7 @@ void minmax_read_input ( struct emethod ***emethods )
 		
 		basestr = strstr ( line, "method" );
 		sscanf ( basestr, "%6s %d", reqstr, &tline.method );
+	        tline.method -= idx_methodstart[tline.req];
 		
 		basestr = strstr ( line, ")" );
 		sscanf ( basestr, "%1s %lf\n", reqstr, &time );
@@ -157,6 +158,7 @@ void minmax_read_input ( struct emethod ***emethods )
 		
 		basestr = strstr ( line, "method" );
 		sscanf ( basestr, "%6s %d", reqstr, &method );
+	        method -= idx_methodstart[req];
 		if ( method != tline.method ) {
 		    printf ("Method mismatch at process %d\n", i);
 		}		
@@ -169,7 +171,6 @@ void minmax_read_input ( struct emethod ***emethods )
 
             printf("%d: request %d method %d %lf\n", i, tline.req, tline.method, time);
 
-	    tline.method -= idx_methodstart[tline.req];
 	    pos = emethods[tline.req][i][tline.method].em_rescount;
 	    count = emethods[tline.req][i][tline.method].em_count;
 	    if ( pos >= count ) {

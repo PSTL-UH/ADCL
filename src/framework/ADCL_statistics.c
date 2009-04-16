@@ -182,12 +182,12 @@ int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count,
 
     if ( statistics[tline_filtered.minloc]->s_gpts[2] < ADCL_OUTLIER_FRACTION){
         *winner = tline_filtered.minloc;
-        ADCL_printf("# winner is %d (filtered) \n", *winner);
+        ADCL_printf("# heurstic win is %d (filtered) \n", *winner);
         retval = ADCL_FILTERED;
     }
     else {
         *winner = tline_unfiltered.minloc;
-        ADCL_printf("# winner is %d (unfiltered) \n",   *winner );
+        ADCL_printf("# heuristic win is %d (unfiltered) \n",   *winner );
         retval = ADCL_UNFILTERED;
     }
     return retval;

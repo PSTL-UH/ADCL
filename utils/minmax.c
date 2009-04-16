@@ -22,8 +22,9 @@ void minmax_calc_per_iteration ( struct emethod **em, char *filename );
 void minmax_calc_statistics    ( struct emethod **em, char *filename );
 void minmax_clear_poison_field ( struct emethod **em);
 void minmax_calc_decision      ( struct emethod **em, int outlier_fraction ); 
+#if defined(GSL) || defined(NR)
 void minmax_calc_robust ( struct emethod **em, char *filename );
-
+#endif 
    int HierarchicalClusterAnalysis(char metric, int transpose, char method, 
    double* avg, int* nfilt);
    void init_cluster_vars(const int ndata, double *data);
@@ -50,7 +51,9 @@ int main (int argc, char **argv )
     minmax_filter_timings   ( emethods, outlier_factor);
     minmax_calc_decision    ( emethods, outlier_fraction );
     minmax_calc_statistics  ( emethods, NULL );
+#if defined(GSL) || defined(NR)
     minmax_calc_robust      ( emethods, NULL );
+#endif
     minmax_calc_cluster     ( emethods, NULL );
     if ( output_files ) {
 //	minmax_calc_per_iteration ( emethods, "minmax-filtered.out" );
@@ -582,6 +585,7 @@ void minmax_finalize ( struct emethod ***emethods )
 /********************************************************************************/
 /********************************************************************************/
 /********************************************************************************/
+#if defined(GSL) || defined(NR)
 void minmax_calc_robust ( struct emethod **em, char *filename ) 
 {
     FILE *outf=NULL;
@@ -674,6 +678,7 @@ void minmax_calc_robust ( struct emethod **em, char *filename )
     free ( tline );
     return;
 }
+#endif
 
 /********************************************************************************/
 /********************************************************************************/
@@ -691,13 +696,13 @@ void minmax_calc_cluster ( struct emethod **em, char *filename )
     tline  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
     tline_perc  = (struct lininf *) malloc ( sizeof(struct lininf) * nummethods ); 
     if ( NULL == tline || NULL == tline_perc ) {
-	printf("calc_robust: could not allocate memory\n");
+	printf("calc_cluster: could not allocate memory\n");
     }
     
     if ( NULL != filename ) {
 	outf = fopen(filename, "a");
 	if ( NULL == outf ) {
-	    printf("calc_robust: could not open %s for writing\n", filename );
+	    printf("calc_cluster: could not open %s for writing\n", filename );
 	    exit (-1);
 	}
 	fprintf(outf, "\n");

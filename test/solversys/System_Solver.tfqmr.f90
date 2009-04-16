@@ -59,6 +59,8 @@
         integer, dimension(3) :: dims
         integer :: adcl_vec_tfqmr_y, adcl_vec_tfqmr_y_old, adcl_vec_tfqmr_y_old_1
         integer :: adcl_tfqmr_y, adcl_tfqmr_y_old, adcl_tfqmr_y_old_1
+        integer :: adcl_vmap_skalar_12, adcl_vec_skalar_1, & 
+           adcl_vec_skalar_2, adcl_skalar_12
 
 !        character *80 name;
 !        double precision tbegin, tend
@@ -96,6 +98,14 @@
              adcl_vec_tfqmr_y_old_1, ierror )
         call ADCL_Request_create ( adcl_vec_tfqmr_y_old_1, adcl_topo, &
              ADCL_FNCTSET_NEIGHBORHOOD, adcl_tfqmr_y_old_1, ierror )
+
+        call ADCL_Vmap_allreduce_allocate ( MPI_SUM, adcl_vmap_skalar_12, ierror )
+        call ADCL_Vector_register_generic ( 1, 1, 0, adcl_vmap_skalar_12, &
+                    MPI_DOUBLE_PRECISION, skalar_1, adcl_vec_skalar_1, ierror )
+        call ADCL_Vector_register_generic ( 1, 1, 0, adcl_vmap_skalar_12, &
+                    MPI_DOUBLE_PRECISION, skalar_2, adcl_vec_skalar_2, ierror )
+        call adcl_request_create_generic ( adcl_vec_skalar_1, adcl_vec_skalar_2, & 
+             adcl_topo, ADCL_FNCTSET_ALLREDUCE, adcl_skalar_12, ierror )
 
 !...Initialisierung der Variablen
         
@@ -284,8 +294,9 @@
               end do
 
               comm_anfang = MPI_WTIME()
-              call MPI_Allreduce ( skalar_1, skalar_2, 1, MPI_DOUBLE_PRECISION,  &
-                   MPI_SUM, MPI_COMM_WORLD, ierror )
+              call ADCL_Request_start( adcl_skalar_12, ierror )
+!               call MPI_Allreduce ( skalar_1, skalar_2, 1, MPI_DOUBLE_PRECISION,  &
+!                    MPI_SUM, MPI_COMM_WORLD, ierror )
               comm_ende = MPI_WTIME()
 !              allred(acount) = comm_ende - comm_anfang
 !              acount = acount + 1
@@ -401,8 +412,9 @@
               end do
 
               comm_anfang = MPI_WTIME()
-              call MPI_Allreduce ( skalar_1, skalar_2, 1, MPI_DOUBLE_PRECISION,  &
-                  MPI_SUM, MPI_COMM_WORLD, ierror )
+              call ADCL_Request_start( adcl_skalar_12, ierror )
+!               call MPI_Allreduce ( skalar_1, skalar_2, 1, MPI_DOUBLE_PRECISION,  &
+!                   MPI_SUM, MPI_COMM_WORLD, ierror )
               comm_ende = MPI_WTIME()
 !              allred(acount) = comm_ende - comm_anfang
 !              acount = acount + 1
