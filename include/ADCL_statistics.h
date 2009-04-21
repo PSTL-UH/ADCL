@@ -49,6 +49,9 @@ struct ADCL_statistics_s{
 };
 typedef struct ADCL_statistics_s ADCL_statistics_t;
 
+int ADCL_statistics_create ( ADCL_statistics_t*** stats, int fs_maxnum );
+int ADCL_statistics_free   ( ADCL_statistics_t*** stats, int fs_maxnum );
+
 int ADCL_statistics_filter_timings  ( ADCL_statistics_t **stats, int count,
                     int rank );
 double ADCL_statistics_time(void);

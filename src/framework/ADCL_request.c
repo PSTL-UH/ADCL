@@ -669,7 +669,7 @@ static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
 #ifdef PERF_DETAILS
         start_time = MPI_Wtime();
 #endif /* PERF_DETAILS */
-        tmp = ADCL_emethods_get_next ( req->r_emethod, mode, &flag );
+        tmp = ADCL_emethods_get_next ( req->r_emethod, &flag );
 #ifdef PERF_DETAILS
         end_time = MPI_Wtime();
         elapsed_time += end_time - start_time;

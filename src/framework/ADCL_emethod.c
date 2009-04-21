@@ -150,27 +150,7 @@ nextemethod:
     ** initiated.
     */
     ADCL_fnctset_dup ( f, &(e->em_fnctset));
-
-    /* Allocate the according number of statistics objects */
-    e->em_stats = (ADCL_statistics_t **) calloc ( 1, f->fs_maxnum*sizeof(ADCL_statistics_t *));
-    if ( NULL == e->em_stats ) {
-        ret = ADCL_NO_MEMORY;
-        goto exit;
-    }
-    for ( i=0; i< f->fs_maxnum; i++ ) {
-        e->em_stats[i] = (ADCL_statistics_t *) calloc (1, sizeof(ADCL_statistics_t ));
-        if ( NULL == e->em_stats[i] ) {
-            ret = ADCL_NO_MEMORY;
-            goto exit;
-        }
-
-        /* Allocate the measurements arrays */
-        e->em_stats[i]->s_time = (TIME_TYPE *)calloc (1, sizeof(TIME_TYPE)*ADCL_emethod_numtests);
-        if ( NULL == e->em_stats[i]->s_time ) {
-            ret = ADCL_NO_MEMORY;
-            goto exit;
-        }
-    }
+    ADCL_statistics_create ( &(e->em_stats), f->fs_maxnum ); 
 
     /* initiate the performance hypothesis structure */
 
@@ -196,17 +176,8 @@ nextemethod:
     e->em_hist_cnt = 0;
  exit:
     if ( ret != ADCL_SUCCESS  ) {
-        if ( NULL != e->em_stats  ) {
-            for ( i=0; i< f->fs_maxnum; i++ ) {
-                if ( NULL != e->em_stats[i]) {
-                    if ( NULL != e->em_stats[i]->s_time ) {
-                        free ( e->em_stats[i]->s_time );
-                    }
-                    free ( e->em_stats[i] );
-                }
-            }
-            free ( e->em_stats );
-        }
+        ADCL_statistics_free ( &(e->em_stats), f->fs_maxnum );
+
         if ( NULL != hypo->h_attr_hypothesis ) {
             free ( hypo->h_attr_hypothesis );
         }
@@ -391,7 +362,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm, int count)
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_emethods_get_next ( ADCL_emethod_t *e, int mode, int *flag )
+int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
 {
     int next = ADCL_EVAL_DONE;
     int last = e->em_last;

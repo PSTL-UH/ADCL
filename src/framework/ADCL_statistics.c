@@ -38,6 +38,63 @@ struct lininf {
                 _t.max = _time;     \
                 _t.maxloc =_i;}}
 
+/**********************************************************************/
+ int ADCL_statistics_create ( ADCL_statistics_t*** stats, int fs_maxnum ) {
+/**********************************************************************/
+    ADCL_statistics_t** tstats;
+    int ret = ADCL_SUCCESS;
+    int i;
+
+    tstats = (ADCL_statistics_t **) calloc ( 1, fs_maxnum*sizeof(ADCL_statistics_t *));
+    if ( NULL == tstats ) {
+        ret = ADCL_NO_MEMORY;
+        goto exit;
+    }
+    for ( i=0; i< fs_maxnum; i++ ) {
+        tstats[i] = (ADCL_statistics_t *) calloc (1, sizeof(ADCL_statistics_t ));
+        if ( NULL == tstats[i] ) {
+            ret = ADCL_NO_MEMORY;
+            goto exit;
+        }
+
+        /* Allocate the measurements arrays */
+        tstats[i]->s_time = (TIME_TYPE *)calloc (1, sizeof(TIME_TYPE)* ADCL_EMETHOD_NUMTESTS);
+        if ( NULL == tstats[i]->s_time ) {
+            ret = ADCL_NO_MEMORY;
+            goto exit;
+        }
+    }
+
+ exit:
+    if ( ret != ADCL_SUCCESS  ) 
+       ADCL_statistics_free ( &(tstats) , fs_maxnum );
+    else
+      *stats = tstats;
+
+    return ret;
+}
+
+/**********************************************************************/
+int ADCL_statistics_free ( ADCL_statistics_t ***stats, int fs_maxnum ) {
+/**********************************************************************/
+    ADCL_statistics_t** tstats = *stats;
+    int i;
+
+    if ( NULL != tstats  ) {
+        for ( i=0; i< fs_maxnum; i++ ) {
+            if ( NULL != tstats[i]) {
+                if ( NULL != tstats[i]->s_time ) {
+                    free ( tstats[i]->s_time );
+                }
+                free ( tstats[i] );
+            }
+        }
+        free ( tstats );
+    }
+    stats = NULL;
+
+    return ADCL_SUCCESS;
+}
 
 /**********************************************************************/
 /**********************************************************************/

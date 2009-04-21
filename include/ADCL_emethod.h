@@ -66,7 +66,7 @@ int  ADCL_emethods_get_winner ( ADCL_emethod_t *ermethods, MPI_Comm comm, int co
 void ADCL_emethods_update ( ADCL_emethod_t *ermethods, int pos,
                 int flag, TIME_TYPE tstart, TIME_TYPE tend );
 
-int  ADCL_emethods_get_next ( ADCL_emethod_t *emethods, int mode, int *flag);
+int  ADCL_emethods_get_next ( ADCL_emethod_t *emethods, int *flag);
 ADCL_function_t *  ADCL_emethod_get_function ( ADCL_emethod_t *emethod, int pos);
 int ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *erm, int *attr, int *pos);
 int ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval,
