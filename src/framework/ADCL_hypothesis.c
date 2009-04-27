@@ -281,7 +281,7 @@ int ADCL_hypothesis_get_next ( ADCL_emethod_t *e )
             /* All possible attribute value combinations have been tested */
             break;
         }
-        ret2 = ADCL_emethod_get_function_by_attrs ( e,
+        ret2 = ADCL_fnctset_get_fnct_by_attrs ( &(e->em_fnctset),
                                                     hypo->h_curr_attrvals,
                                                     &next );
         if ( ADCL_NOT_FOUND == ret2 ) {
@@ -328,7 +328,7 @@ int ADCL_hypothesis_get_next ( ADCL_emethod_t *e )
                 }
 
                 /* Get the according function pointer */
-                ret2 = ADCL_emethod_get_function_by_attrs ( e,
+                ret2 = ADCL_fnctset_get_fnct_by_attrs ( &(e->em_fnctset),
                                         hypo->h_curr_attrvals,
                                         &next );
                 if ( ADCL_NOT_FOUND == ret2 ) {

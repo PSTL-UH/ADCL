@@ -261,30 +261,10 @@ ADCL_function_t* ADCL_emethod_get_function ( ADCL_emethod_t *e, int pos)
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-int ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *em,
-                     int *attrval,
-                     int *pos )
-{
-    int i, j, found;
-    ADCL_fnctset_t* fnctset;
-    int ret=ADCL_NOT_FOUND;
 
-    fnctset = &(em->em_fnctset);
-    for ( i=0; i< fnctset->fs_maxnum; i++ ) {
-        for ( found=1, j=0; j<fnctset->fs_attrset->as_maxnum; j++ ){
-            if ( fnctset->fs_fptrs[i]->f_attrvals[j] != attrval[j] ) {
-                found = 0; /* false */
-                break;
-            }
-        }
-        if ( found ) {
-            *pos = i;
-            ret = ADCL_SUCCESS;
-            break;
-        }
-    }
-    return ret;
-}
+/* ADCL_emethod_get_function_by_attrs
+   moved to ADCL_function.c as ADCL_fnctset_get_fnct_by_attrs */
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/

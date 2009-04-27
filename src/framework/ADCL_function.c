@@ -367,6 +367,34 @@ int ADCL_fnctset_get_fnct_num ( ADCL_fnctset_t *fnctset, ADCL_function_t*fnct )
 	}
     }
 }
+
+/********************************************************************************/
+/********************************************************************************/
+/********************************************************************************/
+/* former ADCL_emethod_get_function_by_attrs */
+int ADCL_fnctset_get_fnct_by_attrs ( ADCL_fnctset_t *fnctset,
+                     int *attrval,
+                     int *pos )
+{
+    int i, j, found;
+    int ret=ADCL_NOT_FOUND;
+
+    for ( i=0; i< fnctset->fs_maxnum; i++ ) {
+        for ( found=1, j=0; j<fnctset->fs_attrset->as_maxnum; j++ ){
+            if ( fnctset->fs_fptrs[i]->f_attrvals[j] != attrval[j] ) {
+                found = 0; /* false */
+                break;
+            }
+        }
+        if ( found ) {
+            *pos = i;
+            ret = ADCL_SUCCESS;
+            break;
+        }
+    }
+    return ret;
+}
+
 /********************************************************************************/
 /********************************************************************************/
 /********************************************************************************/

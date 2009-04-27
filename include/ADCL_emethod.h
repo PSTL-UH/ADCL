@@ -68,7 +68,10 @@ void ADCL_emethods_update ( ADCL_emethod_t *ermethods, int pos,
 
 int  ADCL_emethods_get_next ( ADCL_emethod_t *emethods, int *flag);
 ADCL_function_t *  ADCL_emethod_get_function ( ADCL_emethod_t *emethod, int pos);
-int ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *erm, int *attr, int *pos);
+
+/*  int ADCL_emethod_get_function_by_attrs ( ADCL_emethod_t *erm, int *attr, int *pos);
+    now called ADCL_fnctset_get_fnct_by_attrs, moved to ADCL_function.h */
+
 int ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval,
                       ADCL_statistics_t **stat, ADCL_function_t **func );
 
