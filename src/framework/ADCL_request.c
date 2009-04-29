@@ -11,8 +11,6 @@
 #include "math.h"
 
 static int ADCL_local_id_counter=0;
-static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req, int mode);
-
 ADCL_array_t *ADCL_request_farray;
 
 extern ADCL_fnctset_t *ADCL_neighborhood_fnctset;
@@ -528,7 +526,8 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_AVAIL );
 
-    req->r_function = ADCL_request_get_function ( req, ADCL_COMM_AVAIL );
+    req->r_function = ADCL_emethod_get_function_by_state ( req->r_emethod,  
+       &(req->r_erlast), &(req->r_erflag), "req", req->r_id, ADCL_COMM_AVAIL);  
 
 #ifdef PERF_DETAILS
     start_time = TIME;
@@ -653,77 +652,10 @@ int ADCL_request_reg_hist_criteria ( ADCL_request_t *req, ADCL_hist_criteria_t *
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
+/* static ADCL_function_t*  ADCL_request_get_function ( ADCL_request_t *req,
                                                      int mode )
-{
-    int tmp, flag;
-    ADCL_function_t *tfunc=NULL;
-    MPI_Comm comm = req->r_emethod->em_topo->t_comm;
-    int rank = req->r_emethod->em_topo->t_rank;
-#ifdef PERF_DETAILS
-    static TIME_TYPE elapsed_time = 0;
-    TIME_TYPE start_time, end_time;
-#endif /* PERF_DETAILS */
-    switch ( req->r_emethod->em_state ) {
-    case ADCL_STATE_TESTING:
-#ifdef PERF_DETAILS
-        start_time = MPI_Wtime();
-#endif /* PERF_DETAILS */
-        tmp = ADCL_emethods_get_next ( req->r_emethod, &flag );
-#ifdef PERF_DETAILS
-        end_time = MPI_Wtime();
-        elapsed_time += end_time - start_time;
-#endif /* PERF_DETAILS */
-
-        if ( ADCL_EVAL_DONE == tmp ) {
-            req->r_emethod->em_state = ADCL_STATE_DECISION;
-        }
-        else if ( ADCL_SOL_FOUND == tmp ) {
-            tfunc = req->r_emethod->em_wfunction;
-            break;
-	}
-        else if ( (ADCL_ERROR_INTERNAL == tmp)||( 0 > tmp )) {
-            return NULL;
-        }
-        else {
-            req->r_erlast = tmp;
-            req->r_erflag = flag;
-            tfunc = ADCL_emethod_get_function (req->r_emethod, tmp );
-            break;
-        }
-        /* no break; statement here on purpose! */
-    case ADCL_STATE_DECISION:
-#if 0
-        ADCL_printf("#%d: Initiating decision procedure for req %d\n",
-            rank, req->r_id);
-#endif
-#ifdef PERF_DETAILS
-        ADCL_printf("Total elapsed time of emethod_get_function = %f\n",elapsed_time);
-#endif /* PERF_DETAILS */
-        tmp = ADCL_emethods_get_winner ( req->r_emethod, comm,
-                                         req->r_emethod->em_fnctset.fs_maxnum);
-        req->r_emethod->em_last    = tmp;
-        req->r_emethod->em_wfunction = ADCL_emethod_get_function (req->r_emethod, tmp);
-        ADCL_printf("#%d:  req %d winner is %d %s\n",
-            rank, req->r_id, req->r_emethod->em_wfunction->f_id,
-            req->r_emethod->em_wfunction->f_name);
-#ifdef ADCL_SAVE_REQUEST_WINNER
-	ADCL_hist_create ( req->r_emethod );
-#endif
-        req->r_emethod->em_state = ADCL_STATE_REGULAR;
-        /* no break; statement here on purpose! */
-    case ADCL_STATE_REGULAR:
-        tfunc = req->r_emethod->em_wfunction;
-        break;
-    default:
-        ADCL_printf("#%s: Unknown object status for req %d, status %d\n",
-            __FILE__, req->r_id, req->r_emethod->em_state );
-        break;
-    }
-
-    return tfunc;
-}
-
+   moved to ADCL_emethod.c as ADCL_emethod_get_function_by_state  (with
+   different paramters!)    */
 
 /**********************************************************************/
 /**********************************************************************/

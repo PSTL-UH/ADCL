@@ -258,6 +258,96 @@ ADCL_function_t* ADCL_emethod_get_function ( ADCL_emethod_t *e, int pos)
 {
     return e->em_fnctset.fs_fptrs[pos];
 }
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+/* former static ADCL_function_t*  ADCL_request_get_function 
+      ( ADCL_request_t *req, int mode )                               */
+
+ADCL_function_t*  ADCL_emethod_get_function_by_state 
+    ( ADCL_emethod_t *em, int *pos, int *perfflag, char *objname, 
+      int id, int mode )
+/* returns the function which is executed next depending on the state 
+   (ADCL_STATE_TESTING, ADCL_STATE_DECISION, ADCL_STATE_REGULAR)
+
+   function parameters: 
+   em       (IN)    emethod object 
+   pos      (OUT)   last method used (req->r_erlast, timer->t_erlast)
+   perfflag (OUT)   flag for state machine (req->r_erflag, timer->t_erflag)
+   objname  (IN)    "req" or "timer" 
+   id       (IN)    id of object (req->t_id, timer->t_id)
+   mode     (INOUT) ADCL_COMM_AVAIL, etc. */
+{
+    int tmp, flag;
+    ADCL_function_t *tfunc=NULL;
+    MPI_Comm comm = em->em_topo->t_comm;
+    int rank = em->em_topo->t_rank;
+#ifdef PERF_DETAILS
+    static TIME_TYPE elapsed_time = 0;
+    TIME_TYPE start_time, end_time;
+#endif /* PERF_DETAILS */
+
+    switch ( em->em_state ) {
+    case ADCL_STATE_TESTING:
+#ifdef PERF_DETAILS
+        start_time = MPI_Wtime();
+#endif /* PERF_DETAILS */
+        tmp = ADCL_emethods_get_next ( em, &flag );
+#ifdef PERF_DETAILS
+        end_time = MPI_Wtime();
+        elapsed_time += end_time - start_time;
+#endif /* PERF_DETAILS */
+
+        if ( ADCL_EVAL_DONE == tmp ) {
+            em->em_state = ADCL_STATE_DECISION;
+        }
+        else if ( ADCL_SOL_FOUND == tmp ) {
+            tfunc = em->em_wfunction;
+            break;
+	}
+        else if ( (ADCL_ERROR_INTERNAL == tmp)||( 0 > tmp )) {
+            return NULL;
+        }
+        else {
+            *pos = tmp;
+            *perfflag = flag;
+            tfunc = ADCL_emethod_get_function (em, tmp );
+            break;
+        }
+        /* no break; statement here on purpose! */
+    case ADCL_STATE_DECISION:
+#if 0
+        ADCL_printf("#%d: Initiating decision procedure for %s %d\n",
+            rank, objname, id);
+#endif
+#ifdef PERF_DETAILS
+        ADCL_printf("Total elapsed time of emethod_get_function = %f\n",elapsed_time);
+#endif /* PERF_DETAILS */
+        tmp = ADCL_emethods_get_winner ( em, comm,
+                                         em->em_fnctset.fs_maxnum);
+        em->em_last    = tmp;
+        em->em_wfunction = ADCL_emethod_get_function (em, tmp);
+        ADCL_printf("#%d:  %s %d winner is %d %s\n",
+            rank, objname, id, em->em_wfunction->f_id,
+            em->em_wfunction->f_name);
+#ifdef ADCL_SAVE_REQUEST_WINNER
+	ADCL_hist_create ( em );
+#endif
+        em->em_state = ADCL_STATE_REGULAR;
+        /* no break; statement here on purpose! */
+    case ADCL_STATE_REGULAR:
+        tfunc = em->em_wfunction;
+        break;
+    default:
+        ADCL_printf("#%s: Unknown object status for %s %d, status %d\n",
+            __FILE__, objname, id, em->em_state );
+        break;
+    }
+
+    return tfunc;
+}
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
