@@ -9,10 +9,11 @@
 #ifndef __ADCL_EMETHOD_H__
 #define __ADCL_EMETHOD_H__
 
+struct ADCL_vector_t;
+struct ADCL_topology_t;
+struct ADCL_statistics_t;
+
 #include "ADCL_sysconfig.h"
-#include "ADCL_topology.h"
-#include "ADCL_vector.h"
-#include "ADCL_statistics.h"
 #include "ADCL_function.h"
 
 struct ADCL_emethod_s {

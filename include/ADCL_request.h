@@ -16,10 +16,10 @@
 #include "mpi.h"
 #endif
 
-#include "ADCL_vector.h"
-#include "ADCL_function.h"
-#include "ADCL_emethod.h"
-#include "ADCL_topology.h"
+struct ADCL_vector_t;
+struct ADCL_function_t;
+struct ADCL_emethod_t;
+struct ADCL_topology_t; 
 
 #define ADCL_COMM_ACTIVE 1024
 #define ADCL_COMM_AVAIL  1025

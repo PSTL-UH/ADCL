@@ -6,7 +6,7 @@
 !
 ! $HEADER$
 !
-       include 'mpif.h'
+!       include 'mpif.h'
        
        integer ADCL_SUCCESS, ADCL_NO_MEMORY, ADCL_ERROR_INTERNAL
        integer ADCL_USER_ERROR, ADCL_UNDEFINED, ADCL_NOT_FOUND

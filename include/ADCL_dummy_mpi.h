@@ -43,7 +43,9 @@ typedef  int   MPI_Fint;
 #define MPI_CONGRUENT      14
 #define MPI_CART           15
 
-#define MPI_MAX            (MPI_Op)16
+#define MPI_MAX            (MPI_Op)50
+#define MPI_MIN            (MPI_Op)51
+#define MPI_SUM            (MPI_Op)52
 
 #define MPI_STATUS_IGNORE   (MPI_Status*)17
 #define MPI_STATUSES_IGNORE (MPI_Status*)18
@@ -57,6 +59,7 @@ typedef  int   MPI_Fint;
 #define MPI_INT              (MPI_Datatype)24
 #define MPI_INTEGER          (MPI_Datatype)25
 #define MPI_PACKED           (MPI_Datatype)26
+#define MPI_IN_PLACE         (MPI_Datatype)27
 
 /* Prototypes of the functions */
 int MPI_Init      ( int *argc, char ***argv );
