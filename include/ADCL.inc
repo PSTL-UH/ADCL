@@ -6,7 +6,11 @@
 !
 ! $HEADER$
 !
-!       include 'mpif.h'
+!#ifdef ADCL_DUMMY_MPI
+!#include "ADCL_dummy_mpi.h"
+!#else
+       include "mpif.h"
+!#endif
        
        integer ADCL_SUCCESS, ADCL_NO_MEMORY, ADCL_ERROR_INTERNAL
        integer ADCL_USER_ERROR, ADCL_UNDEFINED, ADCL_NOT_FOUND

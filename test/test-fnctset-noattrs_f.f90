@@ -13,7 +13,7 @@
 
         integer topo
         integer request
-        integer funcs(3), fnctset
+        integer funcs(3), fnctset, length
         integer NIT, i, rank, size, ierror
         external test_func1, test_func2, test_func3
 
@@ -32,9 +32,10 @@
         call ADCL_Function_create ( test_func3, ADCL_ATTRSET_NULL, 0, &
              "test_fun3", funcs(3), ierror ) 
         
-        
-        call ADCL_Fnctset_create ( 3, funcs, "trivial fortran funcs", 0, fnctset, &
-             ierror)
+       
+        length = len("trivial_fortran_funcs") 
+        call ADCL_Fnctset_create ( 3, funcs, "trivial_fortran_funcs", fnctset, &
+             ierror, length ) 
 
         call ADCL_Topology_create_generic ( 0, 0, 0, 0, ADCL_DIRECTION_BOTH, &
              MPI_COMM_WORLD, topo, ierror )
@@ -82,7 +83,7 @@
         integer comm, rank, size, ierror
 
         call ADCL_Request_get_comm ( request, comm, rank, size, ierror )
-        write (*,*) rank, ": In test_fun1, size = ", size
+        write (*,*) rank, ": In test_fun2, size = ", size
       end subroutine test_func2
 
       subroutine test_func3 ( request ) 
