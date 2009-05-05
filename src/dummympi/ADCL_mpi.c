@@ -235,3 +235,32 @@ double MPI_Wtime(void)
 {
     return 0.0;
 }
+int MPI_Cart_get ( MPI_Comm comm, int maxdims, int *dims, int *periods, int *coords ){
+    return MPI_SUCCESS;
+}
+int MPI_Type_contiguous( int count, MPI_Datatype old_type, MPI_Datatype *newtype){
+    return MPI_SUCCESS;
+}
+int MPI_Allgatherv ( void *sendbuf, int sendcount, MPI_Datatype sendtype,
+                     void *recvbuf, int *recvcounts, int *displs,
+                    MPI_Datatype recvtype, MPI_Comm comm ){
+    return MPI_SUCCESS;
+}
+int MPI_Type_get_extent( MPI_Datatype datatype, MPI_Aint *lb, MPI_Aint *extent ){
+    return MPI_SUCCESS;
+}
+int MPI_Gatherv ( void *sendbuf, int sendcnt, MPI_Datatype sendtype,
+                  void *recvbuf, int *recvcnts, int *displs,
+                 MPI_Datatype recvtype, int root, MPI_Comm comm ){
+    return MPI_SUCCESS;
+}
+int MPI_Type_get_true_extent(MPI_Datatype datatype, MPI_Aint *true_lb,
+                           MPI_Aint *true_extent){
+    return MPI_SUCCESS;
+}
+int MPI_Type_size ( MPI_Datatype datatype, int *size ){
+    return MPI_SUCCESS;
+}
+
+
+

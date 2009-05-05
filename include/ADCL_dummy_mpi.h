@@ -145,4 +145,23 @@ int MPI_Pack_size( int incount, MPI_Datatype datatype, MPI_Comm comm,
 		   int *size);
 double MPI_Wtime(void);
 
+int MPI_Cart_get ( MPI_Comm comm, int maxdims, int *dims, int *periods, int *coords );
+
+int MPI_Type_contiguous( int count, MPI_Datatype old_type, MPI_Datatype *newtype); 
+
+int MPI_Allgatherv ( void *sendbuf, int sendcount, MPI_Datatype sendtype, 
+                     void *recvbuf, int *recvcounts, int *displs, 
+                    MPI_Datatype recvtype, MPI_Comm comm );
+
+int MPI_Type_get_extent( MPI_Datatype datatype, MPI_Aint *lb, MPI_Aint *extent );
+
+int MPI_Gatherv ( void *sendbuf, int sendcnt, MPI_Datatype sendtype, 
+                  void *recvbuf, int *recvcnts, int *displs, 
+                 MPI_Datatype recvtype, int root, MPI_Comm comm );
+
+int MPI_Type_get_true_extent(MPI_Datatype datatype, MPI_Aint *true_lb, 
+                           MPI_Aint *true_extent);
+
+int MPI_Type_size ( MPI_Datatype datatype, int *size );
+ 
 #endif /* __MPI_H__ */
