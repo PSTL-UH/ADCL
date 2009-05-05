@@ -281,8 +281,14 @@ ADCL_function_t*  ADCL_emethod_get_function_by_state
 {
     int tmp, flag;
     ADCL_function_t *tfunc=NULL;
-    MPI_Comm comm = em->em_topo->t_comm;
-    int rank = em->em_topo->t_rank;
+    MPI_Comm comm;
+    int rank;
+
+    if ( ADCL_TOPOLOGY_NULL != em->em_topo ) {
+        comm = em->em_topo->t_comm;
+        rank = em->em_topo->t_rank;
+    } 
+
 #ifdef PERF_DETAILS
     static TIME_TYPE elapsed_time = 0;
     TIME_TYPE start_time, end_time;
@@ -332,7 +338,10 @@ ADCL_function_t*  ADCL_emethod_get_function_by_state
             rank, objname, id, em->em_wfunction->f_id,
             em->em_wfunction->f_name);
 #ifdef ADCL_SAVE_REQUEST_WINNER
-	ADCL_hist_create ( em );
+       /* XXX not nice */
+       if ( ADCL_TOPOLOGY_NULL != em->em_topo){
+           ADCL_hist_create ( em );
+       }
 #endif
         em->em_state = ADCL_STATE_REGULAR;
         /* no break; statement here on purpose! */
@@ -404,14 +413,20 @@ int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, int pos,
 /**********************************************************************/
 int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm, int count)
 {
-    int winner;
+    int winner, rank;
+
+    if ( ADCL_TOPOLOGY_NULL == emethod->em_topo ) {
+        rank = 0; 
+    }
+    else {
+        rank = emethod->em_topo->t_rank;
+    }
 
     /*
     ** Filter the input data, i.e. remove outliers which
     ** would falsify the results
     */
-    ADCL_statistics_filter_timings ( emethod->em_stats, count,
-                                     emethod->em_topo->t_rank );
+    ADCL_statistics_filter_timings ( emethod->em_stats, count, rank );
 
     /*
     ** Determine now how many point each method achieved globally. The
@@ -419,8 +434,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm, int count)
     */
     if ( 0 == emethod->em_perfhypothesis ) {
         ADCL_statistics_global_max_v3 ( emethod->em_stats, count,
-                                        emethod->em_topo->t_comm,
-                                        emethod->em_topo->t_rank);
+                                        comm, rank);
     }
 
     emethod->em_filtering = ADCL_statistics_get_winner_v3 ( emethod->em_stats,
@@ -435,12 +449,21 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm, int count)
 int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
 {
     int next = ADCL_EVAL_DONE;
-    int last = e->em_last;
+    int last = e->em_last, rank;
     int hist_search_res;
     ADCL_hist_t *hist;
     ADCL_function_t *func;
     TIME_TYPE start, end;
+    MPI_Comm comm; 
 
+    if ( ADCL_TOPOLOGY_NULL == e->em_topo ) {
+        comm = 1; 
+        rank = 0; 
+    }
+    else {
+        comm = e->em_topo->t_comm,
+        rank = e->em_topo->t_rank;
+    }
     if ( 1 == ADCL_emethod_learn_from_hist ) {
         /* Search for solution/hints in the hist stored from previous runs */
         start = TIME;
@@ -464,7 +487,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
             break;
         case ADCL_SIMILAR:
 #ifdef HL_VERBOSE
-                if(0 == e->em_topo->t_rank) {
+                if(0 == rank) {
                     printf("Time for prediction: %f us\n", end-start);
                 }
 #endif
@@ -497,13 +520,10 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
     }
 
     ADCL_STAT_SET_TESTED ( e->em_stats[last]);
-    ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1,
-                                     e->em_topo->t_rank );
+    ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1, rank );
 
     if ( e->em_perfhypothesis ) {
-        ADCL_statistics_global_max_v3 ( &(e->em_stats[last]), 1,
-                                        e->em_topo->t_comm,
-                                        e->em_topo->t_rank );
+        ADCL_statistics_global_max_v3 ( &(e->em_stats[last]), 1, comm, rank );
         next = ADCL_hypothesis_get_next ( e );
         if ( next != ADCL_EVAL_DONE ) {
             e->em_last=next;

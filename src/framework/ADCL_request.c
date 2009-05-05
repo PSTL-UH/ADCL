@@ -520,9 +520,13 @@ int ADCL_request_free ( ADCL_request_t **req )
 int ADCL_request_init ( ADCL_request_t *req, int *db )
 {
     TIME_TYPE t1, t2;
-    MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
+    MPI_Comm comm;
     TIME_TYPE start_time, end_time;
     static TIME_TYPE elapsed_time = 0;
+
+    if ( ADCL_TOPOLOGY_NULL != req->r_emethod->em_topo ){
+        comm = req->r_emethod->em_topo->t_comm;
+    }
 
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_AVAIL );
 
@@ -606,9 +610,15 @@ int ADCL_request_update ( ADCL_request_t *req,
         req->r_function->f_name, 
         t2>t1 ? (t2-t1):(1000000-t1+t2));
 */
-    ADCL_printf("%d: request %d method %d (%s) %8.4f \n",
-        req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
-        req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
+    if ( ADCL_TOPOLOGY_NULL != req->r_emethod->em_topo ) {
+        ADCL_printf("%d: request %d method %d (%s) %8.4f \n",
+            req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
+            req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
+    }
+    else {
+        ADCL_printf("request %d method %d (%s) %8.4f \n", req->r_id, 
+            req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
+    }
     switch ( req->r_emethod->em_state ) {
     case ADCL_STATE_TESTING:
         ADCL_emethods_update (req->r_emethod, req->r_erlast,
