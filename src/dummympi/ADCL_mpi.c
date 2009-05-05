@@ -262,5 +262,50 @@ int MPI_Type_size ( MPI_Datatype datatype, int *size ){
     return MPI_SUCCESS;
 }
 
-
-
+#ifdef _SX
+int mpi_win_null_delete_fn_(){
+    return MPI_SUCCESS;
+}
+int mpi_nec_block_time_ (){
+    return MPI_SUCCESS;
+}
+int mpi_dup_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_comm_dup_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_comm_null_copy_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_comm_null_delete_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_null_copy_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_null_delete_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_type_dup_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_type_null_copy_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_type_null_delete_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_win_dup_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_win_null_copy_fn_ (){
+    return MPI_SUCCESS;
+}
+int mpi_wtick_ (){
+    return MPI_SUCCESS;
+}
+double mpi_wtime_ (){
+    return 0.0; 
+}
+#endif

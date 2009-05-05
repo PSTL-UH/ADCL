@@ -40,10 +40,10 @@
 
 #ifdef _SX
 void adcl_function_create_( void *iptr, int *attrset, int *array_of_attrvals, char *name,
-                            int *fnct, int *ierr, int name_len )
+                            int *fnct, int *ierr, int *name_len )
 #else
 void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, char *name,
-                            int *fnct, int *ierr, int name_len )
+                            int *fnct, int *ierr, int *name_len )
 #endif
 {
     ADCL_attrset_t *cattrset;
@@ -59,7 +59,7 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
         return;
     }
 
-    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
+    ret = ADCL_fortran_string_f2c (name, *name_len, &cname );
     if ( ADCL_SUCCESS != ret ) {
         *ierr = ADCL_ERROR_INTERNAL;
         return;
@@ -88,10 +88,10 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
 
 #ifdef _SX
 void adcl_function_create_async_( void *iptr, void *wptr, int *attrset, int *array_of_attrvals,
-                                  char *name, int *fnct, int *ierr, int name_len )
+                                  char *name, int *fnct, int *ierr, int *name_len )
 #else
 void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *array_of_attrvals,
-                                  char *name, int *fnct, int *ierr, int name_len )
+                                  char *name, int *fnct, int *ierr, int *name_len )
 #endif
 {
     ADCL_attrset_t *cattrset;
@@ -108,7 +108,7 @@ void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *arr
         return;
     }
 
-    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
+    ret = ADCL_fortran_string_f2c (name, *name_len, &cname );
     if ( ADCL_SUCCESS != ret ) {
         *ierr = ADCL_ERROR_INTERNAL;
         return;
@@ -163,7 +163,7 @@ void adcl_fnctset_create_( int* maxnum, int *array_of_fncts, char *name,
 #else
 void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name,
 #endif
-                           int *fnctset, int *ierr, int name_len )
+                           int *fnctset, int *ierr, int *name_len )
 {
     ADCL_fnctset_t *cfnctset;
     ADCL_function_t **cfncts;
@@ -195,7 +195,7 @@ void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name,
         }
     }
 
-    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
+    ret = ADCL_fortran_string_f2c (name, *name_len, &cname );
     if ( ADCL_SUCCESS != ret ) {
         *ierr = ADCL_ERROR_INTERNAL;
         return;
@@ -218,7 +218,7 @@ void adcl_fnctset_create_single ( void *init_fnct, void *wait_fnct,
                                   int *attrset, char *name,
                                   int *without_attr_vals, 
                                   int *num_without_attr_vals,
-                                  int *fnctset, int *ierr, int name_len )
+                                  int *fnctset, int *ierr, int *name_len )
 {
     ADCL_attrset_t *cattrset;
     ADCL_fnctset_t *cfnctset;
@@ -232,7 +232,7 @@ void adcl_fnctset_create_single ( void *init_fnct, void *wait_fnct,
         *ierr = ADCL_INVALID_ARG;
         return;
     }
-    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
+    ret = ADCL_fortran_string_f2c (name, *name_len, &cname );
     if ( ADCL_SUCCESS != ret ) {
         *ierr = ADCL_ERROR_INTERNAL;
         return;

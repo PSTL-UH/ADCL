@@ -163,5 +163,22 @@ int MPI_Type_get_true_extent(MPI_Datatype datatype, MPI_Aint *true_lb,
                            MPI_Aint *true_extent);
 
 int MPI_Type_size ( MPI_Datatype datatype, int *size );
- 
+
+#ifdef _SX
+int mpi_win_null_delete_fn_();
+int mpi_nec_block_time_ ();
+int mpi_dup_fn_ ();
+int mpi_comm_dup_fn_ ();
+int mpi_comm_null_copy_fn_ ();
+int mpi_comm_null_delete_fn_ ();
+int mpi_null_copy_fn_ ();
+int mpi_null_delete_fn_ ();
+int mpi_type_dup_fn_ ();
+int mpi_type_null_copy_fn_ ();
+int mpi_type_null_delete_fn_ ();
+int mpi_win_dup_fn_ ();
+int mpi_win_null_copy_fn_ ();
+int mpi_wtick_ ();
+double mpi_wtime_ ();
+#endif 
 #endif /* __MPI_H__ */
