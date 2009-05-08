@@ -12,6 +12,8 @@
 #include "ADCL.h"
 
 
+#define ADCL_TAG_ALLTOALLV 127
+
 #define TOPO req->r_emethod->em_topo
 
 
@@ -385,6 +387,12 @@ void ADCL_allreduce_nonoverlapping(ADCL_request_t *req );
 
 void ADCL_reduce_linear ( ADCL_request_t *req );
 void ADCL_bcast_linear  ( ADCL_request_t *req );
+
+void ADCL_alltoallv_native(ADCL_request_t *req );
+void ADCL_alltoallv_pairwise(ADCL_request_t *req );
+void ADCL_alltoallv_linear(ADCL_request_t *req );
+
+
 
 #endif /* __ADCL_CHANGE_H__ */
 

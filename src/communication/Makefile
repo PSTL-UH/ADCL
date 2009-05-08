@@ -42,6 +42,9 @@ OBJ =	ADCL_change_sb_aao_debug.o \
         ADCL_allreduce_ring.o                \
         ADCL_allreduce_native.o              \
         ADCL_allreduce_recursivedoubling.o   \
+        ADCL_alltoallv_native.o               \
+        ADCL_alltoallv_pairwise.o             \
+        ADCL_alltoallv_linear.o               \
         ADCL_reduce_linear.o                 \
         ADCL_bcast_linear.o              
 
