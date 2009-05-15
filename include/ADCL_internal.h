@@ -83,6 +83,7 @@ int ADCL_readenv( void );
 
 int ADCL_predefined_init ( void );
 int ADCL_predefined_finalize ( void );
+int ADCL_predefined_alltoallv ( void );
 
 int ADCL_hypothesis_init ( ADCL_emethod_t *e );
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_t *e, int attr_pos,

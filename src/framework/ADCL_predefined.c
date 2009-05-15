@@ -62,6 +62,9 @@ ADCL_attrset_t *ADCL_allreduce_attrset;
 ADCL_function_t *ADCL_allreduce_functions[ADCL_METHOD_ALLREDUCE_TOTAL_NUM];
 ADCL_fnctset_t *ADCL_allreduce_fnctset;
 
+
+
+
 int ADCL_predefined_init ( void )
 {
     int count=0;
@@ -504,6 +507,12 @@ int ADCL_predefined_init ( void )
         ADCL_printf("Total Number wrong\n");
         return ADCL_ERROR_INTERNAL;
     }
+
+
+/* ******************************************************************** */
+/* ALLTOALLV - Fortran function set 3                                   */
+/* ******************************************************************** */
+    ADCL_predefined_alltoallv ();
 
     return ADCL_SUCCESS;
 }
