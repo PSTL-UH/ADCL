@@ -167,6 +167,7 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 #define ADCL_FNCTSET_NEIGHBORHOOD ADCL_neighborhood_fnctset
 #define ADCL_FNCTSET_ALLGATHERV   ADCL_allgatherv_fnctset
 #define ADCL_FNCTSET_ALLREDUCE    ADCL_allreduce_fnctset
+#define ADCL_FNCTSET_ALLTOALLV    ADCL_alltoallv_fnctset
 #define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
 #define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
 

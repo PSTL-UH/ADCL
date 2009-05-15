@@ -99,9 +99,11 @@
        !integer ADCL_FNCTSET_SHIFT_LTOR
        !integer ADCL_FNCTSET_SHIFT_RTOL
        integer ADCL_FNCTSET_ALLGATHERV, ADCL_FNCTSET_ALLREDUCE
+       integer ADCL_FNCTSET_ALLTOALLV
        parameter ( ADCL_FNCTSET_NEIGHBORHOOD = 0 )
        parameter ( ADCL_FNCTSET_ALLGATHERV   = 1 )
        parameter ( ADCL_FNCTSET_ALLREDUCE    = 2 )
+       parameter ( ADCL_FNCTSET_ALLREDUCE    = 3 )
        ! this is not such a good idea: 
        ! parameter ( ADCL_FNCTSET_SHIFT_RTOL   = 0 )
        ! parameter ( ADCL_FNCTSET_SHIFT_LTOR   = 0 )
