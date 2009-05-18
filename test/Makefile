@@ -13,7 +13,7 @@ all: ctests ftests
 ctests: first second third fourth \
 	one-dim two-dim three-dim \
 	test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
-	test-fnctset-allgatherv-1d \
+	test-fnctset-allgatherv-1d test-fnctset-alltoallv-1d \
 	test-fnctset-allreduce \
 	attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
 	data_1 PbSizes_1D PbSizes_2D PbSizes_3D
@@ -63,6 +63,11 @@ test-fnctset-single-2: test-fnctset-single-2.c
 test-fnctset-allgatherv-1d: test-fnctset-allgatherv-1d.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d test-fnctset-allgatherv-1d.c \
 	$(LDFLAGS)
+
+test-fnctset-alltoallv-1d: test-fnctset-alltoallv-1d.c
+	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d test-fnctset-alltoallv-1d.c \
+	$(LDFLAGS)
+
 
 test-fnctset-allreduce: test-fnctset-allreduce.c
 	$(CC) $(CFLAGS) -o $(ADCL_BIN_DIR)/test-fnctset-allreduce test-fnctset-allreduce.c \
@@ -144,5 +149,6 @@ clean:
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-single $(ADCL_BIN_DIR)/test-fnctset-single_f	
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-single-2 $(ADCL_BIN_DIR)/PbSizes_1D 
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d  $(ADCL_BIN_DIR)/test-fnctset-allgatherv_f
+	rm -f $(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d  
 	rm -f $(ADCL_BIN_DIR)/test-fnctset-allreduce $(ADCL_BIN_DIR)/test-fnctset-allreduce_f
 	rm -f $(ADCL_BIN_DIR)/PbSizes_2D $(ADCL_BIN_DIR)/PbSizes_3D
