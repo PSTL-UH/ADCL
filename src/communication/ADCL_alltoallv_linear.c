@@ -72,7 +72,7 @@ void ADCL_alltoallv_linear ( ADCL_request_t *req )
     prcv = ((char *) rbuf) + (rdispls[rank] * ext);
     
     if (0 != scounts[rank]) {
-	err = ADCL_ddt_copy_content_same_ddt ( dtype, scounts[rank], 
+	err = ADCL_ddt_copy_content_same_ddt ( dtype, scounts[rank]*ext, 
 					       psnd, prcv );
 	if ( MPI_SUCCESS != err ) {
 	    return;

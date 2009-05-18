@@ -161,6 +161,7 @@ typedef struct ADCL_papi_s*      ADCL_Papi;
 extern struct ADCL_fnctset_s *ADCL_neighborhood_fnctset;
 extern struct ADCL_fnctset_s *ADCL_allgatherv_fnctset;
 extern struct ADCL_fnctset_s *ADCL_allreduce_fnctset;
+extern struct ADCL_fnctset_s *ADCL_alltoallv_fnctset;
 extern struct ADCL_fnctset_s *ADCL_fnctset_rtol;
 extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 

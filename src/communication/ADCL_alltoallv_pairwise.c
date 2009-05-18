@@ -67,7 +67,7 @@ void ADCL_alltoallv_pairwise( ADCL_request_t *req )
     prcv = ((char *) rbuf) + (rdispls[rank] * ext);
 
     if (0 != scounts[rank]) {
-	err = ADCL_ddt_copy_content_same_ddt ( dtype, scounts[rank], 
+	err = ADCL_ddt_copy_content_same_ddt ( dtype, scounts[rank]*ext, 
 					       psnd, prcv );
     }
 

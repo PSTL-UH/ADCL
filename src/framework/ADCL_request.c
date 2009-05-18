@@ -274,6 +274,10 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
                         sizeof(MPI_Request));
            }
            break;
+       case ADCL_VECTOR_LIST:
+            newreq->r_sreqs=(MPI_Request *)malloc(topo->t_size*
+                                                  sizeof(MPI_Request));
+            break;
        case ADCL_VECTOR_ALL: 
        case ADCL_VECTOR_ALLREDUCE:
        case ADCL_VECTOR_INPLACE:
