@@ -68,7 +68,7 @@ void ADCL_alltoallv_pairwise( ADCL_request_t *req )
 
     if (0 != scounts[rank]) {
 	err = ADCL_ddt_copy_content_same_ddt ( dtype, scounts[rank]*ext, 
-					       psnd, prcv );
+					       prcv, psnd );
     }
 
     /* If only one process, we're done. */

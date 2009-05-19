@@ -36,7 +36,7 @@
 int
 ADCL_ddt_copy_content_same_ddt(MPI_Datatype dtype, int count, char* dest, char* src)
 {
-    int ret; 
+    int ret=ADCL_SUCCESS; 
 
     /* this is not a good idea, but should work for contiguous data types */
     memcpy( dest, src, count );
