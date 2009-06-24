@@ -81,10 +81,11 @@ void minmax_read_input ( struct emethod ***emethods )
     char inname[64],  reqstr[64];
     struct lininf tline;
     int ret, req, i, no_line, all_done=0;
-    int method, pos, count;
+    int method, pos, count, pos_r, count_r;
     double time;
     FILE **infd=NULL;
     int r, j, t;
+    int done; 
     int *decreq; // capture requests which have winners
 
     /* Open the input files */
@@ -110,10 +111,11 @@ void minmax_read_input ( struct emethod ***emethods )
     }
 
 
-    /* Read infile and store the values in the according emethod structures */
+    /* Read simultaneously all infile and store the values in the according emethod structures */
     while ( all_done < numprocs ) {
 	TLINE_INIT(tline);
 	
+        /* read next "meaningful" line out of infiles */
 	for ( i=0; i< numprocs; i++ ) {
 	    no_line = 0;
 	    while ( !no_line ) {
@@ -126,7 +128,9 @@ void minmax_read_input ( struct emethod ***emethods )
 		     deconly ){
 		   basestr = strstr ( line, "req" );
 		   sscanf ( basestr, "%3s %d", reqstr, &tline.req );
-		   decreq[tline.req] = 1; 
+		   decreq[tline.req] = 1;
+                   /* XXX: here was an exit */
+                   /* this makes some trouble for verification runs */
 		   continue;
 		}
 		if ( line[0] == '#' ) {
@@ -134,10 +138,10 @@ void minmax_read_input ( struct emethod ***emethods )
 		    continue;
 		}
 		no_line = 1;
-	    }	    
+	    } /* end while */	    
 	    
 	    if ( i == 0 ) {
-		/*read the parameters of the run */
+		/*read the parameters of the run out of first infile */
 		basestr = strstr ( line, "request" );
 		sscanf ( basestr, "%7s %d", reqstr, &tline.req );
 		
@@ -149,7 +153,7 @@ void minmax_read_input ( struct emethod ***emethods )
 		sscanf ( basestr, "%1s %lf\n", reqstr, &time );
 	    }
 	    else {
-		/*read the parameters of the run */
+		/*read the parameters of the run and do consitency checks with first infile */
 		basestr = strstr ( line, "request" );
 		sscanf ( basestr, "%7s %d", reqstr, &req );
 		if ( req != tline.req ) {
@@ -166,21 +170,34 @@ void minmax_read_input ( struct emethod ***emethods )
 		basestr = strstr ( line, ")" );
 		sscanf ( basestr, "%1s %lf\n", reqstr, &time );
 	    }	
-	    if ( deconly && decreq[tline.req] )
+	    if ( deconly && decreq[tline.req]) /* this does not work for verification runs */
 	        continue; 
+                   
 
-            printf("%d: request %d method %d %lf\n", i, tline.req, tline.method, time);
+            //printf("%d: request %d method %d %lf\n", i, tline.req, tline.method, time);
 
 	    pos = emethods[tline.req][i][tline.method].em_rescount;
 	    count = emethods[tline.req][i][tline.method].em_count;
-	    if ( pos >= count ) {
-               printf("em %d %d %d\n", tline.req, i, tline.method);
-               goto exit;
-	    }
-	    emethods[tline.req][i][tline.method].em_time[pos] = time;
-	    emethods[tline.req][i][tline.method].em_rescount++;
-	    emethods[tline.req][i][tline.method].em_avg += time/count;
-	}
+	    if ( pos < count ) { /* safety net for verification runs */
+               emethods[tline.req][i][tline.method].em_time[pos] = time;
+	       emethods[tline.req][i][tline.method].em_rescount++;
+	       emethods[tline.req][i][tline.method].em_avg += time/count;
+            } 
+            //else if ( pos == count )  {
+            //   /* see if all (other) requests are finished, too */ 
+            //   done = 1;
+            //   for (r=0; r<numreqs; r++){
+            //      pos_r   = emethods[r][i][tline.method].em_rescount;
+	    //      count_r = emethods[r][i][tline.method].em_count;
+	    //      if ( pos_r < count_r ) {
+            //         done = 0; 
+            //         break; 
+            //      }
+	    //   }
+            //   if ( done == 1 ) goto exit;
+	    //}
+
+	} /* end for */
     }
 
     /* For Debugging */
@@ -509,6 +526,7 @@ void minmax_read_params ( char* parfile )
     //int ret, req, i, no_line, done=0;
     //int method, pos, count;
     //double time;
+    int nwinners = 0; 
     FILE *infd=NULL;
 
     /* Open the input files */
@@ -567,7 +585,7 @@ void minmax_read_params ( char* parfile )
 /**********************************************************************/
 void minmax_init (int argc, char ** argv, struct emethod ****emethods) 
 {
-    struct emethod **em;
+    struct emethod ***em;
     char* parfile;
     int i, j, r, tmpargc=5;
 
@@ -622,37 +640,36 @@ void minmax_init (int argc, char ** argv, struct emethod ****emethods)
 
     minmax_read_params ( parfile );
 
-    *emethods = (struct emethod ***) malloc ( numreqs * sizeof(struct emethod**) ); 
+    em = (struct emethod ***) malloc ( numreqs * sizeof(struct emethod**) ); 
     if ( NULL != emethods ) {
         for ( r=0; r<numreqs; r++){
 	   /* Allocate the required emethods array to hold the overall data */
-	   em = ( struct emethod **) malloc ( numprocs * sizeof ( struct emethod *));
-	   if ( NULL == em ) {
+	   em[r] = ( struct emethod **) malloc ( numprocs * sizeof ( struct emethod *));
+	   if ( NULL == em[r] ) {
 	       exit (-1);
 	   }
 	   
 	   for ( i=0; i< numprocs; i++ ) {
-	       em[i] = (struct emethod *) calloc (1, nummethods[r]*sizeof(struct emethod));
-	       if  ( NULL == em[i] ) {
+	       em[r][i] = (struct emethod *) calloc (1, nummethods[r]*sizeof(struct emethod));
+	       if  ( NULL == em[r][i] ) {
 	   	exit (-1);
 	       }
 	       
 	       for (j=0; j< nummethods[r]; j++ ) {
-	   	em[i][j].em_time = (double *) calloc (1, nummeas * sizeof(double));
-	   	if ( NULL == em[i][j].em_time ) {
+	   	em[r][i][j].em_time = (double *) calloc (1, nummeas * sizeof(double));
+	   	if ( NULL == em[r][i][j].em_time ) {
 	   	    exit (-1);
 	   	}
-	   	em[i][j].em_poison = (int *) calloc (1, nummeas * sizeof(int));
-	   	if ( NULL == em[i][j].em_poison ) {
+	   	em[r][i][j].em_poison = (int *) calloc (1, nummeas * sizeof(int));
+	   	if ( NULL == em[r][i][j].em_poison ) {
 	   	    exit (-1);
 	   	}
-	   	em[i][j].em_count    = nummeas;
+	   	em[r][i][j].em_count    = nummeas;
 	       }
 	   }
-      
-           (*emethods)[r] = em;
 	}
     }
+    *emethods = em;
 
     return;
 }
