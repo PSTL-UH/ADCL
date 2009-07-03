@@ -19,7 +19,8 @@ int filter=0;
 void minmax_init     (int argc, char ** argv, struct emethod ****em );
 void minmax_read_input ( struct emethod ***em );
 void minmax_read_params ( char* parfile );
-void minmax_finalize ( struct emethod ****em ); 
+void minmax_read_perfline( char line[MAXLINE], int* req, int* method, double* time);
+void minmax_finalize ( struct emethod ****em );
 
 void minmax_filter_timings     ( int r, struct emethod **em, int ofac );
 void minmax_calc_per_iteration ( int r, struct emethod **em, char *filename );
@@ -35,6 +36,7 @@ double* avg, int* nfilt);
 void init_cluster_vars(const int ndata, double *data);
 void minmax_calc_cluster ( int r, struct emethod **em, char *filename ); 
 void free_cluster_vars();
+
 
 static int tcompare ( const void*, const void* );
 /**********************************************************************/
@@ -53,15 +55,22 @@ int main (int argc, char **argv )
     for (r=0; r<numreqs; r++){
        printf("\n\n********************** Request %d *************************\n", r);
        if ( output_files ) {
-   	minmax_calc_per_iteration ( r, emethods[r], "minmax.out" );
+          minmax_calc_per_iteration ( r, emethods[r], "minmax.out" );
        }
-   
+
+       printf("\nHEURISTIC\n\n");
        minmax_filter_timings   ( r, emethods[r], outlier_factor);
        minmax_calc_decision    ( r, emethods[r], outlier_fraction );
+
+       printf("\nMEDIAN\n\n");
        minmax_calc_statistics  ( r, emethods[r], NULL );
+
 #if defined(GSL) || defined(NR)
+       printf("\nROBUST STATISTICS\n\n");
        minmax_calc_robust      ( r, emethods[r], NULL );
 #endif
+
+       printf("\nCLUSTER ANALYSIS\n\n");
        minmax_calc_cluster     ( r, emethods[r], NULL );
        if ( output_files ) {
 //	minmax_calc_per_iteration ( r, emethods[r], "minmax-filtered.out" );
@@ -78,7 +87,7 @@ int main (int argc, char **argv )
 void minmax_read_input ( struct emethod ***emethods ) 
 {
     char line[MAXLINE], *basestr;
-    char inname[64],  reqstr[64];
+    char inname[64],  reqstr[64], colon[1];
     struct lininf tline;
     int ret, req, i, no_line, all_done=0;
     int method, pos, count, pos_r, count_r;
@@ -126,8 +135,8 @@ void minmax_read_input ( struct emethod ***emethods )
 		}
 		if ( NULL != strstr ( line, "winner is") &&
 		     deconly ){
-		   basestr = strstr ( line, "req" );
-		   sscanf ( basestr, "%3s %d", reqstr, &tline.req );
+		   basestr = strstr ( line, ":" );
+		   sscanf ( basestr, "%1s %s %d", colon, reqstr, &tline.req );
 		   decreq[tline.req] = 1;
                    /* XXX: here was an exit */
                    /* this makes some trouble for verification runs */
@@ -142,37 +151,25 @@ void minmax_read_input ( struct emethod ***emethods )
 	    
 	    if ( i == 0 ) {
 		/*read the parameters of the run out of first infile */
-		basestr = strstr ( line, "request" );
-		sscanf ( basestr, "%7s %d", reqstr, &tline.req );
-		
-		basestr = strstr ( line, "method" );
-		sscanf ( basestr, "%6s %d", reqstr, &tline.method );
+		minmax_read_perfline(line, &tline.req, &tline.method, &time);
 	        tline.method -= idx_methodstart[tline.req];
-		
-		basestr = strstr ( line, ")" );
-		sscanf ( basestr, "%1s %lf\n", reqstr, &time );
+		//printf("%s %d method %d time %lf\n", "timer", tline.req, tline.method, time);
 	    }
 	    else {
 		/*read the parameters of the run and do consitency checks with first infile */
-		basestr = strstr ( line, "request" );
-		sscanf ( basestr, "%7s %d", reqstr, &req );
+		minmax_read_perfline(line, &req, &method, &time);
+
 		if ( req != tline.req ) {
 		    printf("Request mismatch at process %d \n", i);
 		}
-		
-		basestr = strstr ( line, "method" );
-		sscanf ( basestr, "%6s %d", reqstr, &method );
 	        method -= idx_methodstart[req];
+
 		if ( method != tline.method ) {
 		    printf ("Method mismatch at process %d\n", i);
 		}		
-
-		basestr = strstr ( line, ")" );
-		sscanf ( basestr, "%1s %lf\n", reqstr, &time );
 	    }	
 	    if ( deconly && decreq[tline.req]) /* this does not work for verification runs */
 	        continue; 
-                   
 
             //printf("%d: request %d method %d %lf\n", i, tline.req, tline.method, time);
 
@@ -200,20 +197,20 @@ void minmax_read_input ( struct emethod ***emethods )
 	} /* end for */
     }
 
-    /* For Debugging */
-    for ( r=0; r<numreqs; r++){
-       for ( i=0; i< numprocs; i++){
-          for ( j=0; j< nummethods[r]; j++){
-             printf("emethods[%d][%d][%d]: count %d, rescount %d \n", r, i, j, 
-	       emethods[r][i][j].em_count, emethods[r][i][j].em_rescount);
-	     for ( t=0; t<emethods[r][i][j].em_count; t++){
-	         printf("  time[%d] %lf\n", t, emethods[r][i][j].em_time[t]);
-             }
-	     printf("\n");
-	  }
-       }
-
-    }
+//     /* For Debugging */
+//     for ( r=0; r<numreqs; r++){
+//        for ( i=0; i< numprocs; i++){
+//           for ( j=0; j< nummethods[r]; j++){
+//              printf("emethods[%d][%d][%d]: count %d, rescount %d \n", r, i, j, 
+// 	       emethods[r][i][j].em_count, emethods[r][i][j].em_rescount);
+// 	     for ( t=0; t<emethods[r][i][j].em_count; t++){
+// 	         printf("  time[%d] %lf\n", t, emethods[r][i][j].em_time[t]);
+//              }
+// 	     printf("\n");
+// 	  }
+//        }
+// 
+//     }
 
 
  exit:
@@ -226,6 +223,30 @@ void minmax_read_input ( struct emethod ***emethods )
 
     return;
 }
+
+
+/**********************************************************************/
+void minmax_read_perfline( char line[MAXLINE], int* req, int* method, double* time){
+/* reads one line of out-file                                         */
+/**********************************************************************/
+   char reqstr[64], str[64], colon[1];
+   char *basestr;
+
+   basestr = strstr ( line, ":" );
+   sscanf ( basestr, "%s %5s %d", colon, reqstr, req );
+
+   basestr = strstr ( line, "method" );
+   sscanf ( basestr, "%6s %d", str, method );
+
+   basestr = strstr ( line, ")" );
+   sscanf ( basestr, "%1s %lf\n", str, time );
+
+   //printf("%s %d method %d time %lf\n", reqstr, *req, *method, *time);
+}
+
+
+
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -497,13 +518,11 @@ void minmax_calc_decision ( int r, struct emethod **em, int outlier_fraction )
                tline_unf[j].max, tline_filt[j].max, tline_perc[j].max );
     }
 
-    printf("New decision winner is %d \n", tline_new.minloc );
+    printf("New decision winner is %d \n", tline_new.minloc + idx_methodstart[r] );
     if ( tline_perc[tline_filtered_avg.minloc].max < outlier_fraction ) 
-       printf ("Prev. decision winner is %d (filtered)\n", tline_filtered_avg.minloc );
+       printf ("Prev. decision winner is %d (filtered)\n", tline_filtered_avg.minloc + idx_methodstart[r]);
     else
-       printf ("Prev. decision winner is %d (unfiltered)\n", tline_avg.minloc );
-    
-	
+       printf ("Prev. decision winner is %d (unfiltered)\n", tline_avg.minloc + idx_methodstart[r] );
 
     free ( tline_perc );
     free ( tline_unf);
