@@ -7,7 +7,7 @@
 
 /* Parameters of the application */
 int outlier_factor=3, outlier_fraction=20;
-int output_files=0; /* false */
+int output_files=1; /* true */
 int numprocs=-1, numreqs=-1, nummeas=-1;
 int *nummethods=NULL;
 int *idx_methodstart=NULL;
@@ -38,6 +38,7 @@ void minmax_calc_cluster ( int r, struct emethod **em, char *filename );
 void free_cluster_vars();
 
 
+
 static int tcompare ( const void*, const void* );
 /**********************************************************************/
 /**********************************************************************/
@@ -54,13 +55,13 @@ int main (int argc, char **argv )
     /* Second step: calculate statistics, filter data etc. */
     for (r=0; r<numreqs; r++){
        printf("\n\n********************** Request %d *************************\n", r);
-       if ( output_files ) {
-          minmax_calc_per_iteration ( r, emethods[r], "minmax.out" );
-       }
-
        printf("\nHEURISTIC\n\n");
        minmax_filter_timings   ( r, emethods[r], outlier_factor);
        minmax_calc_decision    ( r, emethods[r], outlier_fraction );
+
+       if ( output_files ) {
+          minmax_calc_per_iteration ( r, emethods[r], "minmax.out" );
+       }
 
        printf("\nMEDIAN\n\n");
        minmax_calc_statistics  ( r, emethods[r], NULL );
@@ -85,6 +86,7 @@ int main (int argc, char **argv )
 /**********************************************************************/
 /**********************************************************************/
 void minmax_read_input ( struct emethod ***emethods ) 
+/* reads *.out files and inits em_time and em_avg */
 {
     char line[MAXLINE], *basestr;
     char inname[64],  reqstr[64], colon[1];
@@ -245,13 +247,12 @@ void minmax_read_perfline( char line[MAXLINE], int* req, int* method, double* ti
 }
 
 
-
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-void minmax_filter_timings ( int r, struct emethod **em, int outlier_factor )
-{
+/**************************************************************************************************/
+void minmax_filter_timings ( int r, struct emethod **em, int outlier_factor ) {
+/**************************************************************************************************/
+/* determines em_cnt_outliers, em_cnt_filtered, em_sum_filtered, em_average_filtered              */
+/* and em_perc_filtered                                                                           */
+/**************************************************************************************************/
    int i, j, k;
    double min;
 
@@ -259,7 +260,7 @@ void minmax_filter_timings ( int r, struct emethod **em, int outlier_factor )
       for ( j=0; j< nummethods[r]; j++ ) {
        
          em[i][j].em_sum_filtered = 0.0;
-         em[i][j].em_cnt_filtered = 0;
+         em[i][j].em_cnt_outliers= 0;
          em[i][j].em_avg_filtered = 0.0;
        
          /* Determine the min  value for method [i][j]*/
@@ -269,11 +270,12 @@ void minmax_filter_timings ( int r, struct emethod **em, int outlier_factor )
             }
          }
        
-         /* Count how many values are N times larger than the min. */
+         /* Count how many values are N times larger than the min and
+            mark those as outliers, sum up execution times of other values */
          for ( k=0; k<em[i][j].em_rescount; k++ ) {
             if ( em[i][j].em_time[k] >= (outlier_factor * min) ) {
-                em[i][j].em_poison[k] = 1;
-                em[i][j].em_cnt_filtered ++;
+                em[i][j].em_poison[k] = 1;   // set to use minmax_calc_per_iteration */
+                em[i][j].em_cnt_outliers++;
 #ifdef DEBUG
             printf("#%d: request %d method %d meas. %d is outlier %lf min %lf\n",
 		   i, r, j, k,  em[i][j].em_time[j], min );
@@ -283,16 +285,15 @@ void minmax_filter_timings ( int r, struct emethod **em, int outlier_factor )
                em[i][j].em_sum_filtered += em[i][j].em_time[k];
             }
          }
-         if ( em[i][j].em_cnt_filtered < em[i][j].em_rescount ) {
-              em[i][j].em_avg_filtered  = em[i][j].em_sum_filtered/
-                  (em[i][j].em_rescount - em[i][j].em_cnt_filtered);
-              em[i][j].em_perc_filtered = 100 * em[i][j].em_cnt_filtered/em[i][j].em_rescount;
-         }
+         em[i][j].em_cnt_filtered = em[i][j].em_rescount - em[i][j].em_cnt_outliers; 
+
+         /* calculate average (filtered) time and outlier percentage */
+         em[i][j].em_avg_filtered  = em[i][j].em_sum_filtered / em[i][j].em_cnt_filtered; 
+         em[i][j].em_perc_filtered = 100 * em[i][j].em_cnt_outliers / em[i][j].em_rescount;
       }
    }
 
-
-    return;
+   return;
 }
 /**********************************************************************/
 /**********************************************************************/
@@ -313,12 +314,12 @@ void minmax_calc_per_iteration ( int r, struct emethod **em, char *filename )
       for ( k=0; k<nummeas; k++ ) {
          TLINE_INIT(tline);
          for (i=0; i< numprocs; i++ ) {
-      	    if ( !em[i][j].em_poison[k] ) {
+      	    if ( !em[i][j].em_poison[k] ) { 
       	        TLINE_MIN(tline, em[i][j].em_time[k], i);
       	        TLINE_MAX(tline, em[i][j].em_time[k], i);
       	    }
       	    else {
-      	        em[i][j].em_num_outliers++;
+      	        em[i][j].em_cnt_outliers++;
       	    }
          }
          fprintf (outf, "%3d %8.4lf %3d %8.4lf %3d\n", 
@@ -332,7 +333,7 @@ void minmax_calc_per_iteration ( int r, struct emethod **em, char *filename )
   for ( i=0; i< numprocs; i++ ) {
      fprintf(outf, "# %d: ", i);
      for ( j=0; j< nummethods[r]; j++ ) {
-          fprintf(outf, "%d ", em[i][j].em_num_outliers);
+          fprintf(outf, "%d ", em[i][j].em_cnt_outliers);
      }
      fprintf(outf, "\n");
      
@@ -403,7 +404,7 @@ void minmax_calc_statistics ( int r, struct emethod **em, char *filename )
 	    em[i][j].em_llimit = em[i][j].em_1stquartile  - (1.5 * em[i][j].em_iqr);
 	    em[i][j].em_ulimit = em[i][j].em_3rdquartile  + (1.5 * em[i][j].em_iqr);
 	    
-	    em[i][j].em_num_outliers = 0;
+	    em[i][j].em_cnt_outliers = 0;
 	    em[i][j].em_sum_filtered = 0;
 	    em[i][j].em_cnt_filtered = 0;
 	    em[i][j].em_avg_filtered = 0;
@@ -433,10 +434,10 @@ void minmax_calc_statistics ( int r, struct emethod **em, char *filename )
 		    em[i][j].em_cnt_filtered ++;
 		}
 		else {
-		    em[i][j].em_num_outliers++;
+		    em[i][j].em_cnt_outliers++;
 		}
 	    }
-	    em[i][j].em_perc_filtered = 100 * em[i][j].em_num_outliers/em[i][j].em_rescount;	    
+	    em[i][j].em_perc_filtered = 100 * em[i][j].em_cnt_outliers/em[i][j].em_rescount;	    
 	    em[i][j].em_avg_filtered  = em[i][j].em_sum_filtered / em[i][j].em_cnt_filtered;
 	}	
     }
@@ -465,10 +466,13 @@ void minmax_calc_statistics ( int r, struct emethod **em, char *filename )
     free ( tline_perc );
     return;
 }
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
 void minmax_calc_decision ( int r, struct emethod **em, int outlier_fraction ) 
+/* based on em_avg, em_avg_filtered, and em_perc_filtered, the maximum on each proc and the  */
+/* total minimum are computed */
 {
     struct lininf *tline_perc, *tline_unf, *tline_filt;
     int *meth;
@@ -484,6 +488,7 @@ void minmax_calc_decision ( int r, struct emethod **em, int outlier_fraction )
 	exit (-1);
     }
 
+    /* get maximum of unfiltered, filtered and filtered percentage together with location on each proc */
     for (j=0; j< nummethods[r]; j++ ) {
         TLINE_INIT(tline_perc[j]);
         TLINE_INIT(tline_unf[j]);
@@ -494,7 +499,6 @@ void minmax_calc_decision ( int r, struct emethod **em, int outlier_fraction )
             TLINE_MAX(tline_perc[j], em[i][j].em_perc_filtered, i);
         }
     }
-    
 
     /* The final decision and output */
     TLINE_INIT (tline_avg);
@@ -683,7 +687,7 @@ void minmax_init (int argc, char ** argv, struct emethod ****emethods)
 	   	if ( NULL == em[r][i][j].em_poison ) {
 	   	    exit (-1);
 	   	}
-	   	em[r][i][j].em_count    = nummeas;
+                em[r][i][j].em_count    = nummeas;
 	       }
 	   }
 	}
