@@ -22,7 +22,7 @@ void minmax_read_params ( char* parfile );
 void minmax_read_perfline( char line[MAXLINE], int* req, int* method, double* time);
 void minmax_finalize ( struct emethod ****em );
 
-void minmax_filter_timings     ( int r, struct emethod **em, int ofac );
+void minmax_filter_timings     ( int r, struct emethod **em, int ofac, int nmeas );
 void minmax_calc_per_iteration ( int r, struct emethod **em, char *filename );
 void minmax_calc_statistics    ( int r, struct emethod **em, char *filename );
 void minmax_clear_poison_field ( int r, struct emethod **em);
@@ -56,7 +56,7 @@ int main (int argc, char **argv )
     for (r=0; r<numreqs; r++){
        printf("\n\n********************** Request %d *************************\n", r);
        printf("\nHEURISTIC\n\n");
-       minmax_filter_timings   ( r, emethods[r], outlier_factor);
+       minmax_filter_timings   ( r, emethods[r], outlier_factor, -1);
        minmax_calc_decision    ( r, emethods[r], outlier_fraction );
 
        if ( output_files ) {
@@ -248,23 +248,34 @@ void minmax_read_perfline( char line[MAXLINE], int* req, int* method, double* ti
 
 
 /**************************************************************************************************/
-void minmax_filter_timings ( int r, struct emethod **em, int outlier_factor ) {
+void minmax_filter_timings ( int r_id, struct emethod **em, int outlier_factor, int nmeas ) {
 /**************************************************************************************************/
 /* determines em_cnt_outliers, em_cnt_filtered, em_sum_filtered, em_average_filtered              */
-/* and em_perc_filtered                                                                           */
+/* and em_perc_filtered                                                                           */ 
+/* r_id           - request number                                                                */
+/* em             - emethod object                                                                */
+/* outlier_factor - measurements larger than outlier_factor * min are considered as outliers      */
+/* nmeas          - #measurements (optional, for early stopping criterion)                        */  
+/*                  if <=0 use em[i][j].em_rescount, else use nmeas                                */
 /**************************************************************************************************/
-   int i, j, k;
+   int i, j, k, rescount;
    double min;
 
    for (i=0; i < numprocs; i++ ) {
-      for ( j=0; j< nummethods[r]; j++ ) {
-       
+      for ( j=0; j< nummethods[r_id]; j++ ) {
+         if ( 0 < nmeas ) {
+            rescount = nmeas;
+         }
+         else {
+            rescount = em[i][j].em_rescount;
+         }
+ 
          em[i][j].em_sum_filtered = 0.0;
          em[i][j].em_cnt_outliers= 0;
          em[i][j].em_avg_filtered = 0.0;
        
          /* Determine the min  value for method [i][j]*/
-         for ( min=999999, k=0; k<em[i][j].em_rescount; k++ ) {
+         for ( min=999999, k=0; k<rescount; k++ ) {
             if ( em[i][j].em_time[k] < min ) {
                 min = em[i][j].em_time[k];
             }
@@ -272,24 +283,24 @@ void minmax_filter_timings ( int r, struct emethod **em, int outlier_factor ) {
        
          /* Count how many values are N times larger than the min and
             mark those as outliers, sum up execution times of other values */
-         for ( k=0; k<em[i][j].em_rescount; k++ ) {
+         for ( k=0; k<rescount; k++ ) {
             if ( em[i][j].em_time[k] >= (outlier_factor * min) ) {
                 em[i][j].em_poison[k] = 1;   // set to use minmax_calc_per_iteration */
                 em[i][j].em_cnt_outliers++;
 #ifdef DEBUG
             printf("#%d: request %d method %d meas. %d is outlier %lf min %lf\n",
-		   i, r, j, k,  em[i][j].em_time[j], min );
+		   i, r_id, j, k,  em[i][j].em_time[j], min );
 #endif
             }
             else {
                em[i][j].em_sum_filtered += em[i][j].em_time[k];
             }
          }
-         em[i][j].em_cnt_filtered = em[i][j].em_rescount - em[i][j].em_cnt_outliers; 
+         em[i][j].em_cnt_filtered = rescount - em[i][j].em_cnt_outliers; 
 
          /* calculate average (filtered) time and outlier percentage */
          em[i][j].em_avg_filtered  = em[i][j].em_sum_filtered / em[i][j].em_cnt_filtered; 
-         em[i][j].em_perc_filtered = 100 * em[i][j].em_cnt_outliers / em[i][j].em_rescount;
+         em[i][j].em_perc_filtered = 100 * em[i][j].em_cnt_outliers / rescount;
       }
    }
 

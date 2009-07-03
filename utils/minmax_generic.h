@@ -23,8 +23,7 @@ struct emethod{
     int     em_count;
     int     em_rescount;
     double  *em_time;
-    int     *em_poison;
-    int     em_num_outliers;
+    int     *em_poison;      /* ? =0: no outlier; =1: outlier ? */
     double  em_avg;
     double  em_median;
     double  em_1stquartile;
@@ -33,7 +32,8 @@ struct emethod{
     double  em_llimit;
     double  em_ulimit;
     double  em_sum_filtered;
-    int     em_cnt_filtered;
+    int     em_cnt_filtered;   
+    int     em_cnt_outliers;  /* number of outliers */ 
     double  em_avg_filtered;
     double  em_perc_filtered;
 };
