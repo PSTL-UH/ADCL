@@ -5,9 +5,12 @@
 
 #include "minmax_generic.h"
 
-extern  int* nummethods;
-
-void minmax_early_stopping ( int r_id, struct emethod **em, int outlier_factor, char *filename );
+extern int* nummethods;
+extern int numprocs;
+extern int outlier_factor;
+extern int nummeas; 
+ 
+void minmax_early_stopping ( int r_id, int impl_id, struct emethod **em); //, char *filename );
 
 float bico(int n, int k); /* computes binomial coefficient (n, k) */
 double factln(int n);     /* computes ln(n!) */
@@ -15,58 +18,73 @@ double gammaln(float xx); /* computes ln(Gamma(x)) */
 
 
 
-/**********************************************************************/
-void minmax_early_stopping ( int r_id, struct emethod **em, int outlier_factor, char *filename )
-/**********************************************************************/
+/**************************************************************************************************/
+void minmax_early_stopping ( int r_id, int impl_id, struct emethod **em) //, char *filename )
+/* early stopping criterion (ESC) from Vuduc et al., "Statistical Methods for empirical 
+   Search-Based Methods", but for measurements and not for implementations!!!                     */
+/**************************************************************************************************/
 {
-   int i, j, k;
+   int i, j, k, p;
    FILE *outf;
-   struct lininf tline;
-   int nhat, nImpl = nummethods[r_id];
+   int nhat;
    double Fhat_t, Ghat_t;
-   double *timpl; /* array with execution times of each implementation */
-   double *timpl_norm; /* normalized execution times of each implementation */
-   double tmax; 
-   int iMeas, iImpl;
+   double *perf;      /* array with execution times of each implementation */
+   double *perf_norm; /* normalized execution times of each implementation */
+   double max; 
+   int iMeas;
+   double time; 
    double eps= 0.05;
    double alpha = 0.1;
 
-   timpl = (double *) malloc ( nummethods[r_id] * sizeof(double) );
-   timpl_norm = (double *) malloc ( nummethods[r_id] * sizeof(double) );
-   iMeas = 3;
-
-   /* compute global min t(i) (for all implementations?) */
-   minmax_filter_timings ( r_id, em, outlier_factor, iMeas );
-
-   /* something like minmax_calc_decision  ( r_id, em, outlier_fraction ); */ 
-   /* does not work like that should return min for each method */
-
+   perf = (double *) malloc ( nummeas * sizeof(double) );
+   perf_norm = (double *) malloc ( nummeas * sizeof(double) );
+   if ( NULL == perf || NULL == perf_norm ) {
+       printf("minmax_early_stopping: could not allocate memory\n");
+       exit (-1);
+   }
+   /* compute performance as inverse of maximum execution time for a given implementation i_0 
+      over all processes j, i.e. perf(iMeas) = 1 / max_{j=0)^numprocs t(i_0,j,iMeas) */
+   for ( iMeas=0; iMeas<nummeas; iMeas++) {
+      max = 0.;
+      for ( p=0; p<numprocs; p++) {
+         if ( max < em[p][impl_id].em_time[iMeas] )  max = em[p][impl_id].em_time[iMeas];
+      }
+      perf[iMeas] = 1./max;
+   }
+   
    /* loop over number of implementations */
-   for ( iImpl=3; iImpl<nImpl; iImpl++  ) {
+   for ( iMeas=3; iMeas<nummeas; iMeas++  ) {
+      /* compute global min t(i) (for all implementations?) */
 
-      /* get maximum execution time for normalization */
-      tmax = 0;
-      for ( j=0; j<iImpl; j++){
-          if ( timpl[j] > tmax ) tmax = timpl[j];
+      /* prepare for normalization: get maximum of performance so far */
+      max = 0.;
+      for (j=0; j<iMeas; j++ ) {
+         if ( max < perf[j] )  max = perf[j];
+      }
+      /* normalize */
+      for (j=0; j<iMeas; j++ ) {
+         perf_norm[j] = perf[j]/max;
       }
 
-      /* normalize execution times */
       /* count number of implementations <= 1-eps*/
       nhat = 0;
-      for ( j=0; j<iImpl; j++  ) {
-         timpl_norm[j] = timpl[j] / tmax;
-         if ( timpl_norm[j] <= 1-eps ) nhat++;
+      for ( j=0; j<iMeas; j++  ) {
+         if ( perf_norm[j] <= 1-eps ) nhat++;
       }
 
      /* apply early stopping criterion */
-     Fhat_t = nhat / iImpl;
-     Ghat_t = bico( ceil( nImpl*Fhat_t ), iImpl ) / bico(nImpl, iImpl);
+     Fhat_t = (double) nhat / (double) iMeas;
+     Ghat_t = bico( ceil( nummeas*Fhat_t ), iMeas ) / bico(nummeas, iMeas);
      if (Ghat_t <= alpha)  break;
    }
 
    /* output iImpl, sum(execution_time)  */
-   printf("request %d: ESC fulfilled after iImpl=%d\n", r_id, iImpl);
-   printf("request %d: in %d\n", r_id, iImpl);
+   printf("request %d: ESC fulfilled after iImpl=%d\n", r_id, iMeas);
+   time = 0.; 
+   for (j=0; j<iMeas; j++ ) {
+      time += 1./perf[j];
+   }
+   printf("request %d: in %lf\n", r_id, time);
 
 
    //outf = fopen(filename, "w");
@@ -101,12 +119,10 @@ void minmax_early_stopping ( int r_id, struct emethod **em, int outlier_factor, 
 //      }
 //      fprintf(outf, "\n");
 //   }
+// fclose (outf);
 
-  fclose (outf);
-  return;
-
-   free( timpl );
-   free( timpl_norm );
+   free( perf );
+   free( perf_norm );
 }
 
 

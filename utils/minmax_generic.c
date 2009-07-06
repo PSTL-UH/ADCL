@@ -17,7 +17,7 @@ int filter=0;
 
 /* Prototypes */
 void minmax_init     (int argc, char ** argv, struct emethod ****em );
-void minmax_read_input ( struct emethod ***em );
+void minmax_read_input ( struct emethod ***em ); //  em[request][proc][implementation]
 void minmax_read_params ( char* parfile );
 void minmax_read_perfline( char line[MAXLINE], int* req, int* method, double* time);
 void minmax_finalize ( struct emethod ****em );
@@ -46,7 +46,7 @@ static int tcompare ( const void*, const void* );
 int main (int argc, char **argv )
 {
     struct emethod ***emethods;
-    int r;
+    int r, i;
 
     /* Aquire the required memory and read input files */
     minmax_init ( argc, argv, &emethods );
@@ -57,6 +57,11 @@ int main (int argc, char **argv )
        printf("\n\n********************** Request %d *************************\n", r);
        printf("\nHEURISTIC\n\n");
        minmax_filter_timings   ( r, emethods[r], outlier_factor, -1);
+
+       for (i=0; i<nummethods[r]; i++){
+          minmax_early_stopping ( r, i, emethods[r]); 
+       }
+ 
        minmax_calc_decision    ( r, emethods[r], outlier_fraction );
 
        if ( output_files ) {
@@ -145,7 +150,7 @@ void minmax_read_input ( struct emethod ***emethods )
 		   continue;
 		}
 		if ( line[0] == '#' ) {
-		    /* Skip comment lines */
+		    /* Skip other comment lines */
 		    continue;
 		}
 		no_line = 1;
