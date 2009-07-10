@@ -52,17 +52,20 @@ int main (int argc, char **argv )
     minmax_init ( argc, argv, &emethods );
     minmax_read_input ( emethods );
 
+//    /* Early stopping Criterion: this does not work as expected */
+//    for (r=0; r<numreqs; r++){
+//       printf("\n\n********************** Request %d *************************\n", r);
+//       for (i=0; i<nummethods[r]; i++){
+//          minmax_early_stopping ( r, i, emethods[r]); 
+//       }
+//    }
+
     /* Second step: calculate statistics, filter data etc. */
     for (r=0; r<numreqs; r++){
        printf("\n\n********************** Request %d *************************\n", r);
        printf("\nHEURISTIC\n\n");
-       minmax_filter_timings   ( r, emethods[r], outlier_factor, -1);
-
-       for (i=0; i<nummethods[r]; i++){
-          minmax_early_stopping ( r, i, emethods[r]); 
-       }
- 
        minmax_calc_decision    ( r, emethods[r], outlier_fraction );
+       minmax_filter_timings   ( r, emethods[r], outlier_factor, -1);
 
        if ( output_files ) {
           minmax_calc_per_iteration ( r, emethods[r], "minmax.out" );
@@ -79,7 +82,7 @@ int main (int argc, char **argv )
        printf("\nCLUSTER ANALYSIS\n\n");
        minmax_calc_cluster     ( r, emethods[r], NULL );
        if ( output_files ) {
-//	minmax_calc_per_iteration ( r, emethods[r], "minmax-filtered.out" );
+	minmax_calc_per_iteration ( r, emethods[r], "minmax-filtered.out" );
        }
     }
 
@@ -240,10 +243,10 @@ void minmax_read_perfline( char line[MAXLINE], int* req, int* method, double* ti
    char *basestr;
 
    basestr = strstr ( line, ":" );
-   sscanf ( basestr, "%s %5s %d", colon, reqstr, req );
+   sscanf ( basestr, "%s %s %d", colon, reqstr, req );
 
-   basestr = strstr ( line, "method" );
-   sscanf ( basestr, "%6s %d", str, method );
+   basestr = strstr ( line, " method" );
+   sscanf ( basestr, " %6s %d", str, method );
 
    basestr = strstr ( line, ")" );
    sscanf ( basestr, "%1s %lf\n", str, time );

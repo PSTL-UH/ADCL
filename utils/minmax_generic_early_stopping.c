@@ -8,6 +8,7 @@
 extern int* nummethods;
 extern int numprocs;
 extern int outlier_factor;
+extern int outlier_fraction;
 extern int nummeas; 
  
 void minmax_early_stopping ( int r_id, int impl_id, struct emethod **em); //, char *filename );
@@ -26,15 +27,19 @@ void minmax_early_stopping ( int r_id, int impl_id, struct emethod **em) //, cha
 {
    int i, j, k, p;
    FILE *outf;
-   int nhat;
-   double Fhat_t, Ghat_t;
    double *perf;      /* array with execution times of each implementation */
    double *perf_norm; /* normalized execution times of each implementation */
-   double max; 
+   double min, max; 
    int iMeas;
    double time; 
-   double eps= 0.05;
-   double alpha = 0.1;
+   double avg; 
+   int cnt;
+
+   /* variables for early stopping criterion */
+   double alpha = 0.15; /* 1-alpha is the probability that the random variable M_t */
+   double eps= 0.05; //1./outlier_factor;        /* is at least 1-eps */ 
+   int    nhat;                          
+   double Fhat_t, Ghat_t;                /* statistical variables, see paper */
 
    perf = (double *) malloc ( nummeas * sizeof(double) );
    perf_norm = (double *) malloc ( nummeas * sizeof(double) );
@@ -53,17 +58,19 @@ void minmax_early_stopping ( int r_id, int impl_id, struct emethod **em) //, cha
    }
    
    /* loop over number of implementations */
-   for ( iMeas=3; iMeas<nummeas; iMeas++  ) {
+   for ( iMeas=3; iMeas<=nummeas; iMeas++  ) {
       /* compute global min t(i) (for all implementations?) */
 
       /* prepare for normalization: get maximum of performance so far */
       max = 0.;
+      min = 9999.;
       for (j=0; j<iMeas; j++ ) {
          if ( max < perf[j] )  max = perf[j];
+         if ( min > perf[j] )  min = perf[j];
       }
       /* normalize */
       for (j=0; j<iMeas; j++ ) {
-         perf_norm[j] = perf[j]/max;
+         perf_norm[j] = (perf[j]-min)/(max-min);
       }
 
       /* count number of implementations <= 1-eps*/
@@ -75,17 +82,25 @@ void minmax_early_stopping ( int r_id, int impl_id, struct emethod **em) //, cha
      /* apply early stopping criterion */
      Fhat_t = (double) nhat / (double) iMeas;
      Ghat_t = bico( ceil( nummeas*Fhat_t ), iMeas ) / bico(nummeas, iMeas);
+     printf("   Ghat %lf\n", Ghat_t);
      if (Ghat_t <= alpha)  break;
+        /* break condition is true at the last iteration at latest */
    }
 
    /* output iImpl, sum(execution_time)  */
-   printf("request %d: ESC fulfilled after iImpl=%d\n", r_id, iMeas);
    time = 0.; 
+   avg  = 0.;
+   cnt  = 0;
    for (j=0; j<iMeas; j++ ) {
       time += 1./perf[j];
+      if ( perf_norm[j] > 1-eps) {
+          avg += 1./perf[j];
+          cnt++;
+      }
    }
-   printf("request %d: in %lf\n", r_id, time);
-
+   avg = avg / cnt;  /* compute average and scale */
+   printf("request %d method %d: ESC fulfilled after %d measurements; time taken: %lf, average based on %d measurments %lf\n", 
+      r_id, impl_id, iMeas, time, cnt, avg);
 
    //outf = fopen(filename, "w");
    //if ( NULL == outf ) {
@@ -137,7 +152,7 @@ double factln(int n)
 // Returns ln(n!).
 {
 static float a[101]; //A static array is automatically initialized to zero.
-if (n < 0) printf("Negative factorial in routine factln");
+if (n < 0) return 0.0; //printf("Negative factorial in routine factln");
 if (n <= 1) return 0.0;
 if (n <= 100) return a[n] ? a[n] : (a[n]=gammaln(n+1.0)); //In range of table.
 else return gammaln(n+1.0); //Out of range of table.
