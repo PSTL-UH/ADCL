@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -15,11 +16,11 @@
 #define DIM0  8
 #define DIM1  4
 
-static void dump_vector_2D ( double **data, int rank, int *dim);
+void dump_vector_2D ( double **data, int rank, int *dim);
 static void dump_vector_3D ( double ***data, int rank, int *dim, int nc);
-static void set_data_2D ( double **data, int rank, int *dim, int hwidth );
+void set_data_2D ( double **data, int rank, int *dim, int hwidth );
 static void set_data_3D ( double ***data, int rank, int *dim, int hwidth, int nc);
-static void check_data_2D ( double **data, int rank, int *dim, 
+void check_data_2D ( double **data, int rank, int *dim, 
 			    int hwidth, int *neighbors ); 
 static void check_data_3D ( double ***data, int rank, int *dim, 
 			    int hwidth, int nc, int *neighbors ); 
@@ -267,114 +268,6 @@ static void check_data_3D ( double ***data, int rank, int *dim,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-static void check_data_2D ( double **data, int rank, int *dim, int hwidth, 
-			    int *neighbors)
-{
-    int i, j, lres=1, gres;
-    double should_be;
-
-
-    should_be = neighbors[0]==MPI_PROC_NULL ? -1 : neighbors[0];
-    for ( j=hwidth; j<dim[1]-hwidth; j++ ) {
-	for ( i=0; i<hwidth; i++ ) {
-	    if ( data[i][j] != should_be ){
-		lres = 0;
-	    }
-	}
-    }
-
-    should_be = neighbors[1]==MPI_PROC_NULL ? -1 : neighbors[1];
-    for ( j=hwidth; j<dim[1]-hwidth; j++ ) {
-	for ( i=dim[0]-hwidth; i<dim[0]; i++ ) {
-	    if ( data[i][j] != should_be ) {
-		lres = 0;
-	    }
-	}
-    }
-    should_be = neighbors[2]==MPI_PROC_NULL ? -1 : neighbors[2];
-    for (i=hwidth; i<dim[0]-hwidth; i++ ) {
-	for (j=0; j<hwidth; j++ ){
-	    if ( data[i][j] != should_be ) {
-		lres = 0;
-	    }
-	}
-    }
-
-    should_be = neighbors[3]==MPI_PROC_NULL ? -1 : neighbors[3];
-    for (i=hwidth; i<dim[0]-hwidth; i++ ) {
-	for (j=dim[1]-hwidth; j<dim[1]; j++ ) {
-	    if ( data[i][j] != should_be) {
-		lres = 0;
-	    }
-	}
-    }
-
-
-    for ( i=hwidth; i<dim[0]-hwidth; i++) {
-	for (j=hwidth; j<dim[1]-hwidth; j++ ){
-	    if ( data[i][j] != rank ) {
-		lres = 0;
-	    }
-	}
-    }
-
-
-    MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
-    if ( gres == 1 ) {
-	if ( rank == 0 ) {
-	    printf("2-D C testsuite: hwidth = %d, nc = 0 passed\n", 
-		   hwidth );
-	}
-    }
-    else {
-	if ( rank == 0 ) {
-	    printf("2-D C testsuite: hwidth = %d, nc = 0 failed\n",
-		   hwidth);
-	}
-	dump_vector_2D ( data, rank, dim );
-	printf("%d: n[0]=%d n[1]=%d n[2]=%d n[3]=%d\n", rank, neighbors[0], 
-	       neighbors[1], neighbors[2], neighbors[3] );
-    }
-
-
-    return;
-}
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-static void set_data_2D ( double **data, int rank, int *dim, int hwidth ) 
-{
-    int i, j;
-
-    for (i=0; i<dim[0]; i++ ) {
-	for (j=0; j<hwidth; j++ ){
-	    data[i][j] = -1;
-	}
-	for (j=dim[1]-hwidth; j<dim[1]; j++ ) {
-	    data[i][j] = -1;
-	}
-    }
-    for ( j=0; j<dim[1]; j++ ) {
-	for ( i=0; i<hwidth; i++ ) {
-	    data[i][j]=-1;
-	}
-	for ( i=dim[0]-hwidth; i<dim[0]; i++ ) {
-	    data[i][j]=-1;
-	}
-    }
-
-    for ( i=hwidth; i<dim[0]-hwidth; i++) {
-	for (j=hwidth; j<dim[1]-hwidth; j++ ){
-	    data[i][j] = rank;
-	}
-    }
-
-
-    return;
-}
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
 static void set_data_3D ( double ***data, int rank, int *dim, int hwidth, int nc ) 
 {
     int i, j, k;
@@ -412,24 +305,6 @@ static void set_data_3D ( double ***data, int rank, int *dim, int hwidth, int nc
 	}
     }
 
-
-    return;
-}
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-static void dump_vector_2D ( double **data, int rank, int *dim)
-{
-    int i, j;
-    
-    for (i=0; i<dim[0]; i++) {
-	printf("%d : ", rank);
-	for ( j=0; j<dim[1]; j++ ) {
-	    printf("%lf ", data[i][j]);
-	}
-	printf ("\n");
-    }
 
     return;
 }

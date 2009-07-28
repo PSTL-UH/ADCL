@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2008-2009      HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -19,10 +20,9 @@ static void allgatherv_test3(int cnt, int dims, int rank, int size, ADCL_Topolog
 static void allgatherv_test4(int cnt, int dims, int rank, int size, ADCL_Topology topo); 
 static void allgatherv_test5(int cnt, int dims, int nc, int rank, int size, ADCL_Topology topo); 
 
-static void dump_vector_1D ( double *data, int rank, int dim);
-static void set_data_1D ( double *data, int rank, int dim); 
-static int check_data_1D ( double *data, int* rcounts, int *rdispl, int rank, int size);
-//static void set_data_2D ( double* data[][], int rank, int dims[2]);
+void dump_vector_1D ( double *data, int rank, int dim);
+void set_data_1D ( double *data, int rank, int dim); 
+int check_data_1D ( double *data, int* rcounts, int *rdispl, int rank, int size);
 
 int main ( int argc, char ** argv ) 
 {
@@ -436,75 +436,5 @@ exit:
 
     return;
 }
-
-/**********************************************************************/
-/**********************************************************************/
-int check_data_1D ( double *data, int *rcounts, int *rdispl, int rank, int size) 
-/**********************************************************************/
-/**********************************************************************/
-{
-    int proc, j;
-    int err = 0, gerr = 0; 
-
-    for ( proc=0; proc<size; proc++) {
-       for (j=0; j<rcounts[proc]; j++){
-           if (data[ rdispl[proc]+j ] != proc ){
-               printf("Wrong data: proc %d, pos %d, value %lf, expected value %lf\n", 
-	          proc, rdispl[proc]+j, data[ rdispl[proc]+j ], (double) proc);
-	       err++;
-	   }
-       }
-    }
-
-    MPI_Allreduce ( &err, &gerr, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD );
-    if ( gerr == 0 ) {
-	//if ( rank == 0 ) printf("1-D testsuite passed\n");
-    }
-    else {
-	if ( rank == 0 ) printf("1-D testsuite failed\n");
-	err = 1;
-    }
-
-    return err;
-}
-
-
-/**********************************************************************/
-/**********************************************************************/
-static void set_data_1D ( double *data, int value, int dim) 
-/**********************************************************************/
-/**********************************************************************/
-{
-    int i;
-
-    for ( i=0; i<dim; i++) {
-	data[i] = value;
-    }
-
-    return;
-}
-
-/**********************************************************************/
-/**********************************************************************/
-static void dump_vector_1D ( double *data, int rank, int dim)
-/**********************************************************************/
-/**********************************************************************/
-{
-    int i;
-    
-    printf("%d : ", rank);
-    for (i=0; i<dim; i++) {
-	printf("%lf ", data[i]);
-    }
-    printf ("\n");
-
-    return;
-}
-//static void set_data_2D ( double* data[][], int rank, int dims[2]){
-//}
-
-//static void matrix_init ( int dims[2], int cdims[2],
-//                          double matrix[DIM0+2*HWIDTH][DIM1+2*HWIDTH][NC],
-//			                            MPI_Comm cart_comm );
 
 

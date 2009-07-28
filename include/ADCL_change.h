@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -52,9 +53,9 @@
  #define RECV_START(req,i,tag) MPI_Irecv(req->r_rvecs[i]->v_data, 1,\
          req->r_rdats[i], TOPO->t_neighbors[i], tag, TOPO->t_comm,\
          &req->r_rreqs[i])
-  #define SEND_WAITALL(req) MPI_Waitall(2*TOPO->t_ndims, req->r_sreqs, \
+  #define SEND_WAITALL(req) MPI_Waitall(2*TOPO->t_nneigh, req->r_sreqs, \
          MPI_STATUSES_IGNORE )
-  #define RECV_WAITALL(req) MPI_Waitall(2*TOPO->t_ndims, req->r_rreqs, \
+  #define RECV_WAITALL(req) MPI_Waitall(2*TOPO->t_nneigh, req->r_rreqs, \
          MPI_STATUSES_IGNORE)
   #define SEND_WAIT(req,i) MPI_Wait(&req->r_sreqs[i], MPI_STATUS_IGNORE)
   #define RECV_WAIT(req,i) MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE)
@@ -90,7 +91,7 @@
          req->r_rdats[i], TOPO->t_neighbors[i], tag, TOPO->t_comm,\
          &req->r_rreqs[i])
   #define SEND_WAITALL(req)
-  #define RECV_WAITALL(req) MPI_Waitall(2*TOPO->t_ndims, req->r_rreqs, \
+  #define RECV_WAITALL(req) MPI_Waitall(2*TOPO->t_nneigh, req->r_rreqs, \
          MPI_STATUSES_IGNORE)
   #define SEND_WAIT(req,i)
   #define RECV_WAIT(req,i) MPI_Wait(&req->r_rreqs[i], MPI_STATUS_IGNORE)
@@ -112,11 +113,11 @@
 
   #define RECV_START(req,i,tag) MPI_Irecv(req->r_rbuf[i], req->r_rpsize[i],\
          MPI_PACKED, TOPO->t_neighbors[i], tag, TOPO->t_comm,&req->r_rreqs[i])
-  #define SEND_WAITALL(req) MPI_Waitall(2*TOPO->t_ndims, req->r_sreqs,    \
+  #define SEND_WAITALL(req) MPI_Waitall(2*TOPO->t_nneigh, req->r_sreqs,    \
          MPI_STATUSES_IGNORE )
   #define RECV_WAITALL(req) { int _i, _pos=0;                            \
-     MPI_Waitall(2*TOPO->t_ndims, req->r_rreqs, MPI_STATUSES_IGNORE);  \
-     for (_i=0; _i< 2*TOPO->t_ndims; _i++, _pos=0 ) {                  \
+     MPI_Waitall(2*TOPO->t_nneigh, req->r_rreqs, MPI_STATUSES_IGNORE);  \
+     for (_i=0; _i< 2*TOPO->t_nneigh; _i++, _pos=0 ) {                  \
          if ( TOPO->t_neighbors[_i] == MPI_PROC_NULL ) continue;          \
          MPI_Unpack(req->r_rbuf[_i], req->r_rpsize[_i], &_pos,           \
               req->r_rvecs[_i]->v_data, 1, req->r_rdats[_i], TOPO->t_comm ); } }
@@ -174,9 +175,9 @@
       TOPO->t_comm,&req->r_rreqs[i])
 
   #define SEND_WAITALL(req)
-  #define RECV_WAITALL(req) { int _i, _pos=0;   MPI_Waitall(2*TOPO->t_ndims,\
+  #define RECV_WAITALL(req) { int _i, _pos=0;   MPI_Waitall(2*TOPO->t_nneigh,\
       req->r_rreqs, MPI_STATUSES_IGNORE);  \
-    for (_i=0; _i< 2*TOPO->t_ndims; _i++, _pos=0 ) {                 \
+    for (_i=0; _i< 2*TOPO->t_nneigh; _i++, _pos=0 ) {                 \
         if ( TOPO->t_neighbors[_i] == MPI_PROC_NULL ) continue;       \
             MPI_Unpack(req->r_rbuf[_i], req->r_rpsize[_i], &_pos,       \
             req->r_rvecs[_i]->v_data, 1, req->r_rdats[_i], TOPO->t_comm );     \

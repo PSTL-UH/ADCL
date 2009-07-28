@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -99,14 +100,14 @@ void adcl_request_create ( int *vec, int *topo, int *fnctset, int *req, int *ier
             *ierror = ADCL_INVALID_VECTOR;
             return;
         }
-        svecs = ( ADCL_vector_t **) malloc ( 4 * ctopo->t_ndims * sizeof(ADCL_vector_t *));
+        svecs = ( ADCL_vector_t **) malloc ( 4 * ctopo->t_nneigh * sizeof(ADCL_vector_t *));
         if ( NULL == svecs ) {
             *ierror = ADCL_NO_MEMORY;
             return;
         }
-        rvecs = &svecs[2*ctopo->t_ndims];
+        rvecs = &svecs[2*ctopo->t_nneigh];
 
-        for ( i=0; i<2*ctopo->t_ndims; i++ ) {
+        for ( i=0; i<2*ctopo->t_nneigh; i++ ) {
             svecs[i] = cvec;
             rvecs[i] = cvec;
         }
@@ -215,7 +216,7 @@ void adcl_request_create_generic ( int *vectset, int *topo,
             return;
         }
         else {
-            for ( i=0; i< 2*ctopo->t_ndims; i++ ) {
+            for ( i=0; i< 2*ctopo->t_nneigh; i++ ) {
                 if ( 0 > cvectset->vs_svecs[i]->v_id ||
                      0 > cvectset->vs_svecs[i]->v_id ) {
                     *ierror =  ADCL_INVALID_VECTOR;

@@ -103,7 +103,7 @@ int main ( int argc, char ** argv )
 
     ADCL_Fnctset_create ( 12, funcs, "test functions", &fnctset );
     /* Creation of the topology */
-    ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
+    ADCL_Topology_create_generic ( 0, 0, NULL, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
 				   MPI_COMM_WORLD, &topo );
     /* Creation of the request */
     ADCL_Request_create ( ADCL_VECTOR_NULL, topo, fnctset, &request );

@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
  * Copyright (c) 2007           Cisco, Inc. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -13,7 +14,7 @@
 int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
                           ADCL_Fnctset fnctset, ADCL_Request *req )
 {
-    int i, ret;
+    int i, ret, ndims;
     ADCL_vector_t **svecs, **rvecs;
 
     if ( ( NULL == vec ) ||
@@ -38,13 +39,22 @@ int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
         }
     }
     if ( ADCL_VECTOR_NULL != vec ) {
-        svecs = (ADCL_vector_t **) malloc ( 4 * topo->t_ndims * sizeof(ADCL_vector_t *));
+        if ( ADCL_FNCTSET_NEIGHBORHOOD == fnctset ) {
+            ndims = ( 0 < vec->v_nc ) ?  vec->v_ndims-1 : vec->v_ndims; 
+            for ( i=0; i<ndims; i++) {
+                if ( 3*vec->v_map->m_hwidth > vec->v_dims[i] ) {
+                    return ADCL_INVALID_ARG;
+                }
+            }
+        }
+
+        svecs = (ADCL_vector_t **) malloc ( 4 * topo->t_nneigh * sizeof(ADCL_vector_t *));
         if ( NULL == svecs ) {
             return ADCL_NO_MEMORY;
         }
-        rvecs = &svecs[2*topo->t_ndims];
+        rvecs = &svecs[2*topo->t_nneigh];
 
-        for ( i=0; i<2*topo->t_ndims; i++ ) {
+        for ( i=0; i<2*topo->t_nneigh; i++ ) {
             svecs[i] = vec;
             rvecs[i] = vec;
         }

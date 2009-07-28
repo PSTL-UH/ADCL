@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -14,7 +15,7 @@
 /* Neighborhood communication initiating all operations at-once */
 void ADCL_CHANGE_SB_AAO ( ADCL_request_t *req )
 {
-    int i, nneighs=2*TOPO->t_ndims;
+    int i, nneighs=2*TOPO->t_nneigh;
 
     PREPARE_COMMUNICATION(req);
 

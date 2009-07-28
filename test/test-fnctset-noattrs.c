@@ -45,7 +45,7 @@ int main ( int argc, char ** argv )
 
     ADCL_Fnctset_create ( 3, funcs, "trivial functions", &fnctset );
 
-    ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
+    ADCL_Topology_create_generic ( 0, 0, NULL, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
 				                   MPI_COMM_WORLD, &topo );
     ADCL_Request_create ( ADCL_VECTOR_NULL, topo, fnctset, &request );
     

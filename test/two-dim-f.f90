@@ -50,9 +50,9 @@
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
 
-        call set_data_2D ( data, rank, dims, hwidth ) 
+        call set_data_2D_dp ( data, rank, dims, hwidth ) 
         call ADCL_Request_start( request, ierror )
-        call check_data_2D ( data, rank, dims, hwidth, neighbors )
+        call check_data_2D_dp ( data, rank, dims, hwidth, neighbors )
 
         call ADCL_Request_free ( request, ierror )
         call ADCL_Vector_deregister ( vec, ierror )
@@ -70,9 +70,9 @@
         call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &
              request, ierror )
 
-        call set_data_2D ( data1, rank, dims, hwidth ) 
+        call set_data_2D_dp( data1, rank, dims, hwidth ) 
         call ADCL_Request_start( request, ierror )
-        call check_data_2D ( data1, rank, dims, hwidth, neighbors )
+        call check_data_2D_dp( data1, rank, dims, hwidth, neighbors )
 
         call ADCL_Request_free ( request, ierror )
         call ADCL_Vector_deregister ( vec, ierror )
@@ -335,7 +335,7 @@
 
         call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierr)
         if ( gres .eq. 0 ) then
-!           call dump_vector_2D ( data, rank, dims )
+!           call dump_vector_2D_dp( data, rank, dims )
            if ( rank .eq. 0 ) then
               write (*,*) '2-D Fortran testsuite hwidth =', hwidth, &
                    'nc = ', nc, ' failed'  
@@ -351,167 +351,3 @@
         return
       end subroutine check_data_3D
 
-!****************************************************************************
-!****************************************************************************
-!****************************************************************************
-
-      subroutine set_data_2D ( data, rank, dims, hwidth )
-
-        implicit none
-        include 'ADCL.inc'
-
-        integer rank, dims(2), hwidth
-        double precision data(dims(1),dims(2))
-
-        integer i, j
-
-        do i=1,hwidth
-           do j = 1, dims(2)
-              data(i,j) = -1
-           end do
-        end do
-
-        do i = dims(1)-hwidth+1, dims(1)
-           do j = 1, dims(2)
-              data(i, j) = -1
-           end do
-        end do
-
-        do i=1,dims(1)
-           do j = 1, hwidth
-              data(i,j) = -1
-           end do
-        end do
-
-        do i = 1, dims(1)
-           do j = dims(2)-hwidth+1, dims(2)
-              data(i, j) = -1
-           end do
-        end do
-
-
-        do i = hwidth+1, dims(1)-hwidth
-           do j = hwidth+1, dims(2)-hwidth
-              data(i,j) = rank
-           end do
-        end do
-
-        return
-      end subroutine set_data_2D
-
-!****************************************************************************
-!****************************************************************************
-!****************************************************************************
-      subroutine dump_vector_2D ( data, rank, dims )
-
-        implicit none
-        include 'ADCL.inc'
-
-        integer rank, dims(2)
-        double precision data(dims(1), dims(2))
-        integer i, j
-
-        do j = 1, dims(1)
-           write (*,*) rank, (data(j,i), i=1,dims(2))
-        end do
-        return
-      end subroutine dump_vector_2D
-
-
-!****************************************************************************
-!****************************************************************************
-!****************************************************************************
-
-      subroutine check_data_2D ( data, rank, dims, hwidth, neighbors ) 
-
-        implicit none
-        include 'ADCL.inc'
-
-        integer rank, dims(2), hwidth, neighbors(4)
-        double precision data(dims(1),dims(2))
-        integer lres, gres, i, j, ierr
-        double precision should_be
-        
-        lres = 1
-      
-        if ( neighbors(1) .eq. MPI_PROC_NULL ) then 
-           should_be = -1
-        else
-           should_be = neighbors(1)
-        endif
-        do i=1,hwidth
-           do j = hwidth+1, dims(2)-hwidth
-              if ( data(i,j) .ne. should_be ) then
-                 lres = 0 
-              endif
-           end do
-        end do
-
-        if ( neighbors(2) .eq. MPI_PROC_NULL ) then 
-           should_be = -1
-        else
-           should_be = neighbors(2)
-        endif
-        do i = dims(1)-hwidth+1, dims(1)
-           do j = hwidth+1, dims(2)-hwidth
-              if ( data(i, j) .ne. should_be ) then 
-                 lres = 0
-              endif
-           end do
-        end do
-
-
-        if ( neighbors(3) .eq. MPI_PROC_NULL ) then 
-           should_be = -1
-        else
-           should_be = neighbors(3)
-        endif
-        do i=hwidth+1,dims(1)-hwidth
-           do j = 1, hwidth
-              if ( data(i,j) .ne. should_be ) then
-                 lres = 0
-              endif
-           end do
-        end do
-
-        if ( neighbors(4) .eq. MPI_PROC_NULL ) then 
-           should_be = -1
-        else
-           should_be = neighbors(4)
-        endif
-        do i = hwidth+1, dims(1)-hwidth
-           do j = dims(2)-hwidth+1, dims(2)
-              if ( data(i, j) .ne. should_be ) then 
-                 lres = 0
-              endif
-           end do
-        end do
-
-
-        do i = hwidth+1, dims(1)-hwidth
-           do j = hwidth+1, dims(2)-hwidth
-              if ( data(i,j) .ne. rank ) then 
-                 lres = 0
-              endif
-           end do
-        end do
-
-
-
-        call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierr)
-        if ( gres .eq. 0 ) then
-           call dump_vector_2D ( data, rank, dims )
-           if ( rank .eq. 0 ) then
-              write (*,*) '2-D Fortran testsuite hwidth =', hwidth, &
-                   'nc = ', 0, ' failed'  
-           end if
-        else
-           if ( rank .eq. 0 ) then
-              write (*,*) '2-D Fortran testsuite hwidth =', hwidth, &
-                   'nc = ', 0, ' passed'  
-           end if
-        end if
-
-
-        return
-      end subroutine check_data_2D

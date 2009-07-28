@@ -409,7 +409,7 @@ subroutine dump_vector_int ( data, rank, dim)
 
     implicit none
     integer, intent(in) :: rank, dim
-    integer, dimension(dim), intent(out) :: data
+    integer, dimension(dim), intent(in) :: data
     integer i
 
     print *, rank, ": ", data

@@ -52,7 +52,7 @@ int main ( int argc, char ** argv )
 				 attrset, "test function", NULL, 0, &fnctset );
 
     /* Creation of the topology */
-    ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
+    ADCL_Topology_create_generic ( 0, 0, NULL, NULL, NULL, NULL, ADCL_DIRECTION_BOTH, 
 				   MPI_COMM_WORLD, &topo );
 
     /* Creation of the request */

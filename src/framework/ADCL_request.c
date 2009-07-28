@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
  * Copyright (c) 2007           Cisco, Inc. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -66,13 +67,13 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
 	   /* assume, someone uses old settings with ADCL_VECTOR_HALO */
            vec =  svecs[0];
 
-           newreq->r_svecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
-           newreq->r_rvecs = (ADCL_vector_t **) malloc ( 2* topo->t_ndims * sizeof (ADCL_vector_t *));
+           newreq->r_svecs = (ADCL_vector_t **) malloc ( 2* topo->t_nneigh * sizeof (ADCL_vector_t *));
+           newreq->r_rvecs = (ADCL_vector_t **) malloc ( 2* topo->t_nneigh * sizeof (ADCL_vector_t *));
            if ( NULL == newreq->r_rvecs || NULL == newreq->r_svecs ) {
                ret = ADCL_NO_MEMORY;
                goto exit;
            }
-           for ( i=0; i < 2* topo->t_ndims; i++ ) {
+           for ( i=0; i < 2*topo->t_nneigh; i++ ) {
                newreq->r_svecs[i] = svecs[i];
                ADCL_vector_add_reference( svecs[i] );
 	       newreq->r_rvecs[i] = rvecs[i];
@@ -87,55 +88,28 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
            ** vector are going to be sent/received from which process
            */
            if ( vec->v_ndims == 1 || (vec->v_ndims == 2 && vec->v_nc > 0 )) {
-               ret = ADCL_indexed_1D_init ( vec->v_dims[0],
-                                            vec->v_map->m_hwidth,
-                                            vec->v_nc,
-                                            order,
-                                            vec->v_dat,
-                                            &(newreq->r_sdats),
-                                            &(newreq->r_rdats) );
+               ret = ADCL_indexed_1D_init ( vec->v_dims[0], vec->v_map->m_hwidth, vec->v_nc, order,
+                                            vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
            else if ( (vec->v_ndims == 2 && vec->v_nc == 0) ||
                      (vec->v_ndims == 3 && vec->v_nc > 0) ) {
-               ret = ADCL_indexed_2D_init ( vec->v_dims,
-                                            vec->v_map->m_hwidth,
-                                            vec->v_nc,
-                                            order,
-                                            vec->v_dat,
-                                            &(newreq->r_sdats),
-                                            &(newreq->r_rdats) );
+               ret = ADCL_indexed_2D_init ( vec->v_dims, vec->v_map->m_hwidth, vec->v_nc, order, topo->t_nneigh,
+                                            vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
            else if ( (vec->v_ndims == 3 && vec->v_nc == 0) ||
                      (vec->v_ndims == 4 && vec->v_nc > 0 )){
-               ret = ADCL_indexed_3D_init ( vec->v_dims,
-                                            vec->v_map->m_hwidth,
-                                            vec->v_nc,
-                                            order,
-                                            vec->v_dat,
-                                            &(newreq->r_sdats),
-                                            &(newreq->r_rdats) );
+               ret = ADCL_indexed_3D_init ( vec->v_dims, vec->v_map->m_hwidth, vec->v_nc, order, topo->t_nneigh,
+                                            vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
            else if ( ADCL_TOPOLOGY_NULL != topo ) {
-               ret = ADCL_subarray_init   ( topo->t_ndims,
-                                            vec->v_ndims,
-                                            vec->v_dims,
-                                            vec->v_map->m_hwidth,
-                                            vec->v_nc,
-                                            order,
-                                            vec->v_dat,
-                                            &(newreq->r_sdats),
-                                            &(newreq->r_rdats) );
+               if ( topo->t_nneigh > topo->t_ndims ) { printf("not implemented\n"); exit(-1); }
+               ret = ADCL_subarray_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
+                                            vec->v_nc, order, vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
 
            /* Initialize temporary buffer(s) for Pack/Unpack operations */
-           ret = ADCL_packunpack_init ( topo->t_ndims * 2,
-                                        topo->t_neighbors,
-                                        topo->t_comm,
-                                        &(newreq->r_sbuf),
-                                        newreq->r_sdats,
-                                        &(newreq->r_spsize),
-                                        &(newreq->r_rbuf),
-                                        newreq->r_rdats,
+           ret = ADCL_packunpack_init ( topo->t_nneigh * 2, topo->t_neighbors, topo->t_comm, &(newreq->r_sbuf),
+                                        newreq->r_sdats, &(newreq->r_spsize), &(newreq->r_rbuf), newreq->r_rdats,
                                         &(newreq->r_rpsize) );
             if ( ADCL_SUCCESS != ret ) {
                 goto exit;
@@ -269,8 +243,8 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     if ( NULL != newreq->r_svecs ) {
        switch ( newreq->r_svecs[0]->v_map->m_vectype) {
        case ADCL_VECTOR_HALO:
-           if ( 0 != topo->t_ndims ) {
-              newreq->r_sreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
+           if ( 0 != topo->t_nneigh ) {
+              newreq->r_sreqs=(MPI_Request *)malloc(2 * topo->t_nneigh*
                         sizeof(MPI_Request));
            }
            break;
@@ -297,14 +271,14 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     if ( NULL != newreq->r_rvecs ) {
         switch ( newreq->r_rvecs[0]->v_map->m_vectype ) {
         case ADCL_VECTOR_HALO:
-            if ( 0 != topo->t_ndims ) {
-                newreq->r_rreqs=(MPI_Request *)malloc(2 * topo->t_ndims*
+            if ( 0 != topo->t_nneigh ) {
+                newreq->r_rreqs=(MPI_Request *)malloc(2 * topo->t_nneigh*
                                                       sizeof(MPI_Request));
             }
             break;
         case ADCL_VECTOR_ALL:
         case ADCL_VECTOR_ALLREDUCE:
-            newreq->r_rreqs=(MPI_Request *)malloc(topo->t_ndims*
+            newreq->r_rreqs=(MPI_Request *)malloc(topo->t_nneigh*
                                                   sizeof(MPI_Request));
             break;
         case ADCL_VECTOR_LIST:
@@ -357,9 +331,9 @@ exit:
 
         if ( NULL != vec ) {
            if (NULL == svecs[0]->v_map || ADCL_VECTOR_HALO == svecs[0]->v_map->m_vectype ) {
-              ADCL_subarray_free ( 2 * topo->t_ndims, &(newreq->r_sdats),
+              ADCL_subarray_free ( 2 * topo->t_nneigh, &(newreq->r_sdats),
                                  &(newreq->r_rdats) ); 
-              ADCL_packunpack_free ( 2 * topo->t_ndims, &(newreq->r_rbuf),
+              ADCL_packunpack_free ( 2 * topo->t_nneigh, &(newreq->r_rbuf),
                                    &(newreq->r_sbuf), &(newreq->r_spsize),
                                    &(newreq->r_rpsize) );
 	   }
@@ -430,16 +404,16 @@ int ADCL_request_free ( ADCL_request_t **req )
          case ADCL_VECTOR_HALO: 
             /* r_svecs[i] and r_rvecs[i] have also to be "freed", which normally ends up in 
              * decrementing the reference counter */	    
-	    for ( i=0; i < 2* preq->r_emethod->em_topo->t_ndims; i++ ) {
+	    for ( i=0; i < 2* preq->r_emethod->em_topo->t_nneigh; i++ ) {
 	       ADCL_vector_free( &(preq->r_svecs[i]) ); 
             }
             if ( NULL != preq->r_sdats  && NULL != preq->r_rdats ) {
-               ADCL_subarray_free ( 2 * preq->r_emethod->em_topo->t_ndims,
+               ADCL_subarray_free ( 2 * preq->r_emethod->em_topo->t_nneigh,
                         &(preq->r_sdats),
                         &(preq->r_rdats) );
             }
             if ( NULL != preq->r_sbuf  && NULL != preq->r_rbuf ) {
-                 ADCL_packunpack_free ( 2 * preq->r_emethod->em_topo->t_ndims,
+                 ADCL_packunpack_free ( 2 * preq->r_emethod->em_topo->t_nneigh,
                           &(preq->r_rbuf),
                           &(preq->r_sbuf),
                           &(preq->r_spsize),
@@ -472,7 +446,7 @@ int ADCL_request_free ( ADCL_request_t **req )
    if ( NULL != preq->r_rvecs ) {
       switch (preq->r_rvecs[0]->v_map->m_vectype) {
          case ADCL_VECTOR_HALO: 
-	    for ( i=0; i < 2* preq->r_emethod->em_topo->t_ndims; i++ ) {
+	    for ( i=0; i < 2* preq->r_emethod->em_topo->t_nneigh; i++ ) {
 	       ADCL_vector_free( &(preq->r_rvecs[i]) ); 
             }
 	    break;

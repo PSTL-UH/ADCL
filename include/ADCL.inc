@@ -1,5 +1,6 @@
 !
 ! Copyright (c) 2006-2007      University of Houston. All rights reserved.
+! Copyright (c) 2009           HLRS. All rights reserved.
 ! $COPYRIGHT$
 !
 ! Additional copyrights may follow
@@ -103,7 +104,8 @@
        parameter ( ADCL_FNCTSET_NEIGHBORHOOD = 0 )
        parameter ( ADCL_FNCTSET_ALLGATHERV   = 1 )
        parameter ( ADCL_FNCTSET_ALLREDUCE    = 2 )
-       parameter ( ADCL_FNCTSET_ALLREDUCE    = 3 )
+       parameter ( ADCL_FNCTSET_ALLTOALLV    = 3 )
+
        ! this is not such a good idea: 
        ! parameter ( ADCL_FNCTSET_SHIFT_RTOL   = 0 )
        ! parameter ( ADCL_FNCTSET_SHIFT_LTOR   = 0 )

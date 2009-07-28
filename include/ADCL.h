@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
  * Copyright (c) 2007           Cisco, Inc. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -216,11 +217,17 @@ int ADCL_Vectset_create ( int maxnum,
 int ADCL_Vectset_free   ( ADCL_Vectset *vectset );
 
 /* ADCL Topology functions */
-int ADCL_Topology_create  ( MPI_Comm cart_comm, ADCL_Topology *topo);
-int ADCL_Topology_free    ( ADCL_Topology *topo );
-int ADCL_Topology_create_generic ( int ndims, int *lneighbors,
+int ADCL_Topology_create_generic ( int ndims, int nneigh, int *lneighbors, int *flip, 
                                    int *rneighbors, int *coords, int direction,
                                    MPI_Comm comm, ADCL_Topology *topo);
+int ADCL_Topology_create  ( MPI_Comm cart_comm, ADCL_Topology *topo);
+int ADCL_Topology_create_extended_neighborhood ( MPI_Comm cart_comm, ADCL_Topology *topo);
+int ADCL_Topology_free    ( ADCL_Topology *topo );
+int ADCL_Topology_dump  ( ADCL_Topology topo );
+
+int ADCL_Topology_get_cart_number_neighbors ( int ndims, int extended, int* nneigh );
+int ADCL_Topology_get_cart_neighbors ( int nneigh, int* lneighbors, int* rneighbors, 
+        int *flip, MPI_Comm cart_comm );
 
 #ifdef ADCL_PAPI
 /* ADCL PAPI functions */

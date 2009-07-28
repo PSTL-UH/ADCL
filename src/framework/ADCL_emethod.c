@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -63,6 +64,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 
           if ( ( e->em_orgfnctset != f )          ||
                ( topo->t_ndims   != t->t_ndims  ) ||
+               ( topo->t_nneigh  != t->t_nneigh ) ||
                ( vec->v_ndims    != v->v_ndims  ) ||
                ( vec->v_nc       != v->v_nc     ) ||
                ( vec_map->m_vectype != v_map->m_vectype ) ) {
@@ -81,7 +83,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	        continue;
 	     }
 
-             for ( j=0; j< (2*topo->t_ndims); j++ ) {
+             for ( j=0; j< (2*topo->t_nneigh); j++ ) {
                 if ( topo->t_neighbors[j] != t->t_neighbors [j] ) {
                    goto nextemethod;
 	        }

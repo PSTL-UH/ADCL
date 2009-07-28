@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -14,14 +15,14 @@
 /* Neighborhood communication based on pairwise message exchange */
 void ADCL_CHANGE_SB_PAIR ( ADCL_request_t *req )
 {
-    int i, dim;
-    int nneighs = 2*req->r_emethod->em_topo->t_ndims;
+    int i, j;
+    int nneigh  = req->r_emethod->em_topo->t_nneigh;
 
     PREPARE_COMMUNICATION(req);
 
-    for ( dim=0, i=0; i<nneighs ; i+=2, dim++ ) {
-
-        if ( TOPO->t_coords[dim] % 2 == 0 ) {
+    for ( i=0, j=0; i<2*nneigh; i+=2, j++ ) {
+        
+        if ( TOPO->t_flip[j] == 0 ) {
             if ( MPI_PROC_NULL != TOPO->t_neighbors[i] ) {
                 RECV_START(req, i, AAO_SB_TAG);
                 SEND_START(req, i, AAO_SB_TAG);

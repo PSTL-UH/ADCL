@@ -90,7 +90,7 @@ int main ( int argc, char ** argv )
     MPI_Comm_rank ( MPI_COMM_WORLD,  &rank );
     MPI_Comm_size ( MPI_COMM_WORLD,  &size );
     ADCL_Init ( );
-    ADCL_Topology_create_generic ( 0, NULL, NULL, NULL, ADCL_DIRECTION_BOTH,  MPI_COMM_WORLD, &topo ); 
+    ADCL_Topology_create_generic ( 0, 0, NULL, NULL, NULL, NULL, ADCL_DIRECTION_BOTH,  MPI_COMM_WORLD, &topo ); 
 
     /* Generate attribute 0 */
     attrvals[0]=0;

@@ -1,6 +1,8 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
  * Copyright (c) 2007           Cisco, Inc. All rights reserved.
+ * Copyright (c) 2009           HLRS. All rights reserved.
+ * 
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -210,19 +212,29 @@ void ADCL_VECTSET_FREE   ( int *vectset, int *ierror );
 
 /* ADCL Process topology functions */
 
-void adcl_topology_create_generic   ( int *ndims, int *lneighb, int *rneighb, int *coords,
-                                      int *dir, int *comm, int *topo, int *ierror );
-void adcl_topology_create_generic_  ( int *ndims, int *lneighb, int *rneighb, int *coords,
-                                      int *dir, int *comm, int *topo, int *ierror );
-void adcl_topology_create_generic__ ( int *ndims, int *lneighb, int *rneighb, int *coords,
-                                      int *dir, int *comm, int *topo, int *ierror );
-void ADCL_TOPOLOGY_CREATE_GENERIC   ( int *ndims, int *lneighb, int *rneighb, int *coords,
-                                      int *dir, int *comm, int *topo, int *ierror );
+void adcl_topology_create_generic   ( int *ndims, int *nneigh, int *lneighb, int *rneighb, int* flip,
+                                      int *coords, int *dir, int *comm, int *topo, int *ierror );
+void adcl_topology_create_generic_  ( int *ndims, int *nneigh, int *lneighb, int *rneighb, int* flip,
+                                      int *coords, int *dir, int *comm, int *topo, int *ierror );
+void adcl_topology_create_generic__ ( int *ndims, int *nneigh, int *lneighb, int *rneighb, int* flip,
+                                      int *coords, int *dir, int *comm, int *topo, int *ierror );
+void ADCL_TOPOLOGY_CREATE_GENERIC   ( int *ndims, int *nneigh, int *lneighb, int *rneighb, int* flip,
+                                      int *coords, int *dir, int *comm, int *topo, int *ierror );
 
 void adcl_topology_create   ( int* cart_comm, int *topo, int *ierror );
 void adcl_topology_create_  ( int* cart_comm, int *topo, int *ierror );
 void adcl_topology_create__ ( int* cart_comm, int *topo, int *ierror );
 void ADCL_TOPOLOGY_CREATE   ( int* cart_comm, int *topo, int *ierror );
+
+void adcl_topology_create_extended_neighborhood   ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create_extended_neighborhood_  ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create_extended_neighborhood__ ( int* cart_comm, int *topo, int *ierror );
+void ADCL_TOPOLOGY_CREATE_EXTENDED_NEIGHBORHOOD   ( int* cart_comm, int *topo, int *ierror );
+
+void adcl_topology_dump   (int *topo, int *ierror );
+void adcl_topology_dump_  (int *topo, int *ierror );
+void adcl_topology_dump__ (int *topo, int *ierror );
+void ADCL_TOPOLOGY_DUMP   (int *topo, int *ierror );
 
 void adcl_topology_free   (int *topo, int *ierror);
 void adcl_topology_free_  (int *topo, int *ierror);
