@@ -233,14 +233,14 @@ int ADCL_topology_get_cart_neighbors ( int ndims, int nneigh, int* lneighbors, i
 
         if ( ndims == 2 ) {
             /* (-1,-1) - (+1,+1) */
-            direction[0] = -1; direction[1] = -1; 
+            direction[0] = +1; direction[1] = +1; 
             ADCL_get_cart_neighbor_pair ( cart_comm, 2, coords, direction, periods, comm_dims, 
                 &lneighbors[i], &rneighbors[i] );
             if ( coords[0] % 2 == 0 ) flip[i] = 0; else flip[i] = 1;
             i++; 
 
             /* (+1,-1) - (-1,+1) */
-            direction[0] = +1; direction[1] = -1; 
+            direction[0] = -1; direction[1] = +1; 
             ADCL_get_cart_neighbor_pair ( cart_comm, 2, coords, direction, periods, comm_dims, 
                 &lneighbors[i], &rneighbors[i] );
             if ( coords[0] % 2 == 0 ) flip[i] = 0; else flip[i] = 1;
