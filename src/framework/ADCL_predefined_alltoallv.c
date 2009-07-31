@@ -113,6 +113,7 @@ int ADCL_predefined_alltoallv ( void )
     ADCL_function_create_async ( ADCL_alltoallv_linear, NULL, ADCL_alltoallv_attrset,
 				 m_alltoallv_attrs, "Alltoallv_linear_SR", 
 				 &ADCL_alltoallv_functions[count]);
+    count++;
 
 
     ADCL_fnctset_create ( ADCL_METHOD_ALLTOALLV_TOTAL_NUM, 
