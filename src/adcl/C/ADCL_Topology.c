@@ -57,7 +57,7 @@ int ADCL_Topology_create ( MPI_Comm cart_comm, ADCL_Topology *topo)
     return ADCL_topology_create ( cart_comm, topo );
 }
 
-int ADCL_Topology_create_extended_neighborhood ( MPI_Comm cart_comm, ADCL_Topology *topo)
+int ADCL_Topology_create_extended ( MPI_Comm cart_comm, ADCL_Topology *topo)
 {
     int topo_type;
     int ndims;
@@ -77,7 +77,7 @@ int ADCL_Topology_create_extended_neighborhood ( MPI_Comm cart_comm, ADCL_Topolo
         return ADCL_INVALID_TOPOLOGY;
     }
 
-    return ADCL_topology_create_extended_neighborhood ( cart_comm, topo );
+    return ADCL_topology_create_extended ( cart_comm, topo );
 }
 
 int ADCL_Topology_free ( ADCL_Topology *topo )

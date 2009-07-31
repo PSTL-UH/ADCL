@@ -107,7 +107,7 @@ int ADCL_topology_create ( MPI_Comm cart_comm, ADCL_topology_t **topo )
     return ADCL_SUCCESS;
 }
 
-int ADCL_topology_create_extended_neighborhood ( MPI_Comm cart_comm, ADCL_topology_t **topo) 
+int ADCL_topology_create_extended ( MPI_Comm cart_comm, ADCL_topology_t **topo) 
 {
     int *coords, *periods, *cdims;
     int *lneighbors, *rneighbors, *flip;
@@ -301,7 +301,7 @@ int ADCL_topology_get_cart_neighbors ( int ndims, int nneigh, int* lneighbors, i
             /* (-1,+1,-1) - (+1,-1,+1) */
         }
         else if ( 3 < ndims ) {
-            printf("ADCL_topology_create_extended_neighborhood: ndims > 3 not implemented.\n");
+            printf("ADCL_topology_create_extended: ndims > 3 not implemented.\n");
             exit(-1); 
         }
         free( direction );

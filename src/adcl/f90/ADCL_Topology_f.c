@@ -16,9 +16,9 @@
 #pragma weak adcl_topology_create__ = adcl_topology_create
 #pragma weak ADCL_TOPOLOGY_CREATE   = adcl_topology_create
 
-#pragma weak adcl_topology_create_extended_neighborhood_  = adcl_topology_create_extended_neighborhood
-#pragma weak adcl_topology_create_extended_neighborhood__ = adcl_topology_create_extended_neighborhood
-#pragma weak ADCL_TOPOLOGY_CREATE_EXTENDED_NEIGHBORHOOD   = adcl_topology_create_extended_neighborhood
+#pragma weak adcl_topology_create_extended_  = adcl_topology_create_extended
+#pragma weak adcl_topology_create_extended__ = adcl_topology_create_extended
+#pragma weak ADCL_TOPOLOGY_CREATE_EXTENDED   = adcl_topology_create_extended
 
 #pragma weak adcl_topology_create_generic_   = adcl_topology_create_generic
 #pragma weak adcl_topology_create_generic__  = adcl_topology_create_generic
@@ -116,9 +116,9 @@ void adcl_topology_create   ( int* cart_comm, int *topo, int *ierror )
 }
 
 #ifdef _SX
-void adcl_topology_create_extended_neighborhood_  ( int* cart_comm, int *topo, int *ierror )
+void adcl_topology_create_extended_ ( int* cart_comm, int *topo, int *ierror )
 #else
-void adcl_topology_create_extended_neighborhood   ( int* cart_comm, int *topo, int *ierror )
+void adcl_topology_create_extended ( int* cart_comm, int *topo, int *ierror )
 #endif
 {
     int topo_type, ndims;
@@ -148,7 +148,7 @@ void adcl_topology_create_extended_neighborhood   ( int* cart_comm, int *topo, i
         return;
     }
  
-    *ierror = ADCL_topology_create_extended_neighborhood ( ccomm, &ctopo );
+    *ierror = ADCL_topology_create_extended ( ccomm, &ctopo );
     if ( *ierror == ADCL_SUCCESS ) {
 	*topo = ctopo->t_findex;
     } 

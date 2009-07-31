@@ -36,7 +36,7 @@
         call MPI_Dims_create ( size, 3, cdims, ierror)
         call MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0,  &
                                cart_comm, ierror )
-        call ADCL_Topology_create_extended_neighborhood ( cart_comm, topo, ierror )
+        call ADCL_Topology_create_extended ( cart_comm, topo, ierror )
         call MPI_Cart_shift ( cart_comm, 0, 1, neighbors(1), neighbors(2), ierror )
         call MPI_Cart_shift ( cart_comm, 1, 1, neighbors(3), neighbors(4), ierror )
         call MPI_Cart_shift ( cart_comm, 2, 1, neighbors(5), neighbors(6), ierror )

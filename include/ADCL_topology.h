@@ -37,7 +37,7 @@ int ADCL_topology_free   ( ADCL_topology_t **topo);
 int ADCL_topology_create_generic ( int ndims, int nneigh, int *lneighbors, int *rneighbors, int* flip,
                                    int *coords,  int direction, MPI_Comm comm,
                                    ADCL_topology_t **topo);
-int ADCL_topology_create_extended_neighborhood ( MPI_Comm cart_comm, ADCL_topology_t **topo);
+int ADCL_topology_create_extended ( MPI_Comm cart_comm, ADCL_topology_t **topo);
    /* create a topology with 8 neighbors in 2D and 14 in 3D */
 int ADCL_topology_dump ( ADCL_topology_t *topo );
     

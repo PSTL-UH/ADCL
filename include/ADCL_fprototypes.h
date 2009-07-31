@@ -226,10 +226,10 @@ void adcl_topology_create_  ( int* cart_comm, int *topo, int *ierror );
 void adcl_topology_create__ ( int* cart_comm, int *topo, int *ierror );
 void ADCL_TOPOLOGY_CREATE   ( int* cart_comm, int *topo, int *ierror );
 
-void adcl_topology_create_extended_neighborhood   ( int* cart_comm, int *topo, int *ierror );
-void adcl_topology_create_extended_neighborhood_  ( int* cart_comm, int *topo, int *ierror );
-void adcl_topology_create_extended_neighborhood__ ( int* cart_comm, int *topo, int *ierror );
-void ADCL_TOPOLOGY_CREATE_EXTENDED_NEIGHBORHOOD   ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create_extended   ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create_extended_  ( int* cart_comm, int *topo, int *ierror );
+void adcl_topology_create_extended__ ( int* cart_comm, int *topo, int *ierror );
+void ADCL_TOPOLOGY_CREATE_EXTENDED   ( int* cart_comm, int *topo, int *ierror );
 
 void adcl_topology_dump   (int *topo, int *ierror );
 void adcl_topology_dump_  (int *topo, int *ierror );

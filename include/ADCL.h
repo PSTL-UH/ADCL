@@ -221,7 +221,7 @@ int ADCL_Topology_create_generic ( int ndims, int nneigh, int *lneighbors, int *
                                    int *rneighbors, int *coords, int direction,
                                    MPI_Comm comm, ADCL_Topology *topo);
 int ADCL_Topology_create  ( MPI_Comm cart_comm, ADCL_Topology *topo);
-int ADCL_Topology_create_extended_neighborhood ( MPI_Comm cart_comm, ADCL_Topology *topo);
+int ADCL_Topology_create_extended ( MPI_Comm cart_comm, ADCL_Topology *topo);
 int ADCL_Topology_free    ( ADCL_Topology *topo );
 int ADCL_Topology_dump  ( ADCL_Topology topo );
 
