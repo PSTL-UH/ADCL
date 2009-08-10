@@ -421,6 +421,9 @@ int ADCL_emethod_monitor ( ADCL_emethod_t *emethod, int pos,
                TIME_TYPE tstart, TIME_TYPE tend )
 {
     /* to be done later */
+    TIME_TYPE exectime;
+    ADCL_STAT_TIMEDIFF ( tstart, tend, exectime );
+    DISPLAY((ADCL_DISPLAY_POINTS, emethod->em_id, exectime));
     return ADCL_STATE_REGULAR;
 }
 
@@ -553,8 +556,9 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
             e->em_stats[next]->s_count++;
         }
     }
-
-    *flag = ADCL_FLAG_PERF;
+    /*    DISPLAY((ADCL_DISPLAY_MESSAGE, e->em_id, "Function set:%d %s, next function to be tested: %d %s\n", e->em_orgfnctset->fs_id, 
+                 e->em_orgfnctset->fs_name, e->em_orgfnctset->fs_fptrs[next]->f_id, e->em_orgfnctset->fs_fptrs[next]->f_name));
+    */*flag = ADCL_FLAG_PERF;
     return next;
 }
 
@@ -568,6 +572,7 @@ void ADCL_emethods_update ( ADCL_emethod_t *emethod, int pos, int flag,
     TIME_TYPE exectime;
 
     ADCL_STAT_TIMEDIFF ( tstart, tend, exectime );
+    DISPLAY((ADCL_DISPLAY_POINTS, emethod->em_id, exectime ));
     if ( flag == ADCL_FLAG_PERF ) {
         stat = emethod->em_stats[pos];
         stat->s_time[stat->s_rescount] = exectime;

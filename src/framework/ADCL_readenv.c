@@ -27,6 +27,11 @@ extern int ADCL_printf_silence;
 extern int ADCL_emethod_use_perfhypothesis;
 extern int ADCL_emethod_learn_from_hist;
 extern int ADCL_method_total_num;
+
+extern char ADCL_display_ip[];
+extern int ADCL_display_port;
+extern int ADCL_display_rank;
+extern int ADCL_display_flag;
 //extern ADCL_method_t * ADCL_method_array;
 
 #define Debug 1
@@ -36,7 +41,6 @@ int ADCL_readenv()
     int result;
     int len;
     int i;
-
     char *HomeDir;
     char FilePath[PATH_MAX];
     char buffer[MAXLINE];
@@ -220,7 +224,31 @@ int ADCL_readenv()
         ADCL_printf("#ADCL_HIST_LEARNING: %d\n",ADCL_emethod_learn_from_hist );
 #endif
     }
-
+/* ADCL_DISPLAY_IP */
+    else if ( strncmp(keyword, "ADCL_DISPLAY_IP",
+              strlen("ADCL_DISPLAY_IP"))==0) {
+ADCL_display_flag = 1;
+        sscanf(ptr,"%s ", ADCL_display_ip );
+#ifdef  Debug
+        ADCL_printf("#ADCL_DISPLAY_IP: %s\n",ADCL_display_ip );
+#endif
+    }
+	/* ADCL_DISPLAY_PORT */
+    else if ( strncmp(keyword, "ADCL_DISPLAY_PORT",
+              strlen("ADCL_DISPLAY_PORT"))==0) {
+        sscanf(ptr,"%d ", &ADCL_display_port );
+#ifdef  Debug
+        ADCL_printf("#ADCL_DISPLAY_PORT: %d\n",ADCL_display_port );
+#endif
+	}
+	/* ADCL_DISPLAY_RANK */
+    else if ( strncmp(keyword, "ADCL_DISPLAY_RANK",
+              strlen("ADCL_DISPLAY_RANK"))==0) {
+        sscanf(ptr,"%d ", &ADCL_display_rank );
+#ifdef  Debug
+        ADCL_printf("#ADCL_DISPLAY_RANK: %d\n",ADCL_display_rank );
+#endif
+	}
     }
 
     return ADCL_SUCCESS;
