@@ -25,6 +25,8 @@ FEXECS = $(ADCL_BIN_DIR)/first_f $(ADCL_BIN_DIR)/second_f \
 
 ADCL_LIB_ = $(ADCL_LIB_DIR)/$(ADCL_LIB)
 
+.SUFFIXES: .c .h .f90
+
 ###################################################################################################
 
 all: ctests ftests
@@ -166,7 +168,7 @@ aux-data-2D-int-f.o: aux-data-2D-f.f90
 	$(FC) $(FFLAGS) -I../include -c -DSET_DATA=set_data_2D_int -DDUMP_VECTOR=dump_vector_2D_int \
 	      -DCHECK_DATA=check_data_2D_int -DDATATYPE="integer" -o aux-data-2D-int-f.o $<
 
-%.o: %.c $(ADCL_LIB)
+%.o: %.c $(ADCL_LIB_)
 	$(CC) $(CFLAGS) -c $<
 
 %.o: %.f90 $(ADCL_LIB_)
