@@ -38,13 +38,18 @@ int ADCL_Init (void )
 
     ret = ADCL_predefined_init ();
     ret = ADCL_readenv();
-
+#ifdef ADCL_DISPLAY
+    ret = ADCL_display_init();
+#endif
     return ret;
 }
 
 int ADCL_Finalize ( void )
 {
     int ret;
+#ifdef ADCL_DISPLAY
+    ADCL_display_finalize();
+#endif
     /* free the stored hist objects */
     ADCL_hist_free ( );
     /* free the predefined function set  */
