@@ -61,7 +61,8 @@ public final class Plot extends JFrame implements RecvListener
 		disconnect.setBounds(400,10,100,25);
 		disconnect.addActionListener(_controller);
 		Graph graphToAdd = idToTabMap.get(Integer.valueOf(i));
-		graphToAdd.add(disconnect,BorderLayout.AFTER_LAST_LINE);
+		JComponent toolbar = ((InteractiveGraph)graphToAdd).getToolBar();
+		toolbar.add(disconnect);
 
 		Panel textPanel = new Panel();
 		textPanel.setBounds(0,520, 640, 100);
@@ -160,7 +161,7 @@ public final class Plot extends JFrame implements RecvListener
 	private void showInMessageBox(int id, String str) 
 	{
 		System.out.println(str);
-			Panel panel = (Panel)idToTabMap.get(id).getComponent(2);
+			Panel panel = (Panel)idToTabMap.get(id).getComponent(1);
 			TextArea textbox = (TextArea)panel.getComponent(0);
 			textbox.append(str+"\n");
 	}

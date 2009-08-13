@@ -202,9 +202,9 @@ public class StartupServer
 	
 	public void disconnect()
 	{
-		for (int i = 0; i < numclients; i++) {
+		for (int i = 0; i < numclients; i++) 
+		{
             hosts[i].disconnect();
-            
         }
 	}
 

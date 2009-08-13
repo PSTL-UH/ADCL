@@ -152,6 +152,13 @@ static final Cursor DEFAULT_CURSOR = new Cursor(Cursor.CROSSHAIR_CURSOR);
 static final Cursor BUSSY_CURSOR = new Cursor(Cursor.WAIT_CURSOR);
 
 private final ToolBar toolBar = new ToolBar(this);
+
+public ToolBar getToolBar() 
+{
+	return toolBar;
+}
+
+
 private ZoomSelection zoomSelection = null;
 
 }
