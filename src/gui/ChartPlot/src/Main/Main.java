@@ -18,7 +18,7 @@ public class Main
 
 		Plot gui = new Plot(server);
 	    gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    gui.setSize(640, 680);
+	    gui.setSize(820, 720);
 	    gui.validate();
 	    gui.setVisible(true);
 	    

@@ -138,9 +138,9 @@ paint(Graphics g) {
 	for (int i = LABELS; --i >= 0; g2.drawString(labelText[i], labelX[i], labelY[i]));
 
     if(axis.getClass() == YAxis.class)
-        drawTextVertical(g, nailRender[LABELS-1].getBounds().x - 25, nailRender[(LABELS-1)/2].getBounds().y, -90 * java.lang.Math.PI/180, axis.toString());
+        drawTextVertical(g, nailRender[LABELS-1].getBounds().x - 40, nailRender[(LABELS-1)/2].getBounds().y, -90 * java.lang.Math.PI/180, axis.toString());
     else
-        g2.drawString(axis.toString(), nailRender[(LABELS-1)/2].getBounds().x, nailRender[LABELS-1].getBounds().y-10);
+        g2.drawString(axis.toString(), nailRender[(LABELS-1)/2].getBounds().x, nailRender[LABELS-1].getBounds().y+40);
 
 	g2.dispose();
 }

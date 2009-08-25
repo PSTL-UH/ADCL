@@ -105,7 +105,6 @@ addFunction(Function function, ChartStyle style) {
 	}
 }
 
-
 /**
  * Removes a function from the graph.
  * Changes apply on the next {@link #render()}.

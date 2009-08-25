@@ -69,13 +69,14 @@ InteractiveGraph(XAxis xAxis, YAxis yAxis, Insets padding) {
 
 private void
 init() {
-	setLayout(new BorderLayout());
-	add(toolBar, BorderLayout.PAGE_START);
+	setLayout(new GridBagLayout());
+	
+	
 	setCursor(DEFAULT_CURSOR);
 	setToolTipText("");	// enable tool tips
 	addMouseListener(this);
 	addMouseMotionListener(this);
-	addMouseMotionListener(new ToolBarFader(toolBar));
+	//addMouseMotionListener(new ToolBarFader(toolBar));
 }
 
 

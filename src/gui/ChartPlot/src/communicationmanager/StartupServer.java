@@ -9,13 +9,16 @@ import chartplot.Plot;
 
 import eventpackage.EventGenerator;
 
+
 public class StartupServer
 {	
+	public enum message_types {Points, Message, FunctionChange, EndOfComm};
+	
     static int numclients = 0;
     static int port       = 31500;
 
 	EventGenerator generator = new EventGenerator();
-	StartupConnection[] hosts;
+	StartupConnection host;
 
     public EventGenerator getGenerator() 
     {
@@ -45,74 +48,71 @@ public class StartupServer
         checkargs(args);
         _model.messageOccured("Waiting for " + numclients + " clients to connect\n");
 
-        int                 i;
-        hosts = new StartupConnection[numclients];
+        host = new StartupConnection();
 
-        for (i = 0; i < numclients; i++) {
-            hosts[i] = new StartupConnection(_model);
-        }
+        host = new StartupConnection(_model);
+        
 
         try {
             ServerSocket ssocket = new ServerSocket(port, numclients);
 
-            for (i = 0; i < numclients; i++) {
-                hosts[i].init(ssocket);
-                _model.messageOccured("Client " + i + " connected\n");
-            }
+            host.init(ssocket);
+            _model.messageOccured("Client connected\n");
+            
 
             int totallength = 0;
             int length;
 
-            for (i = 0; i < numclients; i++) {
-                length = hosts[i].readmsglength();
-                _model.messageOccured("Host " + i + " sends " + length + " bytes of data\n");
-                totallength += length;
-            }
+            length = host.readmsglength();
+            _model.messageOccured("Host sends " + length + " bytes of data\n");
+            totallength += length;
+           
            
             byte msgbuf[] = null;
             
             infinite:
             while(true)
             {
-            	Header[] head = new Header[numclients];
-                for (i = 0; i < numclients; i++) 
-                {
-                	head[i] = hosts[i].readHeader();      
-
-                	if(head[i].get_magic() == StartupConnection.BNR_MAGIC)
-                    {                		
-                		if(head[i].get_type() == 2)
-                    	{
-                         	 break infinite;
-                    	}
-                		else if(head[i].get_type() == 1)
-                		{                                			
-                			msgbuf = new byte[head[i].get_len()];
-                			int  offset   = 0;
-                			int  ret;
-                			ret    = hosts[i].readmsg(msgbuf,head[i].get_len(), offset);
-                			offset += ret;
-                		}
-                     	raiseEvent(msgbuf, head[i]);
-                     }                	
-                }           
-                msgbuf = null;               
-            }
+            	Header head;                
+            	head = host.readHeader(); 
+            	
+            	if(head.get_magic() == StartupConnection.BNR_MAGIC)
+                {                		
+            		if(message_types.values()[head.get_type()] == message_types.EndOfComm)
+                	{
+            			System.out.println("end of comm message received");
+                     	break infinite;
+                	}
+            		else if(message_types.values()[head.get_type()] == message_types.Message || message_types.values()[head.get_type()] == message_types.FunctionChange)
+            		{             
+            			if(message_types.values()[head.get_type()] == message_types.FunctionChange)
+            				System.out.println("message length is "+head.get_len());
+            			
+            			msgbuf = new byte[head.get_len()];
+            			int  offset   = 0;
+            			int  ret;
+            			
+            			ret    = host.readmsg(msgbuf,head.get_len(), offset);
+            			           		
+            			offset += ret;
+            			
+            		}
+                 	raiseEvent(msgbuf, head);
+                 }                	
+            }           
             
             msgbuf = new byte[32];
 
-            for (i = 0; i < numclients; i++) 
-            {
-                hosts[i].sendmsg(msgbuf, 32);
-            }
+            host.sendmsg(msgbuf, 32);
 
             ssocket.close();
-        } catch (IOException e) {
+        } 
+        catch (IOException e) 
+        {
             System.err.println(e);
             System.exit(-1);
         }
-    }
-    
+    }    
 
     private void raiseEvent(byte[] msgbuf, Header head) 
     {
@@ -202,10 +202,7 @@ public class StartupServer
 	
 	public void disconnect()
 	{
-		for (int i = 0; i < numclients; i++) 
-		{
-            hosts[i].disconnect();
-        }
+		host.disconnect();        
 	}
 
 }

@@ -92,8 +92,7 @@ public class StartupConnection {
     
     public void disconnect()
     {
-    	try 
-    	{
+    	try {
 			bos.flush();
 			bos.close();
 			bis.close();
@@ -101,10 +100,14 @@ public class StartupConnection {
 			dos.close();
 			dis.close();
 			fd.close();
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
     }
+
+	public void readFunctionChange(byte[] msgbuf, int get_len) {
+		// TODO Auto-generated method stub
+		
+	}
 }
 

@@ -8,14 +8,13 @@ import communicationmanager.Header;
 @SuppressWarnings("serial")
 public class RecvEvent extends EventObject {
     private byte[] _data;
-    Header _head;
-    
+    Header _head;    
     
     public RecvEvent( Object source, byte[] data, Header head) 
     {
         super( source );
+        _head = head;
         _data = data;
-        _head = head;        
     }
     
     public Header get_header() {
