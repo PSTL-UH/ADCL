@@ -132,7 +132,6 @@ nextemethod:
        ADCL_vector_add_reference(v);
     }
     e->em_orgfnctset  = f;
-
     /*
     ** Set the algorithm for the selection logic. Set it to the default value,
     ** if we have an attribute set. However, if no attributes are assigned to
@@ -156,6 +155,7 @@ nextemethod:
     ADCL_fnctset_dup ( f, &(e->em_fnctset));
     ADCL_statistics_create ( &(e->em_stats), f->fs_maxnum ); 
 
+    DISPLAY((ADCL_DISPLAY_CHANGE_FUNCTION,e->em_id,e->em_fnctset.fs_fptrs[0]->f_id,e->em_fnctset.fs_fptrs[0]->f_name));
     /* initiate the performance hypothesis structure */
 
     if ( e->em_perfhypothesis ) {
@@ -556,9 +556,14 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
             e->em_stats[next]->s_count++;
         }
     }
-    /*    DISPLAY((ADCL_DISPLAY_MESSAGE, e->em_id, "Function set:%d %s, next function to be tested: %d %s\n", e->em_orgfnctset->fs_id, 
-                 e->em_orgfnctset->fs_name, e->em_orgfnctset->fs_fptrs[next]->f_id, e->em_orgfnctset->fs_fptrs[next]->f_name));
-    */*flag = ADCL_FLAG_PERF;
+    if(!(next == ADCL_EVAL_DONE || next == ADCL_SOL_FOUND || next == ADCL_ERROR_INTERNAL) )
+    {
+	DISPLAY((ADCL_DISPLAY_CHANGE_FUNCTION,e->em_id,e->em_fnctset.fs_fptrs[next]->f_id,e->em_fnctset.fs_fptrs[next]->f_name));
+     	DISPLAY((ADCL_DISPLAY_MESSAGE, e->em_id, "Function set:%d %s, next function to be tested: %d %s\n", e->em_fnctset.fs_id, 
+                 e->em_fnctset.fs_name, e->em_fnctset.fs_fptrs[next]->f_id, e->em_fnctset.fs_fptrs[next]->f_name));
+    }
+    
+    *flag = ADCL_FLAG_PERF;
     return next;
 }
 

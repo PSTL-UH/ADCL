@@ -3,6 +3,7 @@
 #define TCP_BUFFER_SIZE  262142
 #define MAXLEN 20
 #define MAXMSGBUFSIZE 1024
+#define MAXFUNCNAME 28
 
 char ADCL_display_ip[MAXLEN] = "172.25.66.95";
 int ADCL_display_port = 20000;
@@ -18,12 +19,18 @@ int selfrank =0;
 
 typedef struct
 {
-int magic;//magic number to verify the accuracy of the transmission.
-int type;//type of message. either coordinates or message to be displayed.
-int len;//length of the message.
-int id;//id is to specify which tab to update.
-double yvalue;
+	int magic;//magic number to verify the accuracy of the transmission.
+	int type;//type of message. either coordinates or message to be displayed.
+	int len;//length of the message.
+	int id;//id is to specify which tab to update.
+	double yvalue;
 }header;
+
+typedef struct
+{
+	int funcid;
+	char funcname[MAXFUNCNAME];
+}function_change;
 
 static void configure_socket ( int sd );
 static void write_string ( int hdl, char *buf, int num );
@@ -31,6 +38,7 @@ static void read_string ( int hdl, char *buf, int num );
 static void write_int ( int hdl, int val );
 static void read_int ( int hdl, int *val );
 static void write_header(int hdl, header head);
+static void write_function_change(int hdl, function_change func_change);
 static void endian_init (void );
 
 int ADCL_display_init()
@@ -38,43 +46,43 @@ int ADCL_display_init()
 	char* ip = ADCL_display_ip;
 	int portnum = ADCL_display_port;
 	int rank = ADCL_display_rank;
-    	int port, msglen;
+    	int port;
     	struct sockaddr_in client;
     	struct hostent *host;
 	 MPI_Comm_rank ( MPI_COMM_WORLD, &selfrank );
 	if(ADCL_display_flag && rank == selfrank)
 	{
-	 hostname = strdup ( ip );
-   	 port     = portnum;
+		hostname = strdup ( ip );
+   	 	port     = portnum;
 
     	/* convert the hostname to an IP address */
-   	if ( ( host = gethostbyname ( hostname ) ) == NULL ) {
-        	printf("CLIENT: could not resolve hostname %s \n", hostname );
-        	return -1;
-    	}
+   		if ( ( host = gethostbyname ( hostname ) ) == NULL ) {
+        		printf("CLIENT: could not resolve hostname %s \n", hostname );
+        		return -1;
+    		}
 
 
-    	if ( (sock = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
-        	printf("CLIENT: could not get a socket\n" );
-    	}
-    	else {
-        	printf("CLIENT: got a a socket\n");
-    	}
+    		if ( (sock = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
+        		printf("CLIENT: could not get a socket\n" );
+    		}
+    		else {
+        		printf("CLIENT: got a a socket\n");
+    		}
 
-	client.sin_family      = AF_INET;
-    	client.sin_port        = htons(port);
-   	memcpy ( &client.sin_addr, host->h_addr, host->h_length );
-    	configure_socket(sock);
-    	if ( connect (sock, (struct sockaddr *)&client, sizeof(client)) < 0) {
-       	 	printf("CLIENT: connect call failed to %s on port %d \n", hostname, port);
-    	}
-    	else {
-        	printf("CLIENT: connection established to %s on port %d\n", hostname, port);
-    	}
+		client.sin_family      = AF_INET;
+    		client.sin_port        = htons(port);
+   		memcpy ( &client.sin_addr, host->h_addr, host->h_length );
+    		configure_socket(sock);
+    		if ( connect (sock, (struct sockaddr *)&client, sizeof(client)) < 0) {
+       	 		printf("CLIENT: connect call failed to %s on port %d \n", hostname, port);
+    		}
+    		else {
+        		printf("CLIENT: connection established to %s on port %d\n", hostname, port);
+    		}
 		
     		write_int ( sock, sizeof(header) );
 	}
-    	return 0;
+    	return ADCL_SUCCESS;
 }
 
 int ADCL_display(int type,...)
@@ -83,25 +91,34 @@ int ADCL_display(int type,...)
 	{
 		header head = {MAGIC, 0, 0, 0,0.0};
 
-	head.type = type;
-	va_list ap;
-	va_start(ap,type);
-	if(ADCL_DISPLAY_POINTS == type)
-	{
+		head.type = type;
+		va_list ap;
+		va_start(ap,type);
 		head.id = va_arg(ap,int);
-		head.yvalue = va_arg(ap,double);
-		write_header(sock,head);
-	}
-	else if(ADCL_DISPLAY_MESSAGE == type)
-	{
-		char msg[MAXMSGBUFSIZE];
-		head.id = va_arg(ap, int);
-		vsprintf(msg,va_arg(ap, char*),ap);
-		head.len = strlen(msg);
-		write_header(sock,head);
-		write_string(sock,msg,head.len);
-	}
-	va_end(ap);
+		if(ADCL_DISPLAY_POINTS == type)
+		{
+			head.yvalue = va_arg(ap,double);
+			write_header(sock,head);
+		}
+		else if(ADCL_DISPLAY_MESSAGE == type)
+		{
+			char msg[MAXMSGBUFSIZE];
+			vsprintf(msg,va_arg(ap, char*),ap);
+			head.len = strlen(msg);
+			write_header(sock,head);
+			write_string(sock,msg,head.len);
+		}
+		else if(ADCL_DISPLAY_CHANGE_FUNCTION == type)
+		{
+			function_change func_change;
+			func_change.funcid = va_arg(ap,int);
+			vsprintf(func_change.funcname,va_arg(ap,char*),ap); 
+			head.len = sizeof(func_change);
+			write_header(sock,head);
+			write_function_change(sock,func_change);
+		}
+
+		va_end(ap);
 	}
 	return ADCL_SUCCESS;
 }
@@ -124,6 +141,7 @@ int ADCL_display_finalize()
     		free ( hostname );
     		free ( msgbuf );
 	}
+	return ADCL_SUCCESS;
 }
 
 void configure_socket ( int sd )
@@ -316,6 +334,12 @@ void write_header ( int hdl, header head )
 {
    char *msg = (char*)&head;
    write_string(hdl,msg,sizeof(head));
+}
+
+void write_function_change(int hdl,function_change func_change)
+{
+	char *msg = (char*)&func_change;
+	write_string(hdl,msg,sizeof(func_change));
 }
 
 static void endian_init ()

@@ -25,16 +25,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
                                   ADCL_fnctset_t *fnctset,
                                   ADCL_request_t **req, int order )
 {
-	/*DISPLAY((ADCL_DISPLAY_POINTS,10,0.2));
-	DISPLAY((ADCL_DISPLAY_POINTS,10,0.9));
-	
-	DISPLAY((ADCL_DISPLAY_POINTS,15,20.0));
-	DISPLAY((ADCL_DISPLAY_POINTS,15,20.0));
-int j = 1;
-double val = 3.89;
-	DISPLAY((ADCL_DISPLAY_MESSAGE,1,"hey sarat %d and the gpa is %lf",j,val));*/
-    
-	int i, ret = ADCL_SUCCESS, dims;
+    int i, ret = ADCL_SUCCESS, dims;
     ADCL_request_t *newreq;
     /* ADCL criteria structure for neighborhood com fnctset */
     ADCL_neighborhood_criteria_t *ADCL_neighborhood_criteria = NULL;
@@ -600,10 +591,14 @@ int ADCL_request_update ( ADCL_request_t *req,
         ADCL_printf("%d: request %d method %d (%s) %8.4f \n",
             req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
             req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
+	DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"%d: request %d method %d (%s) %8.4f \n",req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
+		req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
     }
     else {
         ADCL_printf("request %d method %d (%s) %8.4f \n", req->r_id, 
             req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
+	DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"request %d method %d (%s) %8.4f \n", req->r_id,
+            req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
     }
     switch ( req->r_emethod->em_state ) {
     case ADCL_STATE_TESTING:
