@@ -39,6 +39,10 @@
 #include "ADCL_list.h"
 #include "ADCL_hist.h"
 
+#define ADCL_DISPLAY 
+
+#include "ADCL_display.h"
+
 #ifdef ADCL_PAPI
 #include "ADCL_papi.h"
 #endif
@@ -73,6 +77,7 @@
 
 #define ADCL_UNFILTERED                0
 #define ADCL_FILTERED                  1
+
 
 /* Some prototypes of functions which do not deserve their own header file */
 int ADCL_printf_init     ( void );
