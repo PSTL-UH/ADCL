@@ -18,6 +18,9 @@ genscript: genscript.c
 gentex: gentex.c
 	$(CC) $(CFLAGS) -o gentex gentex.c 
 
+parsefile: minmax_generic_parse_file.c
+	$(CC) $(CFLAGS) -o parsefile minmax_generic_parse_file.c 
+
 minmax: minmax.c robust.c cluster.c cluster_data.c cluster_cluster.c data.h cluster.h #nr.h nrutil.h
 	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c robust.c # brent.c f1dim.c lnsrch.c dfpmin.c \
              # linmin.c  mnbrak.c  nrutil.c  powell.c #amoeba.c amotry.c 

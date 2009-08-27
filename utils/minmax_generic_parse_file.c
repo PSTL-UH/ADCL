@@ -270,7 +270,7 @@ int main (int argc, char **argv )
              if ( object->ignore ) continue; 
  
              obj_pos = object->obj_pos;
-             method_id = perfline->method_id;
+             method_id = perfline->method_id-object->idx_range[0];
 
              pos = emethods[obj_pos][iproc][method_id].em_rescount;
              count = emethods[obj_pos][iproc][method_id].em_count;
@@ -287,23 +287,25 @@ int main (int argc, char **argv )
        printf(" OK\n");
     }
 
-    //for ( obj_id=0; obj_id<commentline->nobjects; obj_id++) {
-    //    object = &commentline->objects[obj_id];
-    //    if ( ! object->ignore ) { 
-    //        for ( iproc=0; iproc<commentline->nprocs; iproc++){
-    //            for ( method_id=0; method_id<object->nimpl; method_id++) {
-    //                for ( i=0; i<emethods[obj_id][iproc][method_id].em_rescount; i++) {
-    //                    printf("obj. %d, proc %d, method %d, pos %d: time %lf\n", obj_id, iproc, method_id, 
-    //                            i, emethods[obj_id][iproc][method_id].em_time[i]); 
+#ifdef DEBUG
+    for ( obj_id=0; obj_id<commentline->nobjects; obj_id++) {
+        object = &commentline->objects[obj_id];
+        if ( ! object->ignore ) { 
+            for ( iproc=0; iproc<commentline->nprocs; iproc++){
+                for ( method_id=0; method_id<object->nimpl; method_id++) {
+                    for ( i=0; i<emethods[obj_id][iproc][method_id].em_rescount; i++) {
+                        printf("obj. %d, proc %d, method %d, pos %d: time %lf\n", obj_id, iproc, method_id, 
+                                i, emethods[obj_id][iproc][method_id].em_time[i]); 
 
-    //                }
-    //                printf("obj. %d, proc %d, method %d, rescount %d, avg %lf\n", obj_id, iproc, method_id, 
-    //                        emethods[obj_id][iproc][method_id].em_rescount, 
-    //                        emethods[obj_id][iproc][method_id].em_avg ) ;
-    //            }
-    //        }
-    //    }
-    //}
+                    }
+                    printf("obj. %d, proc %d, method %d, rescount %d, avg %lf\n", obj_id, iproc, method_id, 
+                            emethods[obj_id][iproc][method_id].em_rescount, 
+                            emethods[obj_id][iproc][method_id].em_avg ) ;
+                }
+            }
+        }
+    }
+#endif
 
     for ( obj_id=0; obj_id<commentline->nobjects; obj_id++) {
         object = &commentline->objects[obj_id]; 
@@ -414,6 +416,10 @@ void minmax_read_perfline( char* line, PERFLINE* perfline, COMMLINE* commentline
 
    basestr = strstr ( line, ")" ); 
    sscanf ( basestr, "%1s %lf", str, &perfline->time );
+   if ( 0 >= perfline->time ) {
+      printf( "Invalid time: extracted '%lf' from %s. Exiting.\n", perfline->time, line );
+      exit(-1);
+   }
 
    //printf("%d: %10s %d request %d method %d (%s) time %lf, cpat=%d, ignore=%d\n", 
    //   perfline->proc, perfline->objstr, perfline->obj_id, perfline->req_id, perfline->method_id, 
@@ -426,10 +432,12 @@ void minmax_read_perfline( char* line, PERFLINE* perfline, COMMLINE* commentline
    if ( perfline->method_id > object->idx_range[1]) 
       object->idx_range[1] = perfline->method_id;
 
-   if ( object->winnerfound ) 
+   if ( object->winnerfound ) {
       object->meas[1]++;
-   else
+   }
+   else {
       object->meas[0]++; 
+   }
 }
 
 /********************************************************************************************************************************/
@@ -507,8 +515,9 @@ int minmax_read_commentline ( char* line, COMMLINE* commentline) {
    else if ( NULL != strstr ( line, "winner is") ) { 
        basestr = strstr ( line, ":" );
        sscanf ( basestr, "%1s %s %d", colon, objstr, &obj_id );
-       if ( strcmp ( objstr, "req\n" ) != 0 ) { /* some one uses the old format */
-          strcpy ( objstr, "emethod" ); 
+       if ( NULL != strstr ( objstr, "req " ) ) { /* some one uses the old format */
+          printf("Old file format. Exiting\n"); 
+          exit(-1); 
        }
        minmax_get_object ( objstr, &obj_id, 1, commentline, &object ); 
        object->winnerfound = 1; 
