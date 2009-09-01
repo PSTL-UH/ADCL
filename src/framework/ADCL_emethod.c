@@ -476,7 +476,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
     MPI_Comm comm; 
 
     if ( ADCL_TOPOLOGY_NULL == e->em_topo ) {
-        comm = 1; 
+        comm = MPI_COMM_NULL; 
         rank = 0; 
     }
     else {

@@ -20,6 +20,8 @@ int ADCL_OUTLIER_FRACTION=20;
 /* what measure shall be used ? */
 int ADCL_statistic_method=ADCL_STATISTIC_MAX;
 
+extern int ADCL_emethod_numtests;
+
 struct lininf {
     double min;
     double max;
@@ -58,7 +60,7 @@ struct lininf {
         }
 
         /* Allocate the measurements arrays */
-        tstats[i]->s_time = (TIME_TYPE *)calloc (1, sizeof(TIME_TYPE)* ADCL_EMETHOD_NUMTESTS);
+        tstats[i]->s_time = (TIME_TYPE *)calloc (1, sizeof(TIME_TYPE)* ADCL_emethod_numtests);
         if ( NULL == tstats[i]->s_time ) {
             ret = ADCL_NO_MEMORY;
             goto exit;
