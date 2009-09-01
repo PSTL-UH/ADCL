@@ -103,7 +103,7 @@ int ADCL_hypothesis_eval_one_attr    ( ADCL_emethod_t *e, int num_attrs,
 int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e );
 int ADCL_hypothesis_get_next ( ADCL_emethod_t *e );
 
-int ADCL_fortran_string_f2c(char *fstr, int len, char **cstr);
+int ADCL_fortran_string_f2c(char *fstr, int *len, char **cstr);
 int ADCL_fortran_string_c2f(char *cstr, char *fstr, int len);
 
 
