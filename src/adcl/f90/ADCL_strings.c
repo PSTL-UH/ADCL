@@ -39,10 +39,11 @@
 /*
  * creates a C string from an F77 string
  */
-int ADCL_fortran_string_f2c(char *fstr, int len, char **cstr)
+int ADCL_fortran_string_f2c(char *fstr, int *flen, char **cstr)
 {
     char *end;
     int i;
+    int len = *flen;
 
     /* Leading and trailing blanks are discarded. */
 
@@ -75,6 +76,7 @@ int ADCL_fortran_string_f2c(char *fstr, int len, char **cstr)
     }
     (*cstr)[len] = '\0';
 
+    *flen = len;
     return ADCL_SUCCESS;
 }
 

@@ -59,7 +59,7 @@ void adcl_function_create ( void *iptr, int *attrset, int *array_of_attrvals, ch
         return;
     }
 
-    ret = ADCL_fortran_string_f2c (name, *name_len, &cname );
+    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
     if ( ADCL_SUCCESS != ret ) {
         *ierr = ADCL_ERROR_INTERNAL;
         return;
@@ -108,7 +108,7 @@ void adcl_function_create_async ( void *iptr, void *wptr, int *attrset, int *arr
         return;
     }
 
-    ret = ADCL_fortran_string_f2c (name, *name_len, &cname );
+    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
     if ( ADCL_SUCCESS != ret ) {
         *ierr = ADCL_ERROR_INTERNAL;
         return;
@@ -195,7 +195,7 @@ void adcl_fnctset_create ( int* maxnum, int *array_of_fncts, char *name,
         }
     }
 
-    ret = ADCL_fortran_string_f2c (name, *name_len, &cname );
+    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
     if ( ADCL_SUCCESS != ret ) {
         *ierr = ADCL_ERROR_INTERNAL;
         return;
@@ -232,7 +232,7 @@ void adcl_fnctset_create_single ( void *init_fnct, void *wait_fnct,
         *ierr = ADCL_INVALID_ARG;
         return;
     }
-    ret = ADCL_fortran_string_f2c (name, *name_len, &cname );
+    ret = ADCL_fortran_string_f2c (name, name_len, &cname );
     if ( ADCL_SUCCESS != ret ) {
         *ierr = ADCL_ERROR_INTERNAL;
         return;
