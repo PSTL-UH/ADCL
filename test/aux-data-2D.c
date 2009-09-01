@@ -15,6 +15,7 @@
 
 
 void dump_vector_2D ( double **data, int rank, int *dim);
+void dump_vector_2D_mpi ( double **data, int *dim, MPI_Comm comm );
 void set_data_2D    ( double **data, int rank, int *dim, int hwidth );
 void check_data_2D  ( double **data, int rank, int *dim, 
 			    int hwidth, int *neighbors ); 
@@ -151,6 +152,35 @@ void dump_vector_2D ( double **data, int rank, int *dim)
 
     return;
 }
+
+/**********************************************************************/
+void dump_vector_2D_mpi ( double **data, int *dim, MPI_Comm comm )
+/**********************************************************************/
+{
+    int i, j, iproc;
+    int rank, size;
+
+    MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
+    MPI_Comm_size ( MPI_COMM_WORLD, &size );
+
+    for ( iproc=0; iproc<size; iproc++ ) {
+        if ( iproc == rank ) {
+            for (i=0; i<dim[0]; i++) {
+                printf("%d : ", rank);
+                for ( j=0; j<dim[1]; j++ ) {
+                    printf("%lf ", data[i][j]);
+                }
+                printf ("\n");
+            }
+        }
+        MPI_Barrier ( comm );
+    }
+
+    return;
+}
+
+
+/********************************************************************************************************************************/
 
 
 /**********************************************************************/

@@ -15,7 +15,8 @@ CEXECS = first second third fourth \
 	 test-fnctset-allgatherv-1d  test-fnctset-alltoallv-1d \
 	 test-fnctset-alltoall-1d test-fnctset-allreduce \
 	 attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
-	 data_1 PbSizes_1D PbSizes_2D PbSizes_3D
+	 data_1 PbSizes_1D PbSizes_2D PbSizes_3D \
+         test-fnctset-extneigh-2d 
 
 FEXECS = first_f second_f \
 	 one-dim-f two-dim-f three-dim-f three-dim-large \
@@ -166,6 +167,13 @@ $(ADCL_BIN_DIR)/PbSizes_1D: PbSizes_1D.o
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 ###################################################################################################
+
+test-fnctset-extneigh-2d: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d 
+	
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d: test-fnctset-extneigh-2d.o aux-data-2D.o aux-data-3D.o
+	$(CC) -DVERBOSE $^ $(LDFLAGS) -o $@
+
+###################################################################################################
 ### FORTRAN TESTS                                                                               ###
 ###################################################################################################
 
@@ -244,7 +252,7 @@ aux-data-2D-int-f.o: aux-data-2D-f.f90
 	$(CC) -c $(CFLAGS) $<
 
 %.o: %.f90 $(ADCL_LIB_)
-	$(FC) -c $(FFLAGS) -I../include $<
+	$(FC) $(FFLAGS) -I../include -c $<
 
 ###################################################################################################
 
