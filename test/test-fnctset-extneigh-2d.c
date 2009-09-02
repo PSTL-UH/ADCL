@@ -26,6 +26,9 @@ static void check_data_2D ( double **data, int rank, int *dim,
 static void check_data_3D ( double ***data, int rank, int *dim, 
 			    int hwidth, int nc, int *neighbors, MPI_Comm cart_comm ); 
 
+static int calc_entry ( int i, int j, int k, int cond, int *dim, int *dims, int *n_coords, int hwidth );
+static void check_entry ( double ***data, int i, int j, int k, double should_be, char* error, int* lres ); 
+
 
 int main ( int argc, char ** argv ) 
 {
@@ -197,98 +200,57 @@ static void check_data_3D ( double ***data, int rank, int *dim,
     int coords[2], n_coords[2], c_coords[2];
     int dims[2]; //size of each dimension
     int period[2];
-    int compensate, compensate_i, compensate_j; //compensate_i, compensate_j are used for the corners
 			
     MPI_Cart_get(cart_comm, 2, dims, period, coords); 
 
     //Up HALO Cell
+    if(neighbors[0] != MPI_PROC_NULL){
+        MPI_Cart_coords (cart_comm, neighbors[0], 2, n_coords);
+    }
     for ( j = hwidth; j < dim[1] - hwidth; j++ ) {
         for ( i= dim[0] - hwidth*2; i < dim[0]-hwidth ; i++ ) {
-            for ( k=0; k<nc; k++ ) { 
-                if(neighbors[0] != MPI_PROC_NULL){
-                    MPI_Cart_coords (cart_comm, neighbors[0], 2, n_coords);
-                    //printf("coords = %d %d, n_coords = %d, %d \n", coords[0], coords[1], n_coords[0], n_coords[1]);        
-                    should_be = (n_coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) + 
-                                (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * n_coords[1] + (j-hwidth));
-                }
-                else{
-                    should_be = -1;
-                }
-                compensate = i - (dim[0] - hwidth*2) ;
-                //printf("dim[0]= %d compensate = %d \n", dim[0], compensate);
-                if ( data[compensate][j][k] != should_be ){
-		    lres = 0;
-		    printf("out1 shouldbe = %f data= %f nc= %d \n", should_be, data[compensate][j][k], k);
-	        }
+            for ( k=0; k<nc; k++ ) {
+                should_be = calc_entry (i, j, k, neighbors[0] != MPI_PROC_NULL, dim, dims, n_coords, hwidth ); 
+                check_entry ( data, i-(dim[0]-hwidth*2), j, k, should_be, "out1", &lres );
             }
         }
     }
 
     //Down HALO Cell 
+    if(neighbors[1] != MPI_PROC_NULL){
+        MPI_Cart_coords (cart_comm, neighbors[1], 2, n_coords);
+    }
     for ( j = hwidth; j < dim[1] - hwidth; j++ ) {
         for ( i= hwidth; i < hwidth * 2 ; i++ ) {
             for ( k=0; k<nc; k++ ) { 
-                if(neighbors[1] != MPI_PROC_NULL){
-                    MPI_Cart_coords (cart_comm, neighbors[1], 2, n_coords);
-                    //printf("coords = %d %d, n_coords = %d, %d \n", coords[0], coords[1], n_coords[0], n_coords[1]);        
-                    should_be = (n_coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) +
-                                (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * n_coords[1] + (j-hwidth));
-                }
-                else{
-                    should_be = -1;
-                }
-                compensate = i + (dim[0] - hwidth * 2) ;
-                //printf("dim[0]= %d compensate = %d \n", dim[0], compensate);
-                if ( data[compensate][j][k] != should_be ){
-		    lres = 0;
-		    printf("out1 shouldbe = %f data= %f nc= %d \n", should_be, data[compensate][j][k], k);
-	        }
+                should_be = calc_entry (i, j, k, neighbors[1] != MPI_PROC_NULL, dim, dims, n_coords, hwidth ); 
+                check_entry ( data, i+(dim[0]-hwidth*2), j, k, should_be, "out1", &lres );
             }
         }
     }
 
-  //Left HALO Cell  
+    //Left HALO Cell  
+    if(neighbors[2]!=MPI_PROC_NULL){
+        MPI_Cart_coords (cart_comm, neighbors[2], 2, n_coords);
+    }
     for ( i = hwidth; i < dim[0] - hwidth; i++ ) {
         for ( j= dim[1] - hwidth*2; j < dim[1]-hwidth ; j++ ) {
             for ( k=0; k<nc; k++ ) { 
-                if(neighbors[2]!=MPI_PROC_NULL){
-                    MPI_Cart_coords (cart_comm, neighbors[2], 2, n_coords);
-                    //printf("coords = %d %d, n_coords = %d, %d \n", coords[0], coords[1], n_coords[0], n_coords[1]);        
-                    should_be = (n_coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) + 
-                                (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * n_coords[1] + (j-hwidth));
-                }
-                else{
-                    should_be = -1;
-                }
-                compensate = j - (dim[1] - hwidth*2) ;
-                //printf("dim[1]= %d compensate = %d \n", dim[1], compensate);
-                if ( data[i][compensate][k] != should_be ){
-		    lres = 0;
-		    printf("out2 shouldbe = %f data= %f nc= %d \n", should_be, data[i][compensate][k], k);
-	        }
+                should_be = calc_entry (i, j, k, neighbors[2] != MPI_PROC_NULL, dim, dims, n_coords, hwidth ); 
+                check_entry ( data, i, j-(dim[1]-hwidth*2), k, should_be, "out2", &lres );
             }
         }
     }
 
     //Right HALO Cell
+                if(neighbors[3]!=MPI_PROC_NULL){
+                    MPI_Cart_coords (cart_comm, neighbors[3], 2, n_coords);
+    }
     for ( i = hwidth; i < dim[0] - hwidth; i++ ) {
         for ( j= hwidth; j < hwidth * 2 ; j++ ) {
             for ( k=0; k<nc; k++ ) { 
-                if(neighbors[3]!=MPI_PROC_NULL){
-                    MPI_Cart_coords (cart_comm, neighbors[3], 2, n_coords);
-                    //printf("coords = %d %d, n_coords = %d, %d \n", coords[0], coords[1], n_coords[0], n_coords[1]);        
-                    should_be = (n_coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) + 
-                                (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * n_coords[1] + (j-hwidth));
-                }
-                else{
-                    should_be = -1;
-                }
-                compensate = j+ (dim[1] - hwidth * 2) ;
-                //printf("dim[1]= %d compensate = %d \n", dim[1], compensate);
-                if ( data[i][compensate][k] != should_be ){
-		    lres = 0;
-		    printf("out3 shouldbe = %f data= %f nc= %d \n", should_be, data[i][compensate][k], k);
-	        }
+                should_be = calc_entry (i, j, k, neighbors[3] != MPI_PROC_NULL, dim, dims, n_coords, hwidth ); 
+                check_entry ( data, i, j+(dim[1]-hwidth*2), k, should_be, "out2", &lres );
             }
         }
     }
@@ -297,121 +259,76 @@ static void check_data_3D ( double ***data, int rank, int *dim,
     for ( i=hwidth; i<dim[0]-hwidth; i++) {
 	for (j=hwidth; j<dim[1]-hwidth; j++ ){
             for ( k=0; k<nc; k++ ) { 
-                should_be = (coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) + 
-                            (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * coords[1] + (j-hwidth));
-	        if ( data[i][j][k] != should_be ) {
-		    lres = 0;
-                    printf("inside should_be = %f data = %f nc = %d \n", should_be, data[i][j][k], k);
-	        }
+                should_be = calc_entry (i, j, k, 1, dim, dims, coords, hwidth ); 
+                check_entry ( data, i, j, k, should_be, "inside", &lres );
             }
 	}
     }
 
     //Up-Left Corner
+    if((neighbors[0]!=MPI_PROC_NULL) && (neighbors[2]!=MPI_PROC_NULL)){
+        MPI_Cart_coords (cart_comm, neighbors[0], 2, n_coords);
+        c_coords[0] = n_coords[0];
+        MPI_Cart_coords (cart_comm, neighbors[2], 2, n_coords);
+        c_coords[1] = n_coords[1];
+    }
     for ( i= dim[0] - hwidth*2; i < dim[0]-hwidth ; i++ ) {
         for ( j= dim[1] - hwidth*2; j < dim[1]-hwidth ; j++ ) {
             for ( k=0; k<nc; k++ ) { 
-                if((neighbors[0]!=MPI_PROC_NULL) && (neighbors[2]!=MPI_PROC_NULL)){
-                    MPI_Cart_coords (cart_comm, neighbors[0], 2, n_coords);
-                    c_coords[0] = n_coords[0];
-                    MPI_Cart_coords (cart_comm, neighbors[2], 2, n_coords);
-                    c_coords[1] = n_coords[1];
-                    //printf("coords = %d %d, c_coords = %d, %d \n", coords[0], coords[1], c_coords[0], c_coords[1]);        
-                    should_be = (c_coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) +
-                                (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * c_coords[1] + (j-hwidth));
-                }
-                else{
-                    should_be = -1;
-                }
-                compensate_i = i - (dim[0] - hwidth*2) ;
-                compensate_j = j - (dim[1] - hwidth*2) ;
-
-
-                if ( data[compensate_i][compensate_j][k] != should_be ){
-		    lres = 0;
-		    printf("corner0 shouldbe = %f data= %f nc = %d \n", should_be, data[compensate_i][compensate_j][k], k);
-	        }
+                should_be = calc_entry (i, j, k, (neighbors[0]!=MPI_PROC_NULL) && (neighbors[2]!=MPI_PROC_NULL), 
+                        dim, dims, c_coords, hwidth ); 
+                check_entry ( data, i-(dim[0]-hwidth*2), j-(dim[1]-hwidth*2), k, should_be, "corner1", &lres );
             }
         }
     }
 
     //Up-right Corner
+    if ((neighbors[0]!=MPI_PROC_NULL) && (neighbors[3]!=MPI_PROC_NULL)){
+        MPI_Cart_coords (cart_comm, neighbors[0], 2, n_coords);
+        c_coords[0] = n_coords[0];
+        MPI_Cart_coords (cart_comm, neighbors[3], 2, n_coords);
+        c_coords[1] = n_coords[1];
+    }
     for ( i= dim[0] - hwidth*2; i < dim[0]-hwidth ; i++ ) {
         for ( j= hwidth ; j < hwidth * 2 ; j++ ) {
             for ( k=0; k<nc; k++ ) { 
-                if((neighbors[0]!=MPI_PROC_NULL) && (neighbors[3]!=MPI_PROC_NULL)){
-                    MPI_Cart_coords (cart_comm, neighbors[0], 2, n_coords);
-                    c_coords[0] = n_coords[0];
-                    MPI_Cart_coords (cart_comm, neighbors[3], 2, n_coords);
-                    c_coords[1] = n_coords[1];
-                    //printf("coords = %d %d, c_coords = %d, %d \n", coords[0], coords[1], c_coords[0], c_coords[1]);        
-                    should_be = (c_coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) + 
-                                (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * c_coords[1] + (j-hwidth));
-                }
-                else{
-                    should_be = -1;
-                }
-                compensate_i = i - (dim[0] - hwidth * 2) ;
-                compensate_j = j + (dim[1] - hwidth * 2) ;
-
-                if ( data[compensate_i][compensate_j][k] != should_be ){
-		    lres = 0;
-		    printf("corner2 shouldbe = %f data= %f nc = %d \n", should_be, data[compensate_i][compensate_j][k], k);
-	        }
+                should_be = calc_entry (i, j, k, (neighbors[0]!=MPI_PROC_NULL) && (neighbors[3]!=MPI_PROC_NULL), 
+                        dim, dims, c_coords, hwidth ); 
+                check_entry ( data, i-(dim[0]-hwidth*2), j+(dim[1]-hwidth*2), k, should_be, "corner2", &lres );
             }
         }
     }
 
     //Down-left Corner
+    if((neighbors[1]!=MPI_PROC_NULL) && (neighbors[2]!=MPI_PROC_NULL)){
+        MPI_Cart_coords (cart_comm, neighbors[1], 2, n_coords);
+        c_coords[0] = n_coords[0];
+        MPI_Cart_coords (cart_comm, neighbors[2], 2, n_coords);
+        c_coords[1] = n_coords[1];
+    }
     for ( i= hwidth; i < hwidth * 2; i++ ) {
         for ( j= dim[1] - hwidth*2; j < dim[1]-hwidth ; j++ ) {
             for ( k=0; k<nc; k++ ) { 
-                if((neighbors[1]!=MPI_PROC_NULL) && (neighbors[2]!=MPI_PROC_NULL)){
-                    MPI_Cart_coords (cart_comm, neighbors[1], 2, n_coords);
-                    c_coords[0] = n_coords[0];
-                    MPI_Cart_coords (cart_comm, neighbors[2], 2, n_coords);
-                    c_coords[1] = n_coords[1];
-                    //printf("coords = %d %d, c_coords = %d, %d \n", coords[0], coords[1], c_coords[0], c_coords[1]);        
-                    should_be = (c_coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) + 
-                                (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * c_coords[1] + (j-hwidth));
-                }
-                else{
-                    should_be = -1;
-                }
-                compensate_i = i + (dim[0] - hwidth * 2) ;
-                compensate_j = j - (dim[1] - hwidth * 2) ;
-
-                if ( data[compensate_i][compensate_j][k] != should_be ){
-		    lres = 0;
-		    printf("corner3 shouldbe = %f data= %f nc = %d \n", should_be, data[compensate_i][compensate_j][k], k);
-	        }
+                should_be = calc_entry (i, j, k, (neighbors[1]!=MPI_PROC_NULL) && (neighbors[2]!=MPI_PROC_NULL), 
+                        dim, dims, c_coords, hwidth ); 
+                check_entry ( data, i+(dim[0]-hwidth*2), j-(dim[1]-hwidth*2), k, should_be, "corner3", &lres );
             }
         }
     }
 
     //Down-right Corner
+    if((neighbors[1]!=MPI_PROC_NULL) && (neighbors[3]!=MPI_PROC_NULL)){
+        MPI_Cart_coords (cart_comm, neighbors[1], 2, n_coords);
+        c_coords[0] = n_coords[0];
+        MPI_Cart_coords (cart_comm, neighbors[3], 2, n_coords);
+        c_coords[1] = n_coords[1];
+    }
     for ( i= hwidth; i < hwidth * 2; i++ ) {
         for ( j= hwidth ; j < hwidth * 2 ; j++ ) {
             for ( k=0; k<nc; k++ ) { 
-                if((neighbors[1]!=MPI_PROC_NULL) && (neighbors[3]!=MPI_PROC_NULL)){
-                    MPI_Cart_coords (cart_comm, neighbors[1], 2, n_coords);
-                    c_coords[0] = n_coords[0];
-                    MPI_Cart_coords (cart_comm, neighbors[3], 2, n_coords);
-                    c_coords[1] = n_coords[1];
-                    //printf("coords = %d %d, c_coords = %d, %d \n", coords[0], coords[1], c_coords[0], c_coords[1]);        
-                    should_be = (c_coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) + 
-                                (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * c_coords[1] + (j-hwidth));
-                }
-                else{
-                    should_be = -1;
-                }
-                compensate_i = i + (dim[0] - hwidth * 2) ;
-                compensate_j = j + (dim[1] - hwidth * 2) ;
-
-                if ( data[compensate_i][compensate_j][k] != should_be ){
-		    lres = 0;
-		    printf("corner4 shouldbe = %f data= %f nc = %d \n", should_be, data[compensate_i][compensate_j][k], k);
-	        }
+                should_be = calc_entry (i, j, k, (neighbors[1]!=MPI_PROC_NULL) && (neighbors[3]!=MPI_PROC_NULL), 
+                        dim, dims, c_coords, hwidth ); 
+                check_entry ( data, i+(dim[0]-hwidth*2), j+(dim[1]-hwidth*2), k, should_be, "corner4", &lres );
             }
         }
     }
@@ -783,5 +700,29 @@ static void set_data_3D ( double ***data, int rank, int *dim, int hwidth, int nc
 
 
     return;
+}
+
+/**************************************************************************************************/
+int calc_entry ( int i, int j, int k, int cond, int *dim, int *dims, int *n_coords, int hwidth ) {
+/**************************************************************************************************/
+    int entry = -1;
+
+    if ( cond ){
+        //printf("coords = %d %d, n_coords = %d, %d \n", coords[0], coords[1], n_coords[0], n_coords[1]);
+        entry = (n_coords[0] * (dim[0]-hwidth*2) + (i-hwidth) ) +
+            (dims[0] * (dim[0]-hwidth*2)) * ((dim[1] - hwidth*2) * n_coords[1] + (j-hwidth));
+    }
+
+    return entry;
+}
+
+/**************************************************************************************************/
+void check_entry ( double ***data, int i, int j, int k, double should_be, char* error, int* lres ) 
+/**************************************************************************************************/
+{ 
+    if ( data[i][j][k] != should_be ){
+        *lres = 0;
+        printf("%s shouldbe = %lf data= %f nc= %d \n", error, should_be, data[i][j][k], k);
+    }
 }
 
