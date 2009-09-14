@@ -28,10 +28,8 @@ OF SUCH DAMAGE.
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
-import java.net.URL;
-import javax.imageio.ImageIO;
 import javax.swing.*;
+import utility.*;
 
 
 /**
@@ -78,6 +76,7 @@ ToolBar(Graph source) {
 				graph.setCursor(InteractiveGraph.BUSSY_CURSOR);
 				new Thread() {
 
+					@Override
 					public void run() {
 						try {
 							graph.setDomain(new GraphDomain(null, null));
@@ -113,6 +112,7 @@ ToolBar(Graph source) {
 				print.setEnabled(false);
 				new Thread() {
 
+					@Override
 					public void run() {
 						try {
 							RenderUtils.print(graph);
@@ -146,6 +146,7 @@ setAlphaComposite(AlphaComposite composite) {
 }
 
 
+@Override
 public void
 paint(Graphics g) {
 	if (transparency != null) {
@@ -159,6 +160,7 @@ paint(Graphics g) {
 /**
  * Doesn't print this component.
  */
+@Override
 public void
 print(Graphics g) {
 }
@@ -202,23 +204,11 @@ setAppropriateIcons() {
 }
 
 
-private Image
-getImage(String location) {
-	try {
-		URL url = getClass().getResource(location);
-		if (url == null)
-			throw new Error(location + " is missing");
-		return ImageIO.read(url);
-	} catch (IOException e) {
-		throw new Error("IOException while retreiving " + location + ":\n\t" + e.getMessage());
-	}
-}
-
-
 private static final Cursor ACTION_CURSOR = new Cursor(Cursor.HAND_CURSOR);
-private final Image ABORT_ZOOM_IMAGE = getImage("/icons/fit-width.gif");
-private final Image EXPORT_IMAGE = getImage("/icons/export.gif");
-private final Image PRINT_IMAGE = getImage("/icons/print.gif");
+private Utility util = Utility.getInstance();
+private final Image ABORT_ZOOM_IMAGE = util.getImage("/icons/fit-width.gif");
+private final Image EXPORT_IMAGE = util.getImage("/icons/export.gif");
+private final Image PRINT_IMAGE = util.getImage("/icons/print.gif");
 
 private final Graph graph;
 private final JLabel interval = new JLabel();

@@ -43,6 +43,13 @@ abstract class FunctionInstance {
  @param argument the arguments in ascending order.
  @param value the corresponding values.
  */
+	
+	static BigDecimal _xMinAdjust = new BigDecimal(0);
+	static BigDecimal _xMaxAdjust = new BigDecimal(0);
+	static BigDecimal _yMinAdjust = new BigDecimal(0);
+	static BigDecimal _yMaxAdjust = new BigDecimal(0);
+	static boolean adjust = false;
+	
 FunctionInstance(String description, BigDecimal[] argument, BigDecimal[] value, ChartStyle style) {
 	DESCRIPTION = description;
 	X_COORDINATE = argument;
@@ -74,12 +81,32 @@ getCoordinateBoundary(BigDecimal[] argument, BigDecimal[] value) {
 			}
 			BigDecimal xMin = argument[0];
 			BigDecimal xMax = argument[argument.length - 1];
-			return new CoordinateBoundary(xMin, xMax, yMin, yMax);
+			if(!adjust)
+				return new CoordinateBoundary(xMin.add(_xMinAdjust), xMax.add(_xMaxAdjust), yMin.add(_yMinAdjust), yMax.add(_yMaxAdjust));
+			else
+			{
+				BigDecimal zero = new BigDecimal(0);
+				return new CoordinateBoundary(_xMinAdjust.equals(zero)?xMin:_xMinAdjust, _xMaxAdjust.equals(zero)?xMax:_xMaxAdjust, _yMinAdjust.equals(zero)?yMin:_yMinAdjust, _yMaxAdjust.equals(zero)?yMax:_yMaxAdjust);
+			}
 		}
 	}
 	return null;
 }
 
+public void setAdjustment(BigDecimal xMinAdjust,BigDecimal xMaxAdjust,BigDecimal yMinAdjust,BigDecimal yMaxAdjust)
+{
+	_xMinAdjust = xMinAdjust;
+	_xMaxAdjust = xMaxAdjust;
+	_yMinAdjust = yMinAdjust;
+	_yMaxAdjust = yMaxAdjust;
+	adjust = true;
+	
+}
+
+public void resetAdjustment()
+{
+	adjust = false;
+}
 
 public final String
 toString() {

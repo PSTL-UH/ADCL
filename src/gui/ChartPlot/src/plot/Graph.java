@@ -27,7 +27,6 @@ OF SUCH DAMAGE.
 */
 
 import java.awt.*;
-import java.awt.geom.*;
 import java.awt.print.*;
 import java.math.*;
 import java.util.*;
@@ -40,6 +39,7 @@ import javax.swing.*;
  @author Pascal S. de Kloe
  @since 1.0
  */
+@SuppressWarnings("serial")
 public class Graph extends JComponent implements Printable {
 
 /**
@@ -327,5 +327,31 @@ private final YAxis yAxis;
 private Insets padding;
 private GraphDomain domain = new GraphDomain(null, null);
 private GraphInstance render = null;
+
+public void setAdjustmentForFunction(Function graphFunc,BigDecimal xMinAdjust,BigDecimal xMaxAdjust,BigDecimal yMinAdjust,BigDecimal yMaxAdjust) 
+{
+	ChartStyle style = functions.get(graphFunc);
+	if(style != null)
+	{
+		FunctionInstance funcInst = style.getType().getFunctionInstance();
+		if(funcInst != null)		
+			funcInst.setAdjustment(xMinAdjust, xMaxAdjust, yMinAdjust, yMaxAdjust);	
+	}		
+	render();
+	repaint();
+}
+
+public void resetAdjustment(Function graphFunc)
+{
+	ChartStyle style = functions.get(graphFunc);
+	if(style != null)
+	{
+		FunctionInstance funcInst = style.getType().getFunctionInstance();
+		if(funcInst != null)		
+			funcInst.resetAdjustment();
+	}		
+	render();
+	repaint();	
+}
 
 }

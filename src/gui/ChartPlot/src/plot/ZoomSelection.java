@@ -80,6 +80,7 @@ getIntervalDescription() {
 		buffer.append(format.format(a));
 	}
 	buffer.append(')');
+	
 	return buffer.toString();
 }
 

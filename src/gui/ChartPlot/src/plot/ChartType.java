@@ -43,9 +43,11 @@ public enum ChartType {
  */
 LINE {
 
-	FunctionInstance
-	getInstance(String description, BigDecimal[] argument, BigDecimal[] value, ChartStyle style) {
-		return new LineChartInstance(description, argument, value, style);
+	public FunctionInstance
+	getInstance(String description, BigDecimal[] argument, BigDecimal[] value, ChartStyle style) 
+	{
+		funcInst = new LineChartInstance(description, argument, value, style);
+		return funcInst;
 	}
 
 },
@@ -57,9 +59,11 @@ LINE {
  */
 STEP {
 
-	FunctionInstance
-	getInstance(String description, BigDecimal[] argument, BigDecimal[] value, ChartStyle style) {
-		return new StepChartInstance(description, argument, value, style);
+	public FunctionInstance
+	getInstance(String description, BigDecimal[] argument, BigDecimal[] value, ChartStyle style)
+	{
+		funcInst = new StepChartInstance(description, argument, value, style);
+		return funcInst;
 	}
 
 };
@@ -71,7 +75,13 @@ STEP {
  @param xCoordinate the arguments in ascending order.
  @param yCoordinate the corresponding values.
  */
-abstract FunctionInstance
+public abstract FunctionInstance
 getInstance(String description, BigDecimal[] xCoordinate, BigDecimal[] yCoordinate, ChartStyle style);
+private static FunctionInstance funcInst;
+
+public FunctionInstance getFunctionInstance()
+{
+	return funcInst;
+}
 
 }

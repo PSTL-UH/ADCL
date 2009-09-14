@@ -35,6 +35,7 @@ import java.math.*;
  @author Pascal S. de Kloe
  @since 1.0
  */
+@SuppressWarnings("serial")
 public class Function implements java.io.Serializable {
 
 /**

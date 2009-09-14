@@ -28,7 +28,7 @@ OF SUCH DAMAGE.
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
+import java.math.BigDecimal;
 
 
 /**
@@ -36,7 +36,8 @@ import javax.swing.*;
  @author Pascal S. de Kloe
  @since 1.6
  */
-public class InteractiveGraph extends Graph implements MouseListener, MouseMotionListener {
+@SuppressWarnings("serial")
+public class InteractiveGraph extends Graph implements MouseListener, MouseMotionListener,ItemListener {
 
 /**
  @since 1.6
@@ -106,44 +107,66 @@ getToolTipText(MouseEvent event) {
 
 public void
 mousePressed(MouseEvent event) {
+	if(!ytoggle)
+	{
 	int modifiers = event.getModifiers();
 	if ((modifiers & InputEvent.BUTTON1_MASK) != 0)
 		zoomSelection = new ZoomSelection(this, event.getPoint());
+	}
 }
 
 
 public void
-mouseDragged(MouseEvent event) {
-	int modifiers = event.getModifiers();
-	if ((modifiers & InputEvent.BUTTON1_MASK) != 0) {
-		if (zoomSelection != null) {
-			zoomSelection.setMousePosition(event.getPoint());
-			toolBar.setZoomPending(zoomSelection.getIntervalDescription());
-			repaint(30L);
+mouseDragged(MouseEvent event) 
+{
+	if(!ytoggle)
+	{
+		int modifiers = event.getModifiers();
+		if ((modifiers & InputEvent.BUTTON1_MASK) != 0) {
+			if (zoomSelection != null) {
+				zoomSelection.setMousePosition(event.getPoint());
+				toolBar.setZoomPending(zoomSelection.getIntervalDescription());
+				repaint(30L);
+			}
 		}
-	}
+	}	
 }
 
 
 public void
 mouseReleased(MouseEvent event) {
-	int modifiers = event.getModifiers();
-	if ((modifiers & InputEvent.BUTTON1_MASK) != 0) {
-		if (zoomSelection != null) {
-			boolean zoomed = zoomSelection.apply();
-			if (zoomed)
-				toolBar.setZoom(zoomSelection.getIntervalDescription());
-			else
-				toolBar.setZoomPending(null);
-			zoomSelection = null;
-			repaint(30L);
-		}
-	}
+	if(!ytoggle)
+	{
+		int modifiers = event.getModifiers();
+		if ((modifiers & InputEvent.BUTTON1_MASK) != 0) {
+			if (zoomSelection != null) {
+				boolean zoomed = zoomSelection.apply();
+				if (zoomed)
+					toolBar.setZoom(zoomSelection.getIntervalDescription());
+				else
+					toolBar.setZoomPending(null);
+				zoomSelection = null;
+				repaint(30L);
+			}
+		}		
+	}	
 }
 
 
 // Unused interface methods:
-public void mouseClicked(MouseEvent event) { }
+public void mouseClicked(MouseEvent event) 
+{ 
+	if(ytoggle)
+	{
+		Object[] functions = getGraphFunctions();
+    	Function graphFunc = (Function)functions[functions.length-1];
+    	
+		BigDecimal yLimit = getRender().getYValue(event.getPoint().y);
+		setAdjustmentForFunction(graphFunc, new BigDecimal(0),new BigDecimal(0),new BigDecimal(0),yLimit);
+		System.out.println("mouse clicked at "+getYAxis().getFormat().format(yLimit));
+	}
+}
+
 public void mouseEntered(MouseEvent event) { }
 public void mouseMoved(MouseEvent event) { }
 public void mouseExited(MouseEvent event) { }
@@ -161,5 +184,25 @@ public ToolBar getToolBar()
 
 
 private ZoomSelection zoomSelection = null;
+private boolean ytoggle = false;
+
+
+
+@Override
+public void itemStateChanged(ItemEvent e) 
+{
+		int state = e.getStateChange();
+		if (state == ItemEvent.SELECTED) 
+		{
+			ytoggle = true;
+		} 
+		else
+		{
+			ytoggle = false;
+			Object[] functions = getGraphFunctions();
+	    	Function graphFunc = (Function)functions[functions.length-1];
+	    	resetAdjustment(graphFunc);	    	
+		}		
+}
 
 }

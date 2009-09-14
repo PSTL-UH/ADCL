@@ -119,7 +119,9 @@ getDefaultLabelOffsetY() {
 
 
 AxisInstance
-getInstance(BigDecimal min, BigDecimal max, int length) {
+getInstance(BigDecimal min, BigDecimal max, int length) 
+{
+	//BigDecimal max1 = new BigDecimal(20);
 	return new YAxisInstance(this, min, max, length);
 }
 

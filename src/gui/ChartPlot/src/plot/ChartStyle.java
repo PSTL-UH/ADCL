@@ -27,7 +27,6 @@ OF SUCH DAMAGE.
 */
 
 import java.awt.*;
-import java.math.*;
 
 
 /**

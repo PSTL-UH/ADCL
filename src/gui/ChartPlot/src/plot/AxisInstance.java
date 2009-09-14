@@ -45,9 +45,8 @@ abstract class AxisInstance {
  @param length the graphical length of this dimension. This can be negative to make {@link #GRAPHICS_SCALAR} negative since
  * graphical y-coordinates count down.
  */
-AxisInstance(Axis parent, BigDecimal min, BigDecimal max, int length) {
-
-
+AxisInstance(Axis parent, BigDecimal min, BigDecimal max, int length) 
+{
 	assert min.compareTo(max) < 0 && length != 0;
 	axis = parent;
 
