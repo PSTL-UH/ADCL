@@ -353,6 +353,10 @@ ADCL_function_t*  ADCL_emethod_get_function_by_state
         ADCL_printf("#%d:  %s %d winner is %d %s\n",
             rank, objname, id, em->em_wfunction->f_id,
             em->em_wfunction->f_name);
+ DISPLAY((ADCL_DISPLAY_MESSAGE,em->em_id,"#%d:  %s %d winner is %d %s\n",
+            rank, objname, id, em->em_wfunction->f_id,
+            em->em_wfunction->f_name));
+
 #ifdef ADCL_SAVE_REQUEST_WINNER
        /* XXX not nice */
        if ( ADCL_TOPOLOGY_NULL != em->em_topo){

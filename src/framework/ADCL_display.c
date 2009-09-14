@@ -1,4 +1,5 @@
 #include <ADCL_internal.h>
+#include <fcntl.h>
 #define MAGIC 918273
 #define TCP_BUFFER_SIZE  262142
 #define MAXLEN 20
@@ -63,24 +64,26 @@ int ADCL_display_init()
 
 
     		if ( (sock = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
+			ADCL_display_flag = 0;
         		printf("CLIENT: could not get a socket\n" );
     		}
     		else {
         		printf("CLIENT: got a a socket\n");
-    		}
 
 		client.sin_family      = AF_INET;
     		client.sin_port        = htons(port);
    		memcpy ( &client.sin_addr, host->h_addr, host->h_length );
-    		configure_socket(sock);
+   		configure_socket(sock);
     		if ( connect (sock, (struct sockaddr *)&client, sizeof(client)) < 0) {
+			ADCL_display_flag = 0;
        	 		printf("CLIENT: connect call failed to %s on port %d \n", hostname, port);
     		}
     		else {
         		printf("CLIENT: connection established to %s on port %d\n", hostname, port);
+    			write_int ( sock, sizeof(header) );
     		}
+	}
 		
-    		write_int ( sock, sizeof(header) );
 	}
     	return ADCL_SUCCESS;
 }
@@ -146,10 +149,8 @@ int ADCL_display_finalize()
 
 void configure_socket ( int sd )
 {
-
     int flag;
     struct linger ling;
-
     flag=1;
     if(setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(flag))<0) {
         printf("configure_socket: could not configure socket\n");
@@ -199,7 +200,8 @@ void write_string ( int hdl, char *buf, int num )
         {
             strerror ( errno );
             printf ("write_string: error while writing to socket");
-            exit(-1);
+	    ADCL_display_flag = 0;
+	    return;
         }
     }
     wbuf += a;
@@ -227,7 +229,8 @@ void read_string ( int hdl, char *buf, int num )
           {
               strerror ( errno );
               printf("read_string: error while reading from socket");
-              exit(-1);
+	      ADCL_display_flag = 0;
+	      return;
           }
       }
     num -= a;

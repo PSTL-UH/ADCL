@@ -591,14 +591,14 @@ int ADCL_request_update ( ADCL_request_t *req,
         ADCL_printf("%d: request %d method %d (%s) %8.4f \n",
             req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
             req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
-	DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"%d: request %d method %d (%s) %8.4f \n",req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
-		req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
+//	DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"%d: request %d method %d (%s) %8.4f \n",req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
+//		req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
     }
     else {
         ADCL_printf("request %d method %d (%s) %8.4f \n", req->r_id, 
             req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
-	DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"request %d method %d (%s) %8.4f \n", req->r_id,
-            req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
+//	DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"request %d method %d (%s) %8.4f \n", req->r_id,
+  //          req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
     }
     switch ( req->r_emethod->em_state ) {
     case ADCL_STATE_TESTING:
