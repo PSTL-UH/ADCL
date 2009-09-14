@@ -19,6 +19,8 @@ public class StartupServer
 
 	EventGenerator generator = new EventGenerator();
 	StartupConnection host;
+	
+	ServerSocket ssocket = null;
 
     public EventGenerator getGenerator() 
     {
@@ -28,38 +30,30 @@ public class StartupServer
 	/**
      * The associated model
      */
-    private ConfigurationModel _model;
+    private ConfigurationModel _model = new ConfigurationModel();;
 
     /**
      *   Constructor for StartupServer class.
      *  
      *   @param  model  current model
      */
-    public StartupServer(ConfigurationModel model)
-    {
-        _model = model;
-    }
-
     /**
      * Starts the startup-server.
      */
     public void start(String[] args) 
     {
+    	
         checkargs(args);
         _model.messageOccured("Waiting for " + numclients + " clients to connect\n");
 
-        host = new StartupConnection();
-
         host = new StartupConnection(_model);
         
-
         try {
-            ServerSocket ssocket = new ServerSocket(port, numclients);
+            ssocket = new ServerSocket(port, numclients);
 
             host.init(ssocket);
             _model.messageOccured("Client connected\n");
             
-
             int totallength = 0;
             int length;
 
@@ -73,39 +67,44 @@ public class StartupServer
             infinite:
             while(true)
             {
-            	Header head;                
-            	head = host.readHeader(); 
-            	
-            	if(head.get_magic() == StartupConnection.BNR_MAGIC)
-                {                		
-            		if(message_types.values()[head.get_type()] == message_types.EndOfComm)
-                	{
-            			System.out.println("end of comm message received");
-                     	break infinite;
-                	}
-            		else if(message_types.values()[head.get_type()] == message_types.Message || message_types.values()[head.get_type()] == message_types.FunctionChange)
-            		{             
-            			if(message_types.values()[head.get_type()] == message_types.FunctionChange)
-            				System.out.println("message length is "+head.get_len());
-            			
-            			msgbuf = new byte[head.get_len()];
-            			int  offset   = 0;
-            			int  ret;
-            			
-            			ret    = host.readmsg(msgbuf,head.get_len(), offset);
-            			           		
-            			offset += ret;
-            			
-            		}
-                 	raiseEvent(msgbuf, head);
-                 }                	
+            	if(!isClosed())
+            	{
+	            	Header head;                
+	            	head = host.readHeader(); 
+	            	
+	            	if(head.get_magic() == StartupConnection.BNR_MAGIC)
+	                {                		
+	            		if(message_types.values()[head.get_type()] == message_types.EndOfComm)
+	                	{
+	            			System.out.println("end of comm message received");
+	                     	break infinite;
+	                	}
+	            		else if(message_types.values()[head.get_type()] == message_types.Message || message_types.values()[head.get_type()] == message_types.FunctionChange)
+	            		{            			
+	            			msgbuf = new byte[head.get_len()];
+	            			int  offset   = 0;
+	            			int  ret;
+	            			
+	            			ret    = host.readmsg(msgbuf,head.get_len(), offset);
+	            			           		
+	            			offset += ret;
+	            			
+	            		}
+	                 	raiseEvent(msgbuf, head);
+	                 } 
+            	}
+            	else
+            		break;
             }           
             
-            msgbuf = new byte[32];
-
-            host.sendmsg(msgbuf, 32);
-
-            ssocket.close();
+            if(!isClosed())
+            {
+	            msgbuf = new byte[32];
+	
+	            host.sendmsg(msgbuf, 32);
+	
+	            ssocket.close();
+            }
         } 
         catch (IOException e) 
         {
@@ -175,26 +174,6 @@ public class StartupServer
         }
     }
 
-    public static int determinefirstrank(StartupConnection[] hosts) 
-    {
-        int i, j;
-        int totalnodes = 0;
-
-        for (i = 0; i < numclients; i++) 
-        {
-            for (j = 0; j < numclients; j++) 
-            {
-                if (hosts[j].rank == i) 
-                {
-                    hosts[j].firstnode = totalnodes;
-                    totalnodes         += hosts[j].size;
-                }
-            }
-        }
-
-        return (totalnodes);
-    }
-
 	public void addRecvListener(Plot gui) 
 	{
 		generator.addRecvListener(gui);
@@ -202,7 +181,25 @@ public class StartupServer
 	
 	public void disconnect()
 	{
-		host.disconnect();        
+		if(!ssocket.isClosed())
+		{
+			try {
+				ssocket.close();
+			} catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+			host.disconnect();        
+			host = null;
+		}
+		
+	}
+	
+	public boolean isClosed()
+	{
+		if(ssocket != null)
+			return ssocket.isClosed();
+		return true;
 	}
 
 }

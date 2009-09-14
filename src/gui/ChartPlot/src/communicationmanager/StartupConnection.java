@@ -104,10 +104,5 @@ public class StartupConnection {
 			e.printStackTrace();
 		}
     }
-
-	public void readFunctionChange(byte[] msgbuf, int get_len) {
-		// TODO Auto-generated method stub
-		
-	}
 }
 

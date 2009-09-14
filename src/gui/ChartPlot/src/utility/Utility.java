@@ -1,5 +1,11 @@
 package utility;
 
+import java.awt.Image;
+import java.io.IOException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
+
 public class Utility 
 {
 	static private Utility util = null;
@@ -44,6 +50,18 @@ public class Utility
 			i++;
 		}
 		return Double.longBitsToDouble(accum);
+	}
+	
+	public Image getImage(String location) 
+	{
+		try {
+			URL url = getClass().getResource(location);
+			if (url == null)
+				throw new Error(location + " is missing");
+			return ImageIO.read(url);
+		} catch (IOException e) {
+			throw new Error("IOException while retreiving " + location + ":\n\t" + e.getMessage());
+		}
 	}
 
 }
