@@ -69,6 +69,7 @@ int ADCL_display_init()
     		}
     		else {
         		printf("CLIENT: got a a socket\n");
+    		}
 
 		client.sin_family      = AF_INET;
     		client.sin_port        = htons(port);
@@ -81,21 +82,21 @@ int ADCL_display_init()
     		else {
         		printf("CLIENT: connection established to %s on port %d\n", hostname, port);
     			write_int ( sock, sizeof(header) );
-    		}
-	}
-		
+    		}	
 	}
     	return ADCL_SUCCESS;
 }
 
 int ADCL_display(int type,...)
 {
+        va_list ap;
+        char msg[MAXMSGBUFSIZE];
+
 	if(ADCL_display_flag && ADCL_display_rank == selfrank)
 	{
 		header head = {MAGIC, 0, 0, 0,0.0};
 
 		head.type = type;
-		va_list ap;
 		va_start(ap,type);
 		head.id = va_arg(ap,int);
 		if(ADCL_DISPLAY_POINTS == type)
@@ -105,7 +106,6 @@ int ADCL_display(int type,...)
 		}
 		else if(ADCL_DISPLAY_MESSAGE == type)
 		{
-			char msg[MAXMSGBUFSIZE];
 			vsprintf(msg,va_arg(ap, char*),ap);
 			head.len = strlen(msg);
 			write_header(sock,head);
@@ -128,13 +128,14 @@ int ADCL_display(int type,...)
 
 int ADCL_display_finalize()
 {
+        char*  msgbuf = (char *) malloc ( 32 );
+
 	if(ADCL_display_flag && selfrank == ADCL_display_rank)
 	{
 		header head = {MAGIC,0,0,0,0.0};
 		head.type = ADCL_DISPLAY_COMM_FINAL;
 		write_header(sock,head);
     		//needs to be taken care of.
-		char*  msgbuf = (char *) malloc ( 32 );
     		read_string ( sock, msgbuf, 32);
 
 		/* After everything is done, close the socket */

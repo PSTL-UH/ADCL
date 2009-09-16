@@ -514,6 +514,11 @@ int ADCL_predefined_init ( void )
 /* ******************************************************************** */
     ADCL_predefined_alltoallv ();
 
+/* ******************************************************************** */
+/* ALLTOALL - Fortran function set 4                                    */
+/* ******************************************************************** */
+    ADCL_predefined_alltoall ();
+
     return ADCL_SUCCESS;
 }
 

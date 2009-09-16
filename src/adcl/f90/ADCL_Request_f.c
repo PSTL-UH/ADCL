@@ -59,6 +59,7 @@ void adcl_request_create ( int *vec, int *topo, int *fnctset, int *req, int *ier
     ADCL_request_t *creq;
     ADCL_topology_t *ctopo;
     ADCL_fnctset_t *cfnctset;
+    int topo_type;
     int i;
 
     if ( ( NULL == vec )     ||
@@ -91,6 +92,15 @@ void adcl_request_create ( int *vec, int *topo, int *fnctset, int *req, int *ier
     }
     else {
         cfnctset = ADCL_FNCTSET_NULL;
+    }
+
+    /* next neighbor only works with cartesian communicator */
+    if ( ADCL_TOPOLOGY_NULL != ctopo && ADCL_FNCTSET_NEIGHBORHOOD == cfnctset ) {
+        MPI_Topo_test ( ctopo->t_comm, &topo_type );
+        if ( MPI_CART != topo_type ) {
+            *ierror = ADCL_INVALID_COMM;
+            return;
+        }
     }
 
     if ( ADCL_FVECTOR_NULL != *vec ) {

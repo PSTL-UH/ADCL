@@ -72,6 +72,23 @@ int ADCL_Vmap_allreduce_allocate ( MPI_Op op, ADCL_Vmap *vmap )
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
+int ADCL_Vmap_alltoall_allocate ( int scnt, int rcnt, ADCL_Vmap *vmap )
+{
+    ADCL_vmap_t *tvmap=NULL;
+    int err = ADCL_SUCCESS;         
+ 
+    if ( 0 >= scnt || 0 >= rcnt ) {
+        return ADCL_INVALID_ARG;
+    }	
+
+    err = ADCL_vmap_alltoall_allocate ( scnt, rcnt, &tvmap );
+
+    *vmap = tvmap;
+    return err;
+} 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_Vmap_all_allocate ( ADCL_Vmap *vmap )
 {
     ADCL_vmap_t *tvmap=NULL;

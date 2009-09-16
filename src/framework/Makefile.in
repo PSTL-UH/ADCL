@@ -9,28 +9,29 @@
 include ../../Makefile.defs
 
 
-OBJ = 	ADCL_array.o 		\
-	ADCL_display.o		\
-	ADCL_attribute.o	\
-	ADCL_vector.o           \
-	ADCL_function.o		\
-	ADCL_indexed.o          \
-	ADCL_packunpack.o       \
-	ADCL_printf.o		\
-	ADCL_readenv.o          \
-	ADCL_statistics.o       \
-	ADCL_subarray.o         \
-	ADCL_topology.o         \
-	ADCL_emethod.o 		\
-	ADCL_hist.o 		\
-	ADCL_hypothesis.o       \
-	ADCL_predefined.o       \
+OBJ = 	ADCL_array.o 		          \
+	ADCL_display.o		          \
+	ADCL_attribute.o	          \
+	ADCL_vector.o                     \
+	ADCL_function.o		          \
+	ADCL_indexed.o                    \
+	ADCL_packunpack.o                 \
+	ADCL_printf.o		          \
+	ADCL_readenv.o                    \
+	ADCL_statistics.o                 \
+	ADCL_subarray.o                   \
+	ADCL_topology.o                   \
+	ADCL_emethod.o 		          \
+	ADCL_hist.o 		          \
+	ADCL_hypothesis.o                 \
+	ADCL_predefined.o                 \
 	ADCL_predefined_alltoallv.o       \
-	ADCL_reduce.o             \
-	ADCL_vmap.o             \
-	ADCL_reduce.o           \
-	ADCL_contigous.o        \
-	ADCL_list.o             \
+	ADCL_predefined_alltoall.o        \
+	ADCL_reduce.o                     \
+	ADCL_vmap.o                       \
+	ADCL_reduce.o                     \
+	ADCL_contigous.o                  \
+	ADCL_list.o                       \
 	@adcl_papi_o@ ADCL_request.o
 
 .SUFFIXES: .o.c

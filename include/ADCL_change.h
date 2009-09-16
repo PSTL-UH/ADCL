@@ -14,6 +14,7 @@
 
 
 #define ADCL_TAG_ALLTOALLV 127
+#define ADCL_TAG_ALLTOALL  128
 
 #define TOPO req->r_emethod->em_topo
 
@@ -392,8 +393,17 @@ void ADCL_bcast_linear  ( ADCL_request_t *req );
 void ADCL_alltoallv_native(ADCL_request_t *req );
 void ADCL_alltoallv_pairwise(ADCL_request_t *req );
 void ADCL_alltoallv_linear(ADCL_request_t *req );
+void ADCL_alltoallv_bruck(ADCL_request_t *req );
 
-
+void ADCL_alltoall_ladd2(ADCL_request_t *req );
+void ADCL_alltoall_ladd4(ADCL_request_t *req );
+void ADCL_alltoall_ladd8(ADCL_request_t *req );
+void ADCL_alltoall_native(ADCL_request_t *req );
+void ADCL_alltoall_pairwise(ADCL_request_t *req );
+void ADCL_alltoall_pairwise_excl(ADCL_request_t *req );
+void ADCL_alltoall_linear(ADCL_request_t *req );
+void ADCL_alltoall_linear_sync(ADCL_request_t *req );
+void ADCL_alltoall_bruck(ADCL_request_t *req );
 
 #endif /* __ADCL_CHANGE_H__ */
 

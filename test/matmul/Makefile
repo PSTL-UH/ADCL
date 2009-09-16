@@ -11,7 +11,8 @@ include ../../Makefile.defs
 all: matmul_userfuncs
 
 matmul_userfuncs: matmul_userfuncs.f90 
-	$(FC) $(FFLAGS) -o matmul_userfuncs matmul_userfuncs.f90 $(FLDFLAGS)
+	$(FC) -c $(FFLAGS) matmul_userfuncs.f90 
+	$(FC) matmul_userfuncs.o -o matmul_userfuncs $(FLDFLAGS) 
 
 clean:
 	rm -rf *.o *~ *.out *.mod

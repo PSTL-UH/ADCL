@@ -86,6 +86,7 @@
 #define ADCL_VECTOR_LIST       5 
 #define ADCL_VECTOR_ALLREDUCE  6 
 #define ADCL_VECTOR_INPLACE    7 
+#define ADCL_VECTOR_ALLTOALL   8 
 
 /* ADCL timer options */
 #define TIMER_GETTIMEOFDAY    0
@@ -163,12 +164,14 @@ extern struct ADCL_fnctset_s *ADCL_neighborhood_fnctset;
 extern struct ADCL_fnctset_s *ADCL_allgatherv_fnctset;
 extern struct ADCL_fnctset_s *ADCL_allreduce_fnctset;
 extern struct ADCL_fnctset_s *ADCL_alltoallv_fnctset;
+extern struct ADCL_fnctset_s *ADCL_alltoall_fnctset;
 extern struct ADCL_fnctset_s *ADCL_fnctset_rtol;
 extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 
 #define ADCL_FNCTSET_NEIGHBORHOOD ADCL_neighborhood_fnctset
 #define ADCL_FNCTSET_ALLGATHERV   ADCL_allgatherv_fnctset
 #define ADCL_FNCTSET_ALLREDUCE    ADCL_allreduce_fnctset
+#define ADCL_FNCTSET_ALLTOALL     ADCL_alltoall_fnctset
 #define ADCL_FNCTSET_ALLTOALLV    ADCL_alltoallv_fnctset
 #define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
 #define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
@@ -193,6 +196,7 @@ int ADCL_Finalize (void );
 int ADCL_Vmap_halo_allocate ( int hwidth, ADCL_Vmap *vec );
 int ADCL_Vmap_list_allocate ( int size, int* rcnts, int* displ, ADCL_Vmap *vec );
 int ADCL_Vmap_allreduce_allocate ( MPI_Op op, ADCL_Vmap *vec );
+int ADCL_Vmap_alltoall_allocate ( int scnt, int rcnt, ADCL_Vmap *vec );
 int ADCL_Vmap_all_allocate ( ADCL_Vmap *vec );
 int ADCL_Vmap_inplace_allocate ( ADCL_Vmap *vec );
 int ADCL_Vmap_free  ( ADCL_Vmap *vec );

@@ -8,33 +8,33 @@
 #
 include ../../Makefile.defs
 
-OBJ =	ADCL_change_sb_aao_debug.o \
-	ADCL_change_sb_aao_IsendIrecv.o \
-	ADCL_change_sb_aao_SendIrecv.o \
+OBJ =	ADCL_change_sb_aao_debug.o           \
+	ADCL_change_sb_aao_IsendIrecv.o      \
+	ADCL_change_sb_aao_SendIrecv.o       \
 	ADCL_change_sb_aao_IsendIrecv_pack.o \
-	ADCL_change_sb_pair_debug.o \
-	ADCL_change_sb_pair_IsendIrecv.o \
-	ADCL_change_sb_pair_Send_Recv.o \
-	ADCL_change_sb_pair_SendIrecv.o \
+	ADCL_change_sb_pair_debug.o          \
+	ADCL_change_sb_pair_IsendIrecv.o     \
+	ADCL_change_sb_pair_Send_Recv.o      \
+	ADCL_change_sb_pair_SendIrecv.o      \
 	ADCL_change_sb_pair_IsendIrecv_pack.o\
-	ADCL_change_sb_pair_Send_Recv_pack.o\
+	ADCL_change_sb_pair_Send_Recv_pack.o \
 	ADCL_change_sb_pair_SendIrecv_pack.o \
-	ADCL_change_sb_aao_SendIrecv_pack.o \
-	ADCL_change_sb_pair_Sendrecv_pack.o \
-	ADCL_change_sb_pair_Sendrecv.o \
-	ADCL_change_sb_pair_win_fence_put.o \
-	ADCL_change_sb_pair_win_fence_get.o \
+	ADCL_change_sb_aao_SendIrecv_pack.o  \
+	ADCL_change_sb_pair_Sendrecv_pack.o  \
+	ADCL_change_sb_pair_Sendrecv.o       \
+	ADCL_change_sb_pair_win_fence_put.o  \
+	ADCL_change_sb_pair_win_fence_get.o  \
 	ADCL_change_sb_pair_post_start_put.o \
 	ADCL_change_sb_pair_post_start_get.o \
-        ADCL_change_sb_aao_win_fence_put.o \
-        ADCL_change_sb_aao_win_fence_get.o \
-        ADCL_change_sb_aao_post_start_put.o \
-        ADCL_change_sb_aao_post_start_get.o \
-        ADCL_allgatherv_native.o            \
-        ADCL_allgatherv_linear.o            \
-        ADCL_allgatherv_bruck.o             \
-        ADCL_allgatherv_neighborexchange.o  \
-        ADCL_allgatherv_ring.o              \
+        ADCL_change_sb_aao_win_fence_put.o   \
+        ADCL_change_sb_aao_win_fence_get.o   \
+        ADCL_change_sb_aao_post_start_put.o  \
+        ADCL_change_sb_aao_post_start_get.o  \
+        ADCL_allgatherv_native.o             \
+        ADCL_allgatherv_linear.o             \
+        ADCL_allgatherv_bruck.o              \
+        ADCL_allgatherv_neighborexchange.o   \
+        ADCL_allgatherv_ring.o               \
         ADCL_allgatherv_two_procs.o          \
         ADCL_allgatherv_recursivedoubling.o  \
         ADCL_allreduce_linear.o              \
@@ -42,11 +42,20 @@ OBJ =	ADCL_change_sb_aao_debug.o \
         ADCL_allreduce_ring.o                \
         ADCL_allreduce_native.o              \
         ADCL_allreduce_recursivedoubling.o   \
-        ADCL_alltoallv_native.o               \
-        ADCL_alltoallv_pairwise.o             \
-        ADCL_alltoallv_linear.o               \
-        ADCL_reduce_linear.o                 \
-        ADCL_bcast_linear.o              
+        ADCL_alltoallv_native.o              \
+        ADCL_alltoallv_pairwise.o            \
+        ADCL_alltoallv_linear.o              \
+        ADCL_alltoall_native.o               \
+        ADCL_alltoall_pairwise.o             \
+        ADCL_alltoall_pairwise_excl.o        \
+        ADCL_alltoall_linear.o               \
+        ADCL_alltoall_bruck.o                \
+        ADCL_alltoall_linear_sync.o          \
+        ADCL_alltoall_ladd_2.o               \
+        ADCL_alltoall_ladd_4.o               \
+        ADCL_alltoall_ladd_8.o               \
+        ADCL_bcast_linear.o                  \
+        ADCL_reduce_linear.o
 
 
 .SUFFIXES: .o.c
@@ -142,8 +151,14 @@ ADCL_change_sb_aao_post_start_get.o :$(HEADER) ADCL_change_sb_aao.c
 	$(CC) $(CFLAGS) -c ADCL_change_sb_aao.c -DCOMMMODE=12 \
 			-o ADCL_change_sb_aao_post_start_get.o
 
+ADCL_alltoall_ladd_2.o :$(HEADER) ADCL_alltoall_ladd.c
+	$(CC) $(CFLAGS) -c ADCL_alltoall_ladd.c -DCOMMMODE=1 -o $@
 
+ADCL_alltoall_ladd_4.o :$(HEADER) ADCL_alltoall_ladd.c
+	$(CC) $(CFLAGS) -c ADCL_alltoall_ladd.c -DCOMMMODE=2 -o $@
 
+ADCL_alltoall_ladd_8.o :$(HEADER) ADCL_alltoall_ladd.c
+	$(CC) $(CFLAGS) -c ADCL_alltoall_ladd.c -DCOMMMODE=3 -o $@
 
 $(OBJ):	$(HEADER)
 .c.o:	$(HEADER)

@@ -40,21 +40,21 @@ int ADCL_Topology_create_generic ( int ndims, int nneigh, int *lneighbors, int *
                       coords, direction, comm, topo );
 }
 
-int ADCL_Topology_create ( MPI_Comm cart_comm, ADCL_Topology *topo)
+int ADCL_Topology_create ( MPI_Comm comm, ADCL_Topology *topo)
 {
     int topo_type;
 
-    /* Right now we can only handle cartesian topologies! */
-    MPI_Topo_test ( cart_comm, &topo_type );
-    if ( MPI_UNDEFINED==topo_type || MPI_GRAPH==topo_type ) {
-        return ADCL_INVALID_COMM;
-    }
+    ///* Right now we can only handle cartesian topologies! */
+    //MPI_Topo_test ( cart_comm, &topo_type );
+    //if ( MPI_UNDEFINED==topo_type || MPI_GRAPH==topo_type ) {
+    //    return ADCL_INVALID_COMM;
+    //}
 
     if ( NULL == topo ) {
         return ADCL_INVALID_TOPOLOGY;
     }
 
-    return ADCL_topology_create ( cart_comm, topo );
+    return ADCL_topology_create ( comm, topo );
 }
 
 int ADCL_Topology_create_extended ( MPI_Comm cart_comm, ADCL_Topology *topo)
@@ -62,11 +62,11 @@ int ADCL_Topology_create_extended ( MPI_Comm cart_comm, ADCL_Topology *topo)
     int topo_type;
     int ndims;
 
-    /* Right now we can only handle cartesian topologies! */
-    MPI_Topo_test ( cart_comm, &topo_type );
-    if ( MPI_UNDEFINED==topo_type || MPI_GRAPH==topo_type ) {
-        return ADCL_INVALID_COMM;
-    }
+    ///* Right now we can only handle cartesian topologies! */
+    //MPI_Topo_test ( cart_comm, &topo_type );
+    //if ( MPI_UNDEFINED==topo_type || MPI_GRAPH==topo_type ) {
+    //    return ADCL_INVALID_COMM;
+    //}
 
     if ( NULL == topo ) {
         return ADCL_INVALID_TOPOLOGY;
@@ -134,7 +134,7 @@ int ADCL_Topology_get_cart_neighbors ( int nneigh, int* lneighbors, int* rneighb
     int *coords, *periods, *cdims;
 
     if ( 0 >= nneigh || NULL == lneighbors || NULL == rneighbors ||
-         NULL == flip || NULL == cart_comm ) {
+         NULL == flip || NULL == (void*) cart_comm || MPI_COMM_NULL == cart_comm ) {
         return ADCL_INVALID_ARG;
     }
 

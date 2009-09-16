@@ -81,30 +81,24 @@ void adcl_topology_create_generic ( int *ndims, int *nneigh, int *lneighb, int *
 }
 
 #ifdef _SX
-void adcl_topology_create_  ( int* cart_comm, int *topo, int *ierror )
+void adcl_topology_create_  ( int* comm, int *topo, int *ierror )
 #else
-void adcl_topology_create   ( int* cart_comm, int *topo, int *ierror )
+void adcl_topology_create   ( int* comm, int *topo, int *ierror )
 #endif
 {
-    int topo_type;
     ADCL_topology_t *ctopo;
     MPI_Comm ccomm;
 
-    if ( ( NULL == cart_comm ) ||
+    if ( ( NULL == comm ) ||
 	 ( NULL == topo ) )    {
 	*ierror = ADCL_INVALID_ARG;
 	return;
     }
 
-    ccomm = MPI_Comm_f2c (*cart_comm);
+    ccomm = MPI_Comm_f2c (*comm);
     if ( ccomm == MPI_COMM_NULL ) {
 	*ierror = ADCL_INVALID_COMM;
 	return;
-    }
-    MPI_Topo_test ( ccomm, &topo_type );
-    if ( MPI_UNDEFINED==topo_type || MPI_GRAPH==topo_type ) {
-        *ierror = ADCL_INVALID_COMM;
-        return;
     }
 
     *ierror = ADCL_topology_create ( ccomm, &ctopo );

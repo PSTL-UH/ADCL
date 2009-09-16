@@ -14,6 +14,7 @@
 static int ADCL_local_id_counter=0;
 ADCL_array_t *ADCL_request_farray;
 
+extern int ADCL_emethod_numtests;
 extern ADCL_fnctset_t *ADCL_neighborhood_fnctset;
 
 #define CHECK_COMM_STATE(state1,state2) if (state1!=state2) return ADCL_SUCCESS
@@ -141,44 +142,40 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
            for ( i=0; i<svecs[0]->v_ndims; i++ ) { 
 	      dims = dims * svecs[0]->v_dims[i];
 	   }
-	   switch (svecs[0]->v_map->m_vectype) {
-	   case ADCL_VECTOR_ALL:
-              //ret = ADCL_contiguous_init_generic (svecs[0]->v_dat, svecs[0]->v_dims[0], &(newreq->r_sdats), &(newreq->r_scnts));
-              ret = ADCL_basic_init (svecs[0]->v_dat, dims, &(newreq->r_sdats), &(newreq->r_scnts));
-	      break;
-	   case ADCL_VECTOR_LIST:
-           case ADCL_VECTOR_ALLREDUCE:
-              ret = ADCL_basic_init (svecs[0]->v_dat, dims, &(newreq->r_sdats), &(newreq->r_scnts));
-	      break;
-	   case ADCL_VECTOR_INPLACE:
-	      vec = rvecs[0];
-	      break;
-           default:
-	      ret = ADCL_ERROR_INTERNAL; 
-	      goto exit;
+           switch (svecs[0]->v_map->m_vectype) {
+               case ADCL_VECTOR_ALL:
+               case ADCL_VECTOR_LIST:
+               case ADCL_VECTOR_ALLREDUCE:
+                   ret = ADCL_basic_init (svecs[0]->v_dat, dims, &(newreq->r_sdats), &(newreq->r_scnts));
+                   break;
+               case ADCL_VECTOR_ALLTOALL:
+                   ret = ADCL_basic_init (svecs[0]->v_dat, 1, &(newreq->r_sdats), &(newreq->r_scnts));
+                   break;
+               case ADCL_VECTOR_INPLACE:
+                   vec = rvecs[0];
+                   break;
+               default:
+                   ret = ADCL_ERROR_INTERNAL; 
+                   goto exit;
            }
 
            dims = 1;
            for ( i=0; i<rvecs[0]->v_ndims; i++ ) { 
-	      dims = dims * rvecs[0]->v_dims[i];
-	   }
+               dims = dims * rvecs[0]->v_dims[i];
+           }
            switch (rvecs[0]->v_map->m_vectype) {
-           case ADCL_VECTOR_ALL:
-              ret = ADCL_basic_init (rvecs[0]->v_dat, dims, &(newreq->r_rdats), &(newreq->r_rcnts));
-              //ret = ADCL_contiguous_init_generic (rvecs[0]->v_dat, rvecs[0]->v_dims[0], &(newreq->r_rdats), &(newreq->r_rcnts));
-              break;
-	   case ADCL_VECTOR_LIST:
-	      /* no derived data types required for OpenMPI algorithms, basic data types are used */
-              //ret = ADCL_list_init (topo->t_size,  rvecs[0]->v_map->m_rcnts, rvecs[0]->v_dat, &(newreq->r_rdats));
-              ret = ADCL_basic_init (rvecs[0]->v_dat, dims, &(newreq->r_rdats), &(newreq->r_rcnts));
-              break;
-           case ADCL_VECTOR_ALLREDUCE:
-              ret = ADCL_basic_init (rvecs[0]->v_dat, dims, &(newreq->r_rdats), &(newreq->r_rcnts));
-	      break;
-	   default:
-	      ret = ADCL_ERROR_INTERNAL; 
-	      goto exit;
-	   }
+               case ADCL_VECTOR_ALL:
+               case ADCL_VECTOR_LIST:
+               case ADCL_VECTOR_ALLREDUCE:
+                   ret = ADCL_basic_init (rvecs[0]->v_dat, dims, &(newreq->r_rdats), &(newreq->r_rcnts));
+                   break;
+               case ADCL_VECTOR_ALLTOALL:
+                   ret = ADCL_basic_init (rvecs[0]->v_dat, 1, &(newreq->r_rdats), &(newreq->r_rcnts));
+                   break;
+               default:
+                   ret = ADCL_ERROR_INTERNAL; 
+                   goto exit;
+           }
 	}
 
         if ( ret != ADCL_SUCCESS ) {
@@ -249,6 +246,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
            }
            break;
        case ADCL_VECTOR_LIST:
+       case ADCL_VECTOR_ALLTOALL:
             newreq->r_sreqs=(MPI_Request *)malloc(topo->t_size*
                                                   sizeof(MPI_Request));
             break;
@@ -281,6 +279,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
             newreq->r_rreqs=(MPI_Request *)malloc(topo->t_nneigh*
                                                   sizeof(MPI_Request));
             break;
+        case ADCL_VECTOR_ALLTOALL:
         case ADCL_VECTOR_LIST:
             newreq->r_rreqs=(MPI_Request *)malloc(topo->t_size*
                                                   sizeof(MPI_Request));
@@ -347,6 +346,7 @@ exit:
 	      case ADCL_VECTOR_LIST:
 	      case ADCL_VECTOR_ALLREDUCE:
 	      case ADCL_VECTOR_INPLACE:
+              case ADCL_VECTOR_ALLTOALL:
 	         ADCL_basic_free (&(newreq->r_sdats), &(newreq->r_scnts));
 		 break;
               }
@@ -356,10 +356,8 @@ exit:
                  ADCL_contiguous_free_generic (1, &(newreq->r_rdats), &(newreq->r_rcnts));
                  break;
 	      case ADCL_VECTOR_LIST:
-                 ADCL_basic_free (&(newreq->r_rdats), &(newreq->r_rcnts));
-                 //ADCL_list_free (topo->t_size, &(newreq->r_rdats));
-                 break;
 	      case ADCL_VECTOR_ALLREDUCE:
+              case ADCL_VECTOR_ALLTOALL:
                  ADCL_basic_free (&(newreq->r_rdats), &(newreq->r_rcnts));
 		 break;
 	      }
@@ -367,7 +365,7 @@ exit:
 
         }
 
-        if ( MPI_WIN_NULL != newreq->r_win ) {
+        if ( NULL != (void*) newreq->r_win || MPI_WIN_NULL != newreq->r_win ) {
             MPI_Win_free ( &(newreq->r_win) );
         }
 
@@ -421,13 +419,8 @@ int ADCL_request_free ( ADCL_request_t **req )
             }
             break;  
          case ADCL_VECTOR_ALL:
-            ADCL_vector_free( &(preq->r_svecs[0]) ); 
-            //ADCL_contiguous_free_generic (1, &(preq->r_sdats), &(preq->r_scnts));
-            if ( NULL != preq->r_sdats  && NULL != preq->r_rdats ) {
-               ADCL_basic_free (&(preq->r_sdats), &(preq->r_scnts));
-            }
-	    break;
          case ADCL_VECTOR_LIST:
+         case ADCL_VECTOR_ALLTOALL:
          case ADCL_VECTOR_ALLREDUCE:
             ADCL_vector_free( &(preq->r_svecs[0]) ); 
             if ( NULL != preq->r_sdats  && NULL != preq->r_rdats ) {
@@ -455,9 +448,7 @@ int ADCL_request_free ( ADCL_request_t **req )
             ADCL_contiguous_free_generic (1, &(preq->r_rdats), &(preq->r_rcnts));
             break;
          case ADCL_VECTOR_LIST:
-            ADCL_vector_free( &(preq->r_rvecs[0]) ); 
-            ADCL_basic_free (&(preq->r_rdats), &(preq->r_rcnts));
-            break;
+         case ADCL_VECTOR_ALLTOALL:
          case ADCL_VECTOR_ALLREDUCE:
             ADCL_vector_free( &(preq->r_rvecs[0]) ); 
             ADCL_basic_free (&(preq->r_rdats), &(preq->r_rcnts));
@@ -850,7 +841,7 @@ int ADCL_request_save_status ( ADCL_request_t *req, int *tested_num,
     /* Number of executed functions */
     (*tested_num) = req->r_erlast;
     /* Boundary conditions */
-    if ( req->r_emethod->em_stats[(*tested_num)]->s_count == ADCL_EMETHOD_NUMTESTS ) {
+    if ( req->r_emethod->em_stats[(*tested_num)]->s_count == ADCL_emethod_numtests ) {
         (*tested_num)++;
         ADCL_STAT_SET_TESTED ( req->r_emethod->em_stats[(*tested_num)-1] );
         ADCL_statistics_filter_timings ( &(req->r_emethod->em_stats[(*tested_num)-1]), 1,

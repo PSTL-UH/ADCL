@@ -26,6 +26,8 @@ struct ADCL_vmap_s{
     int*          m_displ; /* displacements for AllGatherV */
     MPI_Op           m_op; /* MPI operator for AllReduce */
     int         m_inplace; /* MPI_IN_PLACE */
+    int            m_scnt; /* send count for AlltoAll */
+    int            m_rcnt; /* receive count for AlltoAll */
 };
 typedef struct ADCL_vmap_s ADCL_vmap_t;
 
@@ -65,6 +67,7 @@ int ADCL_vmap_list_allocate ( int size, int* rcnts, int* displ, ADCL_vmap_t **ve
 int ADCL_vmap_allreduce_allocate ( MPI_Op op, ADCL_vmap_t **vec );
 int ADCL_vmap_all_allocate ( ADCL_vmap_t **vec );
 int ADCL_vmap_inplace_allocate ( ADCL_vmap_t **vec );
+int ADCL_vmap_alltoall_allocate ( int scnt, int rcnt, ADCL_vmap_t **vmap );
 
 /* ADCL_vmap_free
    Description: free an ADCL_vmap object including the allocated data field

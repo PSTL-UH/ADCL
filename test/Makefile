@@ -13,15 +13,16 @@ CEXECS = first second third fourth \
 	 one-dim two-dim three-dim \
 	 test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
 	 test-fnctset-allgatherv-1d  test-fnctset-alltoallv-1d \
-	 test-fnctset-alltoall-1d test-fnctset-allreduce \
+	 test-fnctset-alltoall test-fnctset-allreduce \
 	 attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
 	 data_1 PbSizes_1D PbSizes_2D PbSizes_3D \
-         test-fnctset-extneigh-2d 
+         test-fnctset-extneigh-2d
 
 FEXECS = first_f second_f \
 	 one-dim-f two-dim-f three-dim-f three-dim-large \
 	 test-fnctset-noattrs_f test-fnctset-single_f     \
-	 test-fnctset-allgatherv_f test-fnctset-allreduce_f  \
+	 test-fnctset-allgatherv_f \
+         test-fnctset-alltoall_f test-fnctset-allreduce_f  \
 	 test-prometheus
 
 ADCL_LIB_ = $(ADCL_LIB_DIR)/$(ADCL_LIB)
@@ -105,9 +106,9 @@ test-fnctset-alltoallv-1d: $(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d
 $(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d: test-fnctset-alltoallv-1d.o aux-data-1D.o
 	$(CC) $^ -o $@ $(LDFLAGS)
 #
-test-fnctset-alltoall-1d: $(ADCL_BIN_DIR)/test-fnctset-alltoall-1d
+test-fnctset-alltoall: $(ADCL_BIN_DIR)/test-fnctset-alltoall
 	
-$(ADCL_BIN_DIR)/test-fnctset-alltoall-1d: test-fnctset-alltoall-1d.o aux-data-1D.o
+$(ADCL_BIN_DIR)/test-fnctset-alltoall: test-fnctset-alltoall.o aux-data-1D.o
 	$(CC) $^ -o $@ $(LDFLAGS) 
 #
 test-fnctset-allreduce: $(ADCL_BIN_DIR)/test-fnctset-allreduce
@@ -168,10 +169,11 @@ $(ADCL_BIN_DIR)/PbSizes_1D: PbSizes_1D.o
 
 ###################################################################################################
 
-test-fnctset-extneigh-2d: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d 
+test-fnctset-extneigh-2d: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d
 	
-$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d: test-fnctset-extneigh-2d.o aux-data-2D.o aux-data-3D.o
-	$(CC) -DVERBOSE $^ $(LDFLAGS) -o $@
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d: test-fnctset-extneigh-2d.o #aux-data-2D.o aux-data-3D.o
+	@echo hello
+	$(CC) $^ -o $@ $(LDFLAGS)
 
 ###################################################################################################
 ### FORTRAN TESTS                                                                               ###
@@ -224,7 +226,12 @@ $(ADCL_BIN_DIR)/test-fnctset-single_f:  test-fnctset-single_f.o
 #
 test-fnctset-allgatherv_f: $(ADCL_BIN_DIR)/test-fnctset-allgatherv_f
 	
-$(ADCL_BIN_DIR)/test-fnctset-allgatherv_f:  test-fnctset-allgatherv_f.o
+$(ADCL_BIN_DIR)/test-fnctset-allgatherv_f:  test-fnctset-allgatherv_f.o aux-data-1D_f.o
+	$(FC) $^ -o $@ $(FLDFLAGS)
+#
+test-fnctset-alltoall_f: $(ADCL_BIN_DIR)/test-fnctset-alltoall_f
+	 
+$(ADCL_BIN_DIR)/test-fnctset-alltoall_f:  test-fnctset-alltoall_f.o aux-data-1D_f.o 
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 test-fnctset-allreduce_f: $(ADCL_BIN_DIR)/test-fnctset-allreduce_f
@@ -252,11 +259,27 @@ aux-data-2D-int-f.o: aux-data-2D-f.f90
 	$(CC) -c $(CFLAGS) $<
 
 %.o: %.f90 $(ADCL_LIB_)
-	$(FC) $(FFLAGS) -I../include -c $<
+	$(FC) -c $(FFLAGS) -I../include $<
 
 ###################################################################################################
 
 clean:
 	rm -rf *.o *~ *.out
 	rm -f $(ADCL_BIN_DIR)/*.out
-	rm -f $(CEXECS) $(FEXECS)
+
+	rm -f $(ADCL_BIN_DIR)/first $(ADCL_BIN_DIR)/second $(ADCL_BIN_DIR)/third $(ADCL_BIN_DIR)/fourth \
+	      $(ADCL_BIN_DIR)/one-dim $(ADCL_BIN_DIR)/two-dim $(ADCL_BIN_DIR)/three-dim \
+	      $(ADCL_BIN_DIR)/test-fnctset-noattrs $(ADCL_BIN_DIR)/test-fnctset-single $(ADCL_BIN_DIR)/test-fnctset-single-2 \
+	      $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d $(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d \
+	      $(ADCL_BIN_DIR)/test-fnctset-alltoall-1d $(ADCL_BIN_DIR)/test-fnctset-allreduce \
+	      $(ADCL_BIN_DIR)/attrs_1 $(ADCL_BIN_DIR)/attrs_2 $(ADCL_BIN_DIR)/attrs_3 $(ADCL_BIN_DIR)/attrs_3a $(ADCL_BIN_DIR)/attrs_4 \
+	      $(ADCL_BIN_DIR)/data_1 $(ADCL_BIN_DIR)/PbSizes_1D $(ADCL_BIN_DIR)/PbSizes_2D $(ADCL_BIN_DIR)/PbSizes_3D
+
+	rm -f $(ADCL_BIN_DIR)/= $(ADCL_BIN_DIR)/first_f $(ADCL_BIN_DIR)/second_f \
+	      $(ADCL_BIN_DIR)/one-dim-f $(ADCL_BIN_DIR)/two-dim-f $(ADCL_BIN_DIR)/three-dim-f 	$(ADCL_BIN_DIR)/three-dim-large \
+	      $(ADCL_BIN_DIR)/test-fnctset-noattrs_f $(ADCL_BIN_DIR)/test-fnctset-single_f \
+	      $(ADCL_BIN_DIR)/test-fnctset-allgatherv_f \
+	      $(ADCL_BIN_DIR)/test-fnctset-alltoall_f  $(ADCL_BIN_DIR)/test-fnctset-allreduce_f \
+	      $(ADCL_BIN_DIR)/test-prometheus
+
+

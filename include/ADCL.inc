@@ -8,7 +8,7 @@
 ! $HEADER$
 !
 !#ifdef ADCL_DUMMY_MPI
-!#include "ADCL_dummy_mpi.h"
+!       include  "ADCL_dummy_mpi.h"
 !#else
        include "mpif.h"
 !#endif
@@ -100,11 +100,13 @@
        !integer ADCL_FNCTSET_SHIFT_LTOR
        !integer ADCL_FNCTSET_SHIFT_RTOL
        integer ADCL_FNCTSET_ALLGATHERV, ADCL_FNCTSET_ALLREDUCE
+       integer ADCL_FNCTSET_ALLTOALL
        integer ADCL_FNCTSET_ALLTOALLV
        parameter ( ADCL_FNCTSET_NEIGHBORHOOD = 0 )
        parameter ( ADCL_FNCTSET_ALLGATHERV   = 1 )
        parameter ( ADCL_FNCTSET_ALLREDUCE    = 2 )
        parameter ( ADCL_FNCTSET_ALLTOALLV    = 3 )
+       parameter ( ADCL_FNCTSET_ALLTOALL     = 4 )
 
        ! this is not such a good idea: 
        ! parameter ( ADCL_FNCTSET_SHIFT_RTOL   = 0 )

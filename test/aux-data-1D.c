@@ -14,6 +14,7 @@
 #include "mpi.h"
 
 void dump_vector_1D ( double *data, int rank, int dim);
+void dump_vector_1D_mpi ( double *data, int dim, MPI_Comm comm );
 void set_data_1D ( double *data, int rank, int dim);
 int check_data_1D ( double *data, int* rcounts, int *rdispl, int rank, int size);
 
@@ -80,3 +81,30 @@ void dump_vector_1D ( double *data, int rank, int dim)
 
     return;
 }
+
+
+/**********************************************************************/
+void dump_vector_1D_mpi ( double *data, int dim, MPI_Comm comm )
+/**********************************************************************/
+{
+    int i, iproc;
+    int rank, size;
+
+    MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
+    MPI_Comm_size ( MPI_COMM_WORLD, &size );
+
+    for ( iproc=0; iproc<size; iproc++ ) {
+        if ( iproc == rank ) {
+            printf("%d : ", rank);
+            for ( i=0; i<dim; i++ ) {
+                printf("%lf ", data[i]);
+            }
+            printf ("\n");
+        }
+        MPI_Barrier ( comm );
+    }
+
+    return;
+}
+
+

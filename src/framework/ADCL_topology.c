@@ -64,10 +64,10 @@ int ADCL_topology_create_generic ( int ndims, int nneigh, int *lneighbors, int *
     return ADCL_SUCCESS;
 }
 
-int ADCL_topology_create ( MPI_Comm cart_comm, ADCL_topology_t **topo )
+int ADCL_topology_create ( MPI_Comm comm, ADCL_topology_t **topo )
 {
     ADCL_topology_t *newtopo=NULL;
-    int cartdim, i;
+    int cartdim, i, topo_type;
 
     newtopo = (ADCL_topology_t *) calloc ( 1, sizeof ( ADCL_topology_t ));
     if ( NULL == newtopo ) {
@@ -81,26 +81,30 @@ int ADCL_topology_create ( MPI_Comm cart_comm, ADCL_topology_t **topo )
                  newtopo->t_id,
                  newtopo );
 
-    MPI_Comm_rank ( cart_comm, &(newtopo->t_rank) );
-    MPI_Comm_size ( cart_comm, &(newtopo->t_size) );
-    MPI_Cartdim_get ( cart_comm, &cartdim );
+    MPI_Comm_rank ( comm, &(newtopo->t_rank) );
+    MPI_Comm_size ( comm, &(newtopo->t_size) );
+    newtopo->t_comm  = comm;
 
-    newtopo->t_comm  = cart_comm;
-    newtopo->t_ndims = cartdim;
-    newtopo->t_nneigh = cartdim;
-    newtopo->t_coords = (int *)malloc ( cartdim * sizeof(int));
-    newtopo->t_neighbors = (int *) malloc ( 2*cartdim *sizeof(int));
-    newtopo->t_flip      = (int *) malloc ( cartdim * sizeof(int));
-    if ( NULL == newtopo->t_neighbors || NULL == newtopo->t_coords  ) {
-    free ( newtopo );
-    return ADCL_NO_MEMORY;
-    }
+    MPI_Topo_test ( comm, &topo_type );
+    if ( MPI_CART == topo_type ) {
+        MPI_Cartdim_get ( comm, &cartdim );
 
-    MPI_Cart_coords ( cart_comm, newtopo->t_rank, cartdim, newtopo->t_coords );
-    for ( i=0; i< cartdim; i++ ) {
-        MPI_Cart_shift ( cart_comm, i, 1, &(newtopo->t_neighbors[2*i]),
-                &(newtopo->t_neighbors[2*i+1]) );
-        if ( newtopo->t_coords[i] % 2 == 0 ) newtopo->t_flip[i] = 0; else newtopo->t_flip[i] = 1;
+        newtopo->t_ndims = cartdim;
+        newtopo->t_nneigh = cartdim;
+        newtopo->t_coords = (int *)malloc ( cartdim * sizeof(int));
+        newtopo->t_neighbors = (int *) malloc ( 2*cartdim *sizeof(int));
+        newtopo->t_flip      = (int *) malloc ( cartdim * sizeof(int));
+        if ( NULL == newtopo->t_neighbors || NULL == newtopo->t_coords  ) {
+            free ( newtopo );
+            return ADCL_NO_MEMORY;
+        }
+
+        MPI_Cart_coords ( comm, newtopo->t_rank, cartdim, newtopo->t_coords );
+        for ( i=0; i< cartdim; i++ ) {
+            MPI_Cart_shift ( comm, i, 1, &(newtopo->t_neighbors[2*i]),
+                    &(newtopo->t_neighbors[2*i+1]) );
+            if ( newtopo->t_coords[i] % 2 == 0 ) newtopo->t_flip[i] = 0; else newtopo->t_flip[i] = 1;
+        }
     }
 
     *topo = newtopo;

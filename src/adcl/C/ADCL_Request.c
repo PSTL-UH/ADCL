@@ -14,7 +14,7 @@
 int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
                           ADCL_Fnctset fnctset, ADCL_Request *req )
 {
-    int i, ret, ndims;
+    int i, ret, ndims, topo_type;
     ADCL_vector_t **svecs, **rvecs;
 
     if ( ( NULL == vec ) ||
@@ -38,6 +38,15 @@ int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
             return ADCL_INVALID_FNCTSET;
         }
     }
+
+    /* next neighbor only works with cartesian communicator */
+    if ( ADCL_TOPOLOGY_NULL != topo && ADCL_FNCTSET_NEIGHBORHOOD == fnctset ) {
+        MPI_Topo_test ( topo->t_comm, &topo_type );
+        if ( MPI_CART != topo_type ) {
+            return ADCL_INVALID_COMM;
+        }
+    }
+
     if ( ADCL_VECTOR_NULL != vec ) {
         if ( ADCL_FNCTSET_NEIGHBORHOOD == fnctset ) {
             ndims = ( 0 < vec->v_nc ) ?  vec->v_ndims-1 : vec->v_ndims; 

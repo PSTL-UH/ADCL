@@ -24,6 +24,10 @@
 #pragma weak adcl_vmap_allreduce_allocate__ = adcl_vmap_allreduce_allocate
 #pragma weak ADCL_VMAP_ALLREDUCE_ALLOCATE   = adcl_vmap_allreduce_allocate
 
+#pragma weak adcl_vmap_alltoall_allocate_  = adcl_vmap_alltoall_allocate
+#pragma weak adcl_vmap_alltoall_allocate__ = adcl_vmap_alltoall_allocate
+#pragma weak ADCL_VMAP_ALLTOALL_ALLOCATE   = adcl_vmap_alltoall_allocate
+
 #pragma weak adcl_vmap_all_allocate_  = adcl_vmap_all_allocate
 #pragma weak adcl_vmap_all_allocate__ = adcl_vmap_all_allocate
 #pragma weak ADCL_VMAP_ALL_ALLOCATE   = adcl_vmap_all_allocate
@@ -123,6 +127,28 @@ void adcl_vmap_allreduce_allocate  ( int *op, int *vmap, int *ierror )
     }
 
     *ierror = ADCL_vmap_allreduce_allocate ( cop, &tvmap );
+    if ( ADCL_SUCCESS == *ierror) {
+        *vmap = tvmap->m_findex;
+    }
+
+    return;
+}
+
+/**********************************************************************/
+#ifdef _SX
+void adcl_vmap_alltoall_allocate_ ( int *scnt, int *rcnt, int *vmap, int *ierror )
+#else
+void adcl_vmap_alltoall_allocate  ( int *scnt, int *rcnt, int *vmap, int *ierror )
+#endif
+{
+    ADCL_vmap_t *tvmap=NULL;
+
+    if ( 0 >= *scnt || 0 >= *rcnt ) {
+        *ierror = ADCL_INVALID_ARG;
+        return;
+    }
+
+    *ierror = ADCL_vmap_alltoall_allocate ( *scnt, *rcnt, &tvmap );
     if ( ADCL_SUCCESS == *ierror) {
         *vmap = tvmap->m_findex;
     }
