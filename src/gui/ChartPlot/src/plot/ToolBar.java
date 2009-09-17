@@ -35,7 +35,8 @@ import utility.*;
 /**
  @author Pascal S. de Kloe
  */
-final class ToolBar extends JComponent implements ComponentListener {
+@SuppressWarnings("serial")
+final class ToolBar extends JToolBar implements ComponentListener {
 
 ToolBar(Graph source) {
 	graph = source;

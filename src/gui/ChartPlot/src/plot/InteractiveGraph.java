@@ -70,8 +70,7 @@ InteractiveGraph(XAxis xAxis, YAxis yAxis, Insets padding) {
 
 private void
 init() {
-	setLayout(new GridBagLayout());
-	
+	setLayout(new BorderLayout());		
 	
 	setCursor(DEFAULT_CURSOR);
 	setToolTipText("");	// enable tool tips

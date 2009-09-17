@@ -153,42 +153,24 @@ public final class Plot extends JFrame implements RecvListener
 		JToggleButton yLimit = new JToggleButton("Set Y");
 		yLimit.addItemListener((InteractiveGraph)graphToAdd);
 		toolbar.add(yLimit);
-		
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.ipady = 100;
-		c.weightx = 0.5;
-		c.gridwidth = 3;
-		c.gridx = 2;
-		c.gridy = 0;
-		
-		graphToAdd.add(toolbar, c);
+		graphToAdd.add(toolbar, BorderLayout.NORTH);
 
 		Panel textPanel = new Panel();
 		textPanel.setBounds(0,getHeight() - 120, getWidth(), 100);
 		TextArea messageBox = new TextArea("", textPanel.getHeight()/16, getWidth()/8, 1);
 		
 		textPanel.add(messageBox);
-		c.ipady = 0;
-		c.gridwidth = 2;
-		c.gridx = 1;
-		c.gridy = 3;
-		graphToAdd.add(textPanel,c);
+		graphToAdd.add(textPanel,BorderLayout.SOUTH);
 		
 		Legend legend = new Legend();
-		c.ipady = 350;
-		c.insets = new Insets(0,getWidth() - 200,0,0);
-		c.gridwidth = 2;
-		c.gridx = 2;
-		c.gridy = 1;
-		graphToAdd.add(legend,c);
+		graphToAdd.add(legend,BorderLayout.EAST);
 
 		tab.addTab("Tab "+i, graphToAdd);
 	}
 
 	private void addNewGraphToList() 
 	{
-		Insets padding = new Insets(50, 70, 200, 200);
+		Insets padding = new Insets(100, 70, 200, 200);
 		Graph newGraph = new InteractiveGraph(xAxis, yAxis);    		
 		newGraph.getXAxis().setZigZaginess(BigDecimal.valueOf(7L, 1));
 		newGraph.getYAxis().setZigZaginess(BigDecimal.valueOf(7L, 1));

@@ -27,7 +27,6 @@ OF SUCH DAMAGE.
 */
 
 import java.awt.*;
-import java.awt.geom.*;
 import java.math.*;
 import java.text.Format;
 import javax.swing.*;
@@ -36,6 +35,7 @@ import javax.swing.*;
 /**
  @author Pascal S. de Kloe
  */
+@SuppressWarnings("serial")
 final class ZoomSelection extends JComponent {
 
 ZoomSelection(InteractiveGraph graph, Point start) {
