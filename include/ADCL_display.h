@@ -18,7 +18,8 @@
 #define ADCL_DISPLAY_POINTS 0
 #define ADCL_DISPLAY_MESSAGE 1
 #define ADCL_DISPLAY_CHANGE_FUNCTION 2
-#define ADCL_DISPLAY_COMM_FINAL 3
+#define ADCL_DISPLAY_WINNER_DECIDED 3
+#define ADCL_DISPLAY_COMM_FINAL 4
 
 int ADCL_display_init();
 int ADCL_display(int type,...);
