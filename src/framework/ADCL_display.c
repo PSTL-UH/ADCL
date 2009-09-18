@@ -5,6 +5,7 @@
 #define MAXLEN 20
 #define MAXMSGBUFSIZE 1024
 #define MAXFUNCNAME 28
+#define MAXOBJNAME 8
 
 char ADCL_display_ip[MAXLEN] = "172.25.66.95";
 int ADCL_display_port = 20000;
@@ -16,6 +17,8 @@ static int sock;
 char *hostname, *msgbuf;
 int selfrank =0;
 
+static int host_is_little = 0;
+static int is_init=0;
 /* Prototypes */
 
 typedef struct
@@ -33,6 +36,13 @@ typedef struct
 	char funcname[MAXFUNCNAME];
 }function_change;
 
+typedef struct
+{
+	char objname[MAXOBJNAME];
+	int objid;
+	int funcid;
+}winner_decided;
+
 static void configure_socket ( int sd );
 static void write_string ( int hdl, char *buf, int num );
 static void read_string ( int hdl, char *buf, int num );
@@ -40,6 +50,7 @@ static void write_int ( int hdl, int val );
 static void read_int ( int hdl, int *val );
 static void write_header(int hdl, header head);
 static void write_function_change(int hdl, function_change func_change);
+static void write_winner_decided(int hdl, winner_decided winner);
 static void endian_init (void );
 
 int ADCL_display_init()
@@ -50,24 +61,27 @@ int ADCL_display_init()
     	int port;
     	struct sockaddr_in client;
     	struct hostent *host;
-	 MPI_Comm_rank ( MPI_COMM_WORLD, &selfrank );
+	MPI_Comm_rank ( MPI_COMM_WORLD, &selfrank );
 	if(ADCL_display_flag && rank == selfrank)
 	{
 		hostname = strdup ( ip );
    	 	port     = portnum;
 
     	/* convert the hostname to an IP address */
-   		if ( ( host = gethostbyname ( hostname ) ) == NULL ) {
+   		if ( ( host = gethostbyname ( hostname ) ) == NULL ) 
+		{
         		printf("CLIENT: could not resolve hostname %s \n", hostname );
         		return -1;
     		}
 
 
-    		if ( (sock = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
+    		if ( (sock = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) 
+		{
 			ADCL_display_flag = 0;
         		printf("CLIENT: could not get a socket\n" );
     		}
-    		else {
+    		else 
+		{
         		printf("CLIENT: got a a socket\n");
     		}
 
@@ -75,11 +89,13 @@ int ADCL_display_init()
     		client.sin_port        = htons(port);
    		memcpy ( &client.sin_addr, host->h_addr, host->h_length );
    		configure_socket(sock);
-    		if ( connect (sock, (struct sockaddr *)&client, sizeof(client)) < 0) {
+    		if ( connect (sock, (struct sockaddr *)&client, sizeof(client)) < 0) 
+		{
 			ADCL_display_flag = 0;
        	 		printf("CLIENT: connect call failed to %s on port %d \n", hostname, port);
     		}
-    		else {
+    		else
+		{
         		printf("CLIENT: connection established to %s on port %d\n", hostname, port);
     			write_int ( sock, sizeof(header) );
     		}	
@@ -119,6 +135,16 @@ int ADCL_display(int type,...)
 			head.len = sizeof(func_change);
 			write_header(sock,head);
 			write_function_change(sock,func_change);
+		}
+		else if(ADCL_DISPLAY_WINNER_DECIDED == type)
+		{
+			winner_decided winner;	
+			vsprintf(winner.objname,va_arg(ap,char*),ap);
+			winner.objid = va_arg(ap,int);
+			winner.funcid = va_arg(ap,int);
+			head.len = sizeof(winner);
+			write_header(sock,head);
+			write_winner_decided(sock,winner);
 		}
 
 		va_end(ap);
@@ -180,8 +206,6 @@ void configure_socket ( int sd )
 
     return;
 }
-static int host_is_little = 0;
-static int is_init=0;
 
 void write_string ( int hdl, char *buf, int num )
 {
@@ -344,6 +368,12 @@ void write_function_change(int hdl,function_change func_change)
 {
 	char *msg = (char*)&func_change;
 	write_string(hdl,msg,sizeof(func_change));
+}
+
+void write_winner_decided(int hdl,winner_decided winner)
+{
+	char *msg = (char*)&winner;
+	write_string(hdl,msg,sizeof(winner));
 }
 
 static void endian_init ()
