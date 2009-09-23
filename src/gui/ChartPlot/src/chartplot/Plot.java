@@ -47,7 +47,7 @@ public final class Plot extends JFrame implements RecvListener
 			this.iteration = iteration;
 		}
 		HashMap<Integer, Integer> funcNumToFuncId = new HashMap<Integer, Integer>();
-		public HashMap<Integer, Integer> getFuncNumToFuncId() {
+		public HashMap<Integer, Integer> getFuncIdToFuncNum() {
 			return funcNumToFuncId;
 		}		
 		
@@ -61,17 +61,21 @@ public final class Plot extends JFrame implements RecvListener
 		}
 		public void addFunctionId(int functionId) 
 		{
-			funcNumToFuncId.put(Integer.valueOf(functionNumber), Integer.valueOf(functionId));
+			funcNumToFuncId.put(Integer.valueOf(functionId), Integer.valueOf(functionNumber));
 			functionNumber++;
 		}
 		
 		public boolean functionIdExists(int functionId)
 		{
-			return funcNumToFuncId.containsValue(functionId);
+			return funcNumToFuncId.containsKey(functionId);
 		}
 		public void incrementIterator() 
 		{
 			iteration++;
+		}
+		public int getFuncNumFromId(int functionId) 
+		{
+			return funcNumToFuncId.get(functionId);
 		}
 	}
 
@@ -236,10 +240,14 @@ public final class Plot extends JFrame implements RecvListener
 			
 			if(!idToTabStatus.get(head.get_id()).functionIdExists(functionId))
 			{
-				functionChange(message, head, idToTabStatus.get(head.get_id()).getFunctionNumber());
 				idToTabStatus.get(head.get_id()).addFunctionId(functionId);
+				functionChange(message, head, idToTabStatus.get(head.get_id()).getFunctionNumber());
 			}
 			
+		}
+		else if(message_types.values()[head.get_type()] == message_types.WinnerDecided)
+		{
+			winnerDecided(head,msg);			
 		}
 		
 		for(Graph eachGraph : graph)
@@ -250,16 +258,34 @@ public final class Plot extends JFrame implements RecvListener
     	
     }
 
-	private void functionChange(String functionName, Header head, int functionId) 
+	private void winnerDecided(Header head, byte[] msg) 
+	{
+		int requestId = util.byteArrayToInt(msg, 8);
+		int functionId = util.byteArrayToInt(msg, 12);
+		String objectName = new String(msg);
+		objectName = objectName.substring(0, 8);
+		objectName = objectName.replaceAll("[^A-Za-z\\_\\s]", " ");
+		
+		ChartStyle style2 = new ChartStyle();		
+		TabStatus tabStatus = idToTabStatus.get(Integer.valueOf(head.get_id()));
+		style2.setPaint(color[tabStatus.getFuncNumFromId(functionId)]);
+		
+		Graph currGraph = tabStatus.getTab();		
+		currGraph.addFunction(new Function("Function "+head.get_id()), style2);	
+		
+		String winnerMsg = objectName+" "+requestId+" winner is "+functionId+" "+tabStatus.getTab().getGraphFunctions()[tabStatus.getFuncNumFromId(functionId)+1].toString();
+		showInMessageBox(head.get_id(), winnerMsg);
+	}
+
+	private void functionChange(String functionName, Header head, int functionNum) 
 	{		
 		functionName = functionName.substring(4);
-		System.out.println("function id is "+functionId);
 		ChartStyle style2 = new ChartStyle();
-		style2.setPaint(color[functionId]);
+		style2.setPaint(color[functionNum-1]);
 		Graph currGraph = idToTabStatus.get(Integer.valueOf(head.get_id())).getTab();
 		
-		currGraph.addFunction(new Function("Function "+head.get_id()), style2);			
-		((Legend)currGraph.getComponent(currGraph.getComponentCount()-1)).addToLegendList(color[functionId],functionName);
+		currGraph.addFunction(new Function(functionName), style2);			
+		((Legend)currGraph.getComponent(currGraph.getComponentCount()-1)).addToLegendList(color[functionNum-1],functionName);
 		
 	}
 
@@ -280,7 +306,7 @@ public final class Plot extends JFrame implements RecvListener
 		Collection<TabStatus> list = idToTabStatus.values();
 		for(TabStatus eachStatus : list )
 		{
-			eachStatus.getFuncNumToFuncId().clear();
+			eachStatus.getFuncIdToFuncNum().clear();
 			eachStatus = null;
 		}
 		idToTabStatus.clear();

@@ -12,7 +12,7 @@ import eventpackage.EventGenerator;
 
 public class StartupServer
 {	
-	public enum message_types {Points, Message, FunctionChange, EndOfComm};
+	public enum message_types {Points, Message, FunctionChange, WinnerDecided, EndOfComm};
 	
     static int numclients = 0;
     static int port       = 31500;
@@ -79,7 +79,7 @@ public class StartupServer
 	            			System.out.println("end of comm message received");
 	                     	break infinite;
 	                	}
-	            		else if(message_types.values()[head.get_type()] == message_types.Message || message_types.values()[head.get_type()] == message_types.FunctionChange)
+	            		else if(message_types.values()[head.get_type()] == message_types.Message || message_types.values()[head.get_type()] == message_types.FunctionChange || message_types.values()[head.get_type()] == message_types.WinnerDecided)
 	            		{            			
 	            			msgbuf = new byte[head.get_len()];
 	            			int  offset   = 0;
