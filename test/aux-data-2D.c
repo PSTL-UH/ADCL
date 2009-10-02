@@ -16,6 +16,7 @@
 
 void dump_vector_2D ( double **data, int rank, int *dim);
 void dump_vector_2D_mpi ( double **data, int *dim, MPI_Comm comm );
+void dump_vector_2D_plus_nc_mpi ( double ***data, int *dim, int nc, MPI_Comm comm ); 
 void set_data_2D    ( double **data, int rank, int *dim, int hwidth );
 void check_data_2D  ( double **data, int rank, int *dim, 
 			    int hwidth, int *neighbors ); 
@@ -177,6 +178,39 @@ void dump_vector_2D_mpi ( double **data, int *dim, MPI_Comm comm )
     }
 
     return;
+}
+
+/********************************************************************************************************************************/
+void dump_vector_2D_plus_nc_mpi ( double ***data, int *dim, int nc, MPI_Comm comm )
+/********************************************************************************************************************************/
+{
+    /* data - 2-dimensional array
+       dims - array of dimensions of data
+       nc   - number of entries for each data point
+       comm - MPI communicator
+       purpose: prints 3d array data */
+    int i, j, k, iproc;
+    int rank, size;
+
+    MPI_Comm_rank ( comm, &rank );
+    MPI_Comm_size ( comm, &size );
+
+    for (iproc=0; iproc<size; iproc++) {
+        if ( iproc == rank ) {
+            for (i=0; i<dim[0]; i++) {
+                for ( j=0; j<dim[1]; j++ ) {
+                    printf("Rank %d : dim[0]=%d dim[1]=%d ", rank, i, j);
+                    for ( k=0; k<nc; k++ ) {
+                        printf("%lf ", data[i][j][k]);
+                    }
+                    printf ("\n");
+                }
+            }
+        }
+        MPI_Barrier( comm );
+    }
+    return;
+
 }
 
 

@@ -12,11 +12,11 @@
 #include "ADCL.h"
 #include "mpi.h"
 
-void dump_vector_3D_mpi ( double ***data, int *dim, int nc,  MPI_Comm comm );
+void dump_vector_3D_mpi ( double ***data, int *dim, MPI_Comm comm );
 
 
 /********************************************************************************************************************************/
-void dump_vector_3D_mpi ( double ***data, int *dim, int nc,  MPI_Comm comm )
+void dump_vector_3D_mpi ( double ***data, int *dim, MPI_Comm comm )
 /********************************************************************************************************************************/
 {
     /* data - 3-dimensional array
@@ -29,12 +29,12 @@ void dump_vector_3D_mpi ( double ***data, int *dim, int nc,  MPI_Comm comm )
     MPI_Comm_rank ( comm, &rank );
     MPI_Comm_size ( comm, &size );
 
-    for (iproc=0; iproc<dim[0]; iproc++) {
+    for (iproc=0; iproc<size; iproc++) {
         if ( iproc == rank ) {
             for (i=0; i<dim[0]; i++) {
                 for ( j=0; j<dim[1]; j++ ) {
                     printf("Rank %d : dim[0]=%d dim[1]=%d ", rank, i, j);
-                    for ( k=0; k<nc; k++ ) {
+                    for ( k=0; k<dim[2]; k++ ) {
                         printf("%lf ", data[i][j][k]);
                     }
                     printf ("\n");

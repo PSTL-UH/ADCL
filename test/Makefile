@@ -16,7 +16,7 @@ CEXECS = first second third fourth \
 	 test-fnctset-alltoall test-fnctset-allreduce \
 	 attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
 	 data_1 PbSizes_1D PbSizes_2D PbSizes_3D \
-         test-fnctset-extneigh-2d
+         test-fnctset-extneigh-2d test-fnctset-extneigh-3d 
 
 FEXECS = first_f second_f \
 	 one-dim-f two-dim-f three-dim-f three-dim-large \
@@ -171,9 +171,13 @@ $(ADCL_BIN_DIR)/PbSizes_1D: PbSizes_1D.o
 
 test-fnctset-extneigh-2d: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d
 	
-$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d: test-fnctset-extneigh-2d.o #aux-data-2D.o aux-data-3D.o
-	@echo hello
-	$(CC) $^ -o $@ $(LDFLAGS)
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d: test-fnctset-extneigh-2d.o aux-data-2D.o aux-data-3D.o
+	$(CC) $^ $(LDFLAGS) -o $@
+
+test-fnctset-extneigh-3d: $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d 
+	
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d: test-fnctset-extneigh-3d.o aux-data-3D.o 
+	$(CC) $^ $(LDFLAGS) -o $@
 
 ###################################################################################################
 ### FORTRAN TESTS                                                                               ###
