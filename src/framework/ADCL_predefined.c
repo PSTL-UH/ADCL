@@ -401,37 +401,37 @@ int ADCL_predefined_init ( void )
 
     ADCL_function_create_async ( ADCL_allgatherv_native, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv native",
+                                 m_allgatherv_attr, "Allgatherv_native",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_recursivedoubling, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv recursive doubling",
+                                 m_allgatherv_attr, "Allgatherv_recursive_doubling",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_linear, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv linear",
+                                 m_allgatherv_attr, "Allgatherv_linear",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_bruck, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv bruck",
+                                 m_allgatherv_attr, "Allgatherv_bruck",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_neighborexchange, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv neighbor exchange",
+                                 m_allgatherv_attr, "Allgatherv_neighbor_exchange",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allgatherv_ring, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv ring",
+                                 m_allgatherv_attr, "Allgatherv_ring",
                                  & ADCL_allgatherv_functions[count]);
     count++;
 
@@ -439,7 +439,7 @@ int ADCL_predefined_init ( void )
     /* this algo only works for topo->t_size == 2
      * ADCL_function_create_async ( ADCL_allgatherv_two_procs, NULL,
      *                              ADCL_ATTRSET_NULL,
-     *                              m_allgatherv_attr, "Allgatherv two procs",
+     *                              m_allgatherv_attr, "Allgatherv_two_procs",
      *                              & ADCL_allgatherv_functions[count]);
      * count++; */
 
@@ -469,31 +469,31 @@ int ADCL_predefined_init ( void )
 
     ADCL_function_create_async ( ADCL_allreduce_native, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce native",
+                                 m_allreduce_attr, "Allreduce_native",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allreduce_linear, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce linear",
+                                 m_allreduce_attr, "Allreduce_linear",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allreduce_nonoverlapping, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce nonoverlapping",
+                                 m_allreduce_attr, "Allreduce_nonoverlapping",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allreduce_recursivedoubling, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce recursive doubling",
+                                 m_allreduce_attr, "Allreduce_recursive_doubling",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
     ADCL_function_create_async ( ADCL_allreduce_ring, NULL,
                                  ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce ring",
+                                 m_allreduce_attr, "Allreduce_ring",
                                  & ADCL_allreduce_functions[count]);
     count++;
 
