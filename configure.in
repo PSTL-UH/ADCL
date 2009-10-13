@@ -610,6 +610,17 @@ if test "$ADCL_FILE_PER_PROC" = yes ; then
   AC_DEFINE(ADCL_FILE_PER_PROC)
 fi
 
+AC_ARG_ENABLE(new-output-format,
+[  --enable-new-output-format        save emethod id as winner instead of request id (default=no)],
+[test "$enableval" = yes && ADCL_NEW_OUTPUT_FORMAT=yes])
+test "$ADCL_NEW_OUTPUT_FORMAT" = yes || ADCL_NEW_OUTPUT_FORMAT=no
+
+AC_MSG_CHECKING([whether to use new output format])
+AC_MSG_RESULT(${ADCL_NEW_OUTPUT_FORMAT})
+if test "$ADCL_NEW_OUTPUT_FORMAT" = yes ; then
+  AC_DEFINE(ADCL_NEW_OUTPUT_FORMAT)
+fi
+
 AC_ARG_ENABLE(userlevel_timings,
 [  --enable-userlevel-timings        disable ADCL internal timing routines (default=no)],
 [test "$enableval" = yes && ADCL_USERLEVEL_TIMINGS=yes])
@@ -653,6 +664,7 @@ AC_MSG_RESULT(${ADCL_SMOOTH_HIST})
 if test "$ADCL_SMOOTH_HIST" = yes ; then
   AC_DEFINE(ADCL_SMOOTH_HIST)
 fi
+
 
 dnl ==================================================
 AC_MSG_CHECKING(for number of measurements per method)

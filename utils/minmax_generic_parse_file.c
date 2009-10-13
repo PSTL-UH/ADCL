@@ -515,8 +515,8 @@ int minmax_read_commentline ( char* line, COMMLINE* commentline) {
    else if ( NULL != strstr ( line, "winner is") ) { 
        basestr = strstr ( line, ":" );
        sscanf ( basestr, "%1s %s %d", colon, objstr, &obj_id );
-       if ( NULL != strstr ( objstr, "req " ) ) { /* some one uses the old format */
-          printf("Old file format. Exiting\n"); 
+       if ( NULL != strstr ( objstr, "req" ) ) { /* some one uses the old format */
+          printf("Old file format. Exiting ...\n"); 
           exit(-1); 
        }
        minmax_get_object ( objstr, &obj_id, 1, commentline, &object ); 
@@ -656,22 +656,28 @@ void minmax_init ( COMMLINE *commline, struct emethod ****emethods) {
             /* Allocate the required emethods array to hold the overall data */
             em[obj] = ( struct emethod **) malloc ( commline->nprocs * sizeof ( struct emethod *));
             if ( NULL == em[obj] ) {
+                printf("minax_init: undefined pointer for emethod object no. %d. Exiting ...", obj);
                 exit (-1);
             }
 
             for ( iproc=0; iproc< commline->nprocs; iproc++ ) {
                 em[obj][iproc] = (struct emethod *) calloc (1, commline->objects[obj].nimpl*sizeof(struct emethod));
                 if  ( NULL == em[obj][iproc] ) {
+                    printf("minax_init: undefined pointer for proc %d of emethod object %d. Exiting ...", iproc, obj);
                     exit (-1);
                 }
 
                 for (iImpl=0; iImpl<commline->objects[obj].nimpl; iImpl++ ) {
                     em[obj][iproc][iImpl].em_time = (double *) calloc (1, commline->numtests * sizeof(double));
                     if ( NULL == em[obj][iproc][iImpl].em_time ) {
+                        printf("minax_init: implementation %d of proc %d of emethod object %d has no timings. Exiting ...", 
+                                iImpl, iproc, obj);
                         exit (-1);
                     }
                     em[obj][iproc][iImpl].em_poison = (int *) calloc (1, commline->numtests * sizeof(int));
                     if ( NULL == em[obj][iproc][iImpl].em_poison ) {
+                        printf("minax_init: implementation %d of proc %d of emethod object %d has no poison array. Exiting ...", 
+                                iImpl, iproc, obj);
                         exit (-1);
                     }
                     em[obj][iproc][iImpl].em_count    = commline->numtests;

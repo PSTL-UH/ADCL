@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2009           HLRS 
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -44,6 +45,9 @@
 
 /* Enable dumping the ADCL knowledge to an XML file  */
 #undef ADCL_KNOWLEDGE_TOFILE
+
+/* Enable new output format ( emethod winner instead of request winner )   */
+#undef ADCL_NEW_OUTPUT_FORMAT
 
 /* Enable saving the winner of a request  */
 #undef ADCL_SAVE_REQUEST_WINNER

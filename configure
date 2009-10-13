@@ -1261,6 +1261,7 @@ Optional Features:
   --enable-onesided                 enable the usage of one-sided communication (default=no)
   --enable-use-barrier              use barrier synchronization for measurements (default=yes)
   --disable-printf-tofile           dump printf statements to a file (default=yes)
+  --enable-new-output-format        save emethod id as winner instead of request id (default=no)
   --enable-userlevel-timings        disable ADCL internal timing routines (default=no)
   --enable-knowledge-tofile         dump the ADCL knowledge to an XML file (default=no)
   --disable-saving-request-winner   save the winner of a request (default=yes)
@@ -4196,6 +4197,24 @@ echo "${ECHO_T}${ADCL_FILE_PER_PROC}" >&6; }
 if test "$ADCL_FILE_PER_PROC" = yes ; then
   cat >>confdefs.h <<\_ACEOF
 #define ADCL_FILE_PER_PROC 1
+_ACEOF
+
+fi
+
+# Check whether --enable-new-output-format was given.
+if test "${enable_new_output_format+set}" = set; then
+  enableval=$enable_new_output_format; test "$enableval" = yes && ADCL_NEW_OUTPUT_FORMAT=yes
+fi
+
+test "$ADCL_NEW_OUTPUT_FORMAT" = yes || ADCL_NEW_OUTPUT_FORMAT=no
+
+{ echo "$as_me:$LINENO: checking whether to use new output format" >&5
+echo $ECHO_N "checking whether to use new output format... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: result: ${ADCL_NEW_OUTPUT_FORMAT}" >&5
+echo "${ECHO_T}${ADCL_NEW_OUTPUT_FORMAT}" >&6; }
+if test "$ADCL_NEW_OUTPUT_FORMAT" = yes ; then
+  cat >>confdefs.h <<\_ACEOF
+#define ADCL_NEW_OUTPUT_FORMAT 1
 _ACEOF
 
 fi

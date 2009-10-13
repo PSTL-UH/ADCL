@@ -499,8 +499,13 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_AVAIL );
 
+#ifdef ADCL_NEW_OUTPUT_FORMAT
+    req->r_function = ADCL_emethod_get_function_by_state ( req->r_emethod,
+          &(req->r_erlast), &(req->r_erflag), "emethod", req->r_emethod->em_id, ADCL_COMM_AVAIL);
+#else
     req->r_function = ADCL_emethod_get_function_by_state ( req->r_emethod,  
        &(req->r_erlast), &(req->r_erflag), "req", req->r_id, ADCL_COMM_AVAIL);  
+#endif
 
 #ifdef PERF_DETAILS
     start_time = TIME;
