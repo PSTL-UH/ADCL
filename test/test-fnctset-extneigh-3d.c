@@ -204,15 +204,18 @@ static void check_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *d
 {
     int control_x, control_y, control_z, lres=1, gres;
 
+    // check for each of the 27 possible locations
     for(control_x=-1; control_x<=1; control_x++){
         for(control_y=-1; control_y<=1; control_y++){
             for(control_z=-1; control_z<=1; control_z++){
-#ifdef INCCORNER			
+#ifdef INCCORNER
                 if((control_x * control_y * control_z) != 0){
+                    // corner
                     lres = calc_entry3D ( control_x, control_y, control_z, data, rank, cart_comm, dim, hwidth, neighbors);
                 }
 #endif
                 if((control_x * control_y * control_z) == 0){
+                    // edge, face or inside
                     lres = calc_entry3D ( control_x, control_y, control_z, data, rank, cart_comm, dim, hwidth, neighbors);
                 }
             }
@@ -477,7 +480,7 @@ static int calc_entry3D ( int control_x, int control_y, int control_z,  double *
     neighbor_cond[0] = neighbor_cond[1] = neighbor_cond[2] = 0;
 
     switch(control_x){
-        case 0:		
+        case 0:
             loopstart[0] = hwidth;
             loopend[0] = dim[0] - hwidth;
             compensate[0] = 0;
@@ -485,7 +488,7 @@ static int calc_entry3D ( int control_x, int control_y, int control_z,  double *
             neighbor_cond[0] = 1;
             break;
 
-        case 1:		
+        case 1:
             loopstart[0] = dim[0] - hwidth *2;
             loopend[0] = dim[0]-hwidth ;
             compensate[0] = - (dim[0] - hwidth*2) ;
@@ -496,7 +499,7 @@ static int calc_entry3D ( int control_x, int control_y, int control_z,  double *
             }
             break;
 
-        case -1:	
+        case -1:
             loopstart[0] = hwidth;
             loopend[0] = hwidth * 2;	
             compensate[0] = (dim[0] - hwidth*2) ;

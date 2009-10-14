@@ -16,13 +16,14 @@ CEXECS = first second third fourth \
 	 test-fnctset-alltoall test-fnctset-allreduce \
 	 attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
 	 data_1 PbSizes_1D PbSizes_2D PbSizes_3D \
-         test-fnctset-extneigh-2d test-fnctset-extneigh-3d 
+	 test-fnctset-extneigh-2d test-fnctset-extneigh-3d 
 
 FEXECS = first_f second_f \
 	 one-dim-f two-dim-f three-dim-f three-dim-large \
 	 test-fnctset-noattrs_f test-fnctset-single_f     \
 	 test-fnctset-allgatherv_f \
-         test-fnctset-alltoall_f test-fnctset-allreduce_f  \
+	 test-fnctset-alltoall_f test-fnctset-allreduce_f  \
+	 test-fnctset-extneigh-3d_f \
 	 test-prometheus
 
 ADCL_LIB_ = $(ADCL_LIB_DIR)/$(ADCL_LIB)
@@ -243,6 +244,16 @@ test-fnctset-allreduce_f: $(ADCL_BIN_DIR)/test-fnctset-allreduce_f
 $(ADCL_BIN_DIR)/test-fnctset-allreduce_f:  test-fnctset-allreduce_f.o
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
+#test-fnctset-extneigh-2d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f 
+#	
+#$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f:  test-fnctset-extneigh-2d_f.o aux-data-2D-dp-f.o 
+#	$(FC) $^ -o $@ $(FLDFLAGS)
+#
+test-fnctset-extneigh-3d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f 
+	
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f:  test-fnctset-extneigh-3d_f.o aux-data-3D-dp_f.o aux-data-4D-dp_f.o 
+	$(FC) $^ -o $@ $(FLDFLAGS)
+#
 test-prometheus: $(ADCL_BIN_DIR)/test-prometheus 
 	
 $(ADCL_BIN_DIR)/test-prometheus:  test-prometheus.o
@@ -252,12 +263,24 @@ $(ADCL_BIN_DIR)/test-prometheus:  test-prometheus.o
 ###################################################################################################
 
 aux-data-2D-dp-f.o: aux-data-2D-f.f90
-	$(FC) $(FFLAGS) -I../include -c -DSET_DATA=set_data_2D_dp -DDUMP_VECTOR=dump_vector_2D_dp \
-	      -DCHECK_DATA=check_data_2D_dp -DDATATYPE="doubleprecision" -o aux-data-2D-dp-f.o $<
+	$(FC) $(FFLAGS) -I../include -c -DDP -DSET_DATA=set_data_2D_dp -DDUMP_VECTOR=dump_vector_2D_dp \
+	      -DDUMP_VECTOR_MPI=dump_vector_2D_mpi_dp \
+	      -DCHECK_DATA=check_data_2D_dp -DDATATYPE="doubleprecision" -o $@ $<
 
 aux-data-2D-int-f.o: aux-data-2D-f.f90
-	$(FC) $(FFLAGS) -I../include -c -DSET_DATA=set_data_2D_int -DDUMP_VECTOR=dump_vector_2D_int \
-	      -DCHECK_DATA=check_data_2D_int -DDATATYPE="integer" -o aux-data-2D-int-f.o $<
+	$(FC) $(FFLAGS) -I../include -c -DINT -DSET_DATA=set_data_2D_int -DDUMP_VECTOR=dump_vector_2D_int \
+	      -DDUMP_VECTOR_MPI=dump_vector_2D_int_dp \
+	      -DCHECK_DATA=check_data_2D_int -DDATATYPE="integer" -o $@ $<
+
+aux-data-3D-dp_f.o: aux-data-3D_f.f90
+	$(FC) $(FFLAGS) -I../include -c -DSET_DATA=set_data_3D_dp -DDUMP_VECTOR=dump_vector_3D_dp \
+	      -DDUMP_VECTOR_MPI=dump_vector_3D_mpi_dp \
+	      -DCHECK_DATA=check_data_3D_dp -DDATATYPE="doubleprecision" -o $@ $<
+
+aux-data-4D-dp_f.o: aux-data-4D_f.f90
+	$(FC) $(FFLAGS) -I../include -c -DSET_DATA=set_data_4D_dp -DDUMP_VECTOR=dump_vector_4D_dp \
+	      -DDUMP_VECTOR_MPI=dump_vector_4D_mpi_dp \
+	      -DCHECK_DATA=check_data_4D_dp -DDATATYPE="doubleprecision" -o $@ $<
 
 %.o: %.c $(ADCL_LIB_)
 	$(CC) -c $(CFLAGS) $<

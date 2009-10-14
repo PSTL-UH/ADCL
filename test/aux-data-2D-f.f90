@@ -70,6 +70,33 @@
 !****************************************************************************
 !****************************************************************************
 !****************************************************************************
+      subroutine DUMP_VECTOR_MPI ( arr, dims, comm )
+
+        implicit none
+        include 'ADCL.inc'
+
+        integer dims(2), comm
+        DATATYPE arr(dims(1), dims(2))
+        integer i, j, iproc, rank, size, ierror
+
+        call MPI_Comm_rank ( comm, rank, ierror )
+        call MPI_Comm_size ( comm, size, ierror )
+
+        do iproc = 0, size-1
+           if ( iproc .eq. rank) then
+              do j = 1, dims(1)
+                 write (*,*) rank, (arr(j,i), i=1,dims(2))
+              end do
+           end if 
+           call MPI_Barrier ( comm, ierror )
+        end do
+        return
+      end subroutine DUMP_VECTOR_MPI
+
+
+!****************************************************************************
+!****************************************************************************
+!****************************************************************************
 
       subroutine CHECK_DATA ( arr, rank, dims, hwidth, neighbors ) 
 
