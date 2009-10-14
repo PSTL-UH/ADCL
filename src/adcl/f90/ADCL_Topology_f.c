@@ -24,6 +24,10 @@
 #pragma weak adcl_topology_create_generic__  = adcl_topology_create_generic
 #pragma weak ADCL_TOPOLOGY_CREATE_GENERIC    = adcl_topology_create_generic
 
+#pragma weak adcl_topology_get_cart_neighbors_   = adcl_topology_get_cart_neighbors
+#pragma weak adcl_topology_get_cart_neighbors__  = adcl_topology_get_cart_neighbors
+#pragma weak ADCL_TOPOLOGY_GET_CART_NEIGHBORS    = adcl_topology_get_cart_neighbors
+
 #pragma weak adcl_topology_dump_  = adcl_topology_dump
 #pragma weak adcl_topology_dump__ = adcl_topology_dump
 #pragma weak ADCL_TOPOLOGY_DUMP   = adcl_topology_dump
@@ -150,6 +154,30 @@ void adcl_topology_create_extended ( int* cart_comm, int *topo, int *ierror )
     return;
 }
 
+
+#ifdef _SX
+void adcl_topology_get_cart_neighbors_ ( int* nneigh, int* lneighbors, int* rneighbors, int* flip, int* cart_comm, int *ierror )
+#else
+void adcl_topology_get_cart_neighbors ( int* nneigh, int* lneighbors, int* rneighbors, int* flip, int* cart_comm, int *ierror )
+#endif
+{
+    MPI_Comm ccomm;
+
+    if ( NULL == cart_comm ) { 
+	*ierror = ADCL_INVALID_ARG;
+	return;
+    }
+
+    ccomm = MPI_Comm_f2c (*cart_comm);
+    if ( ccomm == MPI_COMM_NULL ) {
+	*ierror = ADCL_INVALID_COMM;
+	return;
+    }
+    *ierror = ADCL_Topology_get_cart_neighbors ( *nneigh, lneighbors, rneighbors, flip, ccomm );
+
+    return;
+}
+
 #ifdef _SX
 void adcl_topology_dump_ ( int* topo, int *ierror)
 #else
@@ -170,8 +198,7 @@ void adcl_topology_dump ( int* topo, int *ierror)
     return;
 }
 
-
-
+             
 #ifdef _SX
 void adcl_topology_free_ ( int *topo, int *ierror )
 #else

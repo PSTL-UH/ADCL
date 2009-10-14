@@ -267,8 +267,8 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, int nneig
             for ( count=0, i=0; i<nc; i++ ) {
                 for ( k=0; k<hwidth; k++, count++ ) {
                 blength[count] = hwidth;
-                sdispls[count] = dist_3D_Fortran( hwidth, hwidth, i, vecdim, nc);
-                rdispls[count] = dist_3D_Fortran( 0, 0, i, vecdim, nc);
+                sdispls[count] = dist_3D_Fortran( hwidth, hwidth+k, i, vecdim, nc);
+                rdispls[count] = dist_3D_Fortran( 0, k, i, vecdim, nc);
                 }
             }
             MPI_Type_indexed ( count, blength, sdispls, btype, &sdats[4]);
@@ -280,8 +280,8 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, int nneig
             for ( count=0, i=0; i<nc; i++ ) {
                 for ( k=0; k<hwidth; k++, count++ ) {
                 blength[count] = hwidth;
-                sdispls[count] = dist_3D_Fortran( vecdim[0]-2*hwidth, vecdim[1]-2*hwidth, i, vecdim, nc);
-                rdispls[count] = dist_3D_Fortran( vecdim[0]-hwidth, vecdim[1]-hwidth, i, vecdim, nc);
+                sdispls[count] = dist_3D_Fortran( vecdim[0]-2*hwidth, vecdim[1]-2*hwidth+k, i, vecdim, nc);
+                rdispls[count] = dist_3D_Fortran( vecdim[0]-hwidth, vecdim[1]-hwidth+k, i, vecdim, nc);
                 }
             }
             MPI_Type_indexed ( count, blength, sdispls, btype, &sdats[5]);
@@ -293,8 +293,8 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, int nneig
             for ( count=0, i=0; i<nc; i++ ) {
                 for ( k=0; k<hwidth; k++, count++ ) {
                 blength[count] = hwidth;
-                sdispls[count] = dist_3D_Fortran( vecdim[0]-2*hwidth, hwidth, i, vecdim, nc);
-                rdispls[count] = dist_3D_Fortran( vecdim[0]-hwidth, 0, i, vecdim, nc);
+                sdispls[count] = dist_3D_Fortran( vecdim[0]-2*hwidth, hwidth+k, i, vecdim, nc);
+                rdispls[count] = dist_3D_Fortran( vecdim[0]-hwidth, k, i, vecdim, nc);
                 }
             }
             MPI_Type_indexed ( count, blength, sdispls, btype, &sdats[6]);
@@ -306,8 +306,8 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, int nneig
             for ( count=0, i=0; i<nc; i++ ) {
                 for ( k=0; k<hwidth; k++, count++ ) {
                 blength[count] = hwidth;
-                sdispls[count] = dist_3D_Fortran( hwidth, vecdim[1]-2*hwidth, i, vecdim, nc);
-                rdispls[count] = dist_3D_Fortran( 0, vecdim[1]-hwidth, i, vecdim, nc);
+                sdispls[count] = dist_3D_Fortran( hwidth, vecdim[1]-2*hwidth+k, i, vecdim, nc);
+                rdispls[count] = dist_3D_Fortran( 0, vecdim[1]-hwidth+k, i, vecdim, nc);
                 }
             }
             MPI_Type_indexed ( count, blength, sdispls, btype, &sdats[7]);

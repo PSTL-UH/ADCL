@@ -132,6 +132,7 @@ int ADCL_Topology_get_cart_neighbors ( int nneigh, int* lneighbors, int* rneighb
 
     int ndims, topo_type;
     int *coords, *periods, *cdims;
+    int nneigh_trad, nneigh_ext;
 
     if ( 0 >= nneigh || NULL == lneighbors || NULL == rneighbors ||
          NULL == flip || NULL == (void*) cart_comm || MPI_COMM_NULL == cart_comm ) {
@@ -148,8 +149,10 @@ int ADCL_Topology_get_cart_neighbors ( int nneigh, int* lneighbors, int* rneighb
         return ADCL_INVALID_TOPOLOGY;
     }
 
-    if ( nneigh != ADCL_topology_get_cart_number_neighbors ( ndims, 0, &nneigh ) && 
-         nneigh != ADCL_topology_get_cart_number_neighbors ( ndims, 1, &nneigh ) ) {
+    ADCL_topology_get_cart_number_neighbors ( ndims, 0, &nneigh_trad ); 
+    ADCL_topology_get_cart_number_neighbors ( ndims, 1, &nneigh_ext );
+
+    if ( nneigh != nneigh_trad && nneigh != nneigh_ext  ) {
         return ADCL_INVALID_ARG;
     }
         
