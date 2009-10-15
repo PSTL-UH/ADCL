@@ -7,9 +7,8 @@
 ! $HEADER$
 !
         program two
-
+        use auxdata2df
         implicit none
-        include 'ADCL.inc'
 
         integer rank, size, ierror         
         integer nc, hwidth

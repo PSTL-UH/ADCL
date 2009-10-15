@@ -23,7 +23,7 @@ FEXECS = first_f second_f \
 	 test-fnctset-noattrs_f test-fnctset-single_f     \
 	 test-fnctset-allgatherv_f \
 	 test-fnctset-alltoall_f test-fnctset-allreduce_f  \
-	 test-fnctset-extneigh-3d_f \
+	 test-fnctset-extneigh-2d_f test-fnctset-extneigh-3d_f \
 	 test-prometheus
 
 ADCL_LIB_ = $(ADCL_LIB_DIR)/$(ADCL_LIB)
@@ -244,14 +244,14 @@ test-fnctset-allreduce_f: $(ADCL_BIN_DIR)/test-fnctset-allreduce_f
 $(ADCL_BIN_DIR)/test-fnctset-allreduce_f:  test-fnctset-allreduce_f.o
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
-#test-fnctset-extneigh-2d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f 
-#	
-#$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f:  test-fnctset-extneigh-2d_f.o aux-data-2D-dp-f.o 
-#	$(FC) $^ -o $@ $(FLDFLAGS)
-#
-test-fnctset-extneigh-3d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f 
+test-fnctset-extneigh-2d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f 
 	
-$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f:  test-fnctset-extneigh-3d_f.o aux-data-3D-dp_f.o aux-data-4D-dp_f.o 
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f: aux-data-2D-dp-f.o test-fnctset-extneigh-2d_f.o
+	$(FC) $^ -o $@ $(FLDFLAGS)
+#
+test-fnctset-extneigh-3d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f
+	
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f: aux-data-3D-dp_f.o aux-data-4D-dp_f.o test-fnctset-extneigh-3d_f.o  
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 test-prometheus: $(ADCL_BIN_DIR)/test-prometheus 
