@@ -37,6 +37,8 @@ extern int ADCL_display_rank;
 extern int ADCL_display_flag;
 //extern ADCL_method_t * ADCL_method_array;
 
+extern int ADCL_hist_predictor;
+
 static int ADCL_is_keyword (char* keyword, char* text );
 static int ADCL_set_keyword_int_value ( char* strptr, char* keyword, int* value ); 
 static int ADCL_set_keyword_string_value ( char* strptr, char* keyword, char* value );  
@@ -171,6 +173,10 @@ int ADCL_readenv()
         /*  ADCL_HIST_LEARNING */
         else if ( ADCL_is_keyword(keyword, "ADCL_HIST_LEARNING") ) {
             ADCL_set_keyword_int_value ( ptr,"ADCL_HIST_LEARNING", &ADCL_emethod_learn_from_hist );
+        }
+        /*  ADCL_HIST_PREDICTOR */
+        else if ( ADCL_is_keyword(keyword, "ADCL_HIST_PREDICTOR") ) {
+            ADCL_set_keyword_int_value ( ptr,"ADCL_HIST_PREDICTOR", &ADCL_hist_predictor );
         }
         /* ADCL_DISPLAY_IP */
         else if ( ADCL_is_keyword(keyword, "ADCL_DISPLAY_IP") ) {

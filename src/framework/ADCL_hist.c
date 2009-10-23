@@ -11,6 +11,8 @@
 static int ADCL_local_id_counter = 0;
 
 ADCL_array_t *ADCL_hist_array = NULL;
+/* Prediction algorithm to be used : WMV, CLOSEST, NBC, SVM */
+int ADCL_hist_predictor = ADCL_PRED_ALGO;
 
 /* Create a new hist entry consisting on the problem characteristics */
 static int hist_create_new ( ADCL_emethod_t *e, ADCL_hist_t *hist );
@@ -20,8 +22,8 @@ static void hist_reinit(ADCL_hist_t *hist);
 static void hist_add_to_file( ADCL_hist_t* hist, ADCL_emethod_t *e );
 /* Check if a given history entry is identical to a given emethod */
 static int hist_check_for_ident(ADCL_emethod_t *e, ADCL_hist_t *hist);
-/* Cluster the implementation according to a given acceptable performance window */
-static int hist_cluster_implementations( double *elapsed_time, int *impl_class, int nb_of_impl, int perf_win );
+/* Classify the implementation according to a given acceptable performance window */
+static int hist_classify_implementations( double *elapsed_time, int *impl_class, int nb_of_impl, int perf_win );
 /* Find the maximum distance */
 static double hist_find_dmax(double *distance, int *relation, int num_sizes );
 
@@ -115,8 +117,8 @@ int ADCL_hist_create ( ADCL_emethod_t *e )
     /* The acceptable performance window */
     hist->h_perf_win = ADCL_PERF_WIN;
     hist->h_class = (int *)malloc(hist->h_fsnum*sizeof(int));
-    /* Clustering the implementations */
-    hist_cluster_implementations( hist->h_perf, hist->h_class, hist->h_fsnum, ADCL_PERF_WIN );
+    /* Classifying the implementations */
+    hist_classify_implementations( hist->h_perf, hist->h_class, hist->h_fsnum, ADCL_PERF_WIN );
     /* Set to Invalid dmax */
     hist->h_dmax = -1.00;
 
@@ -290,20 +292,18 @@ int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
     char *perf = NULL;
     int ident, explored_hist, pass_filter;
     int i, j, k;
-
-#if (ADCL_PRED_ALGO == ADCL_CLOSEST)
+    /* For closest algo */
     int init = 0;
-    double dist, min_dist;
-
-#elif (ADCL_PRED_ALGO == ADCL_WMV)
+    double min_dist;
+    /* For WMV algo */
     double dist, max_weight;
     double *prediction_weight;
     int predicted_winner;
-#endif
+
 
     if( -2 == e->em_explored_hist ) {
 
-#ifdef ADCL_KNOWLEDGE_TOFILE //TBD adjust config options
+#ifdef ADCL_KNOWLEDGE_TOFILE
         /* Check if a reading function of the according function set do exist */
         if( NULL != fnctset->fs_hist_functions ) {
             if( NULL == fnctset->fs_hist_functions->hf_reader ) {
@@ -387,8 +387,8 @@ int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
                         hist_list->hl_curr = hist;
                         /* Update the classes if the performance window has been changed */
                         if(ADCL_PERF_WIN != hist->h_perf_win) {
-                            /* Re-cluster the implementations */
-                            hist_cluster_implementations( hist->h_perf, hist->h_class, hist->h_fsnum, ADCL_PERF_WIN );
+                            /* Re-classify the implementations */
+                            hist_classify_implementations( hist->h_perf, hist->h_class, hist->h_fsnum, ADCL_PERF_WIN );
                             /* Set to Invalid dmax */
                             hist->h_dmax = -1;
 		        }
@@ -432,9 +432,9 @@ int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
         /* Create a hist entry of the current problem without a solution */
         e->em_hist = (ADCL_hist_t *)calloc(1, sizeof(ADCL_hist_t));
         hist_create_new ( e, e->em_hist );
-#if (ADCL_PRED_ALGO == ADCL_WMV)
-        prediction_weight = (double *)calloc(e->em_orgfnctset->fs_maxnum, sizeof(double));
-#endif
+	if (ADCL_WMV == ADCL_hist_predictor) {
+	    prediction_weight = (double *)calloc(e->em_orgfnctset->fs_maxnum, sizeof(double));
+	}
         /* Memory allocation for distances and relations */
         e->em_relations = (int **)malloc(e->em_hist_cnt*sizeof(int *));
         e->em_distances = (double **)malloc(e->em_hist_cnt*sizeof(double *));
@@ -480,91 +480,69 @@ int ADCL_hist_find ( ADCL_emethod_t *e, ADCL_hist_t **found_hist )
 	    hist1->h_dmax = hist_find_dmax( e->em_distances[i], e->em_relations[i], e->em_hist_cnt );
             /* Compute the distance of the emethod hist and hist1 */
             dist = fnctset->fs_hist_functions->hf_distance(e->em_hist, hist1);
-#ifdef HL_VERBOSE
-            if(0 == e->em_topo->t_rank) {
-                printf("hist id %d dmax %f dist=%f\n", hist1->h_id, hist1->h_dmax, dist);
-            }
-#endif
-            if( dist <= hist1->h_dmax ) {
-#if (ADCL_PRED_ALGO == ADCL_WMV)
-                /* Add the weight to the predicted winner by hist1 */
-                prediction_weight[hist1->h_wfnum]+=1/dist;
-#ifdef HL_VERBOSE
-                if(0 == e->em_topo->t_rank) {
-                    printf("pbsize %dx%dx%d suggestedwinner %d dist %f dmax %f\n",
-                           hist1->h_vdims[0],hist1->h_vdims[1],hist1->h_vdims[2],
-                           hist1->h_wfnum, dist, hist1->h_dmax);
-                }
-#endif
 
-#endif
-#if (ADCL_PRED_ALGO == ADCL_CLOSEST)
-                if( 0 == init ) {
-                    /* set minimum distance */
-                    min_dist = dist;
-                    /* set the estimated winner */
-                    e->em_hist->h_wfnum = hist1->h_wfnum;
-#ifdef HL_VERBOSE
-                    if(0 == e->em_topo->t_rank) {
-                        printf("*** winner %d dist %f ***\n",e->em_hist->h_wfnum, dist);
-                    }
-#endif
-                    /* return the pointer to the similar hist */
-                    *found_hist = hist1;
-                    /* set initted */
-                    init = 1;
-                    /* Here we are sure at least we have one prediction */
-                    ret = ADCL_SIMILAR;
+            if( dist <= hist1->h_dmax ) {
+		if (ADCL_WMV == ADCL_hist_predictor) {
+		    /* Add the weight to the predicted winner by hist1 */
+		    prediction_weight[hist1->h_wfnum]+=1/dist;
+		} else if (ADCL_CLOSEST == ADCL_hist_predictor) {
+		    if( 0 == init ) {
+			/* set minimum distance */
+			min_dist = dist;
+			/* set the estimated winner */
+			e->em_hist->h_wfnum = hist1->h_wfnum;
+			/* return the pointer to the similar hist */
+			*found_hist = hist1;
+			/* set initted */
+			init = 1;
+			/* Here we are sure at least we have one prediction */
+			ret = ADCL_SIMILAR;
+		    }
+		    else if( dist < min_dist ){
+			/* set minimum distance */
+			min_dist = dist;
+			/* set the estimated winner */
+			e->em_hist->h_wfnum = hist1->h_wfnum;
+			/* return the pointer to the similar hist */
+			*found_hist = hist1;
+		    }
                 }
-                else if( dist < min_dist ){
-                    /* set minimum distance */
-                    min_dist = dist;
-                    /* set the estimated winner */
-                    e->em_hist->h_wfnum = hist1->h_wfnum;
-#ifdef HL_VERBOSE
-	            if(0 == e->em_topo->t_rank) {
-                        printf("*** winner %d dist %f ***\n",e->em_hist->h_wfnum, dist);
-                    }
-#endif
-                    /* return the pointer to the similar hist */
-		    *found_hist = hist1;
-                }
-#endif
 	    }
-            /* Go to the next */
+	    /* Go to the next */
 	    hist_list1 = hist_list1->hl_next;
-            i++;
+	    i++;
 	}
-#if (ADCL_PRED_ALGO == ADCL_WMV)
-        max_weight = 0;
-        predicted_winner = -1;
-        for(i=0; i<e->em_orgfnctset->fs_maxnum; i++) {
-            if ( prediction_weight[i] > max_weight ) {
-                max_weight = prediction_weight[i];
-                predicted_winner = i;
-            }
-        }
-        if( 0 <= predicted_winner ) {
-            e->em_hist->h_wfnum = predicted_winner;
-            ret = ADCL_SIMILAR;
-	}
-	free(prediction_weight);
-#endif
-	if ( ADCL_SIMILAR == ret ) {
-            ADCL_printf("#%d A solution to the problem is predicted from similar problem(s), winner is %d\n",
-                        e->em_topo->t_rank, e->em_hist->h_wfnum);
-#ifdef HL_VERBOSE
-            if(0 == e->em_topo->t_rank) {
-                printf("#%d A solution to the problem is predicted from similar problem(s), winner is %d\n",
-                        e->em_topo->t_rank, e->em_hist->h_wfnum);
+
+	if (ADCL_WMV == ADCL_hist_predictor) {
+	    max_weight = 0;
+	    predicted_winner = -1;
+	    for(i=0; i<e->em_orgfnctset->fs_maxnum; i++) {
+		if ( prediction_weight[i] > max_weight ) {
+		    max_weight = prediction_weight[i];
+		    predicted_winner = i;
+		}
 	    }
-#endif
+	    if( 0 <= predicted_winner ) {
+		e->em_hist->h_wfnum = predicted_winner;
+		ret = ADCL_SIMILAR;
+	    }
+	    free(prediction_weight);
+	}
+	if ( ADCL_SIMILAR == ret ) {
+	    if (ADCL_WMV == ADCL_hist_predictor) {
+		ADCL_printf("#%d A solution to the problem is predicted from similar problem(s) in history, winner is %d\n",
+			    e->em_topo->t_rank, e->em_hist->h_wfnum);
+	    }
+	    else if (ADCL_CLOSEST == ADCL_hist_predictor) {
+		ADCL_printf("#%d A solution to the problem is predicted from the closest history entry, winner is %d\n",
+			    e->em_topo->t_rank, e->em_hist->h_wfnum);
+	    }
 	}
 	else if ( ADCL_UNEQUAL == ret ) {
-            ADCL_printf("No prediction can be done for this PS with the current history file\n");
+	    ADCL_printf("No prediction can be done for this PS with the current history file\n");
 	}
     }
-
+    
 exit:
 
     e->em_explored_hist = 0;
@@ -710,8 +688,8 @@ static int hist_check_for_ident(ADCL_emethod_t *e, ADCL_hist_t *hist)
     return ret;
 }
 
-/* Function to cluster the implementation to best and worst according to perf res and perf_win */
-static int hist_cluster_implementations( double *elapsed_time, int *impl_class, int nb_of_impl, int perf_win )
+/* Function to classify the implementation to best and worst according to perf res and perf_win */
+static int hist_classify_implementations( double *elapsed_time, int *impl_class, int nb_of_impl, int perf_win )
 {
     int i, cnt, best_impl;
     double best_threshold;
