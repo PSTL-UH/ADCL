@@ -51,6 +51,9 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
        for ( i=0; i<= last; i++ ) {
           e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos (
           ADCL_emethod_array, i );
+	  if ( NULL == e ) {
+	      continue;
+	  }
           topo = e->em_topo;
           vec  = e->em_vec;
           if ( ADCL_VECTOR_NULL == vec  ) {
