@@ -545,6 +545,7 @@
         call ADCL_Request_free ( adcl_tfqmr_y, ierror )
         call ADCL_Request_free ( adcl_tfqmr_y_old, ierror )
         call ADCL_Request_free ( adcl_tfqmr_y_old_1, ierror )
+        call ADCL_Request_free ( adcl_skalar_12, ierror )
 
         call ADCL_Vector_deregister ( adcl_vec_tfqmr_y, ierror )
         call ADCL_Vector_deregister ( adcl_vec_tfqmr_y_old, ierror )
