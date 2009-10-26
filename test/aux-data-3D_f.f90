@@ -100,18 +100,6 @@ subroutine check_data_3D_cont ( data, rank, dims, hwidth, neighbors, cart_comm )
 
    integer :: x_direction, y_direction, z_direction 
 
-   interface 
-   function check_region_3D (x_direction, y_direction, z_direction, data, rank, cart_comm, dims, hwidth, neighbors) result(lres)
-    ! checks all data in one direction i.e. on one face, edge (and corner if defined) 
-    integer, intent(in) :: x_direction, y_direction, z_direction, rank, cart_comm
-    integer, intent(in) :: dims(3)                          ! size of one cube
-    integer, intent(in) :: hwidth, neighbors(6)
-    double precision, intent(in) :: data (dims(1), dims(2), dims(3) )
-    integer :: lres
-   end function
-   end interface
-
-
    ! check for each of the 27 possible locations
    do z_direction = -1, 1
         do y_direction = -1, 1

@@ -203,7 +203,7 @@ $(ADCL_BIN_DIR)/one-dim-f: one-dim-f.o
 #
 two-dim-f: $(ADCL_BIN_DIR)/two-dim-f
 	
-$(ADCL_BIN_DIR)/two-dim-f: two-dim-f.o aux-data-2D-dp-f.o
+$(ADCL_BIN_DIR)/two-dim-f: aux-data-2D-dp-f.o two-dim-f.o 
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 three-dim-f: $(ADCL_BIN_DIR)/three-dim-f
