@@ -72,7 +72,7 @@ $(ADCL_BIN_DIR)/one-dim: one-dim.o
 #
 two-dim: $(ADCL_BIN_DIR)/two-dim
 	
-$(ADCL_BIN_DIR)/two-dim: two-dim.o aux-data-2D.o 
+$(ADCL_BIN_DIR)/two-dim: aux-data-2D.o two-dim.o  
 	$(CC) $^ -o $@ $(LDFLAGS)
 #
 three-dim: $(ADCL_BIN_DIR)/three-dim
@@ -99,17 +99,17 @@ $(ADCL_BIN_DIR)/test-fnctset-single-2: test-fnctset-single-2.o
 #
 test-fnctset-allgatherv-1d: $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d
 	
-$(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d: test-fnctset-allgatherv-1d.o aux-data-1D.o
+$(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d: aux-data-1D.o test-fnctset-allgatherv-1d.o 
 	$(CC) $^ -o $@ $(LDFLAGS)
 #
 test-fnctset-alltoallv-1d: $(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d
 	
-$(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d: test-fnctset-alltoallv-1d.o aux-data-1D.o
+$(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d: aux-data-1D.o test-fnctset-alltoallv-1d.o 
 	$(CC) $^ -o $@ $(LDFLAGS)
 #
 test-fnctset-alltoall: $(ADCL_BIN_DIR)/test-fnctset-alltoall
 	
-$(ADCL_BIN_DIR)/test-fnctset-alltoall: test-fnctset-alltoall.o aux-data-1D.o
+$(ADCL_BIN_DIR)/test-fnctset-alltoall: aux-data-1D.o test-fnctset-alltoall.o 
 	$(CC) $^ -o $@ $(LDFLAGS) 
 #
 test-fnctset-allreduce: $(ADCL_BIN_DIR)/test-fnctset-allreduce
@@ -172,12 +172,12 @@ $(ADCL_BIN_DIR)/PbSizes_1D: PbSizes_1D.o
 
 test-fnctset-extneigh-2d: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d
 	
-$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d: test-fnctset-extneigh-2d.o aux-data-2D.o aux-data-3D.o
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d: aux-data-2D.o aux-data-3D.o test-fnctset-extneigh-2d.o 
 	$(CC) $^ $(LDFLAGS) -o $@
 
 test-fnctset-extneigh-3d: $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d 
 	
-$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d: test-fnctset-extneigh-3d.o aux-data-3D.o 
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d: aux-data-3D.o test-fnctset-extneigh-3d.o 
 	$(CC) $^ $(LDFLAGS) -o $@
 
 ###################################################################################################
@@ -231,12 +231,12 @@ $(ADCL_BIN_DIR)/test-fnctset-single_f:  test-fnctset-single_f.o
 #
 test-fnctset-allgatherv_f: $(ADCL_BIN_DIR)/test-fnctset-allgatherv_f
 	
-$(ADCL_BIN_DIR)/test-fnctset-allgatherv_f:  test-fnctset-allgatherv_f.o aux-data-1D_f.o
+$(ADCL_BIN_DIR)/test-fnctset-allgatherv_f: aux-data-1D_f.o test-fnctset-allgatherv_f.o 
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 test-fnctset-alltoall_f: $(ADCL_BIN_DIR)/test-fnctset-alltoall_f
 	 
-$(ADCL_BIN_DIR)/test-fnctset-alltoall_f:  test-fnctset-alltoall_f.o aux-data-1D_f.o 
+$(ADCL_BIN_DIR)/test-fnctset-alltoall_f: aux-data-1D_f.o test-fnctset-alltoall_f.o 
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 test-fnctset-allreduce_f: $(ADCL_BIN_DIR)/test-fnctset-allreduce_f
@@ -291,7 +291,7 @@ aux-data-4D-dp_f.o: aux-data-4D_f.f90
 ###################################################################################################
 
 clean:
-	rm -rf *.o *~ *.out
+	rm -rf *.o *~ *.out *.mod
 	rm -f $(ADCL_BIN_DIR)/*.out
 
 	rm -f $(ADCL_BIN_DIR)/first $(ADCL_BIN_DIR)/second $(ADCL_BIN_DIR)/third $(ADCL_BIN_DIR)/fourth \

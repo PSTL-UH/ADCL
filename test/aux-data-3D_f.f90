@@ -84,7 +84,7 @@ subroutine set_data_3D_cont ( data, rank, dims, hwidth, cart_comm)
 end subroutine set_data_3D_cont
 
 !****************************************************************************
-subroutine check_data_3D_cont ( data, rank, dims, hwidth, neighbors, cart_comm )
+function check_data_3D_cont ( data, rank, dims, hwidth, neighbors, cart_comm ) result(isok)
 
    implicit none
    include 'ADCL.inc'
@@ -93,6 +93,7 @@ subroutine check_data_3D_cont ( data, rank, dims, hwidth, neighbors, cart_comm )
    integer, dimension(3), intent(in) :: dims
    integer, dimension(6), intent(in) :: neighbors
    double precision, intent(in) :: data(dims(1),dims(2), dims(3))
+   logical :: isok
 
    integer :: i, j, k, ierr, lres=1, gres, prod, ierror
    integer, dimension(3) :: coords, n_coords, c_coords, cart_size, period
@@ -117,26 +118,30 @@ subroutine check_data_3D_cont ( data, rank, dims, hwidth, neighbors, cart_comm )
                     lres = check_region_3D (x_direction, y_direction, z_direction, data, rank, cart_comm, &
                            dims, hwidth, neighbors )
                 end if
+                call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierror )
+                if ( gres .ne. 1 ) then 
+                   isok = .false.
+                   return 
+                endif 
             end do
         end do
     end do
 
-    call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierror )
+    !if ( gres .eq. 1 ) then
+    !    if ( rank == 0 )  then
+    !        write(*,'(1x,a,i0,a)') "3-D C testsuite: hwidth = ", hwidth, ", nc = 0 passed"
+    !    end if
+    !else 
+    !    if ( rank == 0 ) then
+    !        write(*,'(1x,a,i0,a)') "3-D C testsuite: hwidth = ", hwidth, ", nc = 0 failed"
+    !    end if
+    !    call dump_vector_3D_mpi_dp ( data, dims, cart_comm )
+    !endif
 
-    if ( gres .eq. 1 ) then
-        if ( rank == 0 )  then
-            write(*,'(1x,a,i0,a)') "3-D C testsuite: hwidth = ", hwidth, ", nc = 0 passed"
-        end if
-    else 
-        if ( rank == 0 ) then
-            write(*,'(1x,a,i0,a)') "3-D C testsuite: hwidth = ", hwidth, ", nc = 0 failed"
-        end if
-        call dump_vector_3D_mpi_dp ( data, dims, cart_comm )
-    endif
+   isok = .true.
+   return
 
-    return
-
-end subroutine check_data_3D_cont
+end function check_data_3D_cont
 
 !****************************************************************************
 
@@ -177,7 +182,7 @@ function check_region_3D (x_direction, y_direction, z_direction, data, rank, car
             loopend(1) = hwidth
             compensate(1) = dims(1) - 3*hwidth ! 2*hwidth for positioning and hwidth for shift of numbering
             if (neighbors(1) .ne. MPI_PROC_NULL ) then
-                call MPI_Cart_coords (cart_comm, neighbors(1), 3, n_coords)
+                call MPI_Cart_coords (cart_comm, neighbors(1), 3, n_coords, ierror )
                 c_coords(1) = n_coords(1)
                 neighbor_cond(1) = .true.
             endif
@@ -186,7 +191,7 @@ function check_region_3D (x_direction, y_direction, z_direction, data, rank, car
             loopend(1)       = dims(1) 
             compensate(1)    = - dims(1) + hwidth 
             if (neighbors(2) .ne. MPI_PROC_NULL ) then 
-                call MPI_Cart_coords (cart_comm, neighbors(2), 3, n_coords)
+                call MPI_Cart_coords (cart_comm, neighbors(2), 3, n_coords, ierror )
                 c_coords(1) = n_coords(1)
                 neighbor_cond(1) = .true.
             endif
@@ -204,7 +209,7 @@ function check_region_3D (x_direction, y_direction, z_direction, data, rank, car
             loopend(2)   = hwidth
             compensate(2) = dims(2) - 3*hwidth 
             if (neighbors(3) .ne. MPI_PROC_NULL ) then
-                call MPI_Cart_coords (cart_comm, neighbors(3), 3, n_coords)
+                call MPI_Cart_coords (cart_comm, neighbors(3), 3, n_coords, ierror )
                 c_coords(2) = n_coords(2)
                 neighbor_cond(2) = .true.
             endif
@@ -213,7 +218,7 @@ function check_region_3D (x_direction, y_direction, z_direction, data, rank, car
             loopend(2)    = dims(2)
             compensate(2) = - dims(2) + hwidth 
             if (neighbors(4) .ne. MPI_PROC_NULL ) then
-                call MPI_Cart_coords (cart_comm, neighbors(4), 3, n_coords)
+                call MPI_Cart_coords (cart_comm, neighbors(4), 3, n_coords, ierror )
                 c_coords(2) = n_coords(2)
                 neighbor_cond(2) = .true.
             endif
@@ -231,7 +236,7 @@ function check_region_3D (x_direction, y_direction, z_direction, data, rank, car
             loopend(3)    = hwidth
             compensate(3) = dims(3) - 3*hwidth  
             if (neighbors(5) .ne. MPI_PROC_NULL ) then
-                call MPI_Cart_coords (cart_comm, neighbors(5), 3, n_coords)
+                call MPI_Cart_coords (cart_comm, neighbors(5), 3, n_coords, ierror )
                 c_coords(3) = n_coords(3)
                 neighbor_cond(3) = .true.
             endif
@@ -240,7 +245,7 @@ function check_region_3D (x_direction, y_direction, z_direction, data, rank, car
             loopend(3)    = dims(3) 
             compensate(3) = - dims(3) + hwidth
             if (neighbors(6) .ne. MPI_PROC_NULL ) then
-                call MPI_Cart_coords (cart_comm, neighbors(6), 3, n_coords)
+                call MPI_Cart_coords (cart_comm, neighbors(6), 3, n_coords, ierror )
                 c_coords(3) = n_coords(3)
                 neighbor_cond(3) = .true.
             endif

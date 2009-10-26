@@ -28,15 +28,18 @@ program testfnctsetextneigh2d
 
    cdims   = 0
    periods = 0
-   
+
+   ! Initiate the MPI environment
    call MPI_Init ( ierror )
    call MPI_Comm_rank ( MPI_COMM_WORLD, rank, ierror)
    call MPI_Comm_size ( MPI_COMM_WORLD, size, ierror )
 
-   call ADCL_Init ( ierror )
-
+   ! Describe the neighborhood relations
    call MPI_Dims_create ( size, 2, cdims, ierror)
    call MPI_Cart_create ( MPI_COMM_WORLD, 2, cdims, periods, 0, cart_comm, ierror )
+
+   ! Initiate the ADCL library and register a topology object with ADCL
+   call ADCL_Init ( ierror )
    call ADCL_Topology_create_extended ( cart_comm, topo, ierror )
    call ADCL_Topology_get_cart_neighbors ( 4, lneighbors, rneighbors, flip, cart_comm, ierror )
    if ( ierror .ne. ADCL_SUCCESS ) then 
@@ -110,7 +113,7 @@ program testfnctsetextneigh2d
       deallocate ( data2 )
 
       if ( rank == 0 .and. isok )  then
-          write(*,'(1x,a,i0,a,i0,a)') "2D C testsuite: hwidth = ", hwidth, ", nc = ", nc, " passed"
+          write(*,'(1x,a,i0,a,i0,a)') "2D f90 testsuite: hwidth = ", hwidth, ", nc = ", nc, " passed"
       end if
    end do  ! tests_2D
 
@@ -178,7 +181,7 @@ program testfnctsetextneigh2d
       deallocate ( data2 )
 
       if ( rank == 0 .and. isok )  then
-          write(*,'(1x,a,i0,a,i0,a)') "2D C testsuite: hwidth = ", hwidth, ", nc = ", nc, " passed"
+          write(*,'(1x,a,i0,a,i0,a)') "2D f90 testsuite: hwidth = ", hwidth, ", nc = ", nc, " passed"
       end if
    end do ! test_2D_plus_nc
 
