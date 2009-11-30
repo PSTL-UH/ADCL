@@ -15,6 +15,7 @@
 #endif
 
 #define MAXLINE 80
+#define Debug 1
 
 extern int ADCL_OUTLIER_FACTOR;
 extern int ADCL_OUTLIER_FRACTION;
@@ -40,12 +41,15 @@ extern int ADCL_display_flag;
 extern int ADCL_hist_predictor;
 
 static int ADCL_is_keyword (char* keyword, char* text );
-static int ADCL_set_keyword_int_value ( char* strptr, char* keyword, int* value ); 
+static int ADCL_set_keyword_int_value    ( char* strptr, char* keyword, int* value ); 
 static int ADCL_set_keyword_string_value ( char* strptr, char* keyword, char* value );  
+#ifdef Debug
+static int ADCL_print_keyword_int_value    ( char* keyword, int* value ); 
+static int ADCL_print_keyword_string_value ( char* keyword, char* value );  
+#endif
 static int ADCL_set_predefined_function( char* strptr, char* keyword, int fs_maxnum, 
     ADCL_function_t** fs_fptrs, int* selectvar );
 
-#define Debug 1
 
 int ADCL_readenv()
 {
@@ -110,9 +114,6 @@ int ADCL_readenv()
         memset( keyword, 0x00, MAXLINE );
         strncpy ( keyword, buffer, i);
         ptr = &(buffer[++i]);
-#ifdef Debug
-        ADCL_printf("#Keyword is %s\n",keyword);
-#endif
 
         /*  ADCL_OUTLIER_FACTOR; */
         if ( ADCL_is_keyword(keyword, "ADCL_OUTLIER_FACTOR") ) {
@@ -123,6 +124,7 @@ int ADCL_readenv()
             ADCL_set_keyword_int_value ( ptr, "ADCL_OUTLIER_FRACTION", &ADCL_OUTLIER_FRACTION );
         }
         /*  ADCL_STATISTIC_METHOD */
+        /* what for? only this one defined */
         else if ( ADCL_is_keyword(keyword, "ADCL_STATISTIC_METHOD") ) {
             ADCL_set_keyword_string_value ( ptr, "ADCL_STATISTIC_METHOD", valstring ); 
             if ( ADCL_is_keyword(valstring,"ADCL_STATISTIC_MAX") ) {
@@ -192,6 +194,50 @@ int ADCL_readenv()
             ADCL_set_keyword_int_value ( ptr,"ADCL_DISPLAY_RANK", &ADCL_display_rank );
         }
     }
+
+
+#ifdef Debug
+    ADCL_print_keyword_int_value ( "ADCL_OUTLIER_FACTOR",   &ADCL_OUTLIER_FACTOR );
+    ADCL_print_keyword_int_value ( "ADCL_OUTLIER_FRACTION", &ADCL_OUTLIER_FRACTION );
+
+    /* what for? only this one defined */
+    ADCL_print_keyword_int_value ( "ADCL_STATISTIC_METHOD", &ADCL_statistic_method );
+        
+    ADCL_print_keyword_int_value ( "ADCL_MERGE_REQUESTS",   &ADCL_merge_requests );
+    ADCL_print_keyword_int_value ( "ADCL_EMETHOD_NUMTESTS", &ADCL_emethod_numtests );
+
+    /*  selection of implementations */
+    if ( 0 <= ADCL_emethod_selection ) {
+        ADCL_print_keyword_int_value ( "ADCL_EMETHOD_SELECTION", &ADCL_emethod_selection );
+    }
+    if ( 0 <= ADCL_emethod_allgatherv_selection ) {
+        ADCL_print_keyword_int_value ( "ADCL_EMETHOD_ALLGATHERV_SELECTION", &ADCL_emethod_allgatherv_selection );
+    }
+    if ( 0 <= ADCL_emethod_allreduce_selection ) {
+        ADCL_print_keyword_int_value ( "ADCL_EMETHOD_ALLREDUCE_SELECTION",  &ADCL_emethod_allreduce_selection );
+    }
+    /*  ADCL_EMETHOD_ALLTOALL_SELECTION */
+    if ( 0 <= ADCL_emethod_alltoall_selection ) {
+        ADCL_print_keyword_int_value ( "ADCL_EMETHOD_ALLTOALL_SELECTION",   &ADCL_emethod_alltoall_selection );
+    } 
+    /*  ADCL_EMETHOD_ALLTOALLV_SELECTION */
+    if ( 0 <= ADCL_emethod_alltoallv_selection ) {
+        ADCL_print_keyword_int_value ( "ADCL_EMETHOD_ALLTOALLV_SELECTION",  &ADCL_emethod_alltoallv_selection );
+    }
+ 
+    ADCL_print_keyword_int_value ( "ADCL_PRINTF_SILENCE", &ADCL_printf_silence); 
+    ADCL_print_keyword_int_value ( "ADCL_EMETHOD_USE_PERFHYPOTHESIS", &ADCL_emethod_use_perfhypothesis);
+
+    /* historic learning */
+    ADCL_print_keyword_int_value ( "ADCL_HIST_LEARNING", &ADCL_emethod_learn_from_hist );
+    ADCL_print_keyword_int_value ( "ADCL_HIST_PREDICTOR", &ADCL_hist_predictor );
+    
+    /* display */
+    ADCL_print_keyword_string_value ( "ADCL_DISPLAY_IP",    ADCL_display_ip );
+    ADCL_print_keyword_int_value    ( "ADCL_DISPLAY_PORT", &ADCL_display_port );
+    ADCL_print_keyword_int_value    ( "ADCL_DISPLAY_RANK", &ADCL_display_rank );
+#endif
+
     return ADCL_SUCCESS;
 }
 
@@ -212,9 +258,6 @@ int ADCL_set_keyword_int_value ( char* strptr, char* keyword, int* value )
 /*************************************************************************************************/
 {
     sscanf(strptr, "%d", value);
-#ifdef  Debug
-    ADCL_printf("#%s: %d\n", keyword, *value); 
-#endif
     return ADCL_SUCCESS; 
 }
 
@@ -224,10 +267,28 @@ int ADCL_set_keyword_string_value ( char* strptr, char* keyword, char* value )
 /*************************************************************************************************/
 {
     sscanf(strptr,"%s", value);
-#ifdef  Debug
-    ADCL_printf("#%s: %s\n", keyword, value);
-#endif
+    return ADCL_SUCCESS;
 }
+
+#ifdef Debug
+/*************************************************************************************************/
+int ADCL_print_keyword_int_value ( char* keyword, int* value ) 
+/*************************************************************************************************/
+{
+    ADCL_printf("#Keyword is %s\n", keyword );
+    ADCL_printf("#%s: %d\n", keyword, *value);
+    return ADCL_SUCCESS; 
+}
+
+/*************************************************************************************************/
+int ADCL_print_keyword_string_value ( char* keyword, char* value ) 
+/*************************************************************************************************/
+{
+    ADCL_printf("#Keyword is %s\n", keyword );
+    ADCL_printf("#%s: %s\n", keyword, value);
+    return ADCL_SUCCESS;
+}
+#endif
 
 /*************************************************************************************************/
 int ADCL_set_predefined_function( char* strptr, char* keyword, int fs_maxnum, 
