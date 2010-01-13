@@ -175,7 +175,7 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, int nneig
         }
 
         if ( nneigh > 2 ) {
-           /* upper left and lower right corner */
+           /* upper right and lower left corner */
            for ( j = 0; j<2; j++ ) {
                for ( k=0; k<hwidth; k++ ) {
                    blength[k] = baselen;
@@ -190,7 +190,7 @@ int ADCL_indexed_2D_init ( int *vecdim, int hwidth, int nc, int order, int nneig
                MPI_Type_commit ( &(rdats[4+j]) );
            }
 
-           /* lower left an upper right corner */
+           /* lower right and upper left corner */
            for ( j = 0; j<2; j++ ) {
                for ( k=0; k<hwidth; k++ ) {
                    blength[k] = baselen;
@@ -765,7 +765,6 @@ int ADCL_indexed_3D_init ( int *vecdim, int hwidth, int nc, int order, int nneig
         MPI_Type_indexed ( count, countarr, rdisps, btype, &rdats[2]);
         MPI_Type_commit ( &sdats[2] );
         MPI_Type_commit ( &rdats[2] );
-
 
         /* Set the send and recv derived datatype for the upper end of y-direction */
         for ( count=0, i=0; i<nc; i++ ) {

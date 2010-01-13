@@ -225,6 +225,35 @@ int ADCL_subarray_ext_init ( int ntopodim, int nvecdims, int *vecdims,
         }
     }
 
+    if ( ntopodim == 2 && nneigh > 4 ) {
+        subdims[0] = hwidth;   subdims[1] = hwidth;
+
+        /* lower left and upper right corner */
+        for ( j = 0; j<2; j++ ) {
+            sstarts[0] = ( j == 0 ) ? hwidth : vecdims[0]-2*hwidth;   
+            sstarts[1] = ( j == 0 ) ? hwidth : vecdims[1]-2*hwidth;
+            rstarts[0] = ( j == 0 ) ? 0      : vecdims[0]-hwidth;        
+            rstarts[1] = ( j == 0 ) ? 0      : vecdims[1]-hwidth;
+
+            MPI_Type_create_subarray ( nvecdims, vecdims, subdims, sstarts, order, btype, &(sdats[4+j]));
+            MPI_Type_create_subarray ( nvecdims, vecdims, subdims, rstarts, order, btype, &(rdats[4+j]));
+            MPI_Type_commit ( &(sdats[4+j]));
+            MPI_Type_commit ( &(rdats[4+j]));
+        }
+
+        /* lower right and upper left corner */
+        for ( j = 0; j<2; j++ ) {
+            sstarts[0] = ( j == 0 ) ? vecdims[0]-2*hwidth : hwidth;   
+            sstarts[1] = ( j == 0 ) ? hwidth             : vecdims[1]-2*hwidth; 
+            rstarts[0] = ( j == 0 ) ? vecdims[0]-hwidth   : 0;
+            rstarts[1] = ( j == 0 ) ? 0                  : vecdims[1]-hwidth;
+
+            MPI_Type_create_subarray ( nvecdims, vecdims, subdims, sstarts, order, btype, &(sdats[6+j]));
+            MPI_Type_create_subarray ( nvecdims, vecdims, subdims, rstarts, order, btype, &(rdats[6+j]));
+            MPI_Type_commit ( &(sdats[6+j]));
+            MPI_Type_commit ( &(rdats[6+j]));
+        }
+    }
 
     if ( ntopodim == 3 &&  nneigh > 6 ) {
         /* *** VERTICAL EDGES *** */

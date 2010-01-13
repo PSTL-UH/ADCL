@@ -95,17 +95,21 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
            else if ( (vec->v_ndims == 2 && vec->v_nc == 0) ||
                      (vec->v_ndims == 3 && vec->v_nc > 0) ) {
                ret = ADCL_indexed_2D_init ( vec->v_dims, vec->v_map->m_hwidth, vec->v_nc, order, topo->t_nneigh,
-                                            vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+                                           vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+               //ret = ADCL_subarray_ext_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
+               //                             vec->v_nc, order, topo->t_nneigh, vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
            else if ( (vec->v_ndims == 3 && vec->v_nc == 0) ||
-                     (vec->v_ndims == 4 && vec->v_nc > 0 )){
+                   (vec->v_ndims == 4 && vec->v_nc > 0 )){
                ret = ADCL_indexed_3D_init ( vec->v_dims, vec->v_map->m_hwidth, vec->v_nc, order, topo->t_nneigh,
-                                            vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+                       vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+               //ret = ADCL_subarray_ext_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
+               //                               vec->v_nc, order, topo->t_nneigh, vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
            else if ( ADCL_TOPOLOGY_NULL != topo ) {
                if ( topo->t_nneigh > topo->t_ndims ) { printf("not implemented\n"); exit(-1); }
-               ret = ADCL_subarray_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
-                                            vec->v_nc, order, vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+               ret = ADCL_subarray_ext_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
+                                            vec->v_nc, order, topo->t_nneigh, vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
 
            /* Initialize temporary buffer(s) for Pack/Unpack operations */
@@ -210,9 +214,9 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
         for (i=0; i <vec->v_ndims; i++){
             tcount *= vec->v_dims[i];
         }
-        MPI_Win_create ( vec->v_data, tcount*extent, extent, MPI_INFO_NULL,
+        ret = MPI_Win_create ( vec->v_data, tcount*extent, extent, MPI_INFO_NULL,
                          topo->t_comm, &(newreq->r_win));
-        MPI_Comm_group ( topo->t_comm, &(newreq->r_group) );
+        ret = MPI_Comm_group ( topo->t_comm, &(newreq->r_group) );
     }
     else {
         /* For now, we will not support one sided comm in that case.
@@ -584,17 +588,31 @@ int ADCL_request_update ( ADCL_request_t *req,
 */
 
     if ( ADCL_TOPOLOGY_NULL != req->r_emethod->em_topo ) {
+#ifdef ADCL_NEW_OUTPUT_FORMAT
+        ADCL_printf("%d: emethod %d method %d (%s) %8.4f \n",
+            req->r_emethod->em_topo->t_rank, req->r_emethod->em_id, req->r_function->f_id,
+            req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
+#else
         ADCL_printf("%d: request %d method %d (%s) %8.4f \n",
             req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
             req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
-//	DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"%d: request %d method %d (%s) %8.4f \n",req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
-//		req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
+        // DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"request %d method %d (%s) %8.4f \n", req->r_id,
+        //         req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
+        // DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"%d: request %d method %d (%s) %8.4f \n",
+        //          req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
+        //	    req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
+#endif
     }
     else {
+#ifdef ADCL_NEW_OUTPUT_FORMAT
+        ADCL_printf("emethod %d method %d (%s) %8.4f \n", req->r_emethod->em_id, 
+            req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
+#else
         ADCL_printf("request %d method %d (%s) %8.4f \n", req->r_id, 
             req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
-//	DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"request %d method %d (%s) %8.4f \n", req->r_id,
-  //          req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
+        // DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"request %d method %d (%s) %8.4f \n", req->r_id,
+        //            req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
+#endif
     }
     switch ( req->r_emethod->em_state ) {
     case ADCL_STATE_TESTING:

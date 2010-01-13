@@ -246,7 +246,7 @@ $(ADCL_BIN_DIR)/test-fnctset-allreduce_f:  test-fnctset-allreduce_f.o
 #
 test-fnctset-extneigh-2d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f 
 	
-$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f: aux-data-2D-dp-f.o test-fnctset-extneigh-2d_f.o
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f: aux-data-2D-dp-f.o aux-data-3D-dp_f.o test-fnctset-extneigh-2d_f.o 
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 test-fnctset-extneigh-3d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f
@@ -269,7 +269,7 @@ aux-data-2D-dp-f.o: aux-data-2D-f.f90
 
 aux-data-2D-int-f.o: aux-data-2D-f.f90
 	$(FC) $(FFLAGS) -I../include -c -DINT -DSET_DATA=set_data_2D_int -DDUMP_VECTOR=dump_vector_2D_int \
-	      -DDUMP_VECTOR_MPI=dump_vector_2D_int_dp \
+	      -DDUMP_VECTOR_MPI=dump_vector_2D_mpi_dp \
 	      -DCHECK_DATA=check_data_2D_int -DDATATYPE="integer" -o $@ $<
 
 aux-data-3D-dp_f.o: aux-data-3D_f.f90
@@ -298,7 +298,8 @@ clean:
 	      $(ADCL_BIN_DIR)/one-dim $(ADCL_BIN_DIR)/two-dim $(ADCL_BIN_DIR)/three-dim \
 	      $(ADCL_BIN_DIR)/test-fnctset-noattrs $(ADCL_BIN_DIR)/test-fnctset-single $(ADCL_BIN_DIR)/test-fnctset-single-2 \
 	      $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d $(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d \
-	      $(ADCL_BIN_DIR)/test-fnctset-alltoall-1d $(ADCL_BIN_DIR)/test-fnctset-allreduce \
+	      $(ADCL_BIN_DIR)/test-fnctset-alltoall $(ADCL_BIN_DIR)/test-fnctset-allreduce \
+              $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d \
 	      $(ADCL_BIN_DIR)/attrs_1 $(ADCL_BIN_DIR)/attrs_2 $(ADCL_BIN_DIR)/attrs_3 $(ADCL_BIN_DIR)/attrs_3a $(ADCL_BIN_DIR)/attrs_4 \
 	      $(ADCL_BIN_DIR)/data_1 $(ADCL_BIN_DIR)/PbSizes_1D $(ADCL_BIN_DIR)/PbSizes_2D $(ADCL_BIN_DIR)/PbSizes_3D
 
@@ -306,6 +307,7 @@ clean:
 	      $(ADCL_BIN_DIR)/one-dim-f $(ADCL_BIN_DIR)/two-dim-f $(ADCL_BIN_DIR)/three-dim-f 	$(ADCL_BIN_DIR)/three-dim-large \
 	      $(ADCL_BIN_DIR)/test-fnctset-noattrs_f $(ADCL_BIN_DIR)/test-fnctset-single_f \
 	      $(ADCL_BIN_DIR)/test-fnctset-allgatherv_f \
+              $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f \
 	      $(ADCL_BIN_DIR)/test-fnctset-alltoall_f  $(ADCL_BIN_DIR)/test-fnctset-allreduce_f \
 	      $(ADCL_BIN_DIR)/test-prometheus
 
