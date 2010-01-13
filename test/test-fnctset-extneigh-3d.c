@@ -7,23 +7,25 @@
  * $HEADER$
  */
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "ADCL.h"
 #include "mpi.h"
 
+#define NDIM  3
 /* Dimensions of the data matrix per process */
 #define DIM0  4
 #define DIM1  5
 #define DIM2  6
 
-static void dump_vector_3D ( double ***data, int rank, int *dim);
-static void dump_vector_4D ( double ****data, int rank, int *dim, int nc);
+extern void dump_vector_3D_mpi ( double ***data, int *dim, int nc, MPI_Comm cart_comm );
+extern void dump_vector_4D ( double ****data, int *dim, int nc, MPI_Comm cart_comm );
 
 static void set_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *dim, int hwidth );
 static void set_data_4D ( double ****data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int nc);
 
-static void check_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int *neighbors ); 
-static void check_data_4D ( double ****data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int nc, int *neighbors ); 
+static int check_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int *neighbors ); 
+static int check_data_4D ( double ****data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int nc, int *neighbors ); 
 
 static int calc_entry3D ( int control_x, int control_y, int control_z,  double ***data, int rank, 
         MPI_Comm cart_comm, int *dim, int hwidth, int *neighbors);
@@ -34,7 +36,7 @@ static int calc_entry4D ( int control_x, int control_y, int control_z,  double *
 int main ( int argc, char ** argv ) 
 {
     /* General variables */
-    int hwidth, rank, size, err;
+    int hwidth, nc, rank, size, err;
 
     /* Definition of the 2-D vector */
     int dims[3], neighbors[6];
@@ -48,6 +50,9 @@ int main ( int argc, char ** argv )
     MPI_Comm cart_comm;
     ADCL_Topology topo;
     ADCL_Request request;
+    int i, niter = 50;
+    int ntests_3D, ntests_3D_plus_nc; 
+    int itest, isok; 
 
     /* Initiate the MPI environment */
     MPI_Init ( &argc, &argv );
@@ -64,131 +69,195 @@ int main ( int argc, char ** argv )
 
     /* Initiate the ADCL library and register a topology object with ADCL */
     ADCL_Init ();
-    ADCL_Topology_create_extended ( cart_comm, &topo );
+    err = ADCL_Topology_create_extended ( cart_comm, &topo );
+    if ( ADCL_SUCCESS != err) {
+        printf("topology_create not successful\n");
+        goto exit; 
+    }
 
-    /**********************************************************************/
-    /* Test 1: hwidth=1, nc=0 */
-    hwidth=1;
-    dims[0] = DIM0 + 2*hwidth;
-    dims[1] = DIM1 + 2*hwidth;
-    dims[2] = DIM2 + 2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
-    if ( ADCL_SUCCESS != err) goto exit;
-    err = ADCL_Vector_allocate_generic ( 3,  dims, 0, vmap, MPI_DOUBLE, &data, &vec );
-    if ( ADCL_SUCCESS != err) goto exit;
-    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
-    set_data_3D ( data, rank, cart_comm, dims, hwidth );
+    ntests_3D = 2;
+    for ( itest = 0; itest<ntests_3D; itest++) {
+        isok = 1;
+
+        if ( itest == 0 ) {
+            /**********************************************************************/
+            /* Test 1: hwidth=1, nc=0 */
+            hwidth=1;
+            nc = 0; 
+            dims[0] = DIM0 + 2*hwidth;
+            dims[1] = DIM1 + 2*hwidth;
+            dims[2] = DIM2 + 2*hwidth;
+        }
+        else {
+            /**********************************************************************/
+            /* Test 2: hwidth=2, nc=0 */
+            hwidth=2;
+            nc = 0; 
+            dims[0] = DIM0 + 2*hwidth;
+            dims[1] = DIM1 + 2*hwidth;
+            dims[2] = DIM2 + 2*hwidth;
+        }
+
+        err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
+        if ( ADCL_SUCCESS != err) {
+            printf("vmap_halo_allocate not successful\n");
+            goto exit; 
+        }
+        err = ADCL_Vector_allocate_generic ( NDIM,  dims, nc, vmap, MPI_DOUBLE, &data, &vec );
+        if ( ADCL_SUCCESS != err) {
+            printf("vector_allocate not successful\n");
+            goto exit; 
+        }
+        ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
+        if ( ADCL_SUCCESS != err) {
+            printf("request_create not successful\n");
+            goto exit; 
+        }
+
+        for ( i=0; i<niter; i++) {
+            set_data_3D ( data, rank, cart_comm, dims, hwidth );
 #ifdef VERBOSE3D
-    dump_vector_3D ( data, rank, dims );
+            dump_vector_3D_mpi ( data, dims rank, dims );
 #endif
 
-    ADCL_Request_start ( request );
-    check_data_3D ( data, rank, cart_comm, dims, hwidth, neighbors );
+            ADCL_Request_start ( request );
+            if ( ADCL_SUCCESS != err) {
+                printf("request_start not successful\n");
+                goto exit; 
+            }
+            isok = check_data_3D ( data, rank, cart_comm, dims, hwidth, neighbors );
+            if ( ! isok )  {
+                if ( rank == 0 ) {
+                    printf("3D C testsuite failed at iteration %d: hwidth = %d, nc = %d\n", i, hwidth, nc);
+                }
+                dump_vector_3D_mpi ( data, dims, nc, cart_comm );
+                exit;
+            }
+        } // niter
 
-    ADCL_Request_free ( &request );
-    ADCL_Vector_free ( &vec );
-    ADCL_Vmap_free ( &vmap ); 
+        ADCL_Request_free ( &request );
+        if ( ADCL_SUCCESS != err) {
+            printf("request_free not successful\n");
+            goto exit; 
+        }
+        ADCL_Vector_free ( &vec );
+        if ( ADCL_SUCCESS != err) {
+            printf("vector_free not successful\n");
+            goto exit; 
+        }
+        ADCL_Vmap_free ( &vmap ); 
+        if ( ADCL_SUCCESS != err) {
+            printf("vmap_free not successful\n");
+            goto exit; 
+        }
 
-    /**********************************************************************/
-    /* Test 2: hwidth=2, nc=0 */
-    hwidth=2;
-    dims[0] = DIM0 + 2*hwidth;
-    dims[1] = DIM1 + 2*hwidth;
-    dims[2] = DIM2 + 2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
-    if ( ADCL_SUCCESS != err) goto exit;
-    err = ADCL_Vector_allocate_generic ( 3,  dims, 0, vmap, MPI_DOUBLE, &data, &vec );
-    if ( ADCL_SUCCESS != err) goto exit;
-    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
+        if ( rank == 0 && isok ) {
+            printf("3D C testsuite: hwidth = %d, nc = %d passed\n", hwidth, nc);
+        }
+    }
 
-    set_data_3D ( data, rank, cart_comm, dims, hwidth );
-#ifdef VERBOSE3D2
-    dump_vector_3D ( data, rank, dims );
-#endif
+    ntests_3D_plus_nc = 3;
+    for (itest = 0; itest<ntests_3D_plus_nc; itest++) {
+        isok = 1;
 
-    ADCL_Request_start ( request );
-    check_data_3D ( data, rank, cart_comm, dims, hwidth, neighbors );
+        if ( itest == 0 ) {
+            /**********************************************************************/
+            /* Test 3: hwidth=1, nc=1 */
+            hwidth=1;
+            nc = 1; 
+            dims[0] = DIM0 + 2*hwidth;
+            dims[1] = DIM1 + 2*hwidth;
+            dims[2] = DIM2 + 2*hwidth;
+        }
+        else if ( itest == 1 ) {
+            /**********************************************************************/
+            /* Test 4: hwidth=2, nc=1 */
+            hwidth=2;
+            nc = 1; 
+            dims[0] = DIM0 + 2*hwidth;
+            dims[1] = DIM1 + 2*hwidth;
+            dims[2] = DIM2 + 2*hwidth;
+        }
+        else {
+            /**********************************************************************/
+            /* Test 5: hwidth=2, nc=2 */
+            hwidth=1;
+            nc = 2; 
+            dims[0] = DIM0 + 2*hwidth;
+            dims[1] = DIM1 + 2*hwidth;
+            dims[2] = DIM2 + 2*hwidth;
+        }
 
-    ADCL_Request_free ( &request );
-    ADCL_Vector_free ( &vec );
-    ADCL_Vmap_free ( &vmap ); 
+        err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
+        if ( ADCL_SUCCESS != err) {
+            printf("vmap_create not successful\n");
+            goto exit; 
+        }
+        err = ADCL_Vector_allocate_generic ( 3,  dims, nc, vmap, MPI_DOUBLE, &data2, &vec );
+        if ( ADCL_SUCCESS != err) {
+            printf("vector_create not successful\n");
+            goto exit; 
+        }
+        ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
+        if ( ADCL_SUCCESS != err) {
+            printf("request_create not successful\n");
+            goto exit; 
+        }
 
-    /**********************************************************************/
-    /* Test 3: hwidth=1, nc=1 */
-    hwidth=1;
-    dims[0] = DIM0 + 2*hwidth;
-    dims[1] = DIM1 + 2*hwidth;
-    dims[2] = DIM2 + 2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
-    if ( ADCL_SUCCESS != err) goto exit;
-    err = ADCL_Vector_allocate_generic ( 3,  dims, 1, vmap, MPI_DOUBLE, &data2, &vec );
-    if ( ADCL_SUCCESS != err) goto exit;
-    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
-
-    set_data_4D ( data2, rank, cart_comm, dims, hwidth, 1 );
+        for ( i = 0; i<niter; i++) {
+            set_data_4D ( data2, rank, cart_comm, dims, hwidth, 1 );
 #ifdef VERBOSE4D
-    dump_vector_4D ( data2, rank, dims, 1 );
+            dump_vector_4D ( data2, dims, nc, cart_comm );
 #endif
 
-    ADCL_Request_start ( request );
-    check_data_4D ( data2, rank, cart_comm, dims, hwidth, 1, neighbors);
-
-    ADCL_Request_free ( &request );
-    ADCL_Vector_free ( &vec );
-    ADCL_Vmap_free ( &vmap ); 
-
-    /**********************************************************************/
-    /* Test 4: hwidth=2, nc=1 */
-    hwidth=2;
-    dims[0] = DIM0 + 2*hwidth;
-    dims[1] = DIM1 + 2*hwidth;
-    dims[2] = DIM2 + 2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
-    if ( ADCL_SUCCESS != err) goto exit;
-    err = ADCL_Vector_allocate_generic ( 3,  dims, 1, vmap, MPI_DOUBLE, &data2, &vec );
-    if ( ADCL_SUCCESS != err) goto exit;
-    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
-
-    set_data_4D ( data2, rank, cart_comm, dims, hwidth, 1);
+            ADCL_Request_start ( request );
+            if ( ADCL_SUCCESS != err) {
+                printf("request_start not successful\n");
+                goto exit; 
+            }
 #ifdef VERBOSE4D
-    dump_vector_4D ( data2, rank, dims, 1 );
+            dump_vector_4D ( data2, dims, nc, cart_comm );
 #endif
 
-    ADCL_Request_start ( request );
-    check_data_4D ( data2, rank, cart_comm, dims, hwidth, 1, neighbors );
+            isok = check_data_4D ( data2, rank, cart_comm, dims, hwidth, 1, neighbors);
+            if ( ! isok )  {
+                if ( rank == 0 ) {
+                    printf("3D C testsuite failed at iteration %d: hwidth = %d, nc = %d\n", i, hwidth, nc);
+                }
+                dump_vector_4D ( data2, dims, nc, cart_comm );
+                exit;
+            }
+        }
 
-    ADCL_Request_free ( &request );
-    ADCL_Vector_free ( &vec );
-    ADCL_Vmap_free ( &vmap ); 
+        ADCL_Request_free ( &request );
+        if ( ADCL_SUCCESS != err) {
+            printf("request_free not successful\n");
+            goto exit; 
+        }
+        ADCL_Vector_free ( &vec );
+        if ( ADCL_SUCCESS != err) {
+            printf("vector_free not successful\n");
+            goto exit; 
+        }
+        ADCL_Vmap_free ( &vmap ); 
+        if ( ADCL_SUCCESS != err) {
+            printf("vmap_free not successful\n");
+            goto exit; 
+        }
 
-    /**********************************************************************/
-    /* Test 5: hwidth=2, nc=2 */
-    hwidth=2;
-    dims[0] = DIM0 + 2*hwidth;
-    dims[1] = DIM1 + 2*hwidth;
-    dims[2] = DIM2 + 2*hwidth;
-    err = ADCL_Vmap_halo_allocate ( hwidth, &vmap );
-    if ( ADCL_SUCCESS != err) goto exit;
-    err = ADCL_Vector_allocate_generic ( 3,  dims, 2, vmap, MPI_DOUBLE, &data2, &vec );
-    if ( ADCL_SUCCESS != err) goto exit;
-    ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
-
-    set_data_4D ( data2, rank, cart_comm, dims, hwidth, 2 );
-#ifdef VERBOSE4D
-    dump_vector_4D ( data2, rank, dims, 2 );
-#endif
-
-    ADCL_Request_start ( request );
-    check_data_4D ( data2, rank, cart_comm, dims, hwidth, 2, neighbors);
-
-    ADCL_Request_free ( &request );
-    ADCL_Vector_free ( &vec );
-    ADCL_Vmap_free ( &vmap ); 
+        if ( rank == 0 && isok ) {
+            printf("3D C testsuite: hwidth = %d, nc = %d passed\n", hwidth, nc);
+        }
+    }
 
     /**********************************************************************/
 
 exit:
     ADCL_Topology_free ( &topo );
+    if ( ADCL_SUCCESS != err) {
+        printf("topology_free not successful\n");
+        goto exit; 
+    }
     MPI_Comm_free ( &cart_comm );
 
     ADCL_Finalize ();
@@ -200,85 +269,93 @@ exit:
 /**********************************************************************/
 /**********************************************************************/
 
-static void check_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int *neighbors)
+static int check_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int *neighbors)
 {
     int control_x, control_y, control_z, lres=1, gres;
+    double prod; 
 
     // check for each of the 27 possible locations
     for(control_x=-1; control_x<=1; control_x++){
         for(control_y=-1; control_y<=1; control_y++){
             for(control_z=-1; control_z<=1; control_z++){
+                prod = control_x * control_y * control_z; 
 #ifdef INCCORNER
-                if((control_x * control_y * control_z) != 0){
+                if ( prod != 0){
                     // corner
                     lres = calc_entry3D ( control_x, control_y, control_z, data, rank, cart_comm, dim, hwidth, neighbors);
                 }
 #endif
-                if((control_x * control_y * control_z) == 0){
+                if( prod == 0) {
                     // edge, face or inside
                     lres = calc_entry3D ( control_x, control_y, control_z, data, rank, cart_comm, dim, hwidth, neighbors);
+                }
+                MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
+                if ( gres != 1 ) {
+                    return 0; 
                 }
             }
         }
     }
 
-    MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
+    /*if ( gres == 1 ) {
+      if ( rank == 0 ) {
+      printf("3-D C testsuite: hwidth = %d, nc = 0 passed\n", hwidth );
+      }
+      }
+      else {
+      if ( rank == 0 ) {
+      printf("3-D C testsuite: hwidth = %d, nc = 0 failed\n", hwidth);
+      }
+      dump_vector_3D ( data, rank, dim );
+      }*/
 
-    if ( gres == 1 ) {
-        if ( rank == 0 ) {
-            printf("3-D C testsuite: hwidth = %d, nc = 0 passed\n", hwidth );
-        }
-    }
-    else {
-        if ( rank == 0 ) {
-            printf("3-D C testsuite: hwidth = %d, nc = 0 failed\n", hwidth);
-        }
-        dump_vector_3D ( data, rank, dim );
-    }
-    return;
+    return 1;
 }
 
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
 
-static void check_data_4D ( double ****data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int nc, int *neighbors) 
+static int check_data_4D ( double ****data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int nc, int *neighbors) 
 {
-
     int control_x, control_y, control_z, lres=1, gres;
+    double prod; 
 
     for(control_x=-1; control_x<=1; control_x++){
         for(control_y=-1; control_y<=1; control_y++){
             for(control_z=-1; control_z<=1; control_z++){
-#ifdef INCCORNER			
-                if((control_x * control_y * control_z) != 0){
+                prod = control_x * control_y * control_z;
+#ifdef INCCORNER
+                if( prod != 0){
                     lres = calc_entry4D ( control_x, control_y, control_z, data, rank, cart_comm, dim, hwidth, neighbors, nc);
                 }
 #endif
-                if((control_x * control_y * control_z) == 0){
+                if( prod == 0){
                     lres = calc_entry4D ( control_x, control_y, control_z, data, rank, cart_comm, dim, hwidth, neighbors, nc);
                 }
+            }
+            MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, cart_comm );
+            if ( gres != 1 ) {
+                return 0; 
             }
         }
     }
 
-    MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
-    if ( gres == 1 ) {
-        if ( rank == 0 ) {
-            printf("4-D C testsuite: hwidth = %d, nc = 0 passed\n", 
-                    hwidth );
-        }
-    }
-    else {
-        if ( rank == 0 ) {
-            printf("4-D C testsuite: hwidth = %d, nc = 0 failed\n",
-                    hwidth);
-        }
-        dump_vector_4D ( data, rank, dim , nc);
-    }
+    /* if ( gres == 1 ) {
+       if ( rank == 0 ) {
+       printf("4-D C testsuite: hwidth = %d, nc = %d passed\n", 
+       hwidth, nc );
+       }
+       }
+       else {
+       if ( rank == 0 ) {
+       printf("4-D C testsuite: hwidth = %d, nc = %d failed\n",
+       hwidth, nc);
+       }
+       dump_vector_4D ( data, dim , nc, cart_comm);
+       } */
 
-
-    return;
+    return 1;
 
 }
 /**********************************************************************/
@@ -291,8 +368,6 @@ static void set_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *dim
     int dims[3]; //size of each dimension
     int period[3];
 
-    //Get the coordinate of the process
-    //MPI_Cart_coords(cart_comm, rank, 2, coords);
     MPI_Cart_get(cart_comm, 3, dims, period, coords);
 
     for (i=0; i<dim[0]; i++ ) {
@@ -416,47 +491,6 @@ static void set_data_4D ( double ****data, int rank,  MPI_Comm cart_comm, int *d
     }
 
 
-
-    return;
-}
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-static void dump_vector_3D ( double ***data, int rank, int *dim)
-{
-    int i, j, k;
-
-    for (i=0; i<dim[0]; i++) {
-        for ( j=0; j<dim[1]; j++ ) {
-            printf("Rank %d : dim[0]=%d dim[1]=%d ", rank, i, j);
-            for ( k=0; k<dim[2]; k++ ) {
-                printf("%lf ", data[i][j][k]);
-            }
-            printf ("\n");
-        }
-    }
-    return;
-}
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-static void dump_vector_4D ( double ****data, int rank, int *dim, int nc)
-{
-    int i, j, k, l;
-
-    for (i=0; i<dim[0]; i++) {
-        for ( j=0; j<dim[1]; j++ ) {
-            printf("Rank %d dim[0]=%d dim[1]=%d: ", rank, i, j);
-            for ( k=0; k<dim[2]; k++ ) {
-                for ( l=0; l<nc; l++ ) {
-                    printf("%lf ", data[i][j][k][l]);
-                }
-            }
-            printf ("\n");
-        }
-    }
 
     return;
 }

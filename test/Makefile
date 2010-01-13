@@ -177,7 +177,7 @@ $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d: aux-data-2D.o aux-data-3D.o test-fncts
 
 test-fnctset-extneigh-3d: $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d 
 	
-$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d: aux-data-3D.o test-fnctset-extneigh-3d.o 
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d: aux-data-3D.o aux-data-4D.o test-fnctset-extneigh-3d.o 
 	$(CC) $^ $(LDFLAGS) -o $@
 
 ###################################################################################################

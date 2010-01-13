@@ -53,9 +53,6 @@ program testfnctsetextneigh3df
    ! Describe the neighborhood relations
    call MPI_Dims_create ( size, ndim, cdims, ierror)
    call MPI_Cart_create ( MPI_COMM_WORLD, ndim, cdims, periods, .false., cart_comm, ierror )
-   !call MPI_Cart_shift ( cart_comm, 0, 1, neighbors(1), neighbors(2), ierror )
-   !call MPI_Cart_shift ( cart_comm, 1, 1, neighbors(3), neighbors(4), ierror )
-   !call MPI_Cart_shift ( cart_comm, 2, 1, neighbors(5), neighbors(6), ierror );
 
    ! Initiate the ADCL library and register a topology object with ADCL
    call ADCL_Init ( ierror )
@@ -68,12 +65,12 @@ program testfnctsetextneigh3df
    neighbors(1) = lneighbors(1);   neighbors(2) = rneighbors(1)
    neighbors(3) = lneighbors(2);   neighbors(4) = rneighbors(2)
    neighbors(5) = lneighbors(3);   neighbors(6) = rneighbors(3)
-   neighbors(7) = lneighbors(4);   neighbors(8) = rneighbors(4)
-   neighbors(9) = lneighbors(5);   neighbors(10) = rneighbors(5)
-   neighbors(11) = lneighbors(6);   neighbors(12) = rneighbors(6)
-   neighbors(13) = lneighbors(7);   neighbors(14) = rneighbors(7)
-   neighbors(15) = lneighbors(8);   neighbors(16) = rneighbors(8)
-   neighbors(17) = lneighbors(9);   neighbors(18) = rneighbors(9)
+   !neighbors(7) = lneighbors(4);   neighbors(8) = rneighbors(4)
+   !neighbors(9) = lneighbors(5);   neighbors(10) = rneighbors(5)
+   !neighbors(11) = lneighbors(6);   neighbors(12) = rneighbors(6)
+   !neighbors(13) = lneighbors(7);   neighbors(14) = rneighbors(7)
+   !neighbors(15) = lneighbors(8);   neighbors(16) = rneighbors(8)
+   !neighbors(17) = lneighbors(9);   neighbors(18) = rneighbors(9)
 
    ntests_3D = 2
    do itest = 1, ntests_3D
@@ -168,7 +165,6 @@ program testfnctsetextneigh3df
 
    ntests_3D_plus_nc = 3
    do itest = 1, ntests_3D_plus_nc
-   !do itest = 3, ntests_3D_plus_nc
       isok = .false.
 
       if ( itest .eq. 1 ) then 
@@ -193,7 +189,7 @@ program testfnctsetextneigh3df
         ! **********************************************************************
         ! Test 5: hwidth=2, nc=2
         hwidth = 2
-        nc = 9
+        nc = 2
         dims2(1) = DIM0 + 2*hwidth;
         dims2(2) = DIM1 + 2*hwidth;
         dims2(3) = DIM2 + 2*hwidth;

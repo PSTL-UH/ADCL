@@ -225,7 +225,7 @@ int ADCL_subarray_ext_init ( int ntopodim, int nvecdims, int *vecdims,
         }
     }
 
-    if ( ntopodim == 2 && nneigh > 4 ) {
+    if ( ntopodim == 2 && nneigh == 4 ) {
         subdims[0] = hwidth;   subdims[1] = hwidth;
 
         /* lower left and upper right corner */
@@ -255,7 +255,7 @@ int ADCL_subarray_ext_init ( int ntopodim, int nvecdims, int *vecdims,
         }
     }
 
-    if ( ntopodim == 3 &&  nneigh > 6 ) {
+    if ( ntopodim == 3 &&  nneigh == 9 ) {
         /* *** VERTICAL EDGES *** */
         subdims[0] = hwidth;   subdims[1] = hwidth;   subdims[2] = vecdims[2]-2*hwidth;
 
