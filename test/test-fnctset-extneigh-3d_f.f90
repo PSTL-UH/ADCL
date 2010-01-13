@@ -1,5 +1,5 @@
 !
-! Copyright (c) 2009           HLRS. All rights reserved.
+! Copyright (c) 2009-2010       HLRS. All rights reserved.
 ! $COPYRIGHT$
 !
 ! Additional copyrights may follow
@@ -18,17 +18,22 @@
 !       at the moment all data(x,y,z,1:nc) are set to the number
  
 program testfnctsetextneigh3df
+   use adcl
    use auxdata3df
+   use auxdata4df
    implicit none
 
    integer rank, size, ierror
    integer nc, hwidth
    integer vmap, vec, topo, request
    integer cart_comm
-   integer, dimension(3) :: dims1, cdims, periods
-   integer, dimension(4) :: dims2
-   integer, dimension(6) :: neighbors
-   !double precision :: data(10,6), data1(12,8), data2(10,6,1), data3(12,8,1), data4(12,8,2)
+   integer, parameter :: ndim = 3
+   integer, dimension(ndim) :: dims1, cdims
+   logical, dimension(ndim) :: periods
+   integer, dimension(ndim+1) :: dims2
+   integer, parameter :: nneigh=9
+   integer, dimension(nneigh) :: lneighbors, rneighbors, flip
+   integer, dimension(2*nneigh) :: neighbors
    double precision, allocatable :: data1(:,:,:), data2(:,:,:,:)
    integer, parameter :: niter = 500 
    logical :: isok
@@ -38,7 +43,7 @@ program testfnctsetextneigh3df
    integer, parameter :: DIM0=4, DIM1=3, DIM2=2
 
    cdims = 0
-   periods = 0
+   periods = .false.
 
    ! Initiate the MPI environment
    call MPI_Init ( ierror )
@@ -46,18 +51,34 @@ program testfnctsetextneigh3df
    call MPI_Comm_size ( MPI_COMM_WORLD, size, ierror )
 
    ! Describe the neighborhood relations
-   call MPI_Dims_create ( size, 3, cdims, ierror)
-   call MPI_Cart_create ( MPI_COMM_WORLD, 3, cdims, periods, 0, cart_comm, ierror )
-   call MPI_Cart_shift ( cart_comm, 0, 1, neighbors(1), neighbors(2), ierror )
-   call MPI_Cart_shift ( cart_comm, 1, 1, neighbors(3), neighbors(4), ierror )
-   call MPI_Cart_shift ( cart_comm, 2, 1, neighbors(5), neighbors(6), ierror );
+   call MPI_Dims_create ( size, ndim, cdims, ierror)
+   call MPI_Cart_create ( MPI_COMM_WORLD, ndim, cdims, periods, .false., cart_comm, ierror )
+   !call MPI_Cart_shift ( cart_comm, 0, 1, neighbors(1), neighbors(2), ierror )
+   !call MPI_Cart_shift ( cart_comm, 1, 1, neighbors(3), neighbors(4), ierror )
+   !call MPI_Cart_shift ( cart_comm, 2, 1, neighbors(5), neighbors(6), ierror );
 
    ! Initiate the ADCL library and register a topology object with ADCL
    call ADCL_Init ( ierror )
    call ADCL_Topology_create_extended ( cart_comm, topo, ierror )
+  !call ADCL_Topology_create ( cart_comm, topo, ierror )
+   call ADCL_Topology_get_cart_neighbors ( nneigh, lneighbors, rneighbors, flip, cart_comm, ierror )
+   if ( ierror .ne. ADCL_SUCCESS ) then 
+       print *, "failed to get neighbors"; stop
+   endif
+   neighbors(1) = lneighbors(1);   neighbors(2) = rneighbors(1)
+   neighbors(3) = lneighbors(2);   neighbors(4) = rneighbors(2)
+   neighbors(5) = lneighbors(3);   neighbors(6) = rneighbors(3)
+   neighbors(7) = lneighbors(4);   neighbors(8) = rneighbors(4)
+   neighbors(9) = lneighbors(5);   neighbors(10) = rneighbors(5)
+   neighbors(11) = lneighbors(6);   neighbors(12) = rneighbors(6)
+   neighbors(13) = lneighbors(7);   neighbors(14) = rneighbors(7)
+   neighbors(15) = lneighbors(8);   neighbors(16) = rneighbors(8)
+   neighbors(17) = lneighbors(9);   neighbors(18) = rneighbors(9)
 
    ntests_3D = 2
    do itest = 1, ntests_3D
+      isok = .false.
+
       if ( itest .eq. 1 ) then 
          ! **********************************************************************
          ! Test 1: hwidth=1, nc=0
@@ -80,10 +101,23 @@ program testfnctsetextneigh3df
 
       allocate ( data1(dims1(1),dims1(2), dims1(3)) )
       call adcl_vmap_halo_allocate( hwidth, vmap, ierror )
-      if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"
-      call adcl_vector_register_generic ( 3,  dims1, nc, vmap, MPI_DOUBLE_PRECISION, data1, vec, ierror )
-      call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, request, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "vmap_halo_allocate not successful"
+         goto 100
+      end if
 
+      call adcl_vector_register_generic ( ndim,  dims1, nc, vmap, MPI_DOUBLE_PRECISION, data1, vec, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "vector_register_generic not successful"
+         goto 100
+      end if
+
+      call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, request, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "request_create not successful"
+         goto 100
+      end if
+ 
       do i = 1, niter
          call set_data_3D_cont( data1, rank, dims1, hwidth, cart_comm )
 #ifdef VERBOSE
@@ -91,6 +125,10 @@ program testfnctsetextneigh3df
 #endif
 
          call ADCL_Request_start( request, ierror )
+         if ( ADCL_SUCCESS .ne. ierror) then 
+            print *, "request_start not successful"
+            goto 100
+         end if
 
 #ifdef VERBOSE
          call dump_vector_3D_mpi_dp ( data1, dims1, cart_comm )
@@ -105,9 +143,21 @@ program testfnctsetextneigh3df
          endif
       end do  ! niter
 
+100   continue
       call ADCL_Request_free ( request, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "request_free not successful"
+      end if
+
       call ADCL_Vector_deregister ( vec, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "vector_deregister not successful"
+      end if
+
       call ADCL_Vmap_free ( vmap, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "vmap_free not successful"
+      end if
     
       deallocate ( data1 )
       if ( rank == 0 .and. isok )  then
@@ -118,6 +168,9 @@ program testfnctsetextneigh3df
 
    ntests_3D_plus_nc = 3
    do itest = 1, ntests_3D_plus_nc
+   !do itest = 3, ntests_3D_plus_nc
+      isok = .false.
+
       if ( itest .eq. 1 ) then 
          ! **********************************************************************
          ! Test 3: hwidth=1, nc=1
@@ -140,19 +193,31 @@ program testfnctsetextneigh3df
         ! **********************************************************************
         ! Test 5: hwidth=2, nc=2
         hwidth = 2
-        nc = 1
+        nc = 9
         dims2(1) = DIM0 + 2*hwidth;
         dims2(2) = DIM1 + 2*hwidth;
         dims2(3) = DIM2 + 2*hwidth;
         dims2(4) = nc
       end if
 
- 
       allocate ( data2(dims2(1),dims2(2), dims2(3), dims2(4)) )
       call adcl_vmap_halo_allocate( hwidth, vmap, ierror )
-      if ( ADCL_SUCCESS .ne. ierror) print *, "vmap_halo_allocate not successful"
-      call adcl_vector_register_generic ( 3,  dims2(1:3), nc, vmap, MPI_DOUBLE_PRECISION, data2, vec, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "vmap_halo_allocate not successful"
+         goto 200
+      end if
+
+      call adcl_vector_register_generic ( ndim,  dims2(1:3), nc, vmap, MPI_DOUBLE_PRECISION, data2, vec, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "vector_register_generic not successful"
+         goto 200
+      end if
+
       call ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, request, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "request_create not successful"
+         goto 200
+      end if
 
       do i = 1, niter
          call set_data_4D( data2, rank, dims2(1:3), hwidth, nc, cart_comm )
@@ -161,6 +226,10 @@ program testfnctsetextneigh3df
          call dump_vector_4D_mpi_dp ( data2, dims2, cart_comm )
 #endif
          call ADCL_Request_start( request, ierror )
+         if ( ADCL_SUCCESS .ne. ierror) then 
+            print *, "request_start not successful"
+            goto 200
+         end if
 
 #ifdef VERBOSE
          call dump_vector_4D_mpi_dp ( data2, dims2, cart_comm )
@@ -168,16 +237,28 @@ program testfnctsetextneigh3df
          isok = check_data_4D ( data2, rank, dims2(1:3), hwidth, nc, neighbors, cart_comm )
          if ( .not. isok ) then
              if ( rank == 0 ) then
-                 write(*,'(1x,a,i0,a,i0,a,i0)') "2D f90 testsuite failed at iteration", i, ": hwidth = ", hwidth, ", nc =", nc
+                 write(*,'(1x,a,i0,a,i0,a,i0)') "3D f90 testsuite failed at iteration", i, ": hwidth = ", hwidth, ", nc =", nc
              end if
              call dump_vector_4D_mpi_dp ( data2, dims2, cart_comm )
              exit
          endif
       end do  ! niter
 
+200   continue
       call ADCL_Request_free ( request, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "request_free not successful"
+      end if
+
       call ADCL_Vector_deregister ( vec, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "vector_deregister not successful"
+      end if
+
       call ADCL_Vmap_free ( vmap, ierror )
+      if ( ADCL_SUCCESS .ne. ierror) then 
+         print *, "vmap_free not successful"
+      end if
 
       deallocate ( data2 )
 
@@ -189,9 +270,15 @@ program testfnctsetextneigh3df
    ! **********************************************************************
    ! done
    call ADCL_Topology_free ( topo, ierror )
+   if ( ADCL_SUCCESS .ne. ierror) then 
+      print *, "topology_free not successful"
+   end if
    call MPI_Comm_free ( cart_comm, ierror )
 
    call ADCL_Finalize ( ierror )
+   if ( ADCL_SUCCESS .ne. ierror) then 
+      print *, "adcl_finalize not successful"
+   end if
    call MPI_Finalize ( ierror )
 
 
@@ -312,7 +399,7 @@ function check_data_4D ( data, rank, dims, hwidth, nc, neighbors, cart_comm ) re
                        lres = check_region_3D (x_direction, y_direction, z_direction, data(:,:,:,l), rank, & 
                               cart_comm, dims, hwidth, neighbors )
                    end if
-                   call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierror )
+                   call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, cart_comm, ierror )
                    if ( gres .ne. 1 ) then 
                       isok = .false.
                       return 

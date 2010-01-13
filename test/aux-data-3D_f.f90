@@ -8,7 +8,7 @@
 !
 
 module auxdata3df
-   include 'ADCL.inc'
+   use adcl
 contains
 
 !***************************************************************************
@@ -23,7 +23,8 @@ subroutine set_data_3D_cont ( data, rank, dims, hwidth, cart_comm)
     double precision, intent(inout) :: data(dims(1),dims(2),dims(3))
 
     integer :: i, j, k, ierr
-    integer, dimension(3) :: coords, cart_dims, period, dims_wo_halos
+    integer, dimension(3) :: coords, cart_dims, dims_wo_halos
+    logical, dimension(3) :: period
 
     call MPI_Cart_get(cart_comm, 3, cart_dims, period, coords, ierr)
     ! cube: cart_dims with index coords
@@ -96,7 +97,7 @@ function check_data_3D_cont ( data, rank, dims, hwidth, neighbors, cart_comm ) r
    logical :: isok
 
    integer :: i, j, k, ierr, lres=1, gres, prod, ierror
-   integer, dimension(3) :: coords, n_coords, c_coords, cart_size, period
+   integer, dimension(3) :: coords, n_coords, c_coords, cart_size
    double precision should_be
 
    integer :: x_direction, y_direction, z_direction 
@@ -118,7 +119,7 @@ function check_data_3D_cont ( data, rank, dims, hwidth, neighbors, cart_comm ) r
                     lres = check_region_3D (x_direction, y_direction, z_direction, data, rank, cart_comm, &
                            dims, hwidth, neighbors )
                 end if
-                call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierror )
+                call MPI_Allreduce ( lres, gres, 1, MPI_INTEGER, MPI_MIN, cart_comm, ierror )
                 if ( gres .ne. 1 ) then 
                    isok = .false.
                    return 
@@ -157,7 +158,7 @@ function check_region_3D (x_direction, y_direction, z_direction, data, rank, car
     double precision :: should_be
     integer :: cart_dims(3), dims_wo_halos(3)
     integer :: coords(3), n_coords(3), c_coords(3) ! coords, coords of neighbor and corrected coords of MPI process
-    integer :: period(3)      ! not really used
+    logical, dimension(3) :: period ! not really used
     integer :: compensate(3)  ! what do I have to add / substract to my coordinate on the 
                               ! neighboring process to compare the values in the halo cell and 
                               ! in the domain of the neighboring process

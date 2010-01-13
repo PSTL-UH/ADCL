@@ -1,4 +1,6 @@
-
+module auxdata4df
+   use adcl
+contains
 
 !****************************************************************************
       subroutine DUMP_VECTOR ( arr, rank, dims )
@@ -55,4 +57,5 @@
         return
       end subroutine DUMP_VECTOR_MPI
 
+end module auxdata4df
 

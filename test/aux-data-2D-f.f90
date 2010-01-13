@@ -29,13 +29,12 @@
 !****************************************************************************
 !****************************************************************************
 module auxdata2df
-   include 'ADCL.inc'
+   use adcl
 contains
 
       subroutine SET_DATA ( arr, rank, dims, hwidth )
 
         implicit none
-        include 'ADCL.inc'
 
         integer rank, dims(2), hwidth
         DATATYPE arr(dims(1),dims(2))
@@ -640,8 +639,6 @@ function check_region_2D_plus_cont (x_direction, y_direction, data, rank, cart_c
                  write(*,'(i4,a,3I4,a,f12.4,a,f12.4,a,2i3)') rank, ": data(",i,j,k,") = ", data(i,j,k), & 
                     ", should_be, ", should_be, ", direction =", x_direction, y_direction
              end if
-             if (data(i,j,k) .eq. -5) print*, "double check"
-             data(i,j,k) = -5
           end do
        end do
     end do
