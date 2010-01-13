@@ -246,12 +246,12 @@ $(ADCL_BIN_DIR)/test-fnctset-allreduce_f:  test-fnctset-allreduce_f.o
 #
 test-fnctset-extneigh-2d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f 
 	
-$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f: aux-data-2D-dp-f.o aux-data-3D-dp_f.o test-fnctset-extneigh-2d_f.o 
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f: adcl_f.o aux-data-2D-dp-f.o aux-data-3D-dp_f.o test-fnctset-extneigh-2d_f.o 
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 test-fnctset-extneigh-3d_f: $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f
 	
-$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f: aux-data-3D-dp_f.o aux-data-4D-dp_f.o test-fnctset-extneigh-3d_f.o  
+$(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f: adcl_f.o aux-data-3D-dp_f.o aux-data-4D-dp_f.o test-fnctset-extneigh-3d_f.o  
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 test-prometheus: $(ADCL_BIN_DIR)/test-prometheus 
