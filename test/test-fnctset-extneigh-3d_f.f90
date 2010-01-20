@@ -6,8 +6,6 @@
 !
 ! $HEADER$
 !
-#undef VERBOSE
-
 ! unit test for 3D Fortran extended neighborhood communication (for Lattice Boltzmann)
 !
 ! set_data: over all processes, all compute cells are numbered continously in x, y and z direction 
@@ -16,6 +14,8 @@
 !
 ! ToDo: for nc > 1, program a special set_data and check_data function
 !       at the moment all data(x,y,z,1:nc) are set to the number
+
+#undef VERBOSE
  
 program testfnctsetextneigh3df
    use adcl
@@ -35,7 +35,7 @@ program testfnctsetextneigh3df
    integer, dimension(nneigh) :: lneighbors, rneighbors, flip
    integer, dimension(2*nneigh) :: neighbors
    double precision, allocatable :: data1(:,:,:), data2(:,:,:,:)
-   integer, parameter :: niter = 500 
+   integer, parameter :: niter = 50
    logical :: isok
    integer :: i, itest, ntests_3D, ntests_3D_plus_nc
 
@@ -157,7 +157,7 @@ program testfnctsetextneigh3df
       end if
     
       deallocate ( data1 )
-      if ( rank == 0 .and. isok )  then
+      if ( rank == 0 )  then
           write(*,'(1x,a,i0,a,i0,a)') "3D f90 testsuite: hwidth = ", hwidth, ", nc = ", nc, " passed"
       end if
    end do  ! tests_3D
@@ -258,7 +258,7 @@ program testfnctsetextneigh3df
 
       deallocate ( data2 )
 
-      if ( rank == 0 .and. isok )  then
+      if ( rank == 0 )  then
           write(*,'(1x,a,i0,a,i0,a)') "3D f90 testsuite: hwidth = ", hwidth, ", nc = ", nc, " passed"
       end if
    end do ! test_3D_plus_nc

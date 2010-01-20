@@ -29,7 +29,7 @@ program testfnctsetextneigh2df
    integer, dimension(nneigh) :: lneighbors, rneighbors, flip
    integer, dimension(2*nneigh) :: neighbors
    double precision, allocatable :: data1(:,:), data2(:,:,:) 
-   integer, parameter :: niter = 500 
+   integer, parameter :: niter = 50
    logical :: isok
    integer :: i, itest, ntests_2D, ntests_2D_plus_nc
 
@@ -65,8 +65,8 @@ program testfnctsetextneigh2df
          nc     = 0
          hwidth = 1
 
-         dims(1) = 10
-         dims(2) = 6
+         dims(1) = 8 
+         dims(2) = 10 
          dims(3) = 1 ! for reshape 
       else
          ! **********************************************************************
@@ -74,8 +74,8 @@ program testfnctsetextneigh2df
          hwidth = 2
          nc   = 0
 
-         dims(1) = 12
-         dims(2) = 8
+         dims(1) = 8 
+         dims(2) = 10 
          dims(3) = 1
       end if
       
@@ -158,25 +158,25 @@ program testfnctsetextneigh2df
          ! Test 3: hwidth=1, nc=1 
          hwidth = 1
          nc     = 1
-         dims(1) = 10
-         dims(2) = 6
+         dims(1) = 8 
+         dims(2) = 10 
          dims(3) = nc 
       else if ( itest .eq. 2 ) then
          ! **********************************************************************
          ! Test 4: hwidth=2, nc=1 
-         hwidth = 2
+         hwidth = 2 
          nc     = 1
 
-         dims(1) = 12
-         dims(2) = 8
+         dims(1) = 8 
+         dims(2) = 10 
          dims(3) = nc
       else
          ! **********************************************************************
          ! Test 5: hwidth=2, nc=2 
          hwidth = 2
          nc     = 2
-         dims(1) = 6
-         dims(2) = 6
+         dims(1) = 8
+         dims(2) = 10 
          dims(3) = nc
       endif 
  

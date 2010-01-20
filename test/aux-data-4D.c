@@ -12,12 +12,12 @@
 #include "ADCL.h"
 #include "mpi.h"
 
-void dump_vector_4D ( double ****data, int *dim, int nc, MPI_Comm comm );
+void dump_vector_4D_mpi ( double ****data, int *dim, int nc, MPI_Comm comm );
 
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-void dump_vector_4D ( double ****data, int *dim, int nc, MPI_Comm comm )
+void dump_vector_4D_mpi ( double ****data, int *dim, int nc, MPI_Comm comm )
 {
     int i, j, k, l, iproc;
     int rank, size;

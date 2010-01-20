@@ -18,8 +18,8 @@
 #define DIM1  5
 #define DIM2  6
 
-extern void dump_vector_3D_mpi ( double ***data, int *dim, int nc, MPI_Comm cart_comm );
-extern void dump_vector_4D ( double ****data, int *dim, int nc, MPI_Comm cart_comm );
+extern void dump_vector_3D_mpi ( double ***data, int *dim, MPI_Comm cart_comm );
+extern void dump_vector_4D_mpi ( double ****data, int *dim, int nc, MPI_Comm cart_comm );
 
 static void set_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *dim, int hwidth );
 static void set_data_4D ( double ****data, int rank, MPI_Comm cart_comm, int *dim, int hwidth, int nc);
@@ -50,7 +50,8 @@ int main ( int argc, char ** argv )
     MPI_Comm cart_comm;
     ADCL_Topology topo;
     ADCL_Request request;
-    int i, niter = 50;
+
+    int i, niter = 50; 
     int ntests_3D, ntests_3D_plus_nc; 
     int itest, isok; 
 
@@ -108,7 +109,7 @@ int main ( int argc, char ** argv )
             printf("vector_allocate not successful\n");
             goto exit; 
         }
-        ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
+        err = ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
         if ( ADCL_SUCCESS != err) {
             printf("request_create not successful\n");
             goto exit; 
@@ -117,10 +118,10 @@ int main ( int argc, char ** argv )
         for ( i=0; i<niter; i++) {
             set_data_3D ( data, rank, cart_comm, dims, hwidth );
 #ifdef VERBOSE3D
-            dump_vector_3D_mpi ( data, dims rank, dims );
+            dump_vector_3D_mpi ( data, dims, cart_comm );
 #endif
 
-            ADCL_Request_start ( request );
+            err = ADCL_Request_start ( request );
             if ( ADCL_SUCCESS != err) {
                 printf("request_start not successful\n");
                 goto exit; 
@@ -130,22 +131,22 @@ int main ( int argc, char ** argv )
                 if ( rank == 0 ) {
                     printf("3D C testsuite failed at iteration %d: hwidth = %d, nc = %d\n", i, hwidth, nc);
                 }
-                dump_vector_3D_mpi ( data, dims, nc, cart_comm );
+                dump_vector_3D_mpi ( data, dims, cart_comm );
                 exit;
             }
         } // niter
 
-        ADCL_Request_free ( &request );
+        err = ADCL_Request_free ( &request );
         if ( ADCL_SUCCESS != err) {
             printf("request_free not successful\n");
             goto exit; 
         }
-        ADCL_Vector_free ( &vec );
+        err = ADCL_Vector_free ( &vec );
         if ( ADCL_SUCCESS != err) {
             printf("vector_free not successful\n");
             goto exit; 
         }
-        ADCL_Vmap_free ( &vmap ); 
+        err = ADCL_Vmap_free ( &vmap ); 
         if ( ADCL_SUCCESS != err) {
             printf("vmap_free not successful\n");
             goto exit; 
@@ -198,7 +199,7 @@ int main ( int argc, char ** argv )
             printf("vector_create not successful\n");
             goto exit; 
         }
-        ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
+        err = ADCL_Request_create ( vec, topo, ADCL_FNCTSET_NEIGHBORHOOD, &request );
         if ( ADCL_SUCCESS != err) {
             printf("request_create not successful\n");
             goto exit; 
@@ -210,7 +211,7 @@ int main ( int argc, char ** argv )
             dump_vector_4D ( data2, dims, nc, cart_comm );
 #endif
 
-            ADCL_Request_start ( request );
+            err = ADCL_Request_start ( request );
             if ( ADCL_SUCCESS != err) {
                 printf("request_start not successful\n");
                 goto exit; 
@@ -223,23 +224,23 @@ int main ( int argc, char ** argv )
             if ( ! isok )  {
                 if ( rank == 0 ) {
                     printf("3D C testsuite failed at iteration %d: hwidth = %d, nc = %d\n", i, hwidth, nc);
+                    dump_vector_4D_mpi ( data2, dims, nc, cart_comm );
                 }
-                dump_vector_4D ( data2, dims, nc, cart_comm );
                 exit;
             }
         }
 
-        ADCL_Request_free ( &request );
+        err = ADCL_Request_free ( &request );
         if ( ADCL_SUCCESS != err) {
             printf("request_free not successful\n");
             goto exit; 
         }
-        ADCL_Vector_free ( &vec );
+        err = ADCL_Vector_free ( &vec );
         if ( ADCL_SUCCESS != err) {
             printf("vector_free not successful\n");
             goto exit; 
         }
-        ADCL_Vmap_free ( &vmap ); 
+        err = ADCL_Vmap_free ( &vmap ); 
         if ( ADCL_SUCCESS != err) {
             printf("vmap_free not successful\n");
             goto exit; 
@@ -253,7 +254,7 @@ int main ( int argc, char ** argv )
     /**********************************************************************/
 
 exit:
-    ADCL_Topology_free ( &topo );
+    err = ADCL_Topology_free ( &topo );
     if ( ADCL_SUCCESS != err) {
         printf("topology_free not successful\n");
         goto exit; 
@@ -289,7 +290,7 @@ static int check_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *di
                     // edge, face or inside
                     lres = calc_entry3D ( control_x, control_y, control_z, data, rank, cart_comm, dim, hwidth, neighbors);
                 }
-                MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
+                MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, cart_comm );
                 if ( gres != 1 ) {
                     return 0; 
                 }
@@ -306,7 +307,7 @@ static int check_data_3D ( double ***data, int rank, MPI_Comm cart_comm, int *di
       if ( rank == 0 ) {
       printf("3-D C testsuite: hwidth = %d, nc = 0 failed\n", hwidth);
       }
-      dump_vector_3D ( data, rank, dim );
+      dump_vector_3D ( data, dim, cart_comm );
       }*/
 
     return 1;
@@ -352,7 +353,7 @@ static int check_data_4D ( double ****data, int rank, MPI_Comm cart_comm, int *d
        printf("4-D C testsuite: hwidth = %d, nc = %d failed\n",
        hwidth, nc);
        }
-       dump_vector_4D ( data, dim , nc, cart_comm);
+       dump_vector_4D ( data, dim, nc, cart_comm);
        } */
 
     return 1;

@@ -18,7 +18,7 @@ void dump_vector_2D ( double **data, int rank, int *dim);
 void dump_vector_2D_mpi ( double **data, int *dim, MPI_Comm comm );
 void dump_vector_2D_plus_nc_mpi ( double ***data, int *dim, int nc, MPI_Comm comm ); 
 void set_data_2D    ( double **data, int rank, int *dim, int hwidth );
-void check_data_2D  ( double **data, int rank, int *dim, 
+int check_data_2D  ( double **data, int rank, int *dim, 
 			    int hwidth, int *neighbors ); 
 
 void dump_vector_2D_int ( int **data, int rank, int *dim);
@@ -29,7 +29,7 @@ void check_data_2D_int  ( int **data, int rank, int *dim,
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
-void check_data_2D ( double **data, int rank, int *dim, int hwidth, 
+int check_data_2D ( double **data, int rank, int *dim, int hwidth, 
 			    int *neighbors)
 {
     int i, j, lres=1, gres;
@@ -83,23 +83,12 @@ void check_data_2D ( double **data, int rank, int *dim, int hwidth,
 
     MPI_Allreduce ( &lres, &gres, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD );
     if ( gres == 1 ) {
-	if ( rank == 0 ) {
-	    printf("2-D C testsuite: hwidth = %d, nc = 0 passed\n", 
-		   hwidth );
-	}
+        return 1; 
     }
     else {
-	if ( rank == 0 ) {
-	    printf("2-D C testsuite: hwidth = %d, nc = 0 failed\n",
-		   hwidth);
-	}
-	dump_vector_2D ( data, rank, dim );
-	printf("%d: n[0]=%d n[1]=%d n[2]=%d n[3]=%d\n", rank, neighbors[0], 
-	       neighbors[1], neighbors[2], neighbors[3] );
+        return 0; 
     }
 
-
-    return;
 }
 
 /**********************************************************************/

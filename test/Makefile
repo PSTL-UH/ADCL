@@ -77,7 +77,7 @@ $(ADCL_BIN_DIR)/two-dim: aux-data-2D.o two-dim.o
 #
 three-dim: $(ADCL_BIN_DIR)/three-dim
 	
-$(ADCL_BIN_DIR)/three-dim: three-dim.o 
+$(ADCL_BIN_DIR)/three-dim: aux-data-3D.o aux-data-4D.o three-dim.o 
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 ###################################################################################################
@@ -203,12 +203,12 @@ $(ADCL_BIN_DIR)/one-dim-f: one-dim-f.o
 #
 two-dim-f: $(ADCL_BIN_DIR)/two-dim-f
 	
-$(ADCL_BIN_DIR)/two-dim-f: aux-data-2D-dp-f.o two-dim-f.o 
+$(ADCL_BIN_DIR)/two-dim-f: aux-data-2D-dp-f.o aux-data-3D-dp_f.o two-dim-f.o 
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 three-dim-f: $(ADCL_BIN_DIR)/three-dim-f
 	
-$(ADCL_BIN_DIR)/three-dim-f: three-dim-f.o
+$(ADCL_BIN_DIR)/three-dim-f: aux-data-3D-dp_f.o aux-data-4D-dp_f.o three-dim-f.o
 	$(FC) $^ -o $@ $(FLDFLAGS)
 #
 three-dim-large: $(ADCL_BIN_DIR)/three-dim-large
@@ -262,25 +262,25 @@ $(ADCL_BIN_DIR)/test-prometheus:  test-prometheus.o
 ###################################################################################################
 ###################################################################################################
 
-aux-data-2D-dp-f.o: aux-data-2D-f.f90
+aux-data-2D-dp-f.o: adcl_f.o aux-data-2D-f.f90
 	$(FC) $(FFLAGS) -I../include -c -DDP -DSET_DATA=set_data_2D_dp -DDUMP_VECTOR=dump_vector_2D_dp \
 	      -DDUMP_VECTOR_MPI=dump_vector_2D_mpi_dp \
-	      -DCHECK_DATA=check_data_2D_dp -DDATATYPE="doubleprecision" -o $@ $<
+	      -DCHECK_DATA=check_data_2D_dp -DDATATYPE="doubleprecision" -o aux-data-2D-dp-f.o aux-data-2D-f.f90
 
-aux-data-2D-int-f.o: aux-data-2D-f.f90
+aux-data-2D-int-f.o: adcl_f.o aux-data-2D-f.f90
 	$(FC) $(FFLAGS) -I../include -c -DINT -DSET_DATA=set_data_2D_int -DDUMP_VECTOR=dump_vector_2D_int \
 	      -DDUMP_VECTOR_MPI=dump_vector_2D_mpi_dp \
-	      -DCHECK_DATA=check_data_2D_int -DDATATYPE="integer" -o $@ $<
+	      -DCHECK_DATA=check_data_2D_int -DDATATYPE="integer" -o aux-data-2D-int-f.o aux-data-2D-f.f90
 
-aux-data-3D-dp_f.o: aux-data-3D_f.f90
+aux-data-3D-dp_f.o: adcl_f.o aux-data-3D_f.f90
 	$(FC) $(FFLAGS) -I../include -c -DSET_DATA=set_data_3D_dp -DDUMP_VECTOR=dump_vector_3D_dp \
 	      -DDUMP_VECTOR_MPI=dump_vector_3D_mpi_dp \
-	      -DCHECK_DATA=check_data_3D_dp -DDATATYPE="doubleprecision" -o $@ $<
+	      -DCHECK_DATA=check_data_3D_dp -DDATATYPE="doubleprecision" -o aux-data-3D-dp_f.o aux-data-3D_f.f90
 
-aux-data-4D-dp_f.o: aux-data-4D_f.f90
+aux-data-4D-dp_f.o: adcl_f.o aux-data-4D_f.f90
 	$(FC) $(FFLAGS) -I../include -c -DSET_DATA=set_data_4D_dp -DDUMP_VECTOR=dump_vector_4D_dp \
 	      -DDUMP_VECTOR_MPI=dump_vector_4D_mpi_dp \
-	      -DCHECK_DATA=check_data_4D_dp -DDATATYPE="doubleprecision" -o $@ $<
+	      -DCHECK_DATA=check_data_4D_dp -DDATATYPE="doubleprecision" -o aux-data-4D-dp_f.o aux-data-4D_f.f90 
 
 %.o: %.c $(ADCL_LIB_)
 	$(CC) -c $(CFLAGS) $<

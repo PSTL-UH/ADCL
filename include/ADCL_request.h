@@ -44,6 +44,7 @@ struct ADCL_request_s{
                                         for pack/unpack */
     MPI_Win                   r_win; /* window used for one-sided operations */
     MPI_Group               r_group; /* Group used for some window operations */
+    int                     r_ndats; /* size of arrays r_sdats and r_rdats */
     MPI_Datatype           *r_sdats; /* array of MPI datatypes used for sending */
     MPI_Datatype           *r_rdats; /* array of MPI datatypes used for receiving */
     int                    *r_scnts;  /* array of number of MPI datatypes to be send */ 

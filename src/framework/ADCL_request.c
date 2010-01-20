@@ -30,7 +30,6 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     ADCL_request_t *newreq;
     /* ADCL criteria structure for neighborhood com fnctset */
     ADCL_neighborhood_criteria_t *ADCL_neighborhood_criteria = NULL;
-
     int ident_vecs=1;
 #ifdef MPI_WIN
     MPI_Aint lb, extent;
@@ -88,37 +87,42 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
            ** Generate the derived datatypes describing which parts of this
            ** vector are going to be sent/received from which process
            */
+           /* dimension of sdats and rdats, resp. 
+              neighborhood communication: 2 * nneigh = 2 * ntopodim 
+              ext. neighborhood comm.   : 2 * nneigh (non-blocking) + 2 * ntopodim (blocking) */
+           newreq->r_ndats = ( topo->t_nneigh == topo->t_ndims ) ? 2 * topo->t_nneigh : 2 * topo->t_nneigh + 2 * topo->t_ndims;
+
            if ( vec->v_ndims == 1 || (vec->v_ndims == 2 && vec->v_nc > 0 )) {
                ret = ADCL_indexed_1D_init ( vec->v_dims[0], vec->v_map->m_hwidth, vec->v_nc, order,
                                             vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
            else if ( (vec->v_ndims == 2 && vec->v_nc == 0) ||
                      (vec->v_ndims == 3 && vec->v_nc > 0) ) {
-               ret = ADCL_indexed_2D_init ( vec->v_dims, vec->v_map->m_hwidth, vec->v_nc, order, topo->t_nneigh,
-                                           vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
-               //ret = ADCL_subarray_ext_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
-               //                             vec->v_nc, order, topo->t_nneigh, vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+               //ret = ADCL_indexed_2D_init ( vec->v_dims, vec->v_map->m_hwidth, vec->v_nc, order, topo->t_nneigh,
+               //                            vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+               ret = ADCL_subarray_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
+                       vec->v_nc, order, topo->t_nneigh, vec->v_dat, newreq->r_ndats, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
            else if ( (vec->v_ndims == 3 && vec->v_nc == 0) ||
                    (vec->v_ndims == 4 && vec->v_nc > 0 )){
-               ret = ADCL_indexed_3D_init ( vec->v_dims, vec->v_map->m_hwidth, vec->v_nc, order, topo->t_nneigh,
-                       vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
-               //ret = ADCL_subarray_ext_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
-               //                               vec->v_nc, order, topo->t_nneigh, vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+               //ret = ADCL_indexed_3D_init ( vec->v_dims, vec->v_map->m_hwidth, vec->v_nc, order, topo->t_nneigh,
+               //        vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+               ret = ADCL_subarray_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
+                       vec->v_nc, order, topo->t_nneigh, vec->v_dat, newreq->r_ndats, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
            else if ( ADCL_TOPOLOGY_NULL != topo ) {
                if ( topo->t_nneigh > topo->t_ndims ) { printf("not implemented\n"); exit(-1); }
-               ret = ADCL_subarray_ext_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
-                                            vec->v_nc, order, topo->t_nneigh, vec->v_dat, &(newreq->r_sdats), &(newreq->r_rdats) );
+               ret = ADCL_subarray_init   ( topo->t_ndims, vec->v_ndims, vec->v_dims, vec->v_map->m_hwidth,
+                       vec->v_nc, order, topo->t_nneigh, vec->v_dat, newreq->r_ndats, &(newreq->r_sdats), &(newreq->r_rdats) );
            }
 
            /* Initialize temporary buffer(s) for Pack/Unpack operations */
-           ret = ADCL_packunpack_init ( topo->t_nneigh * 2, topo->t_neighbors, topo->t_comm, &(newreq->r_sbuf),
+           ret = ADCL_packunpack_init ( newreq->r_ndats, topo->t_nneigh, topo->t_neighbors, topo->t_comm, &(newreq->r_sbuf),
                                         newreq->r_sdats, &(newreq->r_spsize), &(newreq->r_rbuf), newreq->r_rdats,
                                         &(newreq->r_rpsize) );
-            if ( ADCL_SUCCESS != ret ) {
+           if ( ADCL_SUCCESS != ret ) {
                 goto exit;
-            }
+           }
 
         }
         else { 
@@ -334,9 +338,8 @@ exit:
 
         if ( NULL != vec ) {
            if (NULL == svecs[0]->v_map || ADCL_VECTOR_HALO == svecs[0]->v_map->m_vectype ) {
-              ADCL_subarray_free ( 2 * topo->t_nneigh, &(newreq->r_sdats),
-                                 &(newreq->r_rdats) ); 
-              ADCL_packunpack_free ( 2 * topo->t_nneigh, &(newreq->r_rbuf),
+              ADCL_subarray_free ( newreq->r_ndats, &(newreq->r_sdats), &(newreq->r_rdats) ); 
+              ADCL_packunpack_free ( newreq->r_ndats, &(newreq->r_rbuf),
                                    &(newreq->r_sbuf), &(newreq->r_spsize),
                                    &(newreq->r_rpsize) );
 	   }
@@ -410,12 +413,10 @@ int ADCL_request_free ( ADCL_request_t **req )
 	       ADCL_vector_free( &(preq->r_svecs[i]) ); 
             }
             if ( NULL != preq->r_sdats  && NULL != preq->r_rdats ) {
-               ADCL_subarray_free ( 2 * preq->r_emethod->em_topo->t_nneigh,
-                        &(preq->r_sdats),
-                        &(preq->r_rdats) );
+               ADCL_subarray_free ( preq->r_ndats, &(preq->r_sdats), &(preq->r_rdats) );
             }
             if ( NULL != preq->r_sbuf  && NULL != preq->r_rbuf ) {
-                 ADCL_packunpack_free ( 2 * preq->r_emethod->em_topo->t_nneigh,
+                 ADCL_packunpack_free ( preq->r_ndats,
                           &(preq->r_rbuf),
                           &(preq->r_sbuf),
                           &(preq->r_spsize),

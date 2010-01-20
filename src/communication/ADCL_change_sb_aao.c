@@ -16,6 +16,7 @@
 void ADCL_CHANGE_SB_AAO ( ADCL_request_t *req )
 {
     int i, nneighs=2*TOPO->t_nneigh;
+    int offset = 0; 
 
     PREPARE_COMMUNICATION(req);
 
