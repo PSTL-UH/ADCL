@@ -160,6 +160,11 @@ void adcl_vmap_allreduce_allocate_  ( int *op, int *vmap, int *ierror );
 void adcl_vmap_allreduce_allocate__ ( int *op, int *vmap, int *ierror );
 void ADCL_VMAP_ALLREDUCE_ALLOCATE   ( int *op, int *vmap, int *ierror );
 
+void adcl_vmap_reduce_allocate   ( int *op, int *vmap, int *ierror );
+void adcl_vmap_reduce_allocate_  ( int *op, int *vmap, int *ierror );
+void adcl_vmap_reduce_allocate__ ( int *op, int *vmap, int *ierror );
+void ADCL_VMAP_REDUCE_ALLOCATE   ( int *op, int *vmap, int *ierror );
+
 void adcl_vmap_alltoall_allocate   ( int *scnt, int *rcnt, int *vmap, int *ierror ); 
 void adcl_vmap_alltoall_allocate_  ( int *scnt, int *rcnt, int *vmap, int *ierror ); 
 void adcl_vmap_alltoall_allocate__ ( int *scnt, int *rcnt, int *vmap, int *ierror ); 

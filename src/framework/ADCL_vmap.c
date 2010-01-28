@@ -121,6 +121,33 @@ int ADCL_vmap_allreduce_allocate ( MPI_Op op, ADCL_vmap_t **vmap )
     return ADCL_SUCCESS;
 }
 
+int ADCL_vmap_reduce_allocate ( MPI_Op op, ADCL_vmap_t **vmap )
+{
+    ADCL_vmap_t *tvmap=NULL;
+          
+    /* Allocate a new vmap object */ 
+    tvmap = (ADCL_vmap_t *) calloc ( 1, sizeof (ADCL_vmap_t) );
+    if ( NULL == tvmap ) {
+        return ADCL_NO_MEMORY;
+    }
+
+    /* Set the according elements of the structure */
+    tvmap->m_id     = ADCL_local_vmap_counter++;
+    tvmap->m_rfcnt  = 1;
+    
+    ADCL_array_get_next_free_pos ( ADCL_vmap_farray, &(tvmap->m_findex) );
+    ADCL_array_set_element ( ADCL_vmap_farray,
+                 tvmap->m_findex,
+                 tvmap->m_id,
+                 tvmap );
+    
+    tvmap->m_vectype = ADCL_VECTOR_REDUCE;
+    tvmap->m_op      = op;
+    
+    *vmap = tvmap;
+    return ADCL_SUCCESS;
+}
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/

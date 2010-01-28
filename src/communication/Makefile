@@ -55,7 +55,30 @@ OBJ =	ADCL_change_sb_aao_debug.o           \
         ADCL_alltoall_ladd_4.o               \
         ADCL_alltoall_ladd_8.o               \
         ADCL_bcast_linear.o                  \
-        ADCL_reduce_linear.o
+        ADCL_reduce_linear.o                 \
+        ADCL_reduce_binary_segsize4k.o                 \
+        ADCL_reduce_binomial_segsize4k.o               \
+        ADCL_reduce_in_order_binary_segsize4k.o        \
+        ADCL_reduce_chain_segsize4k.o                  \
+        ADCL_reduce_pipeline_segsize4k.o               \
+        ADCL_reduce_native.o                 \
+        ADCL_reduce_binary_segsize32k.o                 \
+        ADCL_reduce_binomial_segsize32k.o               \
+        ADCL_reduce_in_order_binary_segsize32k.o        \
+        ADCL_reduce_chain_segsize32k.o                  \
+        ADCL_reduce_pipeline_segsize32k.o               \
+        ADCL_reduce_binary_segsize128k.o                 \
+        ADCL_reduce_binomial_segsize128k.o               \
+        ADCL_reduce_in_order_binary_segsize128k.o        \
+        ADCL_reduce_chain_segsize128k.o                  \
+        ADCL_reduce_pipeline_segsize128k.o               \
+        ADCL_reduce_binary_segsize0.o                 \
+        ADCL_reduce_binomial_segsize0.o               \
+        ADCL_reduce_in_order_binary_segsize0.o        \
+        ADCL_reduce_chain_segsize0.o                  \
+        ADCL_reduce_pipeline_segsize0.o               \
+        ADCL_reduce_generic.o                \
+        ADCL_reduce_topo.o
 
 
 .SUFFIXES: .o.c
@@ -159,6 +182,74 @@ ADCL_alltoall_ladd_4.o :$(HEADER) ADCL_alltoall_ladd.c
 
 ADCL_alltoall_ladd_8.o :$(HEADER) ADCL_alltoall_ladd.c
 	$(CC) $(CFLAGS) -c ADCL_alltoall_ladd.c -DCOMMMODE=3 -o $@
+
+
+
+ADCL_reduce_binary_segsize4k.o :$(HEADER) ADCL_reduce_binary.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_binary.c -DCOMMMODE=1 \
+			-o ADCL_reduce_binary_segsize4k.o 
+ADCL_reduce_binary_segsize32k.o :$(HEADER) ADCL_reduce_binary.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_binary.c -DCOMMMODE=2 \
+			-o ADCL_reduce_binary_segsize32k.o 
+ADCL_reduce_binary_segsize128k.o :$(HEADER) ADCL_reduce_binary.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_binary.c -DCOMMMODE=3 \
+			-o ADCL_reduce_binary_segsize128k.o 
+ADCL_reduce_binary_segsize0.o :$(HEADER) ADCL_reduce_binary.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_binary.c -DCOMMMODE=4 \
+			-o ADCL_reduce_binary_segsize0.o 
+
+ADCL_reduce_binomial_segsize4k.o :$(HEADER) ADCL_reduce_binomial.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_binomial.c -DCOMMMODE=1 \
+			-o ADCL_reduce_binomial_segsize4k.o 
+ADCL_reduce_binomial_segsize32k.o :$(HEADER) ADCL_reduce_binomial.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_binomial.c -DCOMMMODE=2 \
+			-o ADCL_reduce_binomial_segsize32k.o 
+ADCL_reduce_binomial_segsize128k.o :$(HEADER) ADCL_reduce_binomial.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_binomial.c -DCOMMMODE=3 \
+			-o ADCL_reduce_binomial_segsize128k.o 
+ADCL_reduce_binomial_segsize0.o :$(HEADER) ADCL_reduce_binomial.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_binomial.c -DCOMMMODE=4 \
+			-o ADCL_reduce_binomial_segsize0.o 
+
+ADCL_reduce_chain_segsize4k.o :$(HEADER) ADCL_reduce_chain.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_chain.c -DCOMMMODE=1 \
+			-o ADCL_reduce_chain_segsize4k.o 
+ADCL_reduce_chain_segsize32k.o :$(HEADER) ADCL_reduce_chain.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_chain.c -DCOMMMODE=2 \
+			-o ADCL_reduce_chain_segsize32k.o 
+ADCL_reduce_chain_segsize128k.o :$(HEADER) ADCL_reduce_chain.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_chain.c -DCOMMMODE=3 \
+			-o ADCL_reduce_chain_segsize128k.o 
+ADCL_reduce_chain_segsize0.o :$(HEADER) ADCL_reduce_chain.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_chain.c -DCOMMMODE=4 \
+			-o ADCL_reduce_chain_segsize0.o 
+
+ADCL_reduce_pipeline_segsize4k.o :$(HEADER) ADCL_reduce_pipeline.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_pipeline.c -DCOMMMODE=1 \
+			-o ADCL_reduce_pipeline_segsize4k.o 
+ADCL_reduce_pipeline_segsize32k.o :$(HEADER) ADCL_reduce_pipeline.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_pipeline.c -DCOMMMODE=2 \
+			-o ADCL_reduce_pipeline_segsize32k.o 
+ADCL_reduce_pipeline_segsize128k.o :$(HEADER) ADCL_reduce_pipeline.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_pipeline.c -DCOMMMODE=3 \
+			-o ADCL_reduce_pipeline_segsize128k.o 
+ADCL_reduce_pipeline_segsize0.o :$(HEADER) ADCL_reduce_pipeline.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_pipeline.c -DCOMMMODE=4 \
+			-o ADCL_reduce_pipeline_segsize0.o 
+
+ADCL_reduce_in_order_binary_segsize4k.o :$(HEADER) ADCL_reduce_in_order_binary.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_in_order_binary.c -DCOMMMODE=1 \
+			-o ADCL_reduce_in_order_binary_segsize4k.o 
+ADCL_reduce_in_order_binary_segsize32k.o :$(HEADER) ADCL_reduce_in_order_binary.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_in_order_binary.c -DCOMMMODE=2 \
+			-o ADCL_reduce_in_order_binary_segsize32k.o 
+ADCL_reduce_in_order_binary_segsize128k.o :$(HEADER) ADCL_reduce_in_order_binary.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_in_order_binary.c -DCOMMMODE=3 \
+			-o ADCL_reduce_in_order_binary_segsize128k.o 
+ADCL_reduce_in_order_binary_segsize0.o :$(HEADER) ADCL_reduce_in_order_binary.c
+	$(CC) $(CFLAGS) -c ADCL_reduce_in_order_binary.c -DCOMMMODE=4 \
+			-o ADCL_reduce_in_order_binary_segsize0.o 
+
 
 $(OBJ):	$(HEADER)
 .c.o:	$(HEADER)

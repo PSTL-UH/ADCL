@@ -64,7 +64,6 @@ ADCL_fnctset_t *ADCL_allreduce_fnctset;
 
 
 
-
 int ADCL_predefined_init ( void )
 {
     int count=0;
@@ -518,6 +517,11 @@ int ADCL_predefined_init ( void )
 /* ALLTOALL - Fortran function set 4                                    */
 /* ******************************************************************** */
     ADCL_predefined_alltoall ();
+/* ******************************************************************** */
+/* REDUCE - Fortran function set 5                                   */
+/* ******************************************************************** */
+
+    ADCL_predefined_reduce ();
 
     return ADCL_SUCCESS;
 }

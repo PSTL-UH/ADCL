@@ -225,7 +225,7 @@ int ADCL_Vector_register_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
     if ( MPI_DATATYPE_NULL == dat ) {
         return ADCL_INVALID_DAT;
     }
-    if (  0 >= vmap->m_vectype || 6 < vmap->m_vectype ) {
+    if (  0 >= vmap->m_vectype || 9 < vmap->m_vectype ) {
         return ADCL_INVALID_VECTYPE;
     }
     /* Datatype has to be a basic datatype */

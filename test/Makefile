@@ -13,7 +13,7 @@ CEXECS = first second third fourth \
 	 one-dim two-dim three-dim \
 	 test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
 	 test-fnctset-allgatherv-1d  test-fnctset-alltoallv-1d \
-	 test-fnctset-alltoall test-fnctset-allreduce \
+	 test-fnctset-alltoall test-fnctset-allreduce test-fnctset-reduce \
 	 attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
 	 data_1 PbSizes_1D PbSizes_2D PbSizes_3D \
 	 test-fnctset-extneigh-2d test-fnctset-extneigh-3d 
@@ -117,6 +117,11 @@ test-fnctset-allreduce: $(ADCL_BIN_DIR)/test-fnctset-allreduce
 $(ADCL_BIN_DIR)/test-fnctset-allreduce: test-fnctset-allreduce.o
 	$(CC) $^ -o $@ $(LDFLAGS)
 
+#
+test-fnctset-reduce: $(ADCL_BIN_DIR)/test-fnctset-reduce
+	
+$(ADCL_BIN_DIR)/test-fnctset-reduce: test-fnctset-reduce.o
+	$(CC) $^ -o $@ $(LDFLAGS)
 ###################################################################################################
 
 attrs_1: $(ADCL_BIN_DIR)/attrs_1

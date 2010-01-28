@@ -154,6 +154,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
                case ADCL_VECTOR_ALL:
                case ADCL_VECTOR_LIST:
                case ADCL_VECTOR_ALLREDUCE:
+               case ADCL_VECTOR_REDUCE:
                    ret = ADCL_basic_init (svecs[0]->v_dat, dims, &(newreq->r_sdats), &(newreq->r_scnts));
                    break;
                case ADCL_VECTOR_ALLTOALL:
@@ -175,6 +176,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
                case ADCL_VECTOR_ALL:
                case ADCL_VECTOR_LIST:
                case ADCL_VECTOR_ALLREDUCE:
+               case ADCL_VECTOR_REDUCE:
                    ret = ADCL_basic_init (rvecs[0]->v_dat, dims, &(newreq->r_rdats), &(newreq->r_rcnts));
                    break;
                case ADCL_VECTOR_ALLTOALL:
@@ -260,6 +262,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
             break;
        case ADCL_VECTOR_ALL: 
        case ADCL_VECTOR_ALLREDUCE:
+       case ADCL_VECTOR_REDUCE:
        case ADCL_VECTOR_INPLACE:
            newreq->r_sreqs=(MPI_Request *)malloc(topo->t_ndims*
                         sizeof(MPI_Request));
@@ -284,6 +287,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
             break;
         case ADCL_VECTOR_ALL:
         case ADCL_VECTOR_ALLREDUCE:
+        case ADCL_VECTOR_REDUCE:
             newreq->r_rreqs=(MPI_Request *)malloc(topo->t_nneigh*
                                                   sizeof(MPI_Request));
             break;
@@ -352,6 +356,7 @@ exit:
                  break;
 	      case ADCL_VECTOR_LIST:
 	      case ADCL_VECTOR_ALLREDUCE:
+              case ADCL_VECTOR_REDUCE:
 	      case ADCL_VECTOR_INPLACE:
               case ADCL_VECTOR_ALLTOALL:
 	         ADCL_basic_free (&(newreq->r_sdats), &(newreq->r_scnts));
@@ -364,6 +369,7 @@ exit:
                  break;
 	      case ADCL_VECTOR_LIST:
 	      case ADCL_VECTOR_ALLREDUCE:
+       case ADCL_VECTOR_REDUCE:
               case ADCL_VECTOR_ALLTOALL:
                  ADCL_basic_free (&(newreq->r_rdats), &(newreq->r_rcnts));
 		 break;
@@ -427,6 +433,7 @@ int ADCL_request_free ( ADCL_request_t **req )
          case ADCL_VECTOR_LIST:
          case ADCL_VECTOR_ALLTOALL:
          case ADCL_VECTOR_ALLREDUCE:
+         case ADCL_VECTOR_REDUCE:
             ADCL_vector_free( &(preq->r_svecs[0]) ); 
             if ( NULL != preq->r_sdats  && NULL != preq->r_rdats ) {
                ADCL_basic_free (&(preq->r_sdats), &(preq->r_scnts));
@@ -455,6 +462,7 @@ int ADCL_request_free ( ADCL_request_t **req )
          case ADCL_VECTOR_LIST:
          case ADCL_VECTOR_ALLTOALL:
          case ADCL_VECTOR_ALLREDUCE:
+         case ADCL_VECTOR_REDUCE:
             ADCL_vector_free( &(preq->r_rvecs[0]) ); 
             ADCL_basic_free (&(preq->r_rdats), &(preq->r_rcnts));
             break;

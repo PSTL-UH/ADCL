@@ -87,7 +87,7 @@
        integer ADCL_VECTOR_HALO, ADCL_VECTOR_ALL
        integer ADCL_VECTOR_UP_TRIANG, ADCL_VECTOR_LO_TRIANG
        integer ADCL_VECTOR_LIST, ADCL_VECTOR_ALLREDUCE
-       integer ADCL_VECTOR_INPLACE
+       integer ADCL_VECTOR_INPLACE, ADCL_VECTOR_REDUCE
        parameter ( ADCL_VECTOR_HALO = 1 ) 
        parameter ( ADCL_VECTOR_ALL = 2 )
        parameter ( ADCL_VECTOR_UP_TRIANG = 3 )
@@ -95,11 +95,12 @@
        parameter ( ADCL_VECTOR_LIST      = 5 )
        parameter ( ADCL_VECTOR_ALLREDUCE = 6 )
        parameter ( ADCL_VECTOR_INPLACE   = 7 )
+       parameter ( ADCL_VECTOR_REDUCE = 9 )
 
        integer ADCL_FNCTSET_NEIGHBORHOOD 
        !integer ADCL_FNCTSET_SHIFT_LTOR
        !integer ADCL_FNCTSET_SHIFT_RTOL
-       integer ADCL_FNCTSET_ALLGATHERV, ADCL_FNCTSET_ALLREDUCE
+       integer ADCL_FNCTSET_ALLGATHERV, ADCL_FNCTSET_ALLREDUCE, ADCL_FNCTSET_REDUCE
        integer ADCL_FNCTSET_ALLTOALL
        integer ADCL_FNCTSET_ALLTOALLV
        parameter ( ADCL_FNCTSET_NEIGHBORHOOD = 0 )
@@ -107,6 +108,7 @@
        parameter ( ADCL_FNCTSET_ALLREDUCE    = 2 )
        parameter ( ADCL_FNCTSET_ALLTOALLV    = 3 )
        parameter ( ADCL_FNCTSET_ALLTOALL     = 4 )
+       parameter ( ADCL_FNCTSET_REDUCE     = 5 )
 
        ! this is not such a good idea: 
        ! parameter ( ADCL_FNCTSET_SHIFT_RTOL   = 0 )

@@ -387,8 +387,13 @@ void ADCL_allreduce_recursivedoubling( ADCL_request_t *req );
 void ADCL_allreduce_linear( ADCL_request_t *req );
 void ADCL_allreduce_nonoverlapping(ADCL_request_t *req );
 
+void ADCL_reduce_native ( ADCL_request_t *req);
 void ADCL_reduce_linear ( ADCL_request_t *req );
-void ADCL_bcast_linear  ( ADCL_request_t *req );
+void ADCL_reduce_binary ( ADCL_request_t *req );
+void ADCL_reduce_binomial ( ADCL_request_t *req );
+void ADCL_reduce_chain ( ADCL_request_t *req );
+void ADCL_reduce_in_order_binary ( ADCL_request_t *req );
+void ADCL_reduce_pipeline ( ADCL_request_t *req );
 
 void ADCL_alltoallv_native(ADCL_request_t *req );
 void ADCL_alltoallv_pairwise(ADCL_request_t *req );
@@ -404,6 +409,8 @@ void ADCL_alltoall_pairwise_excl(ADCL_request_t *req );
 void ADCL_alltoall_linear(ADCL_request_t *req );
 void ADCL_alltoall_linear_sync(ADCL_request_t *req );
 void ADCL_alltoall_bruck(ADCL_request_t *req );
+
+void ADCL_bcast_linear  ( ADCL_request_t *req );
 
 #endif /* __ADCL_CHANGE_H__ */
 

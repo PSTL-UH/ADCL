@@ -65,6 +65,7 @@ extern ADCL_array_t *ADCL_vmap_farray;
 int ADCL_vmap_halo_allocate ( int hwidth, ADCL_vmap_t **vec );
 int ADCL_vmap_list_allocate ( int size, int* rcnts, int* displ, ADCL_vmap_t **vec );
 int ADCL_vmap_allreduce_allocate ( MPI_Op op, ADCL_vmap_t **vec );
+int ADCL_vmap_reduce_allocate ( MPI_Op op, ADCL_vmap_t **vec );
 int ADCL_vmap_all_allocate ( ADCL_vmap_t **vec );
 int ADCL_vmap_inplace_allocate ( ADCL_vmap_t **vec );
 int ADCL_vmap_alltoall_allocate ( int scnt, int rcnt, ADCL_vmap_t **vmap );

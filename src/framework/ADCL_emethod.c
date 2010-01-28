@@ -15,6 +15,7 @@ ADCL_array_t *ADCL_emethod_array = NULL;
 int ADCL_emethod_selection = -1;
 int ADCL_emethod_allgatherv_selection = -1;
 int ADCL_emethod_allreduce_selection = -1;
+int ADCL_emethod_reduce_selection = -1;
 int ADCL_emethod_alltoall_selection = -1;
 int ADCL_emethod_alltoallv_selection = -1;
 int ADCL_merge_requests = 1;
@@ -184,6 +185,12 @@ nextemethod:
         if ( -1 != ADCL_emethod_allreduce_selection ) {
             e->em_state = ADCL_STATE_REGULAR;
             e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_allreduce_selection );
+        }
+    }
+    if ( 0 == strcmp ( f->fs_name , "Reduce") ) {
+        if ( -1 != ADCL_emethod_reduce_selection ) {
+            e->em_state = ADCL_STATE_REGULAR;
+            e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_reduce_selection );
         }
     }
     if ( 0 == strcmp ( f->fs_name , "Alltoall") ) {

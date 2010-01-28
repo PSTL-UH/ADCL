@@ -24,6 +24,7 @@ extern int ADCL_merge_requests;
 extern int ADCL_emethod_selection;
 extern int ADCL_emethod_allgatherv_selection;
 extern int ADCL_emethod_allreduce_selection;
+extern int ADCL_emethod_reduce_selection;
 extern int ADCL_emethod_alltoall_selection;
 extern int ADCL_emethod_alltoallv_selection;
 extern int ADCL_emethod_numtests;
@@ -153,6 +154,11 @@ int ADCL_readenv()
         else if ( ADCL_is_keyword(keyword,"ADCL_EMETHOD_ALLREDUCE_SELECTION") ) {
             ADCL_set_predefined_function( ptr, "ADCL_EMETHOD_ALLREDUCE_SELECTION", ADCL_allreduce_fnctset->fs_maxnum,
                     ADCL_allreduce_fnctset->fs_fptrs, &ADCL_emethod_allreduce_selection );
+        }
+	/*  ADCL_EMETHOD_REDUCE_SELECTION */
+        else if ( ADCL_is_keyword(keyword,"ADCL_EMETHOD_REDUCE_SELECTION") ) {
+            ADCL_set_predefined_function( ptr, "ADCL_EMETHOD_REDUCE_SELECTION", ADCL_reduce_fnctset->fs_maxnum,
+                    ADCL_reduce_fnctset->fs_fptrs, &ADCL_emethod_reduce_selection );
         }
         /*  ADCL_EMETHOD_ALLTOALL_SELECTION */
         else if ( ADCL_is_keyword(keyword,"ADCL_EMETHOD_ALLTOALL_SELECTION") ) {

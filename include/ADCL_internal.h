@@ -31,6 +31,8 @@
 #include "ADCL_change.h"
 #include "ADCL_allgatherv.h"
 #include "ADCL_allreduce.h"
+#include "ADCL_reduce.h"
+#include "ADCL_reduce_topo.h"
 #include "ADCL_alltoallv.h"
 #include "ADCL_alltoall.h"
 #include "ADCL_reduce.h"
