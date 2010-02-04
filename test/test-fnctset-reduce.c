@@ -20,10 +20,10 @@ static void reduce_test4(int cnt, int dims, int rank, int size, ADCL_Topology to
 
 static void dump_vector_double    ( double *data, int rank, int dim);
 static void set_data_double       ( double *data, int rank, int dim); 
-static int check_data_double_sum ( double *data, int rank, int dim, int size);
+static int check_data_double_sum ( double *data, int rank, int dim, int size, int root);
 static void dump_vector_int       ( int *data, int rank, int dim);
 static void set_data_int          ( int *data, int rank, int dim); 
-static int check_data_int_min    ( int *data, int rank, int dim, int size);
+static int check_data_int_min    ( int *data, int rank, int dim, int size, int root);
 
 int main ( int argc, char ** argv ) 
 {
@@ -51,7 +51,7 @@ int main ( int argc, char ** argv )
     dims = 3;
 
     /* MPI_DOUBLE, MPI_SUM, Vector_allocate */
-    //reduce_test1(cnt, dims, rank, size, topo);
+    // reduce_test1(cnt, dims, rank, size, topo);
 
     /* MPI_INT, MPI_MIN, Vector_register */
      reduce_test2(cnt, dims, rank, size, topo);
@@ -81,18 +81,19 @@ void reduce_test1(int cnt, int dim, int rank, int size, ADCL_Topology topo)
     ADCL_Vector svec, rvec;
     ADCL_Vmap svmap, rvmap;
     ADCL_Request request;
+    int root = 0;
     
     err = ADCL_Vmap_reduce_allocate( MPI_SUM, &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
     err = ADCL_Vmap_reduce_allocate( MPI_SUM, &rvmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
 
-    err = ADCL_Vector_allocate_generic ( 1,  &dim, 0, svmap, MPI_DOUBLE, &sdata, &svec ); // sdata is a pointer to data of svec
+    err = ADCL_Vector_allocate_generic ( 1, &dim, 0, svmap, MPI_DOUBLE, &sdata, &svec ); // sdata is a pointer to data of svec
     if ( ADCL_SUCCESS != err) goto exit;   
-    err = ADCL_Vector_allocate_generic ( 1,  &dim, 0, rvmap, MPI_DOUBLE, &rdata, &rvec );// similar
+    err = ADCL_Vector_allocate_generic ( 1, &dim, 0, rvmap, MPI_DOUBLE, &rdata, &rvec );// similar
     if ( ADCL_SUCCESS != err) goto exit;   
 
-    err = ADCL_Request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_REDUCE, &request );
+    err = ADCL_Request_create_generic_rooted ( svec, rvec, topo, ADCL_FNCTSET_REDUCE, root, &request );
     if ( ADCL_SUCCESS != err) goto exit;   
 
     for (i=0; i<cnt; i++){
@@ -107,7 +108,7 @@ void reduce_test1(int cnt, int dim, int rank, int size, ADCL_Topology topo)
        err = ADCL_Request_start( request );
        if ( ADCL_SUCCESS != err) goto exit;   
 
-       cerr = check_data_double_sum ( rdata, rank, dim, size);
+       cerr = check_data_double_sum ( rdata, rank, dim, size, root);
        if (cerr) goto exit;   
     }
 
@@ -136,17 +137,18 @@ void reduce_test2(int cnt, int dim, int rank, int size, ADCL_Topology topo)
     ADCL_Vector svec, rvec;
     ADCL_Vmap svmap, rvmap;
     ADCL_Request request;
+    int root = 1;
     err = ADCL_Vmap_reduce_allocate( MPI_MIN, &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
     err = ADCL_Vmap_reduce_allocate( MPI_MIN, &rvmap ); 
     if ( ADCL_SUCCESS != err) goto exit;   
     sdata = (int *) calloc(dim, sizeof(int));
     rdata = (int *) calloc(dim, sizeof(int));
-    err = ADCL_Vector_register_generic ( 1,  &dim, 0, svmap, MPI_INT, sdata, &svec );
+    err = ADCL_Vector_register_generic ( 1, &dim, 0, svmap, MPI_INT, sdata, &svec );
     if ( ADCL_SUCCESS != err) goto exit;   
-    err = ADCL_Vector_register_generic ( 1,  &dim, 0, rvmap, MPI_INT, rdata, &rvec );
+    err = ADCL_Vector_register_generic ( 1, &dim, 0, rvmap, MPI_INT, rdata, &rvec );
     if ( ADCL_SUCCESS != err) goto exit;   
-    err = ADCL_Request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_REDUCE, &request );
+    err = ADCL_Request_create_generic_rooted ( svec, rvec, topo, ADCL_FNCTSET_REDUCE, root ,&request );
     if ( ADCL_SUCCESS != err) goto exit;   
 
     for (i=0; i<cnt; i++){
@@ -159,7 +161,7 @@ void reduce_test2(int cnt, int dim, int rank, int size, ADCL_Topology topo)
 #endif
        err = ADCL_Request_start( request );
        if ( ADCL_SUCCESS != err) goto exit;   
-       cerr = check_data_int_min ( rdata, rank, dim, size);
+       cerr = check_data_int_min ( rdata, rank, dim, size, root);
        if (cerr) goto exit;
     }
 
@@ -189,6 +191,7 @@ void reduce_test3(int cnt, int dim, int rank, int size, ADCL_Topology topo)
     ADCL_Vector svec, rvec;
     ADCL_Vmap svmap, rvmap;
     ADCL_Request request;
+    int root = 0;
     err = ADCL_Vmap_inplace_allocate( &svmap ); 
     if ( ADCL_SUCCESS != err) goto exit;
     err = ADCL_Vmap_reduce_allocate( MPI_SUM, &rvmap ); 
@@ -199,7 +202,7 @@ void reduce_test3(int cnt, int dim, int rank, int size, ADCL_Topology topo)
     err = ADCL_Vector_allocate_generic ( 1, &dim, 0, rvmap, MPI_DOUBLE, &data, &rvec );
     if ( ADCL_SUCCESS != err) goto exit;   
 
-    err = ADCL_Request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_REDUCE, &request );
+    err = ADCL_Request_create_generic_rooted ( svec, rvec, topo, ADCL_FNCTSET_REDUCE, root, &request );
     if ( ADCL_SUCCESS != err) goto exit;   
 
     for (i=0; i<cnt; i++){
@@ -212,7 +215,7 @@ void reduce_test3(int cnt, int dim, int rank, int size, ADCL_Topology topo)
        err = ADCL_Request_start( request );
        if ( ADCL_SUCCESS != err) goto exit;   
 
-       cerr = check_data_double_sum ( data, rank, dim, size);
+       cerr = check_data_double_sum ( data, rank, dim, size, root);
        if (cerr) goto exit;   
     }
 
@@ -241,6 +244,7 @@ void reduce_test4(int cnt, int dim, int rank, int size, ADCL_Topology topo)
     ADCL_Vector svec, rvec;
     ADCL_Vmap svmap, rvmap;
     ADCL_Request request;
+    int root = 0;
 
     data = (int*) calloc(dim, sizeof(int));
 
@@ -251,10 +255,10 @@ void reduce_test4(int cnt, int dim, int rank, int size, ADCL_Topology topo)
 
     err = ADCL_Vector_register_generic ( 0,  NULL, 0, svmap, MPI_DATATYPE_NULL, MPI_IN_PLACE, &svec );
     if ( ADCL_SUCCESS != err) goto exit;   
-    err = ADCL_Vector_register_generic ( 1,  &dim, 0, rvmap, MPI_DOUBLE, data, &rvec );
+    err = ADCL_Vector_register_generic ( 1, &dim, 0, rvmap, MPI_DOUBLE, data, &rvec );
     if ( ADCL_SUCCESS != err) goto exit;   
 
-    err = ADCL_Request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_REDUCE, &request );
+    err = ADCL_Request_create_generic_rooted ( svec, rvec, topo, ADCL_FNCTSET_REDUCE, root, &request );
     if ( ADCL_SUCCESS != err) goto exit;   
 
     for (i=0; i<cnt; i++){
@@ -267,7 +271,7 @@ void reduce_test4(int cnt, int dim, int rank, int size, ADCL_Topology topo)
        err = ADCL_Request_start( request );
        if ( ADCL_SUCCESS != err) goto exit;   
 
-       cerr = check_data_int_min ( data, rank, dim, size);
+       cerr = check_data_int_min ( data, rank, dim, size, root);
        if (cerr) goto exit;
     }
 
@@ -288,13 +292,13 @@ exit:
 
 /**********************************************************************/
 /**********************************************************************/
-int check_data_double_sum ( double *data, int rank, int dim, int size) 
+int check_data_double_sum ( double *data, int rank, int dim, int size, int root) 
 /**********************************************************************/
 /**********************************************************************/
 {
     int i; 
     int err = 0, gerr = 0; 
-    if(rank == 0){
+    if(rank == root){
       for ( i=0; i<dim; i++ ){ 
         if (data[i] != (size * (size-1))/2){
                printf("Wrong data: proc %d, pos %d, value %lf\n", 
@@ -314,13 +318,13 @@ int check_data_double_sum ( double *data, int rank, int dim, int size)
 
 /**********************************************************************/
 /**********************************************************************/
-int check_data_int_min ( int *data, int rank, int dim, int size) 
+int check_data_int_min ( int *data, int rank, int dim, int size,int root) 
 /**********************************************************************/
 /**********************************************************************/
 {
     int i; 
     int err = 0, gerr = 0; 
-    if(rank == 0){
+    if(rank == root){
       for ( i=0; i<dim; i++ ){
         if (data[i] != 1){
                printf("Wrong data: proc %d, pos %d, value %d\n", 

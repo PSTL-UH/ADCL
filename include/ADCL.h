@@ -318,6 +318,10 @@ int ADCL_Request_create_generic (ADCL_Vector svec, ADCL_Vector rvec,
                                  ADCL_Topology topo,
                                  ADCL_Fnctset fnctset,
                                  ADCL_Request *req );
+int ADCL_Request_create_generic_rooted (ADCL_Vector svec, ADCL_Vector rvec, 
+                                 ADCL_Topology topo,
+                                 ADCL_Fnctset fnctset, int root,
+                                 ADCL_Request *req );
 
 int ADCL_Request_free   ( ADCL_Request *req );
 

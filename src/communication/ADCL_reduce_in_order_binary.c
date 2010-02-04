@@ -64,6 +64,7 @@ void ADCL_REDUCE_IN_ORDER_BINARY( ADCL_request_t *req )
 
     ADCL_tree_t *tree;
     segsize = REDUCE_SEGSIZE;
+    root = req->r_emethod->em_root;
     tree = ADCL_build_in_order_bintree( req );
     /**
      * Determine number of segments and number of elements

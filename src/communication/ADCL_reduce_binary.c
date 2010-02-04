@@ -51,6 +51,7 @@ void ADCL_REDUCE_BINARY( ADCL_request_t *req )
    MPI_Datatype datatype = req->r_rdats[0];
    int  count = req->r_rvecs[0]->v_dims[0];
    int size = topo->t_size;
+   root = req->r_emethod->em_root;
   
    int lastsegcount; //to be initialized
    int segcount = count;

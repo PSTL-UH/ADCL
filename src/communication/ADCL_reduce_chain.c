@@ -53,12 +53,13 @@ void ADCL_REDUCE_CHAIN( ADCL_request_t *req )
    rank = topo->t_rank;
    MPI_Datatype datatype = req->r_rdats[0];
    int  count = req->r_rvecs[0]->v_dims[0];
-
+  
    int fanout = 2; //to be initialized
    int segcount = count;
    int typelng;
    ADCL_tree_t* tree;
    segsize = REDUCE_SEGSIZE;
+   root = req->r_emethod->em_root;
    tree = ADCL_build_chain( req, root, fanout );
     /**
      * Determine number of segments and number of elements

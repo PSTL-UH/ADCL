@@ -54,6 +54,7 @@ void ADCL_REDUCE_PIPELINE( ADCL_request_t *req )
    int typelng;
    ADCL_tree_t *tree;
    segsize = REDUCE_SEGSIZE;
+   root = req->r_emethod->em_root;
     tree = ADCL_build_chain( req, root, 1 );
     /**
      * Determine number of segments and number of elements

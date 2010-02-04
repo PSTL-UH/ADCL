@@ -86,9 +86,14 @@ void  ADCL_allreduce_linear( ADCL_request_t *req)
     } else { 
         err = ADCL_reduce_linear(sbuf, rbuf, count, dtype, op, 0, comm);
     } */
+    if(req->r_emethod->em_root == ADCL_NO_ROOT)
+    {
+    	req->r_emethod->em_root = 0;
+    }
+
     ADCL_reduce_linear( req );
 
-    if ( 0 == rank && MPI_IN_PLACE != sbuf ) {
+    if ( req->r_emethod->em_root == rank && MPI_IN_PLACE != sbuf ) {
        /* result of reduce operation is in rbuf, but we need it in sbuf for
 	* broadcast */
        MPI_Type_get_extent(dtype, &lb, &extent);

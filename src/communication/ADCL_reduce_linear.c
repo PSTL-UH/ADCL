@@ -65,6 +65,7 @@ void ADCL_reduce_linear( ADCL_request_t *req )
    char *inbuf;
    int root = 0;
 
+   root = req->r_emethod->em_root; 
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
    ADCL_vmap_t *svmap = req->r_svecs[0]->v_map;

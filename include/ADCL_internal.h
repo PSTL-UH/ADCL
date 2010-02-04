@@ -82,6 +82,7 @@
 #define ADCL_UNFILTERED                0
 #define ADCL_FILTERED                  1
 
+#define ADCL_NO_ROOT		       -1
 
 /* Some prototypes of functions which do not deserve their own header file */
 int ADCL_printf_init     ( void );

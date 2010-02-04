@@ -67,13 +67,13 @@ int ADCL_Request_create ( ADCL_Vector vec, ADCL_Topology topo,
             svecs[i] = vec;
             rvecs[i] = vec;
         }
-        ret = ADCL_request_create_generic ( svecs, rvecs, topo, fnctset,
-                                            req, MPI_ORDER_C );
+        ret = ADCL_request_create_generic_rooted ( svecs, rvecs, topo, fnctset,
+                                            req, ADCL_NO_ROOT, MPI_ORDER_C );
         free ( svecs );
     }
     else {
-        ret = ADCL_request_create_generic ( NULL, NULL, topo,
-                                            fnctset, req, MPI_ORDER_C);
+        ret = ADCL_request_create_generic_rooted ( NULL, NULL, topo,
+                                            fnctset, req, ADCL_NO_ROOT, MPI_ORDER_C);
     }
 
     return ret;
@@ -111,10 +111,47 @@ int ADCL_Request_create_generic ( ADCL_Vector svec, ADCL_Vector rvec,
             return ADCL_INVALID_FNCTSET;
         }
     }
-    return ADCL_request_create_generic ( &(svec), &(rvec), 
-                                         topo, fnctset, req, MPI_ORDER_C );
+    return ADCL_request_create_generic_rooted ( &(svec), &(rvec), 
+                                         topo, fnctset, req, ADCL_NO_ROOT, MPI_ORDER_C );
 }
 
+
+int ADCL_Request_create_generic_rooted ( ADCL_Vector svec, ADCL_Vector rvec,
+                                  ADCL_Topology topo, ADCL_Fnctset fnctset, int root,
+                                  ADCL_Request *req )
+{
+    if ( ( NULL == svec ) ||
+         ( NULL == rvec ) ||
+         ( NULL == topo )    ||
+         ( NULL == fnctset ) ||
+         ( NULL == req ) || ( root < 0 && root >= topo->t_size) ){
+        return ADCL_INVALID_ARG;
+    }
+    if ( ADCL_VECTOR_NULL != svec ) {
+        if ( 0 > svec->v_id ) {
+            return ADCL_INVALID_VECTOR;
+        }
+    }
+    if ( ADCL_VECTOR_NULL != rvec ) {
+        if ( 0 > rvec->v_id ) {
+            return ADCL_INVALID_VECTOR;
+        }
+    }
+    if ( ADCL_TOPOLOGY_NULL != topo ) {
+        if ( 0 > topo->t_id ) {
+            return ADCL_INVALID_TOPOLOGY;
+        }
+    }
+    if ( ADCL_FNCTSET_NULL != fnctset ) {
+        if ( 0 > fnctset->fs_id ) {
+            return ADCL_INVALID_FNCTSET;
+        }
+    }
+
+    return ADCL_request_create_generic_rooted ( &(svec), &(rvec), 
+                                         topo, fnctset, req, root, MPI_ORDER_C );
+
+}
 
 int ADCL_Request_free ( ADCL_Request *req )
 {

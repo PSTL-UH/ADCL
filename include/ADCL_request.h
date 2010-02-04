@@ -64,11 +64,11 @@ typedef struct ADCL_request_s ADCL_request_t;
 
 extern ADCL_array_t * ADCL_request_farray;
 
-int ADCL_request_create_generic ( ADCL_vector_t **svecs,
+int ADCL_request_create_generic_rooted ( ADCL_vector_t **svecs,
                                   ADCL_vector_t **rvecs,
                                   ADCL_topology_t *topo,
                                   ADCL_fnctset_t *fnctset,
-                                  ADCL_request_t **req, int order );
+                                  ADCL_request_t **req, int root, int order );
 
 int ADCL_request_free ( ADCL_request_t **req );
 int ADCL_request_init ( ADCL_request_t *req, int *db );

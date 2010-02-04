@@ -49,13 +49,14 @@ struct ADCL_emethod_s {
     int                     **em_relations; /* Matrix cntXcnt of relations between history entries */
     double                  **em_distances; /* Matrix cntXcnt of distances between history entries */
     ADCL_hist_t                   *em_hist; /* History entry of the current pb without solution */
+    int				   em_root; /* root of the tree in case of reduce function set */
 
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 
 
 ADCL_emethod_t* ADCL_emethod_init ( ADCL_topology_t *topo, ADCL_vector_t *vec,
-                    ADCL_fnctset_t *fnctset);
+                    ADCL_fnctset_t *fnctset, int root );
 
 void ADCL_emethod_free ( ADCL_emethod_t * er );
 

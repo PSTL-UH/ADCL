@@ -49,7 +49,6 @@ void ADCL_reduce_generic( ADCL_request_t *req,void *sendbuf,void *recvbuf,int ro
 {
 /*not defined yet
 root, tree, count_by_segment, max_outstanding_reqs*/
-
     ADCL_topology_t *topo = req->r_emethod->em_topo;
     MPI_Comm comm         = topo->t_comm;
     ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;

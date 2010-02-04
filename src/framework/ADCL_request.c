@@ -20,11 +20,11 @@ extern ADCL_fnctset_t *ADCL_neighborhood_fnctset;
 #define CHECK_COMM_STATE(state1,state2) if (state1!=state2) return ADCL_SUCCESS
 
 
-int ADCL_request_create_generic ( ADCL_vector_t **svecs,
-                                  ADCL_vector_t **rvecs,
-                                  ADCL_topology_t *topo,
-                                  ADCL_fnctset_t *fnctset,
-                                  ADCL_request_t **req, int order )
+int ADCL_request_create_generic_rooted ( ADCL_vector_t **svecs,
+                                         ADCL_vector_t **rvecs,
+                                         ADCL_topology_t *topo,
+                                         ADCL_fnctset_t *fnctset,
+                                         ADCL_request_t **req, int root, int order )
 {
     int i, ret = ADCL_SUCCESS, dims;
     ADCL_request_t *newreq;
@@ -37,7 +37,6 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
     MPI_Aint tcount=1;
 #endif
     //int vectype;
-
     /*
     ** Since the dimension of all vector objects has to be the same,
     ** we can pick any of them  for the shortcut purposes, e.g. for the
@@ -198,7 +197,7 @@ int ADCL_request_create_generic ( ADCL_vector_t **svecs,
        the different communication methods.
     */
     newreq->r_function = NULL;
-    newreq->r_emethod  = ADCL_emethod_init ( topo, vec, fnctset );
+    newreq->r_emethod  = ADCL_emethod_init ( topo, vec, fnctset, root );
     if ( NULL == newreq->r_emethod ) {
         ret = ADCL_NO_MEMORY;
         goto exit;

@@ -30,7 +30,7 @@ extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
 /**********************************************************************/
 /**********************************************************************/
 ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
-                   ADCL_fnctset_t *f )
+                                   ADCL_fnctset_t *f, int root )
 
 {
     ADCL_emethod_t *e = NULL;
@@ -73,7 +73,8 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
                ( topo->t_nneigh  != t->t_nneigh ) ||
                ( vec->v_ndims    != v->v_ndims  ) ||
                ( vec->v_nc       != v->v_nc     ) ||
-               ( vec_map->m_vectype != v_map->m_vectype ) ) {
+               ( vec_map->m_vectype != v_map->m_vectype ) || 
+               ( e->em_root != root ) ) {
 	       continue;
           }
 
@@ -117,7 +118,6 @@ nextemethod:
            return e;
        }
     }
-
     /* we did not find this configuraion yet, so we have to add it */
     e = ( ADCL_emethod_t *) calloc (1, sizeof(ADCL_emethod_t));
     if ( NULL == e ) {
@@ -134,6 +134,7 @@ nextemethod:
     e->em_explored_hist = -2;
     e->em_topo        = t;
     e->em_vec         = v;
+    e->em_root        = root;
     if ( NULL != v && ADCL_VECTOR_NULL != v) {
        ADCL_vector_add_reference(v);
     }
