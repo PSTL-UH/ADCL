@@ -121,13 +121,13 @@ void adcl_request_create ( int *vec, int *topo, int *fnctset, int *req, int *ier
             svecs[i] = cvec;
             rvecs[i] = cvec;
         }
-	    *ierror = ADCL_request_create_generic ( svecs, rvecs, ctopo, cfnctset,
-	                                            &creq, MPI_ORDER_FORTRAN );
+	    *ierror = ADCL_request_create_generic_rooted ( svecs, rvecs, ctopo, cfnctset,
+	                                            &creq, ADCL_NO_ROOT, MPI_ORDER_FORTRAN );
         free ( svecs );
     }
     else {
-	    *ierror = ADCL_request_create_generic ( NULL, NULL, ctopo, cfnctset,
-	                                            &creq, MPI_ORDER_FORTRAN );
+	    *ierror = ADCL_request_create_generic_rooted ( NULL, NULL, ctopo, cfnctset,
+	                                            &creq, ADCL_NO_ROOT, MPI_ORDER_FORTRAN );
     }
 
     if ( *ierror == ADCL_SUCCESS ) {
@@ -188,8 +188,8 @@ void adcl_request_create_generic  ( int *svec, int *rvec, int *topo, int *fnctse
             return;
         }
     }
-    *ierror = ADCL_request_create_generic ( &(csvec), &(crvec),
-                                         ctopo, cfnctset, &(creq), MPI_ORDER_FORTRAN);
+    *ierror = ADCL_request_create_generic_rooted ( &(csvec), &(crvec),
+                                         ctopo, cfnctset, &(creq), ADCL_NO_ROOT, MPI_ORDER_FORTRAN);
 
     if ( *ierror == ADCL_SUCCESS ) {
         *req = creq->r_findex;
