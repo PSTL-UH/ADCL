@@ -86,8 +86,7 @@
       integer :: i, ierror
 
       ! register in_place dummy send vector
-      call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &
-         svmap_inplace, ierror )
+      call adcl_vmap_inplace_allocate( svmap_inplace, ierror )
       if ( ADCL_SUCCESS .ne. ierror) &
          print *, "vmap_inplace_allocate not successful"  
       call adcl_vector_register_generic ( 0, 0, 0, svmap_inplace, & 
@@ -100,8 +99,7 @@
       ! prepare communications
       !-----------------------------------------------------------------
       ! comm_dtmin:
-      call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, & 
-         MPI_MIN, rvmap_dtmin, ierror )
+      call adcl_vmap_allreduce_allocate( MPI_MIN, rvmap_dtmin, ierror )
       if ( ADCL_SUCCESS .ne. ierror) & 
          print *, "vmap_allreduce_allocate for rvmap_dtmin not ", &
          "successful"
@@ -124,8 +122,7 @@
       write(*,*) "displ", displ, "rcnts", rcnts
       allocate (adcl_hlp(nprocs*nymom))
 
-      call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, nprocs, rcnts, & 
-         displ, rvmap_qterms, ierror )
+      call adcl_vmap_list_allocate( nprocs, rcnts, displ, rvmap_qterms, ierror )
       if ( ADCL_SUCCESS .ne. ierror) & 
          print *, "vmap_list_allocate for rvmap_qterms not successful"
       call adcl_vector_register_generic ( 1,  nprocs*nymom, 0, & 
@@ -176,8 +173,7 @@
       scnt = vecdim / 4
 
       allocate ( adcl_rsweep(vecdim) )
-      call adcl_vmap_halo_allocate ( ADCL_VECTOR_HALO, scnt, &
-         vmap_rsweep, ierror)
+      call adcl_vmap_halo_allocate ( scnt, vmap_rsweep, ierror)
       call check_success( ierror, "vmap_halo_allocate for vmap_rsweep")
       call adcl_vector_register_generic ( 1, vecdim, 0, vmap_rsweep, &
          MPI_DOUBLE_PRECISION, adcl_rsweep, vec_rsweep, ierror)
@@ -241,8 +237,7 @@
       integer :: i, ierror, vecdim
 
       ! register in_place dummy send vector
-      call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &
-         svmap_inplace, ierror )
+      call adcl_vmap_inplace_allocate( svmap_inplace, ierror )
       call check_success( ierror, "vmap_inplace_allocate")
       call adcl_vector_register_generic ( 0, 0, 0, svmap_inplace, &
          MPI_DATATYPE_NULL, MPI_IN_PLACE, svec_inplace, ierror )
@@ -253,8 +248,7 @@
       !-----------------------------------------------------------------
       ! *** HT0 ***
       ! - comm_dtmin -
-      call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, &
-         MPI_MIN, rvmap_dtmin, ierror )
+      call adcl_vmap_allreduce_allocate( MPI_MIN, rvmap_dtmin, ierror )
       call check_success( ierror, "vmap_allreduce_allocate for ", &
          "rvmap_dtmin")
       call adcl_vector_register_generic ( 1,  1, 0, rvmap_dtmin, &
@@ -268,8 +262,7 @@
       vecdim = 4*nymom !qx*qz
       print *, "initializing rsweep: vecdim=", vecdim
       allocate ( adcl_rsweep(vecdim) )
-      call adcl_vmap_halo_allocate ( ADCL_VECTOR_HALO, vecdim/4, &
-          vmap_rsweep, ierror)
+      call adcl_vmap_halo_allocate ( vecdim/4, vmap_rsweep, ierror)
       call check_success( ierror, "vmap_halo_allocate for vmap_rsweep")
       call adcl_vector_register_generic ( 1, vecdim, 0, vmap_rsweep, &
           MPI_DOUBLE_PRECISION, adcl_rsweep, vec_rsweep, ierror) 
@@ -283,8 +276,7 @@
       print *, "initializing multi: vecdim=", vecdim
       allocate( adcl_multi( vecdim ) )
       adcl_multi = 0d0
-      call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, & 
-         MPI_SUM, rvmap_multi, ierror )
+      call adcl_vmap_allreduce_allocate( MPI_SUM, rvmap_multi, ierror )
       call check_success( ierror, "vmap_allreduce_allocate for ", & 
          "rvmap_multi")
       call adcl_vector_register_generic ( 1, vecdim, 0, rvmap_multi, & 
@@ -351,8 +343,7 @@
       integer :: vecdim, ierror, i 
       
       ! register in_place dummy send vector
-      call adcl_vmap_inplace_allocate( ADCL_VECTOR_INPLACE, &
-         svmap_inplace, ierror )
+      call adcl_vmap_inplace_allocate( svmap_inplace, ierror )
       call check_success( ierror, "vmap_inplace_allocate")
       call adcl_vector_register_generic ( 0, 0, 0, svmap_inplace, &
          MPI_DATATYPE_NULL, MPI_IN_PLACE, svec_inplace, ierror )
@@ -363,8 +354,7 @@
       !-----------------------------------------------------------------
       ! *** HT0 ***
       ! - comm_dtmin -
-      call adcl_vmap_allreduce_allocate( ADCL_VECTOR_ALLREDUCE, &
-         MPI_MIN, rvmap_dtmin, ierror )
+      call adcl_vmap_allreduce_allocate( MPI_MIN, rvmap_dtmin, ierror )
       call check_success( ierror, "vmap_allreduce_allocate for ", &
          "rvmap_dtmin")
       call adcl_vector_register_generic ( 1,  1, 0, rvmap_dtmin, &
@@ -380,8 +370,7 @@
       call set_displ(nprocs, 12, rcnts, displ)
       allocate ( adcl_rady_int(vecdim) )
 
-      call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, nprocs, rcnts, &
-         displ, rvmap_rady_int, ierror )
+      call adcl_vmap_list_allocate( nprocs, rcnts, displ, rvmap_rady_int, ierror )
       call check_success(ierror, & 
          "vmap_list_allocate for rvmap_rady_int")
       call adcl_vector_register_generic ( 1, vecdim , 0, rvmap_rady_int, & 
@@ -397,8 +386,7 @@
       call set_displ(nprocs, 4, rcnts, displ)
       allocate (adcl_rady_dp(vecdim))
 
-      call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, nprocs, rcnts, &
-         displ, rvmap_rady_dp, ierror )
+      call adcl_vmap_list_allocate( nprocs, rcnts, displ, rvmap_rady_dp, ierror )
       call check_success(ierror, "vmap_list_allocate for rvmap_rady_dp")
       call adcl_vector_register_generic ( 1, vecdim, 0, rvmap_rady_dp, &
           MPI_DOUBLE_PRECISION, adcl_rady_dp, rvec_rady_dp, ierror )
@@ -415,8 +403,7 @@
       if (rank .eq. 0) &
           write(*,*) "displ", displ, "rcnts", rcnts
       allocate (adcl_hlp(vecdim))
-      call adcl_vmap_list_allocate( ADCL_VECTOR_LIST, nprocs, rcnts, & 
-         displ, rvmap_qterms, ierror )
+      call adcl_vmap_list_allocate( nprocs, rcnts, displ, rvmap_qterms, ierror )
       print *, "after vmap"
       call check_success(ierror, "vmap_list_allocate for rvmap_qterms")
       call adcl_vector_register_generic ( 1,  vecdim, 0, rvmap_qterms, & 
