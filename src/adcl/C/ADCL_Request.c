@@ -414,3 +414,11 @@ int ADCL_Request_get_tndims( ADCL_Request req, int *tndims )
     }
     return ADCL_request_get_tndims ( req, tndims );
 }
+
+int ADCL_Request_get_state ( ADCL_Request req, int *state )
+{
+    if ( req->r_id < 0 ) {
+        return ADCL_INVALID_REQUEST;
+    }
+    return ADCL_request_get_state ( req, state );
+}

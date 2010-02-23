@@ -38,9 +38,9 @@ const int ADCL_attr_noncont_pack=111;
 const int ADCL_attr_noncont_individual=112;
 
 const int ADCL_attr_transfer_nn_IsendIrecv=120;
-const int ADCL_attr_transfer_nn_SendIrecv=121;
-const int ADCL_attr_transfer_nn_Send_Recv=122;
-const int ADCL_attr_transfer_nn_Sendrecv=123;
+const int ADCL_attr_transfer_nn_Send_Recv=121;
+const int ADCL_attr_transfer_nn_Sendrecv=122;
+const int ADCL_attr_transfer_nn_SendIrecv=123;
 #ifdef MPI_WIN
 const int ADCL_attr_transfer_nn_FenceGet=124;
 const int ADCL_attr_transfer_nn_FencePut=125;
@@ -83,8 +83,8 @@ int ADCL_predefined_init ( void )
                                                                "FenceGet", "FencePut",
                                                                "StartPostGet","StartPostPut" };
 #else
-    char *ADCL_attr_transfer_nn_names[ADCL_ATTR_TRANSFER_MAX] = { "IsendIrecv", "SendIrecv",
-                                                               "Send_Recv", "Sendrecv" };
+    char *ADCL_attr_transfer_nn_names[ADCL_ATTR_TRANSFER_MAX] = { "IsendIrecv", "Send_Recv",
+                                                                  "Sendrecv", "SendIrecv" };
 #endif
     //char *ADCL_attr_transfer_allgatherv_names[ADCL_ATTR_TRANSFER_MAX] = { "linear" };
        /* bruck, linear, neighbor_exchange, ring, two_procs */
@@ -100,9 +100,10 @@ int ADCL_predefined_init ( void )
     ADCL_attr_noncont[1] = ADCL_attr_noncont_pack;
 
     ADCL_attr_transfer_nn[0] = ADCL_attr_transfer_nn_IsendIrecv;
-    ADCL_attr_transfer_nn[1] = ADCL_attr_transfer_nn_SendIrecv;
-    ADCL_attr_transfer_nn[2] = ADCL_attr_transfer_nn_Send_Recv;
-    ADCL_attr_transfer_nn[3] = ADCL_attr_transfer_nn_Sendrecv;
+    ADCL_attr_transfer_nn[1] = ADCL_attr_transfer_nn_Send_Recv;
+    ADCL_attr_transfer_nn[2] = ADCL_attr_transfer_nn_Sendrecv;
+    ADCL_attr_transfer_nn[3] = ADCL_attr_transfer_nn_SendIrecv;
+
 #ifdef MPI_WIN
     ADCL_attr_transfer_nn[4] = ADCL_attr_transfer_nn_FenceGet;
     ADCL_attr_transfer_nn[5] = ADCL_attr_transfer_nn_FencePut;

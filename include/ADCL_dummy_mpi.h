@@ -33,6 +33,8 @@ typedef  int   MPI_Fint;
 #define MPI_WIN_NULL      (MPI_Win)6
 #define MPI_REQUEST_NULL  (MPI_Request)7
 
+#define MPI_COMBINER_INDEXED 7
+
 #define MPI_ORDER_C       8
 #define MPI_ORDER_FORTRAN 9
 
@@ -46,6 +48,7 @@ typedef  int   MPI_Fint;
 #define MPI_MAX            (MPI_Op)50
 #define MPI_MIN            (MPI_Op)51
 #define MPI_SUM            (MPI_Op)52
+#define MPI_PROD           (MPI_Op)53
 
 #define MPI_STATUS_IGNORE   (MPI_Status*)17
 #define MPI_STATUSES_IGNORE (MPI_Status*)18

@@ -22,8 +22,10 @@ struct ADCL_emethod_s {
     int                          em_findex; /* index of this object in the fortran array */
     int                           em_state; /* state of the object */
     int                            em_last; /* last element given out */
-    int                  em_perfhypothesis; /* use performance hypothesis for the runtime
-                                            optimization? */
+    int                     em_search_algo; /* Which selection algorithm to be used the runtime
+					    optimization?  0: Brute force 
+					                   1: Attribute based/ Perf Hypothesis 
+					                   2: 2k factorial */
     int                   em_explored_hist; /* number of explored hist objects for identical
                                             and similar problems */
     int                       em_filtering; /* state if the decision was based on filtered or 
@@ -39,9 +41,10 @@ struct ADCL_emethod_s {
                                             required when a re-evaluation has been requested.
                                             Not to be modified during optimization */
     ADCL_fnctset_t              em_fnctset; /* copy of the function group associated with
-                                            this object */
-    ADCL_hypothesis_t              em_hypo; /* Performance hypothesis object of to this
-                                            emethod */
+					    this object */
+    ADCL_hypothesis_t             *em_hypo; /* Performance hypothesis object of to this
+					    emethod */
+    ADCL_twok_factorial_t         *em_twok; /* Data structure for the 2K factorial algorithm */
     ADCL_function_t          *em_wfunction; /* winner function */
     ADCL_hist_criteria_t *em_hist_criteria; /* History entries filtering criteria */
     ADCL_hist_list_t         *em_hist_list; /* History list of "filtered" entries */

@@ -16,6 +16,7 @@
 #include "mpi.h"
 #endif
 #include "ADCL_attribute.h"
+#include "ADCL_function.h"
 
 #define TIME ADCL_statistics_time()
 
@@ -60,6 +61,7 @@ int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
 int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count,
                     int *winner );
 
+/* Data structure for performance hypothesis search algorithm */
 struct ADCL_hypothesis_s {
     int                *h_attr_hypothesis; /* List of performance hypothesis*/
     int                *h_attr_confidence; /* List of confidence values */
@@ -73,7 +75,18 @@ struct ADCL_hypothesis_s {
 };
 typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
 
-
-
+/* Data structure for performance hypothesis search algorithm */
+struct ADCL_twok_factorial_s {
+    int twok_num;
+    ADCL_fnctset_t           *twok_fnctset; /* 2k function set */
+    int                    *twok_fncts_pos; /* 2k functions positions */
+    int                      twok_next_pos; /* Next function to be tested */
+    int                          twok_best; /* Best function in the twok functionset */
+    int                      **twok_labels; /* Sign table header: Attribute Combination Labels */
+    int                  **twok_sign_table; /* Sign Table */
+    double                       *twok_sst; /* SST's */
+    double                         *twok_q; /* Q's */
+};
+typedef struct ADCL_twok_factorial_s ADCL_twok_factorial_t;
 
 #endif

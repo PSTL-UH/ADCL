@@ -798,8 +798,8 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
     ADCL_fnctset_t *fnctset = req->r_emethod->em_orgfnctset;
     
     for ( i=0; i<fnctset->fs_maxnum; i++ ) {
-        if ( (fabs(filtered_average) * 0.001) >= 
-             fabs(filtered_average - req->r_emethod->em_stats[i]->s_gpts[1]) ) {
+        if ( (req->r_emethod->em_stats[i]->s_gpts[1]>= filtered_average) &&
+             (req->r_emethod->em_stats[i]->s_gpts[1]< filtered_average+0.01) ) {
             (*number_functions) ++;
         }
     }
@@ -828,8 +828,8 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
     }
     i = 0;
     for ( n=0; n<fnctset->fs_maxnum; n++ ) {
-        if ( (fabs(filtered_average) * 0.001) >= 
-             fabs(filtered_average - req->r_emethod->em_stats[n]->s_gpts[1]) ) {
+        if ( (req->r_emethod->em_stats[n]->s_gpts[1]>= filtered_average) &&
+             (req->r_emethod->em_stats[n]->s_gpts[1]< filtered_average+0.01) ) {
             if (NULL != function_name) {
                 (*function_name)[i] = strdup(fnctset->fs_fptrs[n]->f_name);
             }
@@ -898,7 +898,8 @@ int ADCL_request_restore_status ( ADCL_request_t *req, int tested_num,
                                   double *outliers )
 {
     int i;
-    if ( 0 == req->r_emethod->em_perfhypothesis ) {
+
+    if ( ADCL_BRUTE_FORCE == req->r_emethod->em_search_algo ) {
         for (i=0; i<tested_num; i++) {
             req->r_emethod->em_stats[i]->s_lpts[0] = unfiltered_avg[i];
             req->r_emethod->em_stats[i]->s_lpts[1] = filtered_avg[i];
@@ -920,7 +921,6 @@ int ADCL_request_get_fsname ( ADCL_request_t *req, char **fsname )
     return ADCL_SUCCESS;
 }
 
-
 int ADCL_request_get_tndims ( ADCL_request_t *req, int *tndims )
 {
     ADCL_topology_t *topo = req->r_emethod->em_topo;
@@ -930,6 +930,18 @@ int ADCL_request_get_tndims ( ADCL_request_t *req, int *tndims )
     }
     else {
         return ADCL_INVALID_TOPOLOGY;
+    }
+    return ADCL_SUCCESS;
+}
+
+/* Returns 1 if still testing and 0 else */
+int ADCL_request_get_state ( ADCL_request_t *req, int *state )
+{
+    if(ADCL_STATE_TESTING == req->r_emethod->em_state) {
+	*state = 1;
+    }
+    else {
+	*state = 0;
     }
     return ADCL_SUCCESS;
 }

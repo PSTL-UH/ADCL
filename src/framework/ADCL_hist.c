@@ -95,9 +95,9 @@ int ADCL_hist_create ( ADCL_emethod_t *e )
        for (i=0; i<hist->h_asmaxnum ; i++){
            hist->h_attrvals[i] = -1;
        }
-       if ( e->em_perfhypothesis ) {
+       if ( ADCL_PERF_HYPO == e->em_search_algo ) {
            for (i=0; i<hist->h_asmaxnum ; i++){
-               if( e->em_hypo.h_attr_confidence[i] > 1 ) {
+               if( e->em_hypo->h_attr_confidence[i] > 1 ) {
                    hist->h_attrvals[i] = e->em_fnctset.fs_fptrs[0]->f_attrvals[i];
                }
            }

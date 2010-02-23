@@ -35,6 +35,10 @@ struct lininf {
            if ( _time < _t.min ) { \
                _t.min    = _time;  \
                _t.minloc = _i;}}
+#define TLINE_MIN_NZ(_t, _time, _i){ \
+	if ( (_time<_t.min) && (0!=_time) ) {	\
+	    _t.min    = _time;			\
+	    _t.minloc = _i;}}
 #define TLINE_MAX(_t, _time, _i) { \
             if ( _time > _t.max ) { \
                 _t.max = _time;     \
@@ -47,20 +51,20 @@ struct lininf {
     int ret = ADCL_SUCCESS;
     int i;
 
-    tstats = (ADCL_statistics_t **) calloc ( 1, fs_maxnum*sizeof(ADCL_statistics_t *));
+    tstats = (ADCL_statistics_t **)calloc(fs_maxnum, sizeof(ADCL_statistics_t *));
     if ( NULL == tstats ) {
         ret = ADCL_NO_MEMORY;
         goto exit;
     }
     for ( i=0; i< fs_maxnum; i++ ) {
-        tstats[i] = (ADCL_statistics_t *) calloc (1, sizeof(ADCL_statistics_t ));
+        tstats[i] = (ADCL_statistics_t *)calloc(1, sizeof(ADCL_statistics_t));
         if ( NULL == tstats[i] ) {
             ret = ADCL_NO_MEMORY;
             goto exit;
         }
 
         /* Allocate the measurements arrays */
-        tstats[i]->s_time = (TIME_TYPE *)calloc (1, sizeof(TIME_TYPE)* ADCL_emethod_numtests);
+	tstats[i]->s_time = (TIME_TYPE *)calloc(ADCL_emethod_numtests, sizeof(TIME_TYPE));
         if ( NULL == tstats[i]->s_time ) {
             ret = ADCL_NO_MEMORY;
             goto exit;
@@ -68,11 +72,12 @@ struct lininf {
     }
 
  exit:
-    if ( ret != ADCL_SUCCESS  ) 
-       ADCL_statistics_free ( &(tstats) , fs_maxnum );
-    else
-      *stats = tstats;
-
+    if ( ret != ADCL_SUCCESS  ) {
+	ADCL_statistics_free ( &(tstats) , fs_maxnum );
+    }
+    else {
+	*stats = tstats;
+    }
     return ret;
 }
 
@@ -102,7 +107,7 @@ int ADCL_statistics_free ( ADCL_statistics_t ***stats, int fs_maxnum ) {
 /**********************************************************************/
 /**********************************************************************/
 int ADCL_statistics_filter_timings (ADCL_statistics_t **statistics, int count,
-                    int rank )
+				    int rank )
 {
     int i, j;
     int numoutl;
@@ -112,7 +117,7 @@ int ADCL_statistics_filter_timings (ADCL_statistics_t **statistics, int count,
     for ( i=0; i < count; i++ ) {
         sum          = 0.0;
         sum_filtered = 0.0;
-        if ( !(ADCL_STAT_IS_FILTERED(statistics[i]))) {
+        if ( !(ADCL_STAT_IS_FILTERED(statistics[i])) && (0!=statistics[i]->s_rescount)) {
             /* Determine the min  value for method i */
             for ( min=999999, j=0; j<statistics[i]->s_rescount; j++ ) {
                 if ( statistics[i]->s_time[j] < min ) {
@@ -134,13 +139,13 @@ int ADCL_statistics_filter_timings (ADCL_statistics_t **statistics, int count,
                     sum_filtered += statistics[i]->s_time[j];
                 }
             }
-
             /* unfiltered avg. */
             statistics[i]->s_lpts[0] = sum / statistics[i]->s_rescount;
 
             /* filtered avg. */
-            statistics[i]->s_lpts[1] = sum_filtered/(statistics[i]->s_rescount-
-                                 numoutl );
+	    statistics[i]->s_lpts[1] = sum_filtered/(statistics[i]->s_rescount-
+						     numoutl );
+
             /* percentage of outliers */
             statistics[i]->s_lpts[2] = 100*numoutl/statistics[i]->s_rescount;
 
@@ -192,7 +197,7 @@ int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
 {
     int i;
     double *lpts, *gpts;
-
+    
     lpts = (double *) malloc ( 2 * 3 * count * sizeof(double) );
     if ( NULL == lpts ) {
         return ADCL_NO_MEMORY;
@@ -210,9 +215,9 @@ int ADCL_statistics_global_max_v3 ( ADCL_statistics_t **statistics, int count,
     }
 
     for ( i = 0; i < count; i++ ) {
-      statistics[i]->s_gpts[0] = gpts[3*i];
-      statistics[i]->s_gpts[1] = gpts[3*i+1];
-      statistics[i]->s_gpts[2] = gpts[3*i+2];
+	statistics[i]->s_gpts[0] = gpts[3*i];
+	statistics[i]->s_gpts[1] = gpts[3*i+1];
+	statistics[i]->s_gpts[2] = gpts[3*i+2];
     }
 
     free ( lpts );
@@ -233,10 +238,10 @@ int ADCL_statistics_get_winner_v3 ( ADCL_statistics_t **statistics, int count,
     for ( i = 0; i < count; i++) {
 #if 0
         ADCL_printf("#%d %lf %lf %lf\n", i, statistics[i]->s_gpts[0],
-                statistics[i]->s_gpts[1], statistics[i]->s_gpts[2]);
+		    statistics[i]->s_gpts[1], statistics[i]->s_gpts[2]);
 #endif
-        TLINE_MIN ( tline_unfiltered, statistics[i]->s_gpts[0], i );
-        TLINE_MIN ( tline_filtered, statistics[i]->s_gpts[1], i );
+        TLINE_MIN_NZ ( tline_unfiltered, statistics[i]->s_gpts[0], i );
+        TLINE_MIN_NZ ( tline_filtered, statistics[i]->s_gpts[1], i );
     }
 
     if ( statistics[tline_filtered.minloc]->s_gpts[2] < ADCL_OUTLIER_FRACTION){

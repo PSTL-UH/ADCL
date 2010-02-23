@@ -20,7 +20,7 @@ int ADCL_emethod_alltoall_selection = -1;
 int ADCL_emethod_alltoallv_selection = -1;
 int ADCL_merge_requests = 1;
 int ADCL_emethod_numtests = ADCL_EMETHOD_NUMTESTS;
-int ADCL_emethod_use_perfhypothesis = 0; /* false */
+int ADCL_emethod_search_algo = ADCL_BRUTE_FORCE;
 int ADCL_emethod_learn_from_hist = 0;
 
 #define ADCL_ATTR_TOTAL_NUM 3
@@ -145,10 +145,10 @@ nextemethod:
     ** functionset, we have to use the brute force algorithm
     */
     if ( f->fs_attrset != NULL && f->fs_attrset != ADCL_ATTRSET_NULL ) {
-        e->em_perfhypothesis = ADCL_emethod_use_perfhypothesis;
+	e->em_search_algo = ADCL_emethod_search_algo;
     }
     else {
-        e->em_perfhypothesis = 0;
+       	e->em_search_algo = ADCL_BRUTE_FORCE;
     }
 
     /*
@@ -164,11 +164,12 @@ nextemethod:
 
     DISPLAY((ADCL_DISPLAY_CHANGE_FUNCTION,e->em_id,e->em_fnctset.fs_fptrs[0]->f_id,e->em_fnctset.fs_fptrs[0]->f_name));
     /* initiate the performance hypothesis structure */
-
-    if ( e->em_perfhypothesis ) {
+    if ( ADCL_PERF_HYPO == e->em_search_algo ) {
         ADCL_hypothesis_init ( e );
+    } 
+    else if ( ADCL_TWOK_FACTORIAL == e->em_search_algo ) {
+	ADCL_twok_init ( e );
     }
-
     /* for verification runs */
     if ( 0 == strcmp ( f->fs_name , "Neighborhood communication") ) {
         if ( -1 != ADCL_emethod_selection ) {
@@ -245,39 +246,63 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
     int i;
     e->em_rfcnt--;
     if ( e->em_rfcnt == 0 ) {
-        ADCL_hypothesis_t *hypo = &(e->em_hypo);
-
-        if ( NULL != e->em_stats  ) {
-            for ( i=0; i< e->em_fnctset.fs_maxnum; i++ ) {
-                if ( NULL != e->em_stats[i] ) {
-                    if ( NULL != e->em_stats[i]->s_time ) {
-                        free ( e->em_stats[i]->s_time );
-                    }
-                    free ( e->em_stats[i] );
-                }
-            }
-            free ( e->em_stats );
-        }
-
+	ADCL_hypothesis_t *hypo = e->em_hypo;
+	ADCL_twok_factorial_t *twok = e->em_twok;
+	if ( NULL != e->em_stats  ) {
+	    for ( i=0; i< e->em_fnctset.fs_maxnum; i++ ) {
+		if ( NULL != e->em_stats[i] ) {
+		    if ( NULL != e->em_stats[i]->s_time ) {
+			free ( e->em_stats[i]->s_time );
+		    }
+		    free ( e->em_stats[i] );
+		}
+	    }
+	    free ( e->em_stats );
+	}
         ADCL_vector_free(&(e->em_vec));
+	if ( NULL != hypo ) {
+	    if ( NULL != hypo->h_attr_hypothesis ) {
+		free ( hypo->h_attr_hypothesis );
+	    }
+	    if ( NULL != hypo->h_attr_confidence ) {
+		free ( hypo->h_attr_confidence );
+	    }
+	    if ( NULL != hypo->h_curr_attrvals ) {
+		free ( hypo->h_curr_attrvals );
+	    }
+	    free(hypo);
+	}
+	if ( NULL != twok ) {
+	    if ( NULL != twok->twok_fncts_pos ) {
+		free(twok->twok_fncts_pos);
+	    }
+	    if ( NULL != twok->twok_labels ) {
+		for(i=0; i<twok->twok_num; i++) {
+		    free( twok->twok_labels[i] );
+		}
+		free(twok->twok_labels);
+	    }
+	    if ( NULL != twok->twok_sign_table ) {
+		for(i=0; i<twok->twok_num; i++) {
+		    free( twok->twok_sign_table[i] );
+		}
+		free(twok->twok_sign_table);
+	    }
+	    if ( NULL != twok->twok_sst ) {
+		free( twok->twok_sst );
+	    }
+	    if ( NULL != twok->twok_q ) {
+		free( twok->twok_q );
+	    }
+	    free(twok);
+	}
 
-        if ( NULL != hypo->h_attr_hypothesis ) {
-            free ( hypo->h_attr_hypothesis );
-        }
-        if ( NULL != hypo->h_attr_confidence ) {
-            free ( hypo->h_attr_confidence );
-        }
-        if ( NULL != hypo->h_curr_attrvals ) {
-            free ( hypo->h_curr_attrvals );
-        }
         if ( NULL != e->em_hist_criteria ) {   
             if ( NULL != e->em_hist_criteria->hc_filter_criteria ){
                 free( e->em_hist_criteria->hc_filter_criteria );
             }
             free(e->em_hist_criteria);
         }
-
-
 /* TBD
         hist_list = e->em_hist_list;
         do {
@@ -328,7 +353,7 @@ ADCL_function_t*  ADCL_emethod_get_function_by_state
     if ( ADCL_TOPOLOGY_NULL != em->em_topo ) {
         comm = em->em_topo->t_comm;
         rank = em->em_topo->t_rank;
-    } 
+    }
 
 #ifdef PERF_DETAILS
     static TIME_TYPE elapsed_time = 0;
@@ -375,13 +400,13 @@ ADCL_function_t*  ADCL_emethod_get_function_by_state
                                          em->em_fnctset.fs_maxnum);
         em->em_last    = tmp;
         em->em_wfunction = ADCL_emethod_get_function (em, tmp);
-       ADCL_printf("#%d:  %s %d winner is %d %s\n",
-            rank, objname, id, em->em_wfunction->f_id,
-            em->em_wfunction->f_name);
- /*DISPLAY((ADCL_DISPLAY_MESSAGE,em->em_id,"#%d:  %s %d winner is %d %s\n",
-            rank, objname, id, em->em_wfunction->f_id,
-            em->em_wfunction->f_name));*/
-DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,em->em_id,objname,id,em->em_wfunction->f_id));
+	ADCL_printf("#%d:  %s %d winner is %d %s\n",
+		    rank, objname, id, em->em_wfunction->f_id,
+		    em->em_wfunction->f_name);
+	/*DISPLAY((ADCL_DISPLAY_MESSAGE,em->em_id,"#%d:  %s %d winner is %d %s\n",
+	  rank, objname, id, em->em_wfunction->f_id,
+	  em->em_wfunction->f_name));*/
+	DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,em->em_id,objname,id,em->em_wfunction->f_id));
 
 #ifdef ADCL_SAVE_REQUEST_WINNER
        /* XXX not nice */
@@ -481,13 +506,13 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm, int count)
     ** Determine now how many point each method achieved globally. The
     ** method with the largest number of points will be the chosen one.
     */
-    if ( 0 == emethod->em_perfhypothesis ) {
+    if ( ADCL_BRUTE_FORCE == emethod->em_search_algo || ADCL_TWOK_FACTORIAL == emethod->em_search_algo ) {
         ADCL_statistics_global_max_v3 ( emethod->em_stats, count,
                                         comm, rank);
     }
 
     emethod->em_filtering = ADCL_statistics_get_winner_v3 ( emethod->em_stats,
-                                                           count, &winner );
+							    count, &winner );
 
     return winner;
 }
@@ -571,15 +596,22 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
     ADCL_STAT_SET_TESTED ( e->em_stats[last]);
     ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1, rank );
 
-    if ( e->em_perfhypothesis ) {
+    if ( ADCL_PERF_HYPO == e->em_search_algo ) {
         ADCL_statistics_global_max_v3 ( &(e->em_stats[last]), 1, comm, rank );
         next = ADCL_hypothesis_get_next ( e );
         if ( next != ADCL_EVAL_DONE ) {
-            e->em_last=next;
+            e->em_last = next;
             e->em_stats[next]->s_count++;
         }
     }
-    else {
+    else if ( ADCL_TWOK_FACTORIAL == e->em_search_algo ) {
+	next = ADCL_twok_get_next ( e );
+        if ( next != ADCL_EVAL_DONE ) {
+            e->em_last = next;
+            e->em_stats[next]->s_count++;
+        }
+    }
+    else { /* Brute force search */
         if ( last < ( e->em_fnctset.fs_maxnum -1 ) ) {
             next = last+1;
             e->em_last = next;

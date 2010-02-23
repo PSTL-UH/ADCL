@@ -29,9 +29,10 @@ extern int ADCL_emethod_alltoall_selection;
 extern int ADCL_emethod_alltoallv_selection;
 extern int ADCL_emethod_numtests;
 extern int ADCL_printf_silence;
-extern int ADCL_emethod_use_perfhypothesis;
+extern int ADCL_emethod_search_algo;
 extern int ADCL_emethod_learn_from_hist;
 extern int ADCL_method_total_num;
+extern int ADCL_twok_threshold;
 
 extern char ADCL_display_ip[];
 extern int ADCL_display_port;
@@ -174,9 +175,13 @@ int ADCL_readenv()
         else if ( ADCL_is_keyword(keyword, "ADCL_PRINTF_SILENCE") ) {
             ADCL_set_keyword_int_value ( ptr, "ADCL_PRINTF_SILENCE", &ADCL_printf_silence); 
         }
-        /*  ADCL_EMETHOD_USE_PERFHYPOTHESIS  */
-        else if ( ADCL_is_keyword(keyword, "ADCL_EMETHOD_USE_PERFHYPOTHESIS") ) {
-            ADCL_set_keyword_int_value ( ptr, "ADCL_EMETHOD_USE_PERFHYPOTHESIS", &ADCL_emethod_use_perfhypothesis);
+        /*  ADCL_EMETHOD_SEARCH_ALGO  */
+        else if ( ADCL_is_keyword(keyword, "ADCL_EMETHOD_SEARCH_ALGO") ) {
+            ADCL_set_keyword_int_value ( ptr, "ADCL_EMETHOD_SEARCH_ALGO", &ADCL_emethod_search_algo);
+        }
+        /*  ADCL_TWOK_THRESHOLD  */
+        else if ( ADCL_is_keyword(keyword, "ADCL_TWOK_THRESHOLD") ) {
+            ADCL_set_keyword_int_value ( ptr, "ADCL_TWOK_THRESHOLD", &ADCL_twok_threshold);
         }
         /*  ADCL_HIST_LEARNING */
         else if ( ADCL_is_keyword(keyword, "ADCL_HIST_LEARNING") ) {
@@ -232,7 +237,7 @@ int ADCL_readenv()
     }
  
     ADCL_print_keyword_int_value ( "ADCL_PRINTF_SILENCE", &ADCL_printf_silence); 
-    ADCL_print_keyword_int_value ( "ADCL_EMETHOD_USE_PERFHYPOTHESIS", &ADCL_emethod_use_perfhypothesis);
+    ADCL_print_keyword_int_value ( "ADCL_EMETHOD_SEARCH_ALGO", &ADCL_emethod_search_algo);
 
     /* historic learning */
     ADCL_print_keyword_int_value ( "ADCL_HIST_LEARNING", &ADCL_emethod_learn_from_hist );

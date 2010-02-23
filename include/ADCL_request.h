@@ -109,5 +109,7 @@ int ADCL_request_get_fsname ( ADCL_request_t *req, char **fsname );
 
 int ADCL_request_get_tndims ( ADCL_request_t *req, int *tndims );
 
+int ADCL_request_get_state ( ADCL_request_t *req, int *state );
+
 #endif /* __ADCL_REQUEST_H__ */
 

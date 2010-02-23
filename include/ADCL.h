@@ -94,6 +94,11 @@
 #define TIMER_MPI_WTIME       1
 #define TIMER_PAPI_REAL_USEC  2
 
+/* Selection algorithms */
+#define ADCL_BRUTE_FORCE      0
+#define ADCL_PERF_HYPO        1
+#define ADCL_TWOK_FACTORIAL   2
+
 /* ADCL prediction algorithm options */
 #define ADCL_CLOSEST  0
 #define ADCL_WMV      1
@@ -362,6 +367,6 @@ int ADCL_Request_restore_status ( ADCL_Request req, int tested_num,
 
 int ADCL_Request_get_fsname ( ADCL_Request req, char **fsname );
 int ADCL_Request_get_tndims ( ADCL_Request req, int *tndims );
-
+int ADCL_Request_get_state ( ADCL_Request req, int *state );
 
 #endif /* __ADCL_H__ */

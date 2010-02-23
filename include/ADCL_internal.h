@@ -111,5 +111,7 @@ int ADCL_hypothesis_get_next ( ADCL_emethod_t *e );
 int ADCL_fortran_string_f2c(char *fstr, int *len, char **cstr);
 int ADCL_fortran_string_c2f(char *cstr, char *fstr, int len);
 
+int ADCL_two_init ( ADCL_emethod_t *e );
+int ADCL_twok_get_next( ADCL_emethod_t *e );
 
 #endif /* __ADCL_INTERNAL_H__ */

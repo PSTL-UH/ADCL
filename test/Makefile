@@ -15,7 +15,7 @@ CEXECS = first second third fourth \
 	 test-fnctset-allgatherv-1d  test-fnctset-alltoallv-1d \
 	 test-fnctset-alltoall test-fnctset-allreduce test-fnctset-reduce \
 	 attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
-	 data_1 PbSizes_1D PbSizes_2D PbSizes_3D \
+	 data_1 twok_1 PbSizes_1D PbSizes_2D PbSizes_3D \
 	 test-fnctset-extneigh-2d test-fnctset-extneigh-3d 
 
 FEXECS = first_f second_f \
@@ -147,6 +147,13 @@ $(ADCL_BIN_DIR)/attrs_3a: attrs_3a.o
 attrs_4: $(ADCL_BIN_DIR)/attrs_4
 	
 $(ADCL_BIN_DIR)/attrs_4: attrs_4.o
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+###################################################################################################
+
+twok_1: $(ADCL_BIN_DIR)/twok_1
+	
+$(ADCL_BIN_DIR)/twok_1: twok_1.o
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 ###################################################################################################
@@ -306,7 +313,7 @@ clean:
 	      $(ADCL_BIN_DIR)/test-fnctset-alltoall $(ADCL_BIN_DIR)/test-fnctset-allreduce \
               $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d \
 	      $(ADCL_BIN_DIR)/attrs_1 $(ADCL_BIN_DIR)/attrs_2 $(ADCL_BIN_DIR)/attrs_3 $(ADCL_BIN_DIR)/attrs_3a $(ADCL_BIN_DIR)/attrs_4 \
-	      $(ADCL_BIN_DIR)/data_1 $(ADCL_BIN_DIR)/PbSizes_1D $(ADCL_BIN_DIR)/PbSizes_2D $(ADCL_BIN_DIR)/PbSizes_3D
+	      $(ADCL_BIN_DIR)/data_1 $(ADCL_BIN_DIR)/twok_1 $(ADCL_BIN_DIR)/PbSizes_1D $(ADCL_BIN_DIR)/PbSizes_2D $(ADCL_BIN_DIR)/PbSizes_3D
 
 	rm -f $(ADCL_BIN_DIR)/= $(ADCL_BIN_DIR)/first_f $(ADCL_BIN_DIR)/second_f \
 	      $(ADCL_BIN_DIR)/one-dim-f $(ADCL_BIN_DIR)/two-dim-f $(ADCL_BIN_DIR)/three-dim-f 	$(ADCL_BIN_DIR)/three-dim-large \

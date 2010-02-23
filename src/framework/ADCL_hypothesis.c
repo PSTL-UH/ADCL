@@ -22,10 +22,13 @@ extern int ADCL_emethod_selection;
 
 int ADCL_hypothesis_init ( ADCL_emethod_t *e  )
 {
-    ADCL_hypothesis_t *hypo=&(e->em_hypo);
+    ADCL_hypothesis_t *hypo;
     ADCL_fnctset_t *f = &(e->em_fnctset);
     int i;
-
+    /* Memory allocation for the hypo structure */
+    e->em_hypo = (ADCL_hypothesis_t *)malloc(sizeof(ADCL_hypothesis_t));
+    /* Use hypo variable easier */
+    hypo = e->em_hypo;
     hypo->h_num_avail_meas = 0;
     if ( ADCL_ATTRSET_NULL != f->fs_attrset ) {
         hypo->h_attr_hypothesis = (int *) malloc (f->fs_attrset->as_maxnum * sizeof(int));
@@ -60,7 +63,7 @@ int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
     int i, loop, winner_attr_val_pos, winner_attr_val;
     int done=0, ret=ADCL_SUCCESS;
     int maxdim, *attrval_list=NULL;
-    ADCL_hypothesis_t *hypo=&(e->em_hypo);
+    ADCL_hypothesis_t *hypo=e->em_hypo;
     ADCL_attrset_t *attrset=e->em_fnctset.fs_attrset;
 
     ADCL_statistics_t **tmp_stats;
@@ -191,7 +194,7 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_t *e,
 /**********************************************************************/
 int ADCL_hypothesis_set ( ADCL_emethod_t *e, int attrpos, int attrval )
 {
-    ADCL_hypothesis_t *hypo = &(e->em_hypo);
+    ADCL_hypothesis_t *hypo = e->em_hypo;
 
     if ( ADCL_ATTR_NOT_SET == hypo->h_attr_hypothesis[attrpos] ) {
         hypo->h_attr_hypothesis[attrpos] = attrval;
@@ -273,7 +276,7 @@ int ADCL_hypothesis_get_next ( ADCL_emethod_t *e )
     int done=0; /* false */
     int i, ret, ret2, next=ADCL_EVAL_DONE;
     int just_evaluated=0; /* false */
-    ADCL_hypothesis_t *hypo=&(e->em_hypo);
+    ADCL_hypothesis_t *hypo=e->em_hypo;
     ADCL_attrset_t *attrset= (&(e->em_fnctset))->fs_attrset;
 
     while ( !done ) {

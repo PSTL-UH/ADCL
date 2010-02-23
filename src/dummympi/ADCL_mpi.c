@@ -165,6 +165,7 @@ int MPI_Barrier   ( MPI_Comm comm )
 int MPI_Allreduce ( void *inbuf, void* outbuf, int cnt, MPI_Datatype dat, 
 		    MPI_Op op, MPI_Comm comm)
 {
+    memcpy( outbuf, inbuf, cnt*sizeof(double) );
     return MPI_SUCCESS;
 }
 int MPI_Alltoallv ( void *sendbuf, int *sendcounts, int *sdispl,  MPI_Datatype sendtype, 
