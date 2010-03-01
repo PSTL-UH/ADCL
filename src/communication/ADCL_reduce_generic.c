@@ -55,10 +55,6 @@ root, tree, count_by_segment, max_outstanding_reqs*/
     MPI_Op op = rvmap->m_op;
     void *sbuf = sendbuf;
     void *rbuf = recvbuf;    
-    if(sbuf == NULL)
-    	sbuf = req->r_svecs[0]->v_data;
-    if(rbuf == NULL)
-    	rbuf = req->r_rvecs[0]->v_data;
     MPI_Datatype dtype   = req->r_rdats[0];
     int original_count = req->r_rvecs[0]->v_dims[0];
      // to be initialized
@@ -73,6 +69,12 @@ root, tree, count_by_segment, max_outstanding_reqs*/
     int num_segments, line, ret, segindex, i, rank;
     int recvcount, prevcount, inbi;
     int bcount;
+
+    if(sbuf == NULL)
+    	sbuf = req->r_svecs[0]->v_data;
+    if(rbuf == NULL)
+    	rbuf = req->r_rvecs[0]->v_data;
+
     rank = topo->t_rank;
 
     err = MPI_Type_get_extent(dtype, &lb, &rext);

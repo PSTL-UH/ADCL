@@ -55,9 +55,9 @@ void ADCL_REDUCE_IN_ORDER_BINARY( ADCL_request_t *req )
    ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
    MPI_Op op = rvmap->m_op;
    int ret;
-   int rank,size,io_root;
-   rank = topo->t_rank;
-   size = topo->t_size;
+   int io_root;
+   int rank = topo->t_rank;
+   int size = topo->t_size;
    void *use_this_sendbuf= NULL, *use_this_recvbuf = NULL;
    int segcount = count;
    int typelng;

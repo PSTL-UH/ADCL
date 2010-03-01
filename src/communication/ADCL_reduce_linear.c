@@ -63,9 +63,8 @@ void ADCL_reduce_linear( ADCL_request_t *req )
    char *pml_buffer = NULL;
    char *inplace_temp = NULL;
    char *inbuf;
-   int root = 0;
+   int root = req->r_emethod->em_root; 
 
-   root = req->r_emethod->em_root; 
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
    ADCL_vmap_t *svmap = req->r_svecs[0]->v_map;
@@ -75,6 +74,9 @@ void ADCL_reduce_linear( ADCL_request_t *req )
    void *req_rbuf = req->r_rvecs[0]->v_data;
    void *sbuf, *rbuf;
    int bcount;
+
+
+
 
    /* use receive vector */
    MPI_Datatype dtype = req->r_rdats[0]; 

@@ -36,10 +36,9 @@
 void
 ADCL_reduce_native( ADCL_request_t *req ) 
 {
-   int root = 0;
+   int root = req->r_emethod->em_root;
    int rank;
    int err;
-   root = req->r_emethod->em_root;
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
    ADCL_vmap_t *svmap = req->r_svecs[0]->v_map;
