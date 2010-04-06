@@ -5,8 +5,12 @@ import java.awt.Dimension;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+
+import Main.ChartPlotController;
 
 import utility.*;
 
@@ -18,7 +22,7 @@ public class WelcomeScreen extends JPanel
 	int frameHeight = 0;
 	JLabel backLabel;
 	
-	public WelcomeScreen(Dimension windowSize)
+	public WelcomeScreen(Dimension windowSize, ChartPlotController controller)
 	{
 		frameWidth = windowSize.width;
 		frameHeight = windowSize.height;
@@ -28,6 +32,29 @@ public class WelcomeScreen extends JPanel
 		addCSLogo();
 		addPSTLLogo();
 		addADCLGUILogo();
+		if(!controller.getBegin())
+		{
+			addModeToggle(controller);
+			addStart(controller);
+		}
+	}
+	
+	private void addStart(ChartPlotController controller) 
+	{
+		JButton start = new JButton("Start");
+		start.setBounds(frameWidth - 120, 20, 100, 30);
+		backLabel.add(start);
+		start.addActionListener(controller);		
+	}
+	
+	private void addModeToggle(ChartPlotController controller) 
+	{
+		JToggleButton onOff;
+			onOff = new JToggleButton("On/Off",true);
+			
+		onOff.setBounds(10, 20, 100, 30);
+		backLabel.add(onOff);
+		onOff.addActionListener(controller);
 	}
 	
 	private void addADCLGUILogo()

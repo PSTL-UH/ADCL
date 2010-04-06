@@ -10,26 +10,28 @@ import java.awt.*;
 import java.util.*;
 import java.math.*;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import Main.ChartPlotController;
-
-import communicationmanager.Header;
-import communicationmanager.StartupServer.message_types;
+import Main.ChartPlotController.modes;
 
 import eventpackage.*;
 import plot.*;
 import utility.Utility;
 
 @SuppressWarnings("serial")
-public final class Plot extends JFrame implements RecvListener
+public final class Plot extends JFrame implements CustomEventListener,ChangeListener
 {
 	class TabStatus
 	{
+		HashMap<Integer, Integer> funcNumToFuncId;
 		public TabStatus(Graph tab, int iteration) 
 		{			
 			super();
 			this.tab = tab;
 			this.iteration = iteration;
+			funcNumToFuncId = new HashMap<Integer, Integer>();
 		}
 		
 		Graph tab;
@@ -46,7 +48,7 @@ public final class Plot extends JFrame implements RecvListener
 		public void setIteration(int iteration) {
 			this.iteration = iteration;
 		}
-		HashMap<Integer, Integer> funcNumToFuncId = new HashMap<Integer, Integer>();
+		
 		public HashMap<Integer, Integer> getFuncIdToFuncNum() {
 			return funcNumToFuncId;
 		}		
@@ -69,10 +71,12 @@ public final class Plot extends JFrame implements RecvListener
 		{
 			return funcNumToFuncId.containsKey(functionId);
 		}
+		
 		public void incrementIterator() 
 		{
 			iteration++;
 		}
+		
 		public int getFuncNumFromId(int functionId) 
 		{
 			return funcNumToFuncId.get(functionId);
@@ -80,39 +84,46 @@ public final class Plot extends JFrame implements RecvListener
 	}
 
 	Color color[]={Color.GREEN,Color.BLACK,Color.RED,Color.BLUE,Color.CYAN,Color.YELLOW,Color.GRAY,Color.PINK,Color.ORANGE,Color.WHITE,Color.MAGENTA,Color.LIGHT_GRAY};
-    XAxis xAxis = new XAxis("No. of Iterations");
-    YAxis yAxis = new YAxis("Time Elapsed");// make changes in axisinstance in the paint function
-    private final ArrayList<Graph> graph = new ArrayList<Graph>();
-    boolean init = false;
+    XAxis xAxis;
+    YAxis yAxis;// make changes in axisinstance in the paint function
+    private final ArrayList<Graph> graph;
+    boolean init;
     private static final Cursor ACTION_CURSOR = new Cursor(Cursor.HAND_CURSOR);
     
     Utility util = Utility.getInstance();
     
-    HashMap<Integer, TabStatus> idToTabStatus = new  HashMap<Integer, TabStatus>();;
+    HashMap<Integer, TabStatus> idToTabStatus;
         
     JTabbedPane tab = null;
     ChartPlotController _controller;
     WelcomeScreen ws;
+   
     Dimension _windowSize;
 
 	public Plot(Dimension windowSize) 
 	{
+		xAxis = new XAxis("No. of Iterations");
+		yAxis = new YAxis("Time Elapsed");
+		graph = new ArrayList<Graph>();
+		init = false;
+		
 		_windowSize = windowSize;
 		setSize(_windowSize);
 		setResizable(false);		
-				
-		addWelcomeScreen();
+		idToTabStatus = new  HashMap<Integer, TabStatus>();
+		
 	}
 	
 	public void setController(ChartPlotController controller)
 	{
 		_controller = controller;
+		addWelcomeScreen();
 	}
 	
     private void addWelcomeScreen()
     {
-		ws = new WelcomeScreen(_windowSize);
-		getContentPane().add(ws);		
+		ws = new WelcomeScreen(_windowSize, _controller);
+		getContentPane().add(ws);	
 	}
 
 	private void initComponent()
@@ -131,7 +142,6 @@ public final class Plot extends JFrame implements RecvListener
 	private void addComponentsToTab(int i) 
 	{
 		Graph graphToAdd = idToTabStatus.get(Integer.valueOf(i)).getTab();
-		
 		JLabel disconnect = new JLabel();
 		disconnect.setName("Disconnect");
 		ImageIcon disconnectIcon = new ImageIcon(util.getImage("/icons/disconnect1.png").getScaledInstance(40, 40, Image.SCALE_SMOOTH));
@@ -151,12 +161,22 @@ public final class Plot extends JFrame implements RecvListener
 		startOver.setBounds(400,10,100,25);
 		
 		JComponent toolbar = ((InteractiveGraph)graphToAdd).getToolBar();
-		toolbar.add(disconnect);
+		if(_controller.getOnOffMode() == modes.online)
+			toolbar.add(disconnect);
 		toolbar.add(startOver);
 		
 		JToggleButton yLimit = new JToggleButton("Set Y");
 		yLimit.addItemListener((InteractiveGraph)graphToAdd);
 		toolbar.add(yLimit);
+		
+		if(_controller.getOnOffMode() == modes.offline)
+		{
+			SpinnerModel model = new SpinnerNumberModel(_controller.getProcNum(), 0, _controller.getNumberOfProcs(), 1);
+			JSpinner spin = new JSpinner(model);
+			spin.addChangeListener(this);
+			toolbar.add(spin);			
+		}	
+		
 		graphToAdd.add(toolbar, BorderLayout.NORTH);
 
 		Panel textPanel = new Panel();
@@ -190,24 +210,87 @@ public final class Plot extends JFrame implements RecvListener
 		idToTabStatus.get(Integer.valueOf(i)).getTab().addFunction(new Function("Function "+i), style2);
 	}
 
-    public void addPointtoGraph(int index,double x,double y)
+    public void addPointtoGraph(int messageId, double y)
     {
-    	BigDecimal xPoint = new BigDecimal(x);
+    	Integer iteration = idToTabStatus.get(messageId).getIteration();
+    	BigDecimal xPoint = new BigDecimal(iteration.doubleValue());
     	BigDecimal yPoint = new BigDecimal(y);
-    	Graph updateGraph = idToTabStatus.get(Integer.valueOf(index)).getTab();
+    	Graph updateGraph = idToTabStatus.get(Integer.valueOf(messageId)).getTab();
     	
     	Object[] functions = updateGraph.getGraphFunctions();
     	Function graphFunc = (Function)functions[functions.length-1];
     	graphFunc.addPoint(xPoint, yPoint);    		   		
+
+		idToTabStatus.get(messageId).incrementIterator();	
+    }
+    
+	@Override
+	public void stateChanged(ChangeEvent arg) 
+	{
+		JSpinner spinner = (JSpinner)arg.getSource();
+		Integer spinValue = (Integer)spinner.getValue();
+		resetGraphOnTab(tab.getSelectedIndex(), spinValue);
+	}
+    
+    public void resetGraphOnTab(int index,int spinValue)
+    {
+    	/*for(Object function : graph.get(index).getGraphFunctions())
+    		graph.get(index).removeFunction((Function)function);
+    	graph.get(index).render();
+    	graph.get(index).repaint();*/
+    	_controller.setProcNum(spinValue);
+    	_controller.setRestart(true);
     }
     
     @Override
-    public void recvReceived(RecvEvent event) 
+    public void recvReceived(EventObject event) 
     {
-		byte[] msg = event.getRecvData();
-		Header head = event.get_header();
-				
-		if(!idToTabStatus.containsKey(Integer.valueOf(head.get_id())))
+    	if(event.getClass().getSimpleName().contentEquals("PointsEvent"))  
+    	{
+    		PointsEvent ptEvent = (PointsEvent)event;
+    		int messageId = ptEvent.get_id();
+    		double yval = ptEvent.get_yval();
+	    	newMessage(messageId);    	
+	    	addPointtoGraph(messageId, yval);
+    	}
+    	else if(event.getClass().getSimpleName().contentEquals("MessageReceivedEvent"))
+    	{
+    		MessageReceivedEvent mrEvent = (MessageReceivedEvent)event;
+    		int messageId = mrEvent.get_msgId();
+    		String message = mrEvent.get_message();
+    		newMessage(messageId);
+    		showInMessageBox(messageId, message);
+    	}
+    	else if(event.getClass().getSimpleName().contentEquals("FunctionChangeEvent"))
+    	{
+    		FunctionChangeEvent fcEvent = (FunctionChangeEvent)event;
+    		int messageId = fcEvent.get_msgId();
+    		int funcId = fcEvent.get_funcId();
+    		String objName = fcEvent.get_objectName();
+    		newMessage(messageId);
+
+    		functionChange(messageId, funcId, objName);    		
+    	}
+    	else if(event.getClass().getSimpleName().contentEquals("WinnerDecidedEvent"))
+    	{
+    		WinnerDecidedEvent wdEvent = (WinnerDecidedEvent)event;
+    		int messageId = wdEvent.get_msgid();
+    		int functionId = wdEvent.get_funcId();
+    		int requestId = wdEvent.get_requestId();
+    		String objectName = wdEvent.get_message();
+    		objectName = objectName.substring(0, 8);
+    		objectName = objectName.replaceAll("[^A-Za-z\\_\\s]", " ");
+    		newMessage(messageId);
+    		winnerDecided(messageId, functionId, requestId, objectName);    
+    	}
+		
+		repaintApplication();
+    	
+    }
+
+	private void newMessage(int messageId) 
+	{
+		if(!idToTabStatus.containsKey(Integer.valueOf(messageId)))
 		{
 			if(!init)
 			{
@@ -216,77 +299,48 @@ public final class Plot extends JFrame implements RecvListener
 				init = true;
 			}
 			addNewGraphToList();
-			idToTabStatus.put(Integer.valueOf(head.get_id()), new TabStatus(graph.get(graph.size() - 1),Integer.valueOf(1)));
+			idToTabStatus.put(Integer.valueOf(messageId), new TabStatus(graph.get(graph.size() - 1),Integer.valueOf(1)));
 			
-			addFunctionToGraph(head.get_id());
-			addComponentsToTab(head.get_id());					
+			addFunctionToGraph(messageId);
+			addComponentsToTab(messageId);					
 		}
-		
-		if( message_types.values()[head.get_type()] == message_types.Points)
-		{    				
-			Integer iteration = idToTabStatus.get(head.get_id()).getIteration();			
-			addPointtoGraph(head.get_id(), iteration.doubleValue(), head.get_yval());
-			idToTabStatus.get(head.get_id()).incrementIterator();			
-		}
-		else if(message_types.values()[head.get_type()] == message_types.Message)
-		{			
-			showInMessageBox(head.get_id(),new String(msg));			
-		}
-		else if(message_types.values()[head.get_type()] == message_types.FunctionChange)
-		{
-			int functionId = util.byteArrayToInt(msg, 0);
-			String message = new String(msg);
-			message = message.replaceAll("[^A-Za-z\\_\\s]", " ");
-			
-			if(!idToTabStatus.get(head.get_id()).functionIdExists(functionId))
-			{
-				idToTabStatus.get(head.get_id()).addFunctionId(functionId);
-				functionChange(message, head, idToTabStatus.get(head.get_id()).getFunctionNumber());
-			}
-			
-		}
-		else if(message_types.values()[head.get_type()] == message_types.WinnerDecided)
-		{
-			winnerDecided(head,msg);			
-		}
-		
+	}
+
+	private void repaintApplication() {
 		for(Graph eachGraph : graph)
 		{
 			eachGraph.render();
 			eachGraph.repaint();
 		}
-    	
-    }
+	}
 
-	private void winnerDecided(Header head, byte[] msg) 
-	{
-		int requestId = util.byteArrayToInt(msg, 8);
-		int functionId = util.byteArrayToInt(msg, 12);
-		String objectName = new String(msg);
-		objectName = objectName.substring(0, 8);
-		objectName = objectName.replaceAll("[^A-Za-z\\_\\s]", " ");
-		
+	private void winnerDecided(int messageId, int functionId, int requestId, String objectName) 
+	{		
 		ChartStyle style2 = new ChartStyle();		
-		TabStatus tabStatus = idToTabStatus.get(Integer.valueOf(head.get_id()));
+		TabStatus tabStatus = idToTabStatus.get(Integer.valueOf(messageId));
 		style2.setPaint(color[tabStatus.getFuncNumFromId(functionId)]);
 		
 		Graph currGraph = tabStatus.getTab();		
-		currGraph.addFunction(new Function("Function "+head.get_id()), style2);	
+		currGraph.addFunction(new Function("Function "+messageId), style2);	
 		
 		String winnerMsg = objectName+" "+requestId+" winner is "+functionId+" "+tabStatus.getTab().getGraphFunctions()[tabStatus.getFuncNumFromId(functionId)+1].toString();
-		showInMessageBox(head.get_id(), winnerMsg);
+		showInMessageBox(messageId, winnerMsg);
 	}
 
-	private void functionChange(String functionName, Header head, int functionNum) 
+	private void functionChange(int messageId, int functionId, String functionName) 
 	{		
-		functionName = functionName.substring(4);
-		ChartStyle style2 = new ChartStyle();
-		style2.setPaint(color[functionNum-1]);
-		Graph currGraph = idToTabStatus.get(Integer.valueOf(head.get_id())).getTab();
-		
-		currGraph.addFunction(new Function(functionName), style2);			
-		((Legend)currGraph.getComponent(currGraph.getComponentCount()-1)).addToLegendList(color[functionNum-1],functionName);
-		
+		if(!idToTabStatus.get(messageId).functionIdExists(functionId))
+		{
+			idToTabStatus.get(messageId).addFunctionId(functionId);
+			int functionNum = idToTabStatus.get(messageId).getFunctionNumber();
+			functionName = functionName.trim();
+			ChartStyle style2 = new ChartStyle();
+			style2.setPaint(color[functionNum-1]);
+			Graph currGraph = idToTabStatus.get(Integer.valueOf(messageId)).getTab();
+			
+			currGraph.addFunction(new Function(functionName), style2);			
+			((Legend)currGraph.getComponent(currGraph.getComponentCount()-1)).addToLegendList(color[functionNum-1],functionName);
+		}
 	}
 
 	private void showInMessageBox(int id, String str) 
@@ -298,22 +352,35 @@ public final class Plot extends JFrame implements RecvListener
 	
 	public void startOver()
 	{
-		tab.setVisible(false);
-		ws.setVisible(true);
-		tab.removeAll();
-		getContentPane().remove(tab);		
-		tab = null;
 		Collection<TabStatus> list = idToTabStatus.values();
+		
 		for(TabStatus eachStatus : list )
+		{			
+			((InteractiveGraph)eachStatus.getTab()).resetToggle();
+		}
+		
+		if(tab != null)
 		{
+			tab.setVisible(false);
+			ws.setVisible(true);
+			tab.removeAll();
+			getContentPane().remove(tab);		
+			tab = null;
+		}
+		
+		for(TabStatus eachStatus : list )
+		{			
 			eachStatus.getFuncIdToFuncNum().clear();
 			eachStatus = null;
 		}
-		idToTabStatus.clear();
-		graph.clear();
-		_controller = null;
+		if(idToTabStatus != null)
+			idToTabStatus.clear();
+		if(graph != null)
+			graph.clear();
+		idToTabStatus = null;		
 		init = false;
 	}
+
 }
 
 

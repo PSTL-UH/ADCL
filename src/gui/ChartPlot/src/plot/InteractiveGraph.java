@@ -197,11 +197,18 @@ public void itemStateChanged(ItemEvent e)
 		} 
 		else
 		{
-			ytoggle = false;
-			Object[] functions = getGraphFunctions();
-	    	Function graphFunc = (Function)functions[functions.length-1];
-	    	resetAdjustment(graphFunc);	    	
+			resetToggle();	
+			
 		}		
+}
+
+
+public void resetToggle() {
+	ytoggle = false;
+	Object[] functions = getGraphFunctions();
+	Function graphFunc = (Function)functions[functions.length-1];
+	resetAdjustment(graphFunc);
+	
 }
 
 }

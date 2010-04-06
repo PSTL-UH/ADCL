@@ -5,6 +5,8 @@ import java.io.*;
 
 import java.net.*;
 
+import utility.Utility;
+
 import chartplot.Plot;
 
 import eventpackage.EventGenerator;
@@ -15,12 +17,15 @@ public class StartupServer
 	public enum message_types {Points, Message, FunctionChange, WinnerDecided, EndOfComm};
 	
     static int numclients = 0;
-    static int port       = 31500;
+    static int port       = 31500;    
+
+    Utility util = Utility.getInstance();
 
 	EventGenerator generator = new EventGenerator();
 	StartupConnection host;
 	
 	ServerSocket ssocket = null;
+	boolean serverStarted = false;
 
     public EventGenerator getGenerator() 
     {
@@ -42,7 +47,7 @@ public class StartupServer
      */
     public void start(String[] args) 
     {
-    	
+    	serverStarted = true;
         checkargs(args);
         _model.messageOccured("Waiting for " + numclients + " clients to connect\n");
 
@@ -65,37 +70,60 @@ public class StartupServer
             byte msgbuf[] = null;
             
             infinite:
-            while(true)
-            {
-            	if(!isClosed())
-            	{
-	            	Header head;                
-	            	head = host.readHeader(); 
-	            	
-	            	if(head.get_magic() == StartupConnection.BNR_MAGIC)
-	                {                		
-	            		if(message_types.values()[head.get_type()] == message_types.EndOfComm)
-	                	{
-	            			System.out.println("end of comm message received");
-	                     	break infinite;
-	                	}
-	            		else if(message_types.values()[head.get_type()] == message_types.Message || message_types.values()[head.get_type()] == message_types.FunctionChange || message_types.values()[head.get_type()] == message_types.WinnerDecided)
-	            		{            			
-	            			msgbuf = new byte[head.get_len()];
-	            			int  offset   = 0;
-	            			int  ret;
-	            			
-	            			ret    = host.readmsg(msgbuf,head.get_len(), offset);
-	            			           		
-	            			offset += ret;
-	            			
-	            		}
-	                 	raiseEvent(msgbuf, head);
-	                 } 
-            	}
-            	else
-            		break;
-            }           
+                while(true)
+                {
+                	if(!isClosed())
+                	{
+    	            	Header head;                
+    	            	head = host.readHeader(); 
+    	            	
+    	            	if(head.get_magic() == StartupConnection.BNR_MAGIC)
+    	                {                		
+    	            		if(message_types.values()[head.get_type()] == message_types.EndOfComm)
+    	                	{
+    	            			System.out.println("end of comm message received");
+    	                     	break infinite;
+    	                	}
+    	            		else 
+    	            		{         
+    	            			if(message_types.values()[head.get_type()] == message_types.Message || message_types.values()[head.get_type()] == message_types.FunctionChange || message_types.values()[head.get_type()] == message_types.WinnerDecided)
+    	            			{
+    		            			msgbuf = new byte[head.get_len()];
+    		            			host.readmsg(msgbuf,head.get_len(), 0);
+    		            			
+    		            			if(message_types.values()[head.get_type()] == message_types.FunctionChange)
+    		            			{
+    		            				int functionId = util.byteArrayToInt(msgbuf, 0);
+    		            				String message = new String(msgbuf);
+    		            				message = message.replaceAll("[^A-Za-z\\_\\s]", " ");
+    		            				
+    		            				generator._fireFunctionChangeEvent(head.get_id(), functionId, message);
+    		            			}
+    		            			else if(message_types.values()[head.get_type()] == message_types.WinnerDecided)
+    		            			{
+    		            				int requestId = util.byteArrayToInt(msgbuf, 8);
+    		            				int functionId = util.byteArrayToInt(msgbuf, 12);
+    		            				String objectName = new String(msgbuf);
+    		            				
+    		            				generator._fireWinnerDecidedEvent(head.get_id(), requestId, functionId, objectName);
+    		            				
+    		            			}
+    		            			else
+    		            			{
+    		            				generator._fireMessageReceivedEvent(head.get_id(), new String(msgbuf));
+    		            			}
+    	            			}
+    	            			else
+    	            			{
+    	            				generator._firePointsEvent(head.get_id(), head.get_yval());
+    	            			}
+    	            			           			            			
+    	            		}
+    	                 } 
+                	}
+                	else
+                		break;
+                }      
             
             if(!isClosed())
             {
@@ -112,11 +140,6 @@ public class StartupServer
             System.exit(-1);
         }
     }    
-
-    private void raiseEvent(byte[] msgbuf, Header head) 
-    {
-    	generator.dataReceived(msgbuf,head);
-	}
 
 	public void checkargs(String[] args) {
         String option;
@@ -179,9 +202,14 @@ public class StartupServer
 		generator.addRecvListener(gui);
 	}
 	
+	public void removeRecvListener(Plot gui)
+	{
+		generator.removeRecvListener(gui);
+	}
+	
 	public void disconnect()
 	{
-		if(!ssocket.isClosed())
+		if(serverStarted && !ssocket.isClosed())
 		{
 			try {
 				ssocket.close();

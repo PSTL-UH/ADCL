@@ -92,7 +92,8 @@ public class StartupConnection {
     
     public void disconnect()
     {
-    	try {
+    	try 
+    	{
 			bos.flush();
 			bos.close();
 			bis.close();
@@ -100,7 +101,9 @@ public class StartupConnection {
 			dos.close();
 			dis.close();
 			fd.close();
-		} catch (IOException e) {
+		} 
+    	catch (IOException e)
+		{
 			e.printStackTrace();
 		}
     }
