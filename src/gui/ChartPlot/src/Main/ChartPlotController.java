@@ -16,24 +16,31 @@ import communicationmanager.StartupServer;
 
 public class ChartPlotController implements MouseListener, ActionListener
 {
+    public enum modes { online, offline};
+    
 	StartupServer _server;
 	Plot _plot;
 	OfflineParser _parser;
 	Dimension _windowSize;
-	boolean restart = false;
 	boolean begin = false;
-	
-   public enum modes { online, offline};
-	
+
 	modes onOffMode;
 	int procNum = 0;
 	
+	public boolean getBegin() 
+	{
+		return begin;
+	}	
+	
 	public int getNumberOfProcs()
 	{
-		return _parser.getNumberOfProcs();
+		if(onOffMode == modes.offline)
+			return _parser.getNumberOfProcs(); 
+		return 1; // to be done: else part for the online mode.
 	}
 	
-	public modes getOnOffMode() {
+	public modes getOnOffMode() 
+	{
 		return onOffMode;
 	}
 
@@ -42,21 +49,21 @@ public class ChartPlotController implements MouseListener, ActionListener
 		if(this.onOffMode == modes.online)
 		{
 			this.onOffMode = modes.offline;
-			//restart = true;
 		}
 		else
 		{
 			this.onOffMode = modes.online;
-			//restart = true;
 		}
 	}
 	
-	public boolean isRestart() {
-		return restart;
+	public int getProcNum()
+	{
+		return procNum;
 	}
-
-	public void setRestart(boolean restart) {
-		this.restart = restart;
+	
+	public void setProcNum(int procNumber)
+	{
+		procNum = procNumber;
 	}
 
 	public ChartPlotController(Dimension windowSize) 
@@ -69,19 +76,8 @@ public class ChartPlotController implements MouseListener, ActionListener
 		_windowSize = windowSize;
 		onOffMode = modes.online;
 		
-	}	
+	}		
 	
-	public int getProcNum()
-	{
-		return procNum;
-	}
-	
-	public void setProcNum(int procNumber)
-	{
-		procNum = procNumber;
-	}
-	
-	@Override
 	public void mouseClicked(MouseEvent event)
 	{		
 		if(event.getComponent().getName() == "Disconnect")
@@ -93,28 +89,30 @@ public class ChartPlotController implements MouseListener, ActionListener
 		{
 			System.out.println("Start over");
 
-		    restart = true;
-		    begin = false;
-			onOffMode = modes.online;
+			new Thread() 
+	        {
+				public void run() 
+				{
+					begin = false;
+					restart();
+					
+				}
+			}.start();
 		}
 	}
 
-	@Override
 	public void mouseEntered(MouseEvent arg0) 
 	{		
 	}
 
-	@Override
 	public void mouseExited(MouseEvent arg0) 
 	{
 	}
 
-	@Override
 	public void mousePressed(MouseEvent arg0) 
 	{
 	}
 
-	@Override
 	public void mouseReleased(MouseEvent arg0) 
 	{		
 	}
@@ -128,76 +126,64 @@ public class ChartPlotController implements MouseListener, ActionListener
 		}
 		else if(e.getActionCommand() == "Start")
 		{
-			restart = true;
-			begin = true;
+			new Thread() 
+	        {
+				public void run() 
+				{
+					begin = true;
+					setup();
+				}
+			}.start();
 		}
 	}
 	
 
-	private void restart()
+	public void restart()
 	{
 		System.out.println("restarting");
-		restart = false;
 	    _server.removeRecvListener(_plot);
 	    _parser.removeRecvListener(_plot);
 		_plot.startOver();
-		_plot.setVisible(false);
-		_plot.dispose();
-		_plot = null;
 	    _server.disconnect();
 	    _parser = null;
 		
 		System.gc();      
 		
-		_plot = new Plot(_windowSize);
 		_parser = new OfflineParser(procNum);
 		setup();
 	}
 
 	private void setup() 
-	{
-		_plot.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	   
-		_plot.setController(this);
-		_plot.setVisible(true);
-		_plot.paint(_plot.getGraphics());
-		
+	{		
 		if(begin == true)
 		{
-			start();
+			if(getOnOffMode() == modes.online)
+			{
+				String serverArgs[] = {"-n","1","-p","20000"};
+			    _server.addRecvListener(_plot); //define addrecvlistener in startupserver. put the generator code in it.
+			    _server.start(serverArgs);
+			}
+			else
+			{
+				_parser.addRecvListener(_plot);
+				_parser.startRead();
+			}
 		}		
-	}
-	
-	public boolean getBegin() {
-		return begin;
-	}
-
-	private void start()
-	{
-		if(getOnOffMode() == modes.online)
-		{
-			String serverArgs[] = {"-n","1","-p","20000"};
-		    _server.addRecvListener(_plot); //define addrecvlistener in startupserver. put the generator code in it.
-		    _server.start(serverArgs);
-		}
 		else
 		{
-			_parser.addRecvListener(_plot);
-			_parser.startRead();
+			_plot.setOnOffButton(onOffMode);
+			_plot.setVisible(true);
+			_plot.paint(_plot.getGraphics());
 		}
 	}
 
 	public void init() 
 	{
-        setup();
-	    
-		while(true)
-		{		
-			if(isRestart())
-			{			
-				restart();
-			}				
-		}		
-		
-	}
+		_plot.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	   
+		_plot.setController(this);
 
+        setup();
+	}
+	
+	
 }

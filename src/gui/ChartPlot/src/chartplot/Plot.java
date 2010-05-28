@@ -125,6 +125,14 @@ public final class Plot extends JFrame implements CustomEventListener,ChangeList
 		ws = new WelcomeScreen(_windowSize, _controller);
 		getContentPane().add(ws);	
 	}
+    
+    public void setOnOffButton(modes onOff)
+    {
+    	if(onOff == modes.online)
+    		ws.setModeToggle(true);
+    	if(onOff == modes.offline)
+    		ws.setModeToggle(false);
+    }
 
 	private void initComponent()
     {    	
@@ -171,7 +179,7 @@ public final class Plot extends JFrame implements CustomEventListener,ChangeList
 		
 		if(_controller.getOnOffMode() == modes.offline)
 		{
-			SpinnerModel model = new SpinnerNumberModel(_controller.getProcNum(), 0, _controller.getNumberOfProcs(), 1);
+			SpinnerModel model = new SpinnerNumberModel(_controller.getProcNum(), 0, _controller.getNumberOfProcs() - 1, 1);
 			JSpinner spin = new JSpinner(model);
 			spin.addChangeListener(this);
 			toolbar.add(spin);			
@@ -224,25 +232,25 @@ public final class Plot extends JFrame implements CustomEventListener,ChangeList
 		idToTabStatus.get(messageId).incrementIterator();	
     }
     
-	@Override
 	public void stateChanged(ChangeEvent arg) 
 	{
 		JSpinner spinner = (JSpinner)arg.getSource();
 		Integer spinValue = (Integer)spinner.getValue();
-		resetGraphOnTab(tab.getSelectedIndex(), spinValue);
+		resetToNewProc(spinValue);
 	}
     
-    public void resetGraphOnTab(int index,int spinValue)
+    public void resetToNewProc(int spinValue)
     {
-    	/*for(Object function : graph.get(index).getGraphFunctions())
-    		graph.get(index).removeFunction((Function)function);
-    	graph.get(index).render();
-    	graph.get(index).repaint();*/
     	_controller.setProcNum(spinValue);
-    	_controller.setRestart(true);
+    	new Thread() 
+        {
+			public void run() 
+			{
+				_controller.restart();				
+			}
+		}.start();
     }
     
-    @Override
     public void recvReceived(EventObject event) 
     {
     	if(event.getClass().getSimpleName().contentEquals("PointsEvent"))  
@@ -293,7 +301,7 @@ public final class Plot extends JFrame implements CustomEventListener,ChangeList
 		if(!idToTabStatus.containsKey(Integer.valueOf(messageId)))
 		{
 			if(!init)
-			{
+			{				
 				ws.setVisible(false);
 				initComponent();
 				init = true;
@@ -306,7 +314,8 @@ public final class Plot extends JFrame implements CustomEventListener,ChangeList
 		}
 	}
 
-	private void repaintApplication() {
+	private void repaintApplication() 
+	{
 		for(Graph eachGraph : graph)
 		{
 			eachGraph.render();
@@ -362,7 +371,8 @@ public final class Plot extends JFrame implements CustomEventListener,ChangeList
 		if(tab != null)
 		{
 			tab.setVisible(false);
-			ws.setVisible(true);
+			if(!_controller.getBegin())
+				ws.setVisible(true);
 			tab.removeAll();
 			getContentPane().remove(tab);		
 			tab = null;
@@ -377,7 +387,6 @@ public final class Plot extends JFrame implements CustomEventListener,ChangeList
 			idToTabStatus.clear();
 		if(graph != null)
 			graph.clear();
-		idToTabStatus = null;		
 		init = false;
 	}
 

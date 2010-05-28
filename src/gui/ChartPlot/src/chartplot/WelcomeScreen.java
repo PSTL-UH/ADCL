@@ -21,6 +21,8 @@ public class WelcomeScreen extends JPanel
 	int frameWidth = 0;
 	int frameHeight = 0;
 	JLabel backLabel;
+
+	JToggleButton onOff;
 	
 	public WelcomeScreen(Dimension windowSize, ChartPlotController controller)
 	{
@@ -32,11 +34,8 @@ public class WelcomeScreen extends JPanel
 		addCSLogo();
 		addPSTLLogo();
 		addADCLGUILogo();
-		if(!controller.getBegin())
-		{
-			addModeToggle(controller);
-			addStart(controller);
-		}
+		addModeToggle(controller);
+		addStart(controller);
 	}
 	
 	private void addStart(ChartPlotController controller) 
@@ -49,12 +48,16 @@ public class WelcomeScreen extends JPanel
 	
 	private void addModeToggle(ChartPlotController controller) 
 	{
-		JToggleButton onOff;
-			onOff = new JToggleButton("On/Off",true);
+		onOff = new JToggleButton("On/Off",true);
 			
 		onOff.setBounds(10, 20, 100, 30);
 		backLabel.add(onOff);
 		onOff.addActionListener(controller);
+	}
+	
+	public void setModeToggle(boolean mode)
+	{
+		onOff.setSelected(mode);
 	}
 	
 	private void addADCLGUILogo()
