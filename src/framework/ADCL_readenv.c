@@ -36,14 +36,16 @@ extern int ADCL_twok_threshold;
 
 extern char ADCL_display_ip[];
 extern int ADCL_display_port;
-extern int ADCL_display_rank;
+extern int *ADCL_display_rank;
 extern int ADCL_display_flag;
+extern int ADCL_display_ranks_size;
 //extern ADCL_method_t * ADCL_method_array;
 
 extern int ADCL_hist_predictor;
 
 static int ADCL_is_keyword (char* keyword, char* text );
 static int ADCL_set_keyword_int_value    ( char* strptr, char* keyword, int* value ); 
+static int ADCL_set_keyword_int_array_value ( char* strptr, char* keyword, int **value );
 static int ADCL_set_keyword_string_value ( char* strptr, char* keyword, char* value );  
 #ifdef Debug
 static int ADCL_print_keyword_int_value    ( char* keyword, int* value ); 
@@ -202,7 +204,7 @@ int ADCL_readenv()
         }
         /* ADCL_DISPLAY_RANK */
         else if ( ADCL_is_keyword(keyword, "ADCL_DISPLAY_RANK") ) {
-            ADCL_set_keyword_int_value ( ptr,"ADCL_DISPLAY_RANK", &ADCL_display_rank );
+            ADCL_set_keyword_int_array_value ( ptr,"ADCL_DISPLAY_RANK", &ADCL_display_rank );
         }
     }
 
@@ -272,6 +274,37 @@ int ADCL_set_keyword_int_value ( char* strptr, char* keyword, int* value )
     return ADCL_SUCCESS; 
 }
 
+/*************************************************************************************************/
+int ADCL_set_keyword_int_array_value ( char* strptr, char* keyword, int **value )
+/*************************************************************************************************/
+{
+    char *str, *ds, *token;
+    int tok_count = 0, int_count = 0;
+    str  = (char*)malloc(1024*sizeof(char));
+    sscanf(strptr, "%s", str);
+    ds = strdup(str);
+    token = strtok(ds, ",");
+    tok_count++;
+    while(1)
+    {
+       token = strtok(NULL, ",");
+       if(token == NULL)
+          break;
+       tok_count++;
+    }
+    ADCL_display_ranks_size = tok_count;
+    *value = (int *)malloc(tok_count*sizeof(int));
+    token = strtok(str, ",");
+    *(*value + int_count) = atoi(token);
+    int_count++;
+    while(int_count < tok_count)
+    {
+       token = strtok(NULL, ",");
+       *(*value + int_count) = atoi(token);
+       int_count++;
+    }
+    return ADCL_SUCCESS;
+}
 
 /*************************************************************************************************/
 int ADCL_set_keyword_string_value ( char* strptr, char* keyword, char* value ) 

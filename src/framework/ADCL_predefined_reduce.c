@@ -67,7 +67,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_binary_segsize4k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce binary 4k",
+                                 m_reduce_attr, "Reduce_binary_4k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -76,7 +76,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_binomial_segsize4k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce binomial 4k",
+                                 m_reduce_attr, "Reduce_binomial_4k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -85,7 +85,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_chain_segsize4k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce chain 4k",
+                                 m_reduce_attr, "Reduce_chain_4k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -94,7 +94,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_pipeline_segsize4k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce pipeline 4k",
+                                 m_reduce_attr, "Reduce_pipeline_4k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -103,7 +103,7 @@ int ADCL_predefined_reduce( void )
    
     ADCL_function_create_async ( ADCL_reduce_in_order_binary_segsize4k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce inorder binary 4k",
+                                 m_reduce_attr, "Reduce_in_order_binary_4k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -113,7 +113,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_binary_segsize32k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce binary 32k",
+                                 m_reduce_attr, "Reduce_binary_32k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -122,7 +122,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_binomial_segsize32k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce binomial 32k",
+                                 m_reduce_attr, "Reduce_binomial_32k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -131,7 +131,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_chain_segsize32k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce chain 32k",
+                                 m_reduce_attr, "Reduce_chain_32k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -140,7 +140,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_pipeline_segsize32k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce pipeline 32k",
+                                 m_reduce_attr, "Reduce_pipeline_32k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -149,7 +149,7 @@ int ADCL_predefined_reduce( void )
    
     ADCL_function_create_async ( ADCL_reduce_in_order_binary_segsize32k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce inorder binary 32k",
+                                 m_reduce_attr, "Reduce_in_order_binary_32k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -159,7 +159,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_binary_segsize128k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce binary 128k",
+                                 m_reduce_attr, "Reduce_binary_128k",
                                  & ADCL_reduce_functions[count]);
     count++;
    
@@ -170,7 +170,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_binomial_segsize128k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce binomial 128k",
+                                 m_reduce_attr, "Reduce_binomial_128k",
                                  & ADCL_reduce_functions[count]);
     count++;
     
@@ -181,7 +181,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_chain_segsize128k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce chain 128k",
+                                 m_reduce_attr, "Reduce_chain_128k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -192,7 +192,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_pipeline_segsize128k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce pipeline 128k",
+                                 m_reduce_attr, "Reduce_pipeline_128k",
                                  & ADCL_reduce_functions[count]);
     count++;
    
@@ -203,7 +203,7 @@ int ADCL_predefined_reduce( void )
    
     ADCL_function_create_async ( ADCL_reduce_in_order_binary_segsize128k, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce inorder binary 128k",
+                                 m_reduce_attr, "Reduce_in_order_binary_128k",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -213,7 +213,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_binary_segsize0, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce binary",
+                                 m_reduce_attr, "Reduce_binary",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -222,7 +222,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_binomial_segsize0, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce binomial",
+                                 m_reduce_attr, "Reduce_binomial",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -231,7 +231,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_chain_segsize0, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce chain",
+                                 m_reduce_attr, "Reduce_chain",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -240,7 +240,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_pipeline_segsize0, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce pipeline",
+                                 m_reduce_attr, "Reduce_pipeline",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -249,7 +249,7 @@ int ADCL_predefined_reduce( void )
    
     ADCL_function_create_async ( ADCL_reduce_in_order_binary_segsize0, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce inorder binary",
+                                 m_reduce_attr, "Reduce_in_order_binary",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -258,7 +258,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_native, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce native",
+                                 m_reduce_attr, "Reduce_native",
                                  & ADCL_reduce_functions[count]);
     count++;
 
@@ -267,7 +267,7 @@ int ADCL_predefined_reduce( void )
 
     ADCL_function_create_async ( ADCL_reduce_linear, NULL,
                                  ADCL_reduce_attrset,
-                                 m_reduce_attr, "Reduce linear",
+                                 m_reduce_attr, "Reduce_linear",
                                  & ADCL_reduce_functions[count]);
     count++;
 

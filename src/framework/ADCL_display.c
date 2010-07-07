@@ -9,8 +9,9 @@
 
 char ADCL_display_ip[MAXLEN] = "172.25.66.95";
 int ADCL_display_port = 20000;
-int ADCL_display_rank = 0;
+int *ADCL_display_rank;
 int ADCL_display_flag = 0;
+int ADCL_display_ranks_size = 0;
 static char strres[128];
 
 static int sock;
@@ -57,12 +58,11 @@ int ADCL_display_init()
 {
 	char* ip = ADCL_display_ip;
 	int portnum = ADCL_display_port;
-	int rank = ADCL_display_rank;
     	int port;
     	struct sockaddr_in client;
     	struct hostent *host;
 	MPI_Comm_rank ( MPI_COMM_WORLD, &selfrank );
-	if(ADCL_display_flag && rank == selfrank)
+	if(validate_rank())
 	{
 		hostname = strdup ( ip );
    	 	port     = portnum;
@@ -97,7 +97,7 @@ int ADCL_display_init()
     		else
 		{
         		printf("CLIENT: connection established to %s on port %d\n", hostname, port);
-    			write_int ( sock, sizeof(header) );
+                        write_int ( sock, selfrank );
     		}	
 	}
     	return ADCL_SUCCESS;
@@ -108,7 +108,7 @@ int ADCL_display(int type,...)
         va_list ap;
         char msg[MAXMSGBUFSIZE];
 
-	if(ADCL_display_flag && ADCL_display_rank == selfrank)
+	if(validate_rank())
 	{
 		header head = {MAGIC, 0, 0, 0,0.0};
 
@@ -156,7 +156,7 @@ int ADCL_display_finalize()
 {
         char*  msgbuf = (char *) malloc ( 32 );
 
-	if(ADCL_display_flag && selfrank == ADCL_display_rank)
+	if(validate_rank())
 	{
 		header head = {MAGIC,0,0,0,0.0};
 		head.type = ADCL_DISPLAY_COMM_FINAL;
@@ -383,4 +383,19 @@ static void endian_init ()
 
   is_init = 1;
 }
-             
+            
+int validate_rank(void)
+{
+   if(ADCL_display_flag)
+   {
+      int i;
+      for( i =0; i < ADCL_display_ranks_size; i++)
+      {
+         if(ADCL_display_rank[i] == selfrank)
+         {
+            return 1;
+         }
+      }
+   }
+   return 0;
+} 
