@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 public class Legend extends JPanel
 {
 	JPanel panel = new JPanel();
-	int counter = 0;
+	private int counter = 0;
 	
 	public Legend()
 	{

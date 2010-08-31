@@ -5,28 +5,21 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 
-import communicationmanager.Header;
-
-
+import datastructures.Header;
 	
 public class EventGenerator 
 {
 		byte[] recvdata;
 		Header _head;
-	    private List _listeners = new ArrayList();
-	    
-	    public synchronized void dataReceived(byte[] data, Header head) 
+	    private List<CustomEventListener> _listeners = new ArrayList<CustomEventListener>();
+
+	    public synchronized void addRecvListener( CustomEventListener l ) 
 	    {
-	       recvdata = data;
-	       _head = head;
-	       _fireRecvEvent();
-	    }
-	    
-	    public synchronized void addRecvListener( CustomEventListener l ) {
 	        _listeners.add( l );
 	    }
 	    
-	    public synchronized void removeRecvListener( CustomEventListener l ) {
+	    public synchronized void removeRecvListener( CustomEventListener l )
+	    {
 	        _listeners.remove( l );
 	    }
 	    
@@ -42,9 +35,9 @@ public class EventGenerator
 	        callHandler(event);
 	    }
 	    
-	    public synchronized void _fireWinnerDecidedEvent(int msgId, int requestId, int funcId, String message ) 
+	    public synchronized void _fireWinnerDecidedEvent(int messageId, int requestId, int functionId, String objectName) 
 	    {
-	        WinnerDecidedEvent event = new WinnerDecidedEvent( this, msgId, requestId, funcId, message);
+	        WinnerDecidedEvent event = new WinnerDecidedEvent( this, messageId, requestId, functionId, objectName);
 	        callHandler(event);
 	    }
 	    
@@ -54,21 +47,18 @@ public class EventGenerator
 	        callHandler(event);
 	    }
 	    
-		private void callHandler(EventObject event) {
-			Iterator listeners = _listeners.iterator();
+		public synchronized void callHandler(EventObject event) 
+		{
+			Iterator<CustomEventListener> listeners = _listeners.iterator();
 	        while( listeners.hasNext() ) 
 	        {
-	            ( (CustomEventListener) listeners.next() ).recvReceived( event );
+	            listeners.next().recvReceived( event );
 	        }
 		}
-	     
-	    private synchronized void _fireRecvEvent() 
-	    {
-	        RecvEvent event = new RecvEvent( this, recvdata, _head);
-	        Iterator listeners = _listeners.iterator();
-	        while( listeners.hasNext() ) 
-	        {
-	            ( (CustomEventListener) listeners.next() ).recvReceived( event );
-	        }
-	    }
+
+		public void _fireSensitivityEvent(Integer key, double sensitivity) 
+		{
+			SensitivityEvent event = new SensitivityEvent(this, key, sensitivity);
+			callHandler(event);
+		}
 }

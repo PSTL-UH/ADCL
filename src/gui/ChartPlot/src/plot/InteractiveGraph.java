@@ -197,13 +197,13 @@ public void itemStateChanged(ItemEvent e)
 		} 
 		else
 		{
-			resetToggle();	
-			
+			resetToggle();			
 		}		
 }
 
 
-public void resetToggle() {
+public void resetToggle() 
+{
 	ytoggle = false;
 	Object[] functions = getGraphFunctions();
 	Function graphFunc = (Function)functions[functions.length-1];

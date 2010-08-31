@@ -10,19 +10,18 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import Main.ChartPlotController;
-
 import utility.*;
 
 @SuppressWarnings("serial")
 public class WelcomeScreen extends JPanel
 {
 	Utility util = Utility.getInstance();
-	int frameWidth = 0;
-	int frameHeight = 0;
+	private int frameWidth = 0;
+	private int frameHeight = 0;
 	JLabel backLabel;
 
 	JToggleButton onOff;
+	JButton start;
 	
 	public WelcomeScreen(Dimension windowSize, ChartPlotController controller)
 	{
@@ -40,7 +39,7 @@ public class WelcomeScreen extends JPanel
 	
 	private void addStart(ChartPlotController controller) 
 	{
-		JButton start = new JButton("Start");
+		start = new JButton("Start");
 		start.setBounds(frameWidth - 120, 20, 100, 30);
 		backLabel.add(start);
 		start.addActionListener(controller);		
@@ -48,8 +47,8 @@ public class WelcomeScreen extends JPanel
 	
 	private void addModeToggle(ChartPlotController controller) 
 	{
-		onOff = new JToggleButton("On/Off",true);
-			
+		onOff = new JToggleButton("Online",true);
+		onOff.setActionCommand("On/Off");
 		onOff.setBounds(10, 20, 100, 30);
 		backLabel.add(onOff);
 		onOff.addActionListener(controller);
@@ -103,4 +102,15 @@ public class WelcomeScreen extends JPanel
 		backLabel.add(cslogo);
 	}
 
+	public void hideButtons() 
+	{
+		onOff.setVisible(false);
+		start.setVisible(false);
+	}
+
+	public void showButtons() 
+	{
+		onOff.setVisible(true);
+		start.setVisible(true);
+	}
 }

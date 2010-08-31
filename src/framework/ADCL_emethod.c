@@ -403,10 +403,7 @@ ADCL_function_t*  ADCL_emethod_get_function_by_state
 	ADCL_printf("#%d:  %s %d winner is %d %s\n",
 		    rank, objname, id, em->em_wfunction->f_id,
 		    em->em_wfunction->f_name);
-	/*DISPLAY((ADCL_DISPLAY_MESSAGE,em->em_id,"#%d:  %s %d winner is %d %s\n",
-	  rank, objname, id, em->em_wfunction->f_id,
-	  em->em_wfunction->f_name));*/
-	DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,em->em_id,objname,id,em->em_wfunction->f_id));
+	DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,em->em_id,objname,id,em->em_wfunction->f_id)); //only id needs to be sent to identify which tab to show the message in.
 
 #ifdef ADCL_SAVE_REQUEST_WINNER
        /* XXX not nice */
