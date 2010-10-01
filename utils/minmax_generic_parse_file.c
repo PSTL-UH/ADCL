@@ -12,7 +12,7 @@
 #include <math.h>
 #include <unistd.h>
 
-#include "minmax_generic.h"
+#include "minmax_generic_parse_file.h"
 #define MAXOBJ  20
 
 
@@ -105,7 +105,7 @@ int minmax_init_commentline ( COMMLINE* commentline ) {
      commentline->ignore_pattern[i] = 0; 
      commentline->fixed_algo[i][0]  = '\0';
    }
-   commentline->numtests = -1;
+   commentline->numtests = 20;
    commentline->nprocs=-1;
    commentline->nobjects  = 0;     
    for ( i=0; i<MAXOBJ; i++) {
@@ -128,8 +128,12 @@ static int minmax_compare_perflines ( PERFLINE *perfline1, PERFLINE *perfline2 )
 static int minmax_compare_commentlines ( COMMLINE* commline1, COMMLINE* commline2 );
 static void minmax_init ( COMMLINE *commline, struct emethod ****emethods);
 static void minmax_parse_args (int argc, char ** argv); 
-static void minmax_calc_decision2 ( int nimpl, int idx_start, struct emethod **em, int numprocs, int outlier_fraction);
-static void minmax_filter_timings2 ( int nimpl, int nmeas, struct emethod **em, int numprocs, int outlier_factor );
+static void integrety_check (int nlines, COMMLINE *commentline, PERFLINE *perfline);
+static void minmax_heuristic_local (int nimpl, int nmeas, int idx_start, struct emethod **em, 
+   int nprocs, int outlier_factor );
+static void minmax_heuristic_collective (int nimpl, int nmeas, int idx_start, struct emethod **em, 
+   int nprocs, int outlier_factor );
+static void  calc_decision ( int nimpl, int idx_start, double *unf, double *filt, double *perc,  int outlier_factor ); 
 
 
  
@@ -147,7 +151,7 @@ int main (int argc, char **argv )
     FILE *infd=NULL;
     COMMLINE *commentline = NULL, *commentline_new = NULL; 
     PERFLINE *perfline = NULL; 
-    PERFLINE *perfline_new = NULL; 
+    //PERFLINE *perfline_new = NULL; 
     OBJECT *object; 
     struct emethod ***emethods;
     //int proc, obj_id, req_id, method_id, cpat, ignore_type, numtest;
@@ -166,7 +170,6 @@ int main (int argc, char **argv )
     /* Allocate memory */
     perfline = ( PERFLINE* ) malloc ( nlines * sizeof (PERFLINE) ); 
     nperflines = 0; 
-    perfline_new = ( PERFLINE* ) malloc ( sizeof (PERFLINE) ); 
     commentline = ( COMMLINE* ) malloc ( sizeof (COMMLINE) ); 
     commentline_new = ( COMMLINE* ) malloc ( sizeof (COMMLINE) ); 
 
@@ -186,61 +189,25 @@ int main (int argc, char **argv )
        if ( line[0] == '#') { 
           minmax_read_commentline ( line, commentline );
        }    
-       else { 
+       else if (line[0] == '0' && line[1] == ':') { 
           minmax_init_perfline( &perfline[i] ); //nperflines] );
           minmax_read_perfline( line, &perfline[i], commentline ); 
           //printf("%d: %s %d request %d method %d (%s) time %lf, cpat=%d, ignore=%d\n", proc, objstr, obj_id,
           //   req_id, method_id, fnctstr, time, cpat;
           nperflines++;
        }
+       else {
+            printf( "Unable to parse line %s\n", line );
+            exit (-1);
+       }
     }
     fclose ( infd );
     minmax_print_info ( commentline ); 
 
-    /* integrity check */
-    /* use information from above (nlines, commentline, perfline) and check if the other out-files 
-       - have the same size 
-       - each perfline has the same obj_id and method_id 
-       - the commentline information is the same */
+    /* integrity check, are *.out files consistent? */
     printf("\nStarting integrity check ...\n");
-    for ( iproc=1; iproc<commentline->nprocs; iproc++ ) {
-        sprintf( inname, "%d.out", iproc);
-        printf("Comparing to file %s...", inname);
-        infd = fopen ( inname, "r" );
-        if (NULL == infd ) {
-            printf("Could not open input file %s for reading\n", inname );
-            exit (-1);
-        }
+    integrety_check(nlines, commentline, perfline); 
 
-        nlines_new = minmax_get_lines( inname );
-        if ( nlines != nlines_new ) {
-           printf("proc %d: Output file sizes differ. Exiting.", iproc);
-           exit(-1);
-        }
-
-        for (i=0; i<nlines; i++) {
-           ret = fscanf ( infd, "%[^\n]\n", line );
-           if ( line[0] == '#') { 
-              minmax_read_commentline ( line, commentline_new );
-           }    
-           else { 
-              minmax_init_perfline( perfline_new );
-              minmax_read_perfline( line, perfline_new, commentline_new ); 
-              ret = minmax_compare_perflines ( &perfline[i], perfline_new);
-              if ( ret != 0 ) {
-                 printf("proc %d: line %d: Content of output file does not match. Exiting.\n", iproc, i);
-                 exit(-1);
-              }
-           }
-        }
-        fclose( infd );
-        minmax_compare_commentlines( commentline, commentline_new);
-        if ( ret != 0 ) {
-           printf("proc %d: Meta information of output file does not match. Exiting.\n", iproc);
-           exit(-1);
-        }
-        printf(" OK\n");
-    }
 
     /* Compute additional variables */
     for ( i=0; i<commentline->nobjects; i++) {
@@ -249,7 +216,7 @@ int main (int argc, char **argv )
     }
 
 
-    /* Copy performance information of 0.out in emethod-structure */
+    /* Copy performance information of *.out in emethod-structure */
     printf("\nExtracting performance data ...\n");
     minmax_init ( commentline, &emethods);
     for ( iproc=0; iproc<commentline->nprocs; iproc++ ) {
@@ -272,14 +239,13 @@ int main (int argc, char **argv )
              obj_pos = object->obj_pos;
              method_id = perfline->method_id-object->idx_range[0];
 
-             pos = emethods[obj_pos][iproc][method_id].em_rescount;
+             pos = emethods[obj_pos][iproc][method_id].em_nmeas;
              count = emethods[obj_pos][iproc][method_id].em_count;
              if ( pos < count ) { 
                  emethods[obj_pos][iproc][method_id].em_time[pos] = perfline->time;
                  //printf("obj. %d, meas %d, method %d, pos %d: time %lf\n", obj_pos, iproc, method_id, 
                  //        pos, perfline->time ); 
-                 emethods[obj_pos][iproc][method_id].em_rescount++;
-                 emethods[obj_pos][iproc][method_id].em_avg += perfline->time/count;
+                 emethods[obj_pos][iproc][method_id].em_nmeas++;
              }
           }
        }
@@ -293,34 +259,80 @@ int main (int argc, char **argv )
         if ( ! object->ignore ) { 
             for ( iproc=0; iproc<commentline->nprocs; iproc++){
                 for ( method_id=0; method_id<object->nimpl; method_id++) {
-                    for ( i=0; i<emethods[obj_id][iproc][method_id].em_rescount; i++) {
+                    for ( i=0; i<emethods[obj_id][iproc][method_id].em_nmeas; i++) {
                         printf("obj. %d, proc %d, method %d, pos %d: time %lf\n", obj_id, iproc, method_id, 
                                 i, emethods[obj_id][iproc][method_id].em_time[i]); 
 
                     }
-                    printf("obj. %d, proc %d, method %d, rescount %d, avg %lf\n", obj_id, iproc, method_id, 
-                            emethods[obj_id][iproc][method_id].em_rescount, 
-                            emethods[obj_id][iproc][method_id].em_avg ) ;
+                    printf("obj. %d, proc %d, method %d, nmeas %d\n", obj_id, iproc, method_id, 
+                            emethods[obj_id][iproc][method_id].em_nmeas ) ;
                 }
             }
         }
     }
 #endif
+#ifdef MUELL
+    double max, sum; 
+    for ( obj_id=0; obj_id<commentline->nobjects; obj_id++) {
+        object = &commentline->objects[obj_id];
+        if ( ! object->ignore ) { 
+                for ( method_id=0; method_id<8; method_id++) {
+                    for ( i=0; i<20; i++) {
+                      max = 0.0;
+                      sum = 0.0; 
+                      for ( iproc=0; iproc<32; iproc++){
+                        sum += emethods[obj_id][iproc][method_id].em_time[i]; 
+                        if ( max < emethods[obj_id][iproc][method_id].em_time[i]) {
+                            max = emethods[obj_id][iproc][method_id].em_time[i];
+                        } 
+                        //printf("obj. %d, proc %d, method %d, pos %d: time %lf\n", obj_id, iproc, method_id, 
+                        //        i, emethods[obj_id][iproc][method_id].em_time[i]); 
+
+                    }
+                    printf("%lf %lf\n", max, sum/20); 
+                    //printf("method %d, pos %d: time %lf\n", method_id, i, max); 
+                }
+            }
+        }
+    }
+#endif 
+    ////commentline->objects[0].ignore=0;
+    //for ( obj_id=0; obj_id<commentline->nobjects; obj_id++) {
+    //    printf("obj\n"); 
+    //    object = &commentline->objects[obj_id];
+    //    if ( ! object->ignore ) {
+    //        for ( method_id=0; method_id<object->nimpl; method_id++) {
+    //        printf("method\n"); 
+    //            printf("emethod\n"); 
+    //            for ( i=0; i<emethods[obj_id][0][method_id].em_nmeas; i++) {
+    //                double max = 0.0;
+    //                for ( iproc=0; iproc<commentline->nprocs; iproc++){
+    //                    printf("method %d, pos %d: time %lf\n", iproc, method_id, emethods[obj_id][iproc][method_id].em_time[i]); 
+    //                    if ( max < emethods[obj_id][iproc][method_id].em_time[i]) {
+    //                        max = emethods[obj_id][iproc][method_id].em_time[i];
+    //                    }
+    //                }
+    //                printf("method %d, pos %d: time %lf\n", method_id, i, max); 
+    //                //    printf("obj. %d, proc %d, method %d, pos %d: time %lf\n", obj_id, iproc, method_id,
+    //                //             i, emethods[obj_id][iproc][method_id].em_time[i]);
+    //            }
+    //        }
+    //    }
+    //}
 
     for ( obj_id=0; obj_id<commentline->nobjects; obj_id++) {
         object = &commentline->objects[obj_id]; 
-        if ( ! object->ignore ) { 
-            printf( "\nComputing winner for %s %d\n", object->objstr, object->obj_id ); 
-            minmax_filter_timings2 ( object->nimpl, -1, emethods[object->obj_pos],  
+        //if ( ! object->ignore ) { 
+            printf( "\ncomputing winner for %s %d\n", object->objstr, object->obj_id ); 
+            minmax_heuristic_local ( object->nimpl, -1, object->idx_range[0], emethods[object->obj_pos],  
                     commentline->nprocs, outlier_fraction ); 
-            minmax_calc_decision2 ( object->nimpl, object->idx_range[0], emethods[object->obj_pos], 
-                    commentline->nprocs, outlier_fraction);
-        }
+            minmax_heuristic_collective ( object->nimpl, -1, object->idx_range[0], emethods[object->obj_pos],  
+                    commentline->nprocs, outlier_fraction ); 
+        //}
     }
 
-    /* Free memory */
+    /* free memory */
     free(perfline);
-    free(perfline_new);
     free(commentline);
     free(commentline_new);
 
@@ -681,7 +693,7 @@ void minmax_init ( COMMLINE *commline, struct emethod ****emethods) {
                         exit (-1);
                     }
                     em[obj][iproc][iImpl].em_count    = commline->numtests;
-                    em[obj][iproc][iImpl].em_rescount = 0;
+                    em[obj][iproc][iImpl].em_nmeas = 0;
                 }
            }
         }
@@ -692,129 +704,283 @@ void minmax_init ( COMMLINE *commline, struct emethod ****emethods) {
 
 /**********************************************************************/
 /**********************************************************************/
-void minmax_calc_decision2 ( int nimpl, int idx_start, struct emethod **em, int numprocs, int outlier_fraction)
-/* based on em_avg, em_avg_filtered, and em_perc_filtered, the maximum on each proc and the  */
-/* total minimum are computed */
+void integrety_check (int nlines, COMMLINE *commentline, PERFLINE *perfline)
+/* use information from above (nlines, commentline, perfline) and check if the other out-files 
+   - have the same size 
+   - each perfline has the same obj_id and method_id 
+   - the commentline information is the same */
 {
-    struct lininf *tline_perc, *tline_unf, *tline_filt;
-    double *meth;
-    struct lininf tline_avg, tline_filtered_avg, tline_new;
-    int i, j;
+    int nlines_new=-1; //, nperflines = 0; 
+    int ret, i, proc, iproc; 
+    char line[MAXLINE], inname[MAXLINE];
 
-    tline_perc  = (struct lininf *) malloc ( sizeof(struct lininf) * nimpl );
-    tline_unf   = (struct lininf *) malloc ( sizeof(struct lininf) * nimpl );
-    tline_filt  = (struct lininf *) malloc ( sizeof(struct lininf) * nimpl );
-    meth  = (double *) malloc ( sizeof(double) * nimpl );
-    if ( NULL == tline_perc || NULL == tline_unf || NULL == tline_filt || NULL == meth) {
-        printf("minmax_calc_decision: could not allocate memory\n");
-        exit (-1);
+    FILE *infd=NULL;
+    COMMLINE *commentline_new = NULL; 
+    PERFLINE *perfline_new = NULL; 
+    
+    perfline_new = ( PERFLINE* ) malloc ( sizeof (PERFLINE) ); 
+    commentline_new = ( COMMLINE* ) malloc ( sizeof (COMMLINE) ); 
+
+    for ( iproc=1; iproc<commentline->nprocs; iproc++ ) {
+        sprintf( inname, "%d.out", iproc);
+        printf("Comparing to file %s...", inname);
+        infd = fopen ( inname, "r" );
+        if (NULL == infd ) {
+            printf("Could not open input file %s for reading\n", inname );
+            exit (-1);
+        }
+
+        nlines_new = minmax_get_lines( inname );
+        if ( nlines != nlines_new ) {
+           printf("proc %d: Output file sizes differ. Exiting.", iproc);
+           exit(-1);
+        }
+
+        for (i=0; i<nlines; i++) {
+           ret = fscanf ( infd, "%[^\n]\n", line );
+           if ( line[0] == '#') { 
+              minmax_read_commentline ( line, commentline_new );
+           }    
+           else { 
+              minmax_init_perfline( perfline_new );
+              minmax_read_perfline( line, perfline_new, commentline_new ); 
+              ret = minmax_compare_perflines ( &perfline[i], perfline_new);
+              if ( ret != 0 ) {
+                 printf("proc %d: line %d: Content of output file does not match. Exiting.\n", iproc, i);
+                 exit(-1);
+              }
+           }
+        }
+        fclose( infd );
+        minmax_compare_commentlines( commentline, commentline_new);
+        if ( ret != 0 ) {
+           printf("proc %d: Meta information of output file does not match. Exiting.\n", iproc);
+           exit(-1);
+        }
+        printf(" OK\n");
     }
 
-    /* get maximum of unfiltered, filtered and filtered percentage together with location on each proc */
-    for (j=0; j<nimpl; j++ ) {
-        TLINE_INIT(tline_perc[j]);
-        TLINE_INIT(tline_unf[j]);
-        TLINE_INIT(tline_filt[j]);
-        for (i=0; i<numprocs; i++ ) {
-            TLINE_MAX(tline_unf[j], em[i][j].em_avg, i);
-            TLINE_MAX(tline_filt[j], em[i][j].em_avg_filtered, i);
-            TLINE_MAX(tline_perc[j], em[i][j].em_perc_filtered, i);
-        }
-    }
-
-    TLINE_INIT (tline_avg);
-    TLINE_INIT (tline_filtered_avg);
-    TLINE_INIT (tline_new);
-    for ( j=0; j<nimpl; j++  ) {
-        TLINE_MIN (tline_avg, tline_unf[j].max, j);
-        TLINE_MIN (tline_filtered_avg, tline_filt[j].max, j);
-
-        printf("%d: result: ", j);
-        if ( tline_perc[j].max > outlier_fraction ) {
-            meth[j] = tline_unf[j].max;
-            printf("%lf :uf: ", tline_unf[j].max );
-        }
-        else {
-            meth[j] = tline_filt[j].max;
-            printf("%lf : f: ", tline_filt[j].max );
-        }
-        TLINE_MIN(tline_new, meth[j], j);
-        printf (" unfiltered: %lf filtered: %lf perc: %lf\n",
-               tline_unf[j].max, tline_filt[j].max, tline_perc[j].max );
-    }
-
-    printf("New decision winner is %d \n", tline_new.minloc + idx_start );
-    if ( tline_perc[tline_filtered_avg.minloc].max < outlier_fraction )
-       printf ("Prev. decision winner is %d (filtered)\n", tline_filtered_avg.minloc + idx_start);
-    else
-       printf ("Prev. decision winner is %d (unfiltered)\n", tline_avg.minloc + idx_start );
-
-    free ( tline_perc );
-    free ( tline_unf);
-    free ( tline_filt);
-    free ( meth);
-
-    return;
+    free(perfline_new);
+    free(commentline_new);
 }
 
 /**************************************************************************************************/
-void minmax_filter_timings2 ( int nimpl, int nmeas, struct emethod **em, int nprocs, int outlier_factor ) 
+void filter_timings ( int nmeas_tot, int nmeas_use, int outlier_factor, double *time, 
+   double *avg, double *avg_filtered, double *perc_filtered )
 /**************************************************************************************************/
-/* determines em_cnt_outliers, em_cnt_filtered, em_sum_filtered, em_average_filtered              */
-/* and em_perc_filtered                                                                           */
-/* nimpl          - number of implementation / methods                                            */
-/* nmeas          - #measurements (optional, for early stopping criterion)                        */
-/*                  if <=0 use em[i][j].em_rescount, else use nmeas                               */
-/* em             - emethod object                                                                */
+/* determines average, filtered average and percentage of filtered measurements for array of      */
+/* measurements time                                                                              */ 
+/* IN                                                                                             */
+/* nmeas_tot      - total #measurements, length of array time                                     */
+/* nmeas_max      - -1 or #measurements used for evaluation (optional)                            */
+/* outlier_factor - measurements larger than outlier_factor * min are considered as outliers      */
+/* time           - array of measurements                                                         */
+/* OUT                                                                                            */
+/* avg            - computed mean                                                                 */
+/* avg_filtered   - filtered mean                                                                 */
+/* perc_filtered  - percentage of filtered data                                                   */
+/**************************************************************************************************/
+/* based on em_avg, em_avg_filtered, and em_perc_filtered, the maximum on each proc and the  */
+/* total minimum are computed */
+{
+   int k, nmeas, cnt_outliers;
+   double sum, sum_filtered, min;
+
+   if ( 0 < nmeas_use  && nmeas_use < nmeas_tot) {
+      nmeas = nmeas_use;
+   }
+   else {
+      nmeas = nmeas_tot;
+   }
+
+   sum = 0.0;
+   sum_filtered = 0.0;
+   cnt_outliers= 0;
+
+   /* Determine the min value for */
+   for ( min=1.0E15, k=0; k<nmeas; k++ ) {
+      if ( time[k] < min ) { min = time[k]; }
+   }
+
+   /* Count how many values are N times larger than the min and
+      mark those as outliers, sum up execution times of other values */
+   for ( k=0; k<nmeas; k++ ) {
+      sum += time[k]; 
+      if ( time[k] >= (outlier_factor * min) ) {
+          //em[iproc][method_id].em_poison[k] = 1;   // set to use minmax_calc_per_iteration */
+          cnt_outliers++;
+#ifdef DEBUG
+//            printf("#%d: request %d method %d meas. %d is outlier %lf min %lf\n",
+//                   iproc, r_id, method_id, k,  time[method_id], min );
+#endif
+      }
+      else {
+         sum_filtered += time[k];
+      }
+   }
+
+   /* calculate average (filtered) time and outlier percentage */
+   *avg           = sum / nmeas; 
+   *avg_filtered  = sum_filtered / (nmeas - cnt_outliers);
+   *perc_filtered = 100 * cnt_outliers / nmeas;
+
+   return; 
+}
+
+/**************************************************************************************************/
+void minmax_heuristic_local ( int nimpl, int nmeas_max, int idx_start, struct emethod **em, 
+   int nprocs, int outlier_factor ) 
+/**************************************************************************************************/
+/* applies local flavor heuristic                                                                 */
+/* - computes local (filtered) averages                                                           */
+/* - maximizes over processors                                                                    */
+/* - minimizes to find best implementation                                                        */
+/*                                                                                                */
+/* nimpl          - #implementations / methods                                                    */
+/* nmeas_max      - -1 or #measurements used for evaluation (optional)                            */
+/* idx_start      - offset of implementation                                                      */
+/* em             - emethod object,  em[nobjects][nprocs][nimpl]                                  */
 /* nprocs         - number of processes                                                           */
 /* outlier_factor - measurements larger than outlier_factor * min are considered as outliers      */
 /**************************************************************************************************/
 {
-   int i, j, k, rescount;
-   double min;
+   int iproc, method_id, impl; // , nmeas;
+   double *filt, *unf, *perc;
+   double timpl, tmin, tmin_heuristic;
+   int  minloc, minloc_heuristic;
+   char isfilt_str[2], isfilt_min[2];
 
-   for (i=0; i<nprocs; i++ ) {
-      for ( j=0; j<nimpl; j++ ) {
-         if ( 0 < nmeas ) {
-            rescount = nmeas;
-         }
-         else {
-            rescount = em[i][j].em_rescount;
-         }
+   unf   = (double *) malloc ( nimpl * sizeof(double) );
+   filt  = (double *) malloc ( nimpl * sizeof(double) );
+   perc  = (double *) malloc ( nimpl * sizeof(double) );
 
-         em[i][j].em_sum_filtered = 0.0;
-         em[i][j].em_cnt_outliers= 0;
-         em[i][j].em_avg_filtered = 0.0;
-
-         /* Determine the min  value for method [i][j]*/
-         for ( min=999999, k=0; k<rescount; k++ ) {
-            if ( em[i][j].em_time[k] < min ) {
-                min = em[i][j].em_time[k];
-            }
-         }
-
-         /* Count how many values are N times larger than the min and
-            mark those as outliers, sum up execution times of other values */
-         for ( k=0; k<rescount; k++ ) {
-            if ( em[i][j].em_time[k] >= (outlier_factor * min) ) {
-                em[i][j].em_poison[k] = 1;   // set to use minmax_calc_per_iteration */
-                em[i][j].em_cnt_outliers++;
-#ifdef DEBUG
-            printf("#%d: request %d method %d meas. %d is outlier %lf min %lf\n",
-                   i, r_id, j, k,  em[i][j].em_time[j], min );
-#endif
-            }
-            else {
-               em[i][j].em_sum_filtered += em[i][j].em_time[k];
-            }
-         }
-         em[i][j].em_cnt_filtered = rescount - em[i][j].em_cnt_outliers;
-
-         /* calculate average (filtered) time and outlier percentage */
-         em[i][j].em_avg_filtered  = em[i][j].em_sum_filtered / em[i][j].em_cnt_filtered;
-         em[i][j].em_perc_filtered = 100 * em[i][j].em_cnt_outliers / rescount;
+   /* compute (filtered) averages for each method on each process */
+   for (iproc=0; iproc<nprocs; iproc++ ) {
+      for ( method_id=0; method_id<nimpl; method_id++ ) {
+         filter_timings ( em[iproc][method_id].em_nmeas, nmeas_max, outlier_factor, em[iproc][method_id].em_time,  
+             &em[iproc][method_id].em_avg, &em[iproc][method_id].em_avg_filtered, &em[iproc][method_id].em_perc_filtered );
       }
    }
+         
+   /* calculate for each implementation max over all procs */
+   for (method_id=0; method_id<nimpl; method_id++ ) {
+       perc[method_id] = 0.0;
+       unf[method_id]  = 0.0;
+       filt[method_id] = 0.0;
+       for (iproc=0; iproc<nprocs; iproc++ ) {
+           MAX ( unf[method_id],  em[iproc][method_id].em_avg           );
+           MAX ( filt[method_id], em[iproc][method_id].em_avg_filtered  );
+           MAX ( perc[method_id], em[iproc][method_id].em_perc_filtered );
+       }
+   }
+
+   printf("Local heuristic:\n"); 
+   calc_decision ( nimpl, idx_start, unf, filt, perc, outlier_factor );
+
+   free (unf);
+   free (filt);
+   free (perc);
+
+   return;
+}
+
+/**************************************************************************************************/
+void minmax_heuristic_collective ( int nimpl, int nmeas_max, int idx_start, struct emethod **em, 
+   int nprocs, int outlier_factor ) 
+/**************************************************************************************************/
+/* applies collective flavor heuristic                                                            */
+/* - maximizes over processes                                                                     */
+/* - computes (filtered) averages                                                                 */
+/* - minimizes to find best implementation                                                        */
+/*                                                                                                */
+/* nimpl          - #implementations / methods                                                    */
+/* nmeas_max      - -1 or #measurements used for evaluation (optional)                            */
+/* idx_start      - offset of implementation                                                      */
+/* em             - emethod object,  em[nobjects][nprocs][nimpl]                                  */
+/* nprocs         - number of processes                                                           */
+/* outlier_factor - measurements larger than outlier_factor * min are considered as outliers      */
+/**************************************************************************************************/
+{
+   int iproc, method_id, impl, imeas, nmeas;
+   double *filt, *unf, *perc;
+   double *timings;
+
+   timings  = (double *) malloc ( nmeas * sizeof(double) );
+   unf      = (double *) malloc ( nimpl * sizeof(double) );
+   filt     = (double *) malloc ( nimpl * sizeof(double) );
+   perc     = (double *) malloc ( nimpl * sizeof(double) );
+
+   nmeas = em[0][0].em_nmeas;
+   for ( method_id=0; method_id<nimpl; method_id++ ) {
+      /* calculate for each measurement max over all procs */
+      for ( imeas=0; imeas<nmeas; imeas++ ) { /* does not hurt to compute max forall measurements */
+         timings[imeas] = 0.0;
+         for (iproc=0; iproc<nprocs; iproc++ ) {
+             MAX (timings[imeas], em[iproc][method_id].em_time[imeas]);
+         }
+      }
+
+      /* compute (filtered) averages for each method */
+      filter_timings ( nmeas,  nmeas_max, outlier_factor, timings,  
+         &unf[method_id], &filt[method_id], &perc[method_id] );
+   }
+
+   printf("Collective heuristic:\n"); 
+   calc_decision ( nimpl, idx_start, unf, filt, perc, outlier_factor );
+
+   free (timings);
+   free (unf);
+   free(filt);
+   free (perc);
+
+   return;
+}
+
+/**************************************************************************************************/
+void  calc_decision ( int nimpl, int idx_start, double *unf, double *filt, double *perc,  
+   int outlier_factor ) 
+/**************************************************************************************************/
+/* does the last step of the heuristic (finding the best implementation out of an array with      */
+/* estimated execution times for each implementation) and prints results                          */
+/**************************************************************************************************/
+{
+   int iproc, method_id, impl, imeas, nmeas;
+   double timpl, tmin, tmin_heuristic;
+   int  minloc, minloc_heuristic;
+   char isfilt_str[2], isfilt_min[2];
+
+   tmin           = 1.E15;
+   tmin_heuristic = 1.E15;
+   /* calculate minimum communication time over all implementations */
+   for ( method_id=0; method_id<nimpl; method_id++ ) {
+      /* min without heuristic */
+      if ( tmin > unf[method_id] ) {
+           tmin   = unf[method_id];  
+           minloc = method_id;
+      }
+
+      /* min  with heuristic */
+      if ( perc[method_id] > outlier_fraction ) {
+         strcpy(isfilt_str, "uf");
+         timpl = unf[method_id];
+      }
+      else {
+         strcpy(isfilt_str, "f");
+         timpl = filt[method_id]; 
+      }
+
+      if ( tmin_heuristic >  timpl ) {
+         tmin_heuristic = timpl;
+         minloc_heuristic = method_id;
+         strcpy(isfilt_min, isfilt_str);
+      } 
+
+      printf ("%d: result: %lf : %s :  unfiltered: %lf filtered: %lf perc: %lf\n",
+              method_id, timpl, isfilt_str,  unf[method_id], filt[method_id], perc[method_id] );
+   }
+
+   printf("Without filtering: winner is %d\n", minloc + idx_start ); 
+   printf("With    filtering: winner is %d (%s)\n\n", minloc_heuristic + idx_start, isfilt_str);
 
    return;
 }
