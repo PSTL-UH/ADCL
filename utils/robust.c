@@ -768,7 +768,7 @@ int  gsl_minimize_loglikelihood(const double step_size, const double tol,
    sigma2 =  gsl_vector_get(x0, 1);
    if (isnan(sigma2)){
      printf("!!! sigma2 is nan\n");
-     printf("%5d %15.5f %15.5f", iter, 
+     printf("%5d %15.5f %15.5f", *iter, 
      gsl_vector_get(s->x, 0),
      sqrt(gsl_vector_get(s->x, 1)));
      if (nu == 0.0) printf("%15.5f", gsl_vector_get(s->x, 2));
@@ -867,7 +867,7 @@ int  gsl_minimize_loglikelihood_old(const double step_size, const double tol,
    } while (my_iter < 10);
   if (*iter > maxiter){
      printf("!!! sigma2 is nan\n");
-     printf("%5d %15.5f %15.5f", iter, 
+     printf("%5d %15.5f %15.5f", *iter, 
      gsl_vector_get(s->x, 0),
      sqrt(gsl_vector_get(s->x, 1)));
      if (nu == 0.0) printf("%15.5f", gsl_vector_get(s->x, 2));
