@@ -15,7 +15,7 @@
 #include "minmax_generic_parse_file.h"
 
 
-void init_cluster_vars(const int ndata, double *data);
+void init_cluster_vars(const int ndata, double *data, double outlier_fraction);
 int HierarchicalClusterAnalysis(char metric, int transpose, char method,
    double* avg, int* nfilt);
 void free_cluster_vars();
@@ -76,7 +76,7 @@ void filter_heuristic ( int nmeas, int outlier_factor, double *time,
    /* calculate average (filtered) time and outlier percentage */
    *avg           = sum / nmeas; 
    *avg_filtered  = sum_filtered / (nmeas - cnt_outliers);
-   *perc_filtered = 100 * cnt_outliers / nmeas;
+   *perc_filtered = (100. * cnt_outliers) / nmeas;
 
    return; 
 }
@@ -172,7 +172,7 @@ void minmax_heuristic_collective ( int nimpl, int nmeas, int idx_start, double *
    }
 
    printf("Collective heuristic:\n"); 
-   calc_decision_heuristic ( nimpl, idx_start, unf, filt, perc, outlier_factor );
+   calc_decision_heuristic ( nimpl, idx_start, unf, filt, perc, outlier_fraction );
 
    free (unf);
    free(filt);
@@ -335,7 +335,7 @@ void minmax_iqr_collective ( int nimpl, int nmeas, int idx_start, double **timin
 }
 
 /**************************************************************************************************/
-static void filter_iqr ( int nmeas, double *time, double *avg_filtered, double *perc_filtered )
+void filter_iqr ( int nmeas, double *time, double *avg_filtered, double *perc_filtered )
 /**************************************************************************************************/
 /* determines filtered average and percentage of filtered measurements for array of               */
 /* measurements                                                                                   */ 
@@ -349,6 +349,7 @@ static void filter_iqr ( int nmeas, double *time, double *avg_filtered, double *
 {
    int    imeas;
    double sum_filtered;
+   int    idx_m, idx_q;
    double median, q1, q3, iqr;
    double llimit, ulimit;
    int    cnt_outliers;
@@ -361,6 +362,7 @@ static void filter_iqr ( int nmeas, double *time, double *avg_filtered, double *
        median = 0.5 * ( time[ nmeas/2-1 ]  + time[ nmeas/2 ] ); 
        q1     = 0.5 * ( time[ nmeas/4-1 ]  + time[ nmeas/4 ] );
        q3     = 0.5 * ( time[ (nmeas*3)/4-1 ]  + time[ (nmeas*3)/4 ] );
+   }
    else if ( nmeas % 4 == 1 ){
        idx_q  = (nmeas - 1)/4; 
      
@@ -374,14 +376,18 @@ static void filter_iqr ( int nmeas, double *time, double *avg_filtered, double *
 
        median = 0.5 * ( time[ idx_m ]  + time[ idx_m+1 ] ); 
        q1     = time[ idx_q ] ;
-       q3     = time[ (idx_q*3)/4+1 ];
+       q3     = time[ nmeas-idx_q-1 ];
    }
    else {
        median = time[ (nmeas-1)/2 ]; 
        idx_q  = (nmeas - 3)/4; 
        q1     = time[ idx_q ] ;
-       q3     = time[ (idx_q*3)/4+2 ];
+       q3     = time[ nmeas-idx_q-1 ];
    }
+
+#ifdef DEBUG
+   printf("%d: q1 %lf, median %lf, q3 %lf\n", nmeas, q1, median, q3);
+#endif
 
    /* calculate IQR and limits */	    
    iqr = q3 - q1; 
@@ -403,11 +409,41 @@ static void filter_iqr ( int nmeas, double *time, double *avg_filtered, double *
    }
 
    *avg_filtered  = sum_filtered / (nmeas - cnt_outliers);
-   *perc_filtered = 100 * cnt_outliers/ nmeas;	    
+   *perc_filtered = (100. * cnt_outliers) / nmeas;	    
 
    return;
 }
 
+
+/**************************************************************************************************/
+void test_filter_iqr ( )
+/**************************************************************************************************/
+/* unit test for filter_iqr                                                                       */
+/**************************************************************************************************/
+{
+    double *test;
+    double avg_filt, perc_filt;
+
+    test = malloc (12 * sizeof(double));
+    test[0] = 0; test[1] = 1; test[2] = 2; test[3] = 3; test[4] = 4; test[5] = 5;
+    test[6] = 6; test[7] = 7; test[8] = 8; test[9] = 9; test[10] = 10; test[11] = 11;
+
+    filter_iqr (8, test, &avg_filt, &perc_filt);
+    filter_iqr (9, test, &avg_filt, &perc_filt);
+    filter_iqr (10, test, &avg_filt, &perc_filt);
+    filter_iqr (11, test, &avg_filt, &perc_filt);
+
+    free (test);
+
+    /* output should be:
+       8: q1 1.500000, median 3.500000, q3 5.500000
+       9: q1 1.500000, median 4.000000, q3 6.500000
+       10: q1 2.000000, median 4.500000, q3 7.000000
+       11: q1 2.000000, median 5.000000, q3 8.000000
+    */
+
+    return;
+}
 
 /**************************************************************************************************/
 /**************************************************************************************************/
@@ -416,7 +452,8 @@ static void filter_iqr ( int nmeas, double *time, double *avg_filtered, double *
 /**************************************************************************************************/
 
 /**************************************************************************************************/
-void minmax_cluster_local ( int nimpl, int nmeas, int idx_start, struct emethod **em, int nprocs ) 
+void minmax_cluster_local ( int nimpl, int nmeas, int idx_start, struct emethod **em, int nprocs, 
+   double outlier_fraction ) 
 /**************************************************************************************************/
 {
     int iproc, method_id;
@@ -429,9 +466,9 @@ void minmax_cluster_local ( int nimpl, int nmeas, int idx_start, struct emethod 
     /* Calculate the median of all measurement series */
     for (iproc=0; iproc < nprocs; iproc++ ) {
 	for ( method_id=0; method_id<nimpl; method_id++ ) {
-            init_cluster_vars(nmeas, em[iproc][method_id].em_time);
+            init_cluster_vars(nmeas, em[iproc][method_id].em_time, outlier_fraction);
 	    HierarchicalClusterAnalysis(genemetric, 0, method, &(em[iproc][method_id].em_avg_filtered), &nfilt);
-            em[iproc][method_id].em_perc_filtered = nfilt / nmeas;
+            em[iproc][method_id].em_perc_filtered = (100. * nfilt) / nmeas;
             free_cluster_vars();
 	}	
     }
@@ -461,7 +498,8 @@ void minmax_cluster_local ( int nimpl, int nmeas, int idx_start, struct emethod 
 }
 
 /**************************************************************************************************/
-void minmax_cluster_collective ( int nimpl, int nmeas, int idx_start, double **timings, int nprocs ) 
+void minmax_cluster_collective ( int nimpl, int nmeas, int idx_start, double **timings, int nprocs, 
+     double outlier_fraction ) 
 /**************************************************************************************************/
 /* applies collective flavor cluster                                                              */
 /* - computes (filtered) averages                                                                 */
@@ -486,9 +524,9 @@ void minmax_cluster_collective ( int nimpl, int nmeas, int idx_start, double **t
     tmin = 1.E15;
     for ( method_id=0; method_id<nimpl; method_id++ ) {
        /* compute (filtered) averages for each method */
-       init_cluster_vars(nmeas, timings[method_id]);
+       init_cluster_vars(nmeas, timings[method_id], outlier_fraction );
        HierarchicalClusterAnalysis(genemetric, 0, method, &timpl, &nfilt);
-       perc = nfilt / nmeas;
+       perc = (100. * nfilt) / nmeas;
        free_cluster_vars();
        printf("%d : avg. filtered %lf perc. filtered %lf\n", method_id, timpl, perc );
 
@@ -583,7 +621,7 @@ void minmax_robust_collective ( int nimpl, int nmeas, int idx_start, double **ti
 /**************************************************************************************************/
 {
     int method_id;
-    double timpl, tmin, perc;
+    double timpl, tmin;
     int    minloc;
     double nu, sigma, val;
 

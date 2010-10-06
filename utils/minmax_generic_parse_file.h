@@ -86,10 +86,10 @@ static void calc_decision_heuristic ( int nimpl, int idx_start, double *unf, dou
 
 void minmax_iqr_local ( int nimpl, int nmeas, int idx_start, struct emethod **em, int nprocs );
 void minmax_iqr_collective ( int nimpl, int nmeas, int idx_start, double **timings, int nprocs );
-static void filter_iqr ( int nmeas, double *time, double *avg_filtered, double *perc_filtered );
+void filter_iqr ( int nmeas, double *time, double *avg_filtered, double *perc_filtered );
 
-void minmax_cluster_local ( int nimpl, int nmeas, int idx_start, struct emethod **em, int nprocs ) ;
-void minmax_cluster_collective ( int nimpl, int nmeas, int idx_start, double **timings, int nprocs ) ;
+void minmax_cluster_local ( int nimpl, int nmeas, int idx_start, struct emethod **em, int nprocs, double outlier_fraction ) ;
+void minmax_cluster_collective ( int nimpl, int nmeas, int idx_start, double **timings, int nprocs, double outlier_fraction  ) ;
 
 void minmax_robust_local ( int nimpl, int nmeas, int idx_start, struct emethod **em, int nprocs ) ;
 void minmax_robust_collective ( int nimpl, int nmeas, int idx_start, double **timings, int nprocs );

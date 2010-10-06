@@ -410,15 +410,15 @@ void minmax_calc_statistics ( int r, struct emethod **em, char *filename )
 	    qsort ( em[i][j].em_time, em[i][j].em_rescount, sizeof(double), 
 		    tcompare );
 	    if ( em[i][j].em_rescount % 2 == 0 ) {
-		em[i][j].em_median = ( em[i][j].em_time[ em[i][j].em_rescount/2 ]  + 
-				       em[i][j].em_time[(em[i][j].em_rescount/2) + 1 ] ) /2; 
+		em[i][j].em_median = ( em[i][j].em_time[ em[i][j].em_rescount/2 -1 ]  + 
+				       em[i][j].em_time[(em[i][j].em_rescount/2)  ] ) /2; 
 	    }
 	    else {
-		em[i][j].em_median = em[i][j].em_time[ (em[i][j].em_rescount/2)+1];
+		em[i][j].em_median = em[i][j].em_time[ (em[i][j].em_rescount/2)];
 	    }
 	    
-	    em[i][j].em_1stquartile = em[i][j].em_time[ em[i][j].em_rescount / 4 ];
-	    em[i][j].em_3rdquartile = em[i][j].em_time[ em[i][j].em_rescount * 3 / 4 ];
+	    em[i][j].em_1stquartile = em[i][j].em_time[ em[i][j].em_rescount / 4 -1];
+	    em[i][j].em_3rdquartile = em[i][j].em_time[ em[i][j].em_rescount * 3/4 -1 ];
 	    em[i][j].em_iqr = em[i][j].em_3rdquartile - em[i][j].em_1stquartile; 
 	    em[i][j].em_llimit = em[i][j].em_1stquartile  - (1.5 * em[i][j].em_iqr);
 	    em[i][j].em_ulimit = em[i][j].em_3rdquartile  + (1.5 * em[i][j].em_iqr);

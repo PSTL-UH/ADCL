@@ -30,6 +30,16 @@ minmax: minmax.c robust.c cluster.c cluster_data.c cluster_cluster.c data.h clus
 	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -o minmax minmax.c robust.o cluster_data.o \
             cluster_cluster.o cluster.o $(GSL_LD_FLAGS)
 
+minmax_generic_parse_file: minmax_generic_parse_file.c robust.c cluster.c cluster_data.c cluster_cluster.c \
+		data.h cluster.h minmax_generic_parse_file.h 
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c robust.c # brent.c f1dim.c lnsrch.c dfpmin.c \
+	# linmin.c  mnbrak.c  nrutil.c  powell.c #amoeba.c amotry.c
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c cluster.c
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c cluster_data.c
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -c cluster_cluster.c
+	$(CC) $(CFLAGS) $(GSL_INC_FLAGS) -o minmax_generic_parse_file minmax_generic_parse_file.c calc_statistics_methods.c \
+		robust.o cluster_data.o cluster_cluster.o cluster.o $(GSL_LD_FLAGS)
+
 iterations: iterations.c
 	$(CC) $(CFLAGS) -o iterations iterations.c 
 

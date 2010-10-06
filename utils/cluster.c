@@ -9,7 +9,6 @@
 #include "data.h"      /* Includes data handling and file reading/writing */
                        /* The routines in the C Clustering Library are called */
                        /* from data.c. */
-extern int outlier_fraction;
 
 int nmaxOutlier;
 double tol;
@@ -246,7 +245,7 @@ int HierarchicalClusterAnalysis(char metric, int transpose, char method,
   return 1;
 }
 
-void init_cluster_vars(const int ndata, double *data){
+void init_cluster_vars(const int ndata, double *data, double outlier_fraction){
    int row, column, n;
 
    nmaxOutlier = outlier_fraction * ndata / 100 ;

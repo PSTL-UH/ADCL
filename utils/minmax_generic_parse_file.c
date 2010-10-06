@@ -17,8 +17,9 @@
 
 //int deconly; 
 //extern int output_files;
-int outlier_factor=3;
-int outlier_fraction=20;
+static int local_outlier_factor=3;
+static int collective_outlier_factor=2;
+static int outlier_fraction=20;
 int nmeas_use;
  
 static void minmax_read_perfline( char* line, PERFLINE* perfline, 
@@ -262,28 +263,28 @@ int main (int argc, char **argv )
         printf( "\ncomputing winner for %s %d\n", object->objstr, object->obj_id ); 
         /* heuristic */
         //minmax_heuristic_local ( object->nimpl, nmeas, object->idx_range[0], emethods[object->obj_pos],  
-        //        commentline->nprocs, outlier_factor, outlier_fraction ); 
-        //minmax_heuristic_collective ( object->nimpl, nmeas, object->idx_range[0], timings,  
-        //        commentline->nprocs, outlier_factor, outlier_fraction ); 
+        //        commentline->nprocs, local_outlier_factor, outlier_fraction ); 
+        minmax_heuristic_collective ( object->nimpl, nmeas, object->idx_range[0], timings,  
+                commentline->nprocs, collective_outlier_factor, outlier_fraction ); 
 
         /* iqr */
-//        minmax_iqr_local ( object->nimpl, nmeas, object->idx_range[0], emethods[object->obj_pos],  
-//                commentline->nprocs ); 
+        minmax_iqr_local ( object->nimpl, nmeas, object->idx_range[0], emethods[object->obj_pos],  
+                commentline->nprocs ); 
         minmax_iqr_collective ( object->nimpl, nmeas, object->idx_range[0], timings,  
                 commentline->nprocs ); 
-//
+
         /* cluster analysis */
-//        minmax_cluster_local ( object->nimpl, nmeas, object->idx_range[0], emethods[object->obj_pos],  
-//                commentline->nprocs ); 
-//        minmax_cluster_collective ( object->nimpl, nmeas, object->idx_range[0], timings,  
-//                commentline->nprocs ); 
+        minmax_cluster_local ( object->nimpl, nmeas, object->idx_range[0], emethods[object->obj_pos],  
+                commentline->nprocs, outlier_fraction ); 
+        minmax_cluster_collective ( object->nimpl, nmeas, object->idx_range[0], timings,  
+                commentline->nprocs, outlier_fraction ); 
 
 #if defined(GSL) || defined(NR)
-//        /* robust statistics */
-//        minmax_robust_local ( object->nimpl, nmeas, object->idx_range[0], emethods[object->obj_pos],  
-//                commentline->nprocs ); 
-//        minmax_robust_collective ( object->nimpl, nmeas, object->idx_range[0], timings,  
-//                commentline->nprocs ); 
+        /* robust statistics */
+        minmax_robust_local ( object->nimpl, nmeas, object->idx_range[0], emethods[object->obj_pos],  
+                commentline->nprocs ); 
+        minmax_robust_collective ( object->nimpl, nmeas, object->idx_range[0], timings,  
+                commentline->nprocs ); 
 #endif
 
         free (timings);
@@ -592,10 +593,11 @@ void minmax_parse_args (int argc, char ** argv) {
           printf("   determines for each individual measurement the minimal and \n");
           printf("   maximual value across all processes and the according locations\n");
           printf(" Options: \n");
-          printf("   -ofiles      : write output files \n");
-          printf("   -ofraction   : outlier fraction to be used \n");
-          printf("   -ofactor     : outlier factor to be used \n");
-          printf("   -nmeas       : number of measurements taken into account for the evaluation \n");
+          printf("   -ofiles       : write output files \n");
+          printf("   -ofraction    : outlier fraction to be used \n");
+          printf("   -ofactor_loc  : outlier factor for local flavor statistics \n");
+          printf("   -ofactor_coll : outlier factor for collective flavor statistics \n");
+          printf("   -nmeas        : number of measurements taken into account for the evaluation \n");
 
           exit ( 1 ) ;
        }
@@ -603,9 +605,13 @@ void minmax_parse_args (int argc, char ** argv) {
        //    deconly=1;
        //    output_files = 1;
        //}
-       else if ( strncmp(argv[tmpargc], "-ofactor", strlen("-ofactor") )== 0 ) {
+       else if ( strncmp(argv[tmpargc], "-ofactor_coll", strlen("-ofactor_coll") )== 0 ) {
            tmpargc++;
-           outlier_factor = atoi ( argv[tmpargc] );
+           collective_outlier_factor = atoi ( argv[tmpargc] );
+       }
+       else if ( strncmp(argv[tmpargc], "-ofactor_loc", strlen("-ofactor_loc") )== 0 ) {
+           tmpargc++;
+           local_outlier_factor = atoi ( argv[tmpargc] );
        }
        else if ( strncmp(argv[tmpargc], "-ofraction", strlen("-ofraction") )== 0 ) {
            tmpargc++;

@@ -14,7 +14,7 @@ struct lininf {
 
 struct emethod{
     int     em_count;
-    int     em_rescount;
+    int     em_rescount;  /* number of measurements read so far */
     double  *em_time;
     int     *em_poison;
     int     em_num_outliers;
