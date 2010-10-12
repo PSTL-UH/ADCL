@@ -122,9 +122,14 @@ int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e )
              hypo->h_attr_hypothesis[loop] != ADCL_ATTR_NOT_SET        &&
              attrset->as_attrs[loop]->a_maxnvalues > 1 ) {
             ret = ADCL_CHANGE_OCCURED;
-            DISPLAY ((ADCL_DISPLAY_MESSAGE, e->em_id, "Function set:%d %s, attribute %d %s reached threshhold, ptimal value:%d", 
+            DISPLAY ((ADCL_DISPLAY_MESSAGE, e->em_id, "Function set:%d %s, attribute %d %s reached threshold, optimal value:%d", 
 	              e->em_orgfnctset->fs_id, e->em_orgfnctset->fs_name, attrset->as_attrs[loop]->a_id, 
 		      attrset->as_attrs[loop]->a_attr_name, hypo->h_attr_hypothesis[loop] ));
+
+            ADCL_printf("Function set:%d %s, attribute %d %s reached threshold, optimal value:%d", 
+	              e->em_orgfnctset->fs_id, e->em_orgfnctset->fs_name, attrset->as_attrs[loop]->a_id, 
+		      attrset->as_attrs[loop]->a_attr_name, hypo->h_attr_hypothesis[loop] );
+
             ADCL_hypothesis_shrinklist_byattr( e, loop,
                                                hypo->h_attr_hypothesis[loop]);
         }

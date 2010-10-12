@@ -6,6 +6,7 @@
 #define MAXMSGBUFSIZE 1024
 #define MAXFUNCNAME 28
 #define MAXOBJNAME 8
+#define MAXFNCTSETNAME 32
 
 char ADCL_display_ip[MAXLEN] = "172.25.66.95";
 int ADCL_display_port = 20000;
@@ -40,7 +41,8 @@ typedef struct
 typedef struct
 {
 	char objname[MAXOBJNAME];
-	int objid;
+        char fnctsetname[MAXFNCTSETNAME];
+	int fnctsetid;
 	int funcid;
 }winner_decided;
 
@@ -140,7 +142,8 @@ int ADCL_display(int type,...)
 		{
 			winner_decided winner;	
 			vsprintf(winner.objname,va_arg(ap,char*),ap);
-			winner.objid = va_arg(ap,int);
+			winner.fnctsetid = va_arg(ap,int);
+                        vsprintf(winner.fnctsetname,va_arg(ap,char*),ap);
 			winner.funcid = va_arg(ap,int);
 			head.len = sizeof(winner);
 			write_header(sock,head);

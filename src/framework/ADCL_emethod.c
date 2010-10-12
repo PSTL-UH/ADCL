@@ -400,10 +400,12 @@ ADCL_function_t*  ADCL_emethod_get_function_by_state
                                          em->em_fnctset.fs_maxnum);
         em->em_last    = tmp;
         em->em_wfunction = ADCL_emethod_get_function (em, tmp);
-	ADCL_printf("#%d:  %s %d winner is %d %s\n",
-		    rank, objname, id, em->em_wfunction->f_id,
-		    em->em_wfunction->f_name);
-	DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,em->em_id,objname,id,em->em_wfunction->f_id)); //only id needs to be sent to identify which tab to show the message in.
+
+	ADCL_printf("#%d:  %s %d function set %d %s winner is %d %s\n",
+		    rank, objname, id, em->em_orgfnctset->fs_id, em->em_orgfnctset->fs_name, em->em_wfunction->f_id,
+		    em->em_wfunction->f_name); 
+	//DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,em->em_id,objname,id,em->em_wfunction->f_id)); //only id needs to be sent to identify which tab to show the message in.
+	DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,id,objname,em->em_orgfnctset->fs_id,em->em_orgfnctset->fs_name,em->em_wfunction->f_id)); //now sending the funtion set id.
 
 #ifdef ADCL_SAVE_REQUEST_WINNER
        /* XXX not nice */
