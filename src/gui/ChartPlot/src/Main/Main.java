@@ -7,7 +7,7 @@ public class Main
 {
 	public static void main(String[] args) 
 	{	
-	    Dimension windowSize = new Dimension(820,720);
+	    Dimension windowSize = new Dimension(960,720); //820, 720
 	    initialize(windowSize);	             
 	}
 

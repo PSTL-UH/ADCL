@@ -21,10 +21,12 @@ import java.util.Iterator;
 import java.util.Set;
 
 import utility.Utility;
+import datastructures.FunctionNameTable;
 import datastructures.Header;
 import datastructures.ProcessDataStore;
 import datastructures.Sensitivity;
 import datastructures.SpinList;
+import datastructures.WinnerTable;
 import datastructures.ProcessDataStore.ProcessCommStatus;
 
 import eventpackage.*;
@@ -43,6 +45,7 @@ public class StartupServer
 		
 		public void run()
 		{
+			System.out.println ("event loop thread created");
 			while(!stop)
 			{
 				synchronized (getCurrentProcess())
@@ -54,7 +57,9 @@ public class StartupServer
 						{
 							if(event instanceof EndEvent)
 							{
-								break;
+								System.out.println("Finished reading event information");
+								//break; // we should not be breaking out as it would stop working 
+								//after the completion of displaying a single process's information
 							}
 							generator.callHandler(event);
 						}
@@ -98,7 +103,9 @@ public class StartupServer
 	private Integer currentProcess;	
 	
 	CustomThread thread = null;
-
+	
+	private WinnerTable winnerTable;
+	private FunctionNameTable functionNameTable;
 	HashMap< Integer, ProcessDataStore > rankToProcessData;	
 
 	public HashMap<Integer, ProcessDataStore> getRankToProcessData() 
@@ -119,6 +126,8 @@ public class StartupServer
 		processNumList = new SpinList();
 		rankToProcessData = new HashMap<Integer, ProcessDataStore>(); // this is for use by displaying code
 		idToProcessData = new HashMap<SocketAddress, ProcessDataStore>(); // this is to store the incoming data
+		winnerTable = new WinnerTable();
+		functionNameTable = new FunctionNameTable();
 	}
 
 	public EventGenerator getGenerator() 
@@ -306,9 +315,9 @@ public class StartupServer
 						//before end event
 						for(Integer key : idToFuncTime.keySet())
 						{
-							SensitivityEvent event = new SensitivityEvent(this, key, idToFuncTime.get(key).getSensitivity());
-							procData.addEvent(event);
+							procData.addEvent(new SensitivityEvent(this, key, idToFuncTime.get(key).getSensitivity()));
 						}
+						procData.addEvent(new AnalysisEvent(this, winnerTable.analysisOfWinnerFunctions(functionNameTable)));
 						procData.addEvent(new EndEvent(this));
 						return false;
 					}
@@ -377,11 +386,16 @@ public class StartupServer
 
 	private void parseAndStoreWinnerDecided(ProcessDataStore procData,
 			Header head, byte[] msgbuf) {
-		int requestId = util.byteArrayToInt(msgbuf, 8);
-		int functionId = util.byteArrayToInt(msgbuf, 12);
-		String objectName = new String(msgbuf);
-		WinnerDecidedEvent winnerDecided = new WinnerDecidedEvent(this, head.get_id(), requestId, functionId, objectName);
+		int fnctsetId = util.byteArrayToInt(msgbuf, 40);
+		int functionId = util.byteArrayToInt(msgbuf, 44);
+		String entire = new String(msgbuf);
+		String objectName = entire.substring(0, 7);
+		String fnctsetName = entire.substring(8,39);
+		fnctsetName = fnctsetName.replaceAll("[^A-Za-z\\_\\s]", " ");
+		fnctsetName = fnctsetName.trim();
+		WinnerDecidedEvent winnerDecided = new WinnerDecidedEvent(this, head.get_id(), fnctsetId, fnctsetName, functionId, objectName);
 		procData.addEvent(winnerDecided);
+		winnerTable.addInfoToTable(head.get_id(), fnctsetId, fnctsetName, functionId);
 	}
 
 	private void parseAndStoreFunctionChange(ProcessDataStore procData,
@@ -395,6 +409,7 @@ public class StartupServer
 			message = message.substring(0, message.indexOf(" "));
 		}
 		FunctionChangeEvent funcChange = new FunctionChangeEvent(this, head.get_id(), functionId, message);
+		functionNameTable.addInfoToTable(head.get_id(), functionId, message);
 		procData.addEvent(funcChange);
 	}
 
@@ -535,7 +550,12 @@ public class StartupServer
 	private void resetStartupServerData() 
 	{
 		synchronized (currentProcess) 
-		{			
+		{	
+			//need to test this out. added the for loop so that there is no memory leak.
+			for( ProcessDataStore dataStoreObject : idToProcessData.values())
+			{
+				dataStoreObject.clearData();
+			}
 			idToProcessData.clear();
 			rankToProcessData.clear();
 			processNumList.clear();

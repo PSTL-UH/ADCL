@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.HashMap;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,8 +16,11 @@ public class Legend extends JPanel
 	JPanel panel = new JPanel();
 	private int counter = 0;
 	
+	HashMap<String, JLabel> funcToLabel;
+	
 	public Legend()
 	{
+		funcToLabel = new HashMap<String, JLabel>();
 		setLayout(new GridBagLayout());
 		panel.setBounds(0, 100, 180, 600);
 		panel.setLayout(new GridBagLayout());
@@ -44,7 +48,7 @@ public class Legend extends JPanel
 		//add the function name label
 		JLabel functionNameLabel = new JLabel(functionName);
 		Font font = new Font("",1,10);
-		functionNameLabel.setFont(font);
+		functionNameLabel.setFont(font);		
 		c.fill = GridBagConstraints.HORIZONTAL;		
 		c.gridwidth = 3;
 		c.insets = new Insets(0,0,0,0);
@@ -52,5 +56,11 @@ public class Legend extends JPanel
 		c.gridy = counter;
 		panel.add(functionNameLabel,c);
 		counter++;
+		funcToLabel.put(functionName, functionNameLabel);
+	}
+	
+	public void highlightWinner(String functionName)
+	{
+		funcToLabel.get(functionName).setForeground(Color.RED);
 	}
 }

@@ -35,9 +35,9 @@ public class EventGenerator
 	        callHandler(event);
 	    }
 	    
-	    public synchronized void _fireWinnerDecidedEvent(int messageId, int requestId, int functionId, String objectName) 
+	    public synchronized void _fireWinnerDecidedEvent(int messageId, int fnctsetId, String fnctsetName, int functionId, String objectName) 
 	    {
-	        WinnerDecidedEvent event = new WinnerDecidedEvent( this, messageId, requestId, functionId, objectName);
+	        WinnerDecidedEvent event = new WinnerDecidedEvent( this, messageId, fnctsetId, fnctsetName, functionId, objectName);
 	        callHandler(event);
 	    }
 	    
@@ -59,6 +59,12 @@ public class EventGenerator
 		public void _fireSensitivityEvent(Integer key, double sensitivity) 
 		{
 			SensitivityEvent event = new SensitivityEvent(this, key, sensitivity);
+			callHandler(event);
+		}
+
+		public void _fireAnalysisEvent(String analysisOfWinnerFunctions) 
+		{
+			AnalysisEvent event = new AnalysisEvent(this,analysisOfWinnerFunctions);
 			callHandler(event);
 		}
 }

@@ -109,5 +109,11 @@ public class ProcessDataStore
 	public int getPreviousLast() 
 	{
 		return previousLast;
+	}
+
+	public void clearData() 
+	{
+		eventsList.clear();
+		idToFunctionAvgTime.clear();		
 	}	
 }

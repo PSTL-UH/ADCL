@@ -11,6 +11,8 @@ import java.util.*;
 import java.math.*;
 import javax.swing.*;
 
+import layout.TableLayout;
+
 import chartplot.ChartPlotController.modes;
 
 import eventpackage.*;
@@ -78,6 +80,30 @@ public final class Plot extends JFrame implements CustomEventListener
 		{
 			return funcNumToFuncId.get(functionId);
 		}
+		
+		TextArea _messageBox = null;
+		
+		public void setMessageBox(TextArea messageBox)
+		{
+			_messageBox = messageBox;
+		}
+		
+		public TextArea getMessageBox()
+		{
+			return _messageBox;
+		}
+		
+		Legend _legend = null;
+		
+		public void setLegend(Legend legend) 
+		{
+			_legend = legend;
+		}
+		
+		public Legend getLegend()
+		{
+			return _legend;
+		}
 	}
 
 	private Color color[]={Color.GREEN,Color.BLACK,Color.RED,Color.BLUE,Color.CYAN,Color.YELLOW,Color.GRAY,Color.PINK,Color.ORANGE,Color.WHITE,Color.MAGENTA,Color.LIGHT_GRAY};
@@ -98,6 +124,8 @@ public final class Plot extends JFrame implements CustomEventListener
 	Dimension _windowSize;
 
 	JFileChooser chooser;
+	
+	TextArea feed;
 
 	public Plot(Dimension windowSize) 
 	{
@@ -121,7 +149,7 @@ public final class Plot extends JFrame implements CustomEventListener
 	private void addWelcomeScreen()
 	{
 		ws = new WelcomeScreen(_windowSize, _controller);
-		getContentPane().add(ws);	
+		add(ws);	
 	}
 
 	public void setOnOffButton(modes onOff)
@@ -133,9 +161,18 @@ public final class Plot extends JFrame implements CustomEventListener
 	}
 
 	private void initComponent()
-	{    	
+	{    			
+		double tabFractionSize = 0.75;
+		double size[][] = {{tabFractionSize,TableLayout.FILL},{TableLayout.FILL}};
+		setLayout(new TableLayout(size));
+
 		tab = new JTabbedPane();
-		getContentPane().add(tab);
+		tab.setSize((int) (getWidth()*tabFractionSize), getHeight());
+		add(tab, "0,0,1,1"); //removed getcontentpane()	
+		
+		feed = new TextArea("",120,40,TextArea.SCROLLBARS_VERTICAL_ONLY);
+		feed.setBounds((int)(getWidth()*tabFractionSize), 0, (int) (getWidth()*(1-tabFractionSize)), getHeight());
+		add(feed, "1,0,1,1");		
 
 		for(int i=0;i<graph.size();i++)
 		{
@@ -147,11 +184,12 @@ public final class Plot extends JFrame implements CustomEventListener
 
 	private void addComponentsToTab(int i) 
 	{
-		Graph graphToAdd = idToTabStatus.get(Integer.valueOf(i)).getTab();
+		TabStatus currTabStatus = idToTabStatus.get(Integer.valueOf(i));
+		Graph graphToAdd = currTabStatus.getTab();
 		constructToolbar(graphToAdd);
 
-		addMessageBox(graphToAdd);
-		addLegend(graphToAdd);
+		addMessageBox(currTabStatus);
+		addLegend(currTabStatus);
 
 		tab.addTab("Tab "+i, graphToAdd);
 	}
@@ -169,20 +207,27 @@ public final class Plot extends JFrame implements CustomEventListener
 		graphToAdd.add(toolbar, BorderLayout.NORTH);
 	}
 
-	private void addLegend(Graph graphToAdd) 
+	private void addLegend(TabStatus tabStatus) 
 	{
 		Legend legend = new Legend();
-		graphToAdd.add(legend,BorderLayout.EAST);
+		tabStatus.setLegend(legend);
+		tabStatus.getTab().add(legend,BorderLayout.EAST);
 	}
 
-	private void addMessageBox(Graph graphToAdd) 
-	{
-		Panel textPanel = new Panel();
-		textPanel.setBounds(0,getHeight() - 120, getWidth(), 100);
-		TextArea messageBox = new TextArea("", textPanel.getHeight()/16, getWidth()/8, 1);
+	private void addMessageBox(TabStatus tabStatus) 
+	{		
+		JPanel textPanel = new JPanel();
+		textPanel.setBounds(0,getHeight() - 120, tab.getWidth(), 120);
+		textPanel.setLayout(new GridBagLayout());
+		TextArea messageBox = new TextArea("", textPanel.getHeight()/16, textPanel.getWidth()/8, TextArea.SCROLLBARS_VERTICAL_ONLY);
+		tabStatus.setMessageBox(messageBox);
 
-		textPanel.add(messageBox);
-		graphToAdd.add(textPanel,BorderLayout.SOUTH);
+		Insets padding = new Insets(0,0,20,0);
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = padding;
+		textPanel.add(messageBox, gbc);
+
+		tabStatus.getTab().add(textPanel,BorderLayout.SOUTH);
 	}
 
 	private void addSetYButton(Graph graphToAdd, JComponent toolbar)
@@ -232,7 +277,7 @@ public final class Plot extends JFrame implements CustomEventListener
 
 	private void addNewGraphToList() 
 	{
-		Insets padding = new Insets(100, 70, 200, 200);
+		Insets padding = new Insets(100, 70, 240, 200);
 		Graph newGraph = new InteractiveGraph(xAxis, yAxis);    		
 		newGraph.getXAxis().setZigZaginess(BigDecimal.valueOf(7L, 1));
 		newGraph.getYAxis().setZigZaginess(BigDecimal.valueOf(7L, 1));
@@ -295,12 +340,12 @@ public final class Plot extends JFrame implements CustomEventListener
 			WinnerDecidedEvent wdEvent = (WinnerDecidedEvent)event;
 			int messageId = wdEvent.get_messageId();
 			int functionId = wdEvent.get_functionId();
-			int requestId = wdEvent.get_requestId();
-			String message = wdEvent.get_message();
-			message = message.substring(0, 8);
-			message = message.replaceAll("[^A-Za-z\\_\\s]", " ");
+			int fnctsetId = wdEvent.get_fnctsetId();
+			String fnctsetName = wdEvent.get_fnctsetName();
+			String objName = wdEvent.get_objName();
+			objName = objName.replaceAll("[^A-Za-z\\_\\s]", " ");
 			newMessage(messageId);
-			winnerDecided(messageId, functionId, requestId, message);    
+			winnerDecided(messageId, fnctsetId, fnctsetName, functionId, objName);    
 		}
 		else if(event.getClass().getSimpleName().contentEquals("SensitivityEvent"))
 		{
@@ -309,6 +354,12 @@ public final class Plot extends JFrame implements CustomEventListener
 			String message = "Sensitivity = " + sEvent.get_sensitivity();
 			newMessage(messageId);
 			showInMessageBox(messageId, message);
+		}
+		else if(event.getClass().getSimpleName().contentEquals("AnalysisEvent"))
+		{
+			AnalysisEvent aEvent = (AnalysisEvent)event;
+			String analysis = aEvent.getAnalysis();
+			feed.setText(analysis);
 		}
 		
 		repaintApplication();
@@ -342,7 +393,7 @@ public final class Plot extends JFrame implements CustomEventListener
 		}
 	}
 
-	private void winnerDecided(int messageId, int functionId, int requestId, String objectName) 
+	private void winnerDecided(int messageId, int fnctsetId, String fnctsetName, int functionId, String objectName) 
 	{		
 		ChartStyle style2 = new ChartStyle();		
 		TabStatus tabStatus = idToTabStatus.get(Integer.valueOf(messageId));
@@ -350,8 +401,14 @@ public final class Plot extends JFrame implements CustomEventListener
 
 		Graph currGraph = tabStatus.getTab();		
 		currGraph.addFunction(new Function("Function "+messageId), style2);	
+		
+		String winnerFunctionName = currGraph.getGraphFunctions()[tabStatus.getFuncNumFromId(functionId)+1].toString();
+		
+		tabStatus.getLegend().highlightWinner(winnerFunctionName);
 
-		String winnerMsg = objectName+" "+requestId+" winner is "+functionId+" "+tabStatus.getTab().getGraphFunctions()[tabStatus.getFuncNumFromId(functionId)+1].toString();
+		String winnerMsg = objectName+" "+messageId+" function set "+fnctsetId+" "+fnctsetName
+		+" winner is "+functionId+" "+winnerFunctionName;
+		
 		showInMessageBox(messageId, winnerMsg);
 	}
 
@@ -363,18 +420,19 @@ public final class Plot extends JFrame implements CustomEventListener
 			int functionNum = idToTabStatus.get(messageId).getFunctionNumber();
 			functionName = functionName.trim();
 			ChartStyle style2 = new ChartStyle();
-			style2.setPaint(color[functionNum-1]);
-			Graph currGraph = idToTabStatus.get(Integer.valueOf(messageId)).getTab();
+			Color funcColor = color[functionNum-1];
+			style2.setPaint(funcColor);
+			TabStatus tabStatus = idToTabStatus.get(Integer.valueOf(messageId));
+			Graph currGraph = tabStatus.getTab();
 
 			currGraph.addFunction(new Function(functionName), style2);			
-			((Legend)currGraph.getComponent(currGraph.getComponentCount()-1)).addToLegendList(color[functionNum-1],functionName);
+			tabStatus.getLegend().addToLegendList(funcColor,functionName);
 		}
 	}
 
 	private void showInMessageBox(int id, String str) 
 	{
-		Panel panel = (Panel)idToTabStatus.get(id).getTab().getComponent(1);		
-		TextArea textbox = (TextArea)panel.getComponent(0);
+		TextArea textbox = (TextArea)idToTabStatus.get(id).getMessageBox();
 		textbox.append(str+"\n");
 	}
 
@@ -400,7 +458,7 @@ public final class Plot extends JFrame implements CustomEventListener
 				ws.setVisible(true);
 			}
 			tab.removeAll();
-			getContentPane().remove(tab);		
+			remove(tab);		
 			tab = null;
 		}
 
