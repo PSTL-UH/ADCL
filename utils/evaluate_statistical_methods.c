@@ -340,6 +340,7 @@ int main (int argc, char **argv )
    double **exectimes;
    double **timings, **filt_timings, **unfilt_timings, **perc ;
    char exectimes_file[MAXLINE] = "exec_times.txt\0";
+   char testcase[MAXLINE];
    int nruns = 3;
    int nmethods;          /* #implementations */
    double time; 
@@ -350,10 +351,15 @@ int main (int argc, char **argv )
    int nstats = 9;        /* #statistical methods */
    tminmaxavg *max_error; /* array of size nstats with maximum averaged error/weights of wrong rankings */ 
    tminmaxavg *sum_error; /* array of size nstats with total averaged error/weights of wrong rankings */ 
-
    FILE *infd=NULL;
-   //int proc, obj_id, req_id, method_id, cpat, ignore_type, numtest;
-   //double time;
+
+   /* parse argument */
+   if ( argc != 2 ) { 
+      printf("Usage: ./exe  name_of_testcase\n");
+   }
+   else {
+      strcpy ( testcase, argv[1] );
+   }
 
    /* parse command line arguments */
    nlines = minmax_get_lines(exectimes_file);
@@ -448,22 +454,43 @@ int main (int argc, char **argv )
    calc_errors ( nmethods, nruns, timings, ref_time, ref_weights, &max_error[8], &sum_error[8] ); 
 
    /* output */
-   printf("maximum error\n");
-   printf("avg y_min y_max \n");
-   for ( i=0; i<nstats; i++) {
-      printf("%lf %lf %lf\n", max_error[i].avg, max_error[i].avg - max_error[i].min, max_error[i].max - max_error[i].avg ); 
+   if ( infd = fopen("max_error.txt", "r"))
+   {
+     fclose(infd);
    }
-   printf("sum of errors\n");
-   for ( i=0; i<nstats; i++) {
-      printf("%lf %lf %lf\n", sum_error[i].avg, sum_error[i].avg - sum_error[i].min, sum_error[i].max - sum_error[i].avg ); 
-   }
+   else { /* write header */ 
+      infd = fopen("max_error.txt", "w");
+      fprintf(infd, "testcase             unf   avg_heur_loc  avg_heur_coll    avg_iqr_loc   avg_iqr_coll",
+                    "  avg_clust_loc  avg_clus_coll    avg_rob_loc   avg_rob_coll");
+      fprintf(infd, "      ymin_unf  ymin_heur_loc ymin_heur_coll   ymin_iqr_loc  ymin_iqr_coll ymin_clust_loc ymin_clus_coll   ymin_rob_loc  ymin_rob_coll");
+      fprintf(infd, "      ymax_unf  ymax_heur_loc ymax_heur_coll   ymax_iqr_loc  ymax_iqr_coll ymax_clust_loc ymax_clus_coll   ymax_rob_loc  ymax_rob_coll\n");
+      fclose(infd);
 
-   //iqr_local
-   //iqr_global
-   //cluster_local
-   //cluster_global
-   //robust_local
-   //robust_global
+      infd = fopen("sum_error.txt", "w");
+      fprintf(infd, "testcase             unf   avg_heur_loc  avg_heur_coll    avg_iqr_loc   avg_iqr_coll",
+                    "  avg_clust_loc  avg_clus_coll    avg_rob_loc   avg_rob_coll");
+      fprintf(infd, "      ymin_unf  ymin_heur_loc ymin_heur_coll   ymin_iqr_loc  ymin_iqr_coll ymin_clust_loc ymin_clus_coll   ymin_rob_loc  ymin_rob_coll");
+      fprintf(infd, "      ymax_unf  ymax_heur_loc ymax_heur_coll   ymax_iqr_loc  ymax_iqr_coll ymax_clust_loc ymax_clus_coll   ymax_rob_loc  ymax_rob_coll\n");
+      fclose(infd);
+   } 
+
+   //printf("maximum error\n");
+   //printf("avg y_min y_max \n");
+   infd = fopen("max_error.txt", "a");
+   fprintf(infd, "%s", testcase);
+   for ( i=0; i<nstats; i++) { fprintf(infd, "%15.6lf", max_error[i].avg); } 
+   for ( i=0; i<nstats; i++) { fprintf(infd, "%15.6lf", max_error[i].avg - max_error[i].min); } 
+   for ( i=0; i<nstats; i++) { fprintf(infd, "%15.6lf", max_error[i].max - max_error[i].avg); } 
+   fprintf(infd, "\n"); 
+   fclose (infd);
+
+   infd = fopen("sum_error.txt", "a");
+   fprintf(infd, "%s", testcase);
+   for ( i=0; i<nstats; i++) { fprintf(infd, "%15.6lf", sum_error[i].avg); } 
+   for ( i=0; i<nstats; i++) { fprintf(infd, "%15.6lf", sum_error[i].avg - sum_error[i].min); } 
+   for ( i=0; i<nstats; i++) { fprintf(infd, "%15.6lf", sum_error[i].max - sum_error[i].avg); } 
+   fprintf(infd, "\n"); 
+   fclose (infd);
 
 
    /* cleanup */
