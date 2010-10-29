@@ -113,11 +113,16 @@ void minmax_heuristic_local ( int nimpl, int nmeas, int idx_start, struct emetho
              &em[iproc][method_id].em_avg, &em[iproc][method_id].em_avg_filtered, &em[iproc][method_id].em_perc_filtered );
       }
    }
-   
-   for (iproc=0; iproc<nprocs; iproc++ ) {
-       printf("filt. avg. %lf avg %lf perc. %lf\n",  em[iproc][method_id].em_avg, em[iproc][method_id].em_avg_filtered, 
-           em[iproc][method_id].em_perc_filtered );
+ 
+#ifdef DEBUG
+   for ( method_id=0; method_id<nimpl; method_id++ ) {
+      printf("data points for method %d:\n", method_id);
+      for (iproc=0; iproc<nprocs; iproc++ ) {
+          printf("filt. avg. %lf avg %lf perc. %lf\n",  em[iproc][method_id].em_avg, em[iproc][method_id].em_avg_filtered, 
+              em[iproc][method_id].em_perc_filtered );
+      }
    }
+#endif
 
    /* calculate for each implementation max over all procs */
    for (method_id=0; method_id<nimpl; method_id++ ) {
@@ -196,6 +201,9 @@ void  calc_decision_heuristic ( int nimpl, int idx_start, double *unf, double *f
 
    tmin           = 1.E15;
    tmin_heuristic = 1.E15;
+
+   printf ("                result   filtered        unfiltered          filtered     perc\n");
+
    /* calculate minimum communication time over all implementations */
    for ( method_id=0; method_id<nimpl; method_id++ ) {
       /* min without heuristic */
@@ -219,8 +227,7 @@ void  calc_decision_heuristic ( int nimpl, int idx_start, double *unf, double *f
          minloc_heuristic = method_id;
          strcpy(isfilt_min, isfilt_str);
       } 
-
-      printf ("%d: result: %lf : %s :  unfiltered: %lf filtered: %lf perc: %lf\n",
+      printf ("%4d : %15.6lf : %8s : %15.6lf : %15.6lf : %6.2lf\n",
               method_id, timpl, isfilt_str,  unf[method_id], filt[method_id], perc[method_id] );
    }
 
@@ -274,7 +281,9 @@ void minmax_iqr_local ( int nimpl, int nmeas, int idx_start, struct emethod **em
     }
 
     /* compute max over procs and min over implementations */    
-   printf("Local IQR:\n"); 
+   printf("\nLocal IQR:\n"); 
+   printf ("                result     perc\n");
+
    tmin = 1.E15;
    for (method_id=0; method_id<nimpl; method_id++ ) {
        perc  = 0.0;
@@ -283,8 +292,7 @@ void minmax_iqr_local ( int nimpl, int nmeas, int idx_start, struct emethod **em
            MAX ( timpl, em[iproc][method_id].em_avg_filtered  );
            MAX ( perc, em[iproc][method_id].em_perc_filtered );
        }
-       printf("%d : avg. filtered %lf perc. filtered %lf\n", method_id, timpl, perc );
-
+       printf ("%4d : %15.6lf : %6.2lf\n", method_id, timpl, perc );
 
        if ( tmin >  timpl ) {
           tmin = timpl;
@@ -315,13 +323,15 @@ void minmax_iqr_collective ( int nimpl, int nmeas, int idx_start, double **timin
     double timpl, tmin, perc;
     int    minloc;
 
-    printf("Collective IQR:\n"); 
+    printf("\nCollective IQR:\n"); 
+    printf ("                result     perc\n");
+
     /* filter and compute min */    
     tmin = 1.E15;
     for ( method_id=0; method_id<nimpl; method_id++ ) {
        /* compute (filtered) averages for each method */
        filter_iqr ( nmeas,  timings[method_id], &timpl, &perc );
-       printf("%d : avg. filtered %lf perc. filtered %lf\n", method_id, timpl, perc );
+       printf ("%4d : %15.6lf : %6.2lf\n", method_id, timpl, perc );
 
        if ( tmin >  timpl ) {
           tmin = timpl;
@@ -474,7 +484,8 @@ void minmax_cluster_local ( int nimpl, int nmeas, int idx_start, struct emethod 
     }
 
     /* compute max over procs and min over implementations */    
-   printf("Local Cluster:\n"); 
+   printf("\nLocal Cluster:\n"); 
+   printf ("                result     perc\n");
    tmin = 1.E15;
    for (method_id=0; method_id<nimpl; method_id++ ) {
        perc  = 0.0;
@@ -483,7 +494,7 @@ void minmax_cluster_local ( int nimpl, int nmeas, int idx_start, struct emethod 
            MAX ( timpl, em[iproc][method_id].em_avg_filtered  );
            MAX ( perc, em[iproc][method_id].em_perc_filtered );
        }
-       printf("%d : avg. filtered %lf perc. filtered %lf\n", method_id, timpl, perc );
+       printf ("%4d : %15.6lf : %6.2lf\n", method_id, timpl, perc );
 
 
        if ( tmin >  timpl ) {
@@ -519,7 +530,8 @@ void minmax_cluster_collective ( int nimpl, int nmeas, int idx_start, double **t
     char genemetric = 'e'; 
     char method = 'a';
 
-    printf("Collective Cluster:\n"); 
+    printf("\nCollective Cluster:\n"); 
+    printf ("                result     perc\n");
     /* filter and compute min */    
     tmin = 1.E15;
     for ( method_id=0; method_id<nimpl; method_id++ ) {
@@ -528,7 +540,7 @@ void minmax_cluster_collective ( int nimpl, int nmeas, int idx_start, double **t
        HierarchicalClusterAnalysis(genemetric, 0, method, &timpl, &nfilt);
        perc = (100. * nfilt) / nmeas;
        free_cluster_vars();
-       printf("%d : avg. filtered %lf perc. filtered %lf\n", method_id, timpl, perc );
+       printf ("%4d : %15.6lf : %6.2lf\n", method_id, timpl, perc );
 
        if ( tmin >  timpl ) {
           tmin = timpl;
@@ -586,14 +598,15 @@ void minmax_robust_local ( int nimpl, int nmeas, int idx_start, struct emethod *
     
     
     /* compute max over procs and min over implementations */    
-   printf("Robust statistics:\n"); 
+   printf("\nLocal robust statistics:\n"); 
+   printf ("                result\n");
    tmin = 1.E15;
    for (method_id=0; method_id<nimpl; method_id++ ) {
        timpl = 0.0;
        for (iproc=0; iproc<nprocs; iproc++ ) {
            MAX ( timpl, em[iproc][method_id].em_avg_filtered  );
        }
-       printf("%d : avg. %lf\n", method_id, timpl );
+       printf ("%4d : %15.6lf\n", method_id, timpl );
 
        if ( tmin >  timpl ) {
           tmin = timpl;
@@ -625,7 +638,8 @@ void minmax_robust_collective ( int nimpl, int nmeas, int idx_start, double **ti
     int    minloc;
     double nu, sigma, val;
 
-    printf("Collective robust statistics:\n"); 
+    printf("\nCollective robust statistics:\n"); 
+    printf ("                result\n");
     /* Caculate ML-estimate of mu and sigma for t model */
     /* 30 measurements are not enough to estimate nu from set (nu=0 as input),
        so choose some reasonable value for nu, which is 4.0 or 6.0 */
@@ -638,7 +652,7 @@ void minmax_robust_collective ( int nimpl, int nmeas, int idx_start, double **ti
     tmin = 1.E15;
     for ( method_id=0; method_id<nimpl; method_id++ ) {
        ml ( nmeas, timings[method_id], &nu, &timpl, &sigma, &val );
-       printf("%d : avg. %lf\n", method_id, timpl );
+       printf ("%4d : %15.6lf\n", method_id, timpl );
 
        if ( tmin >  timpl ) {
           tmin = timpl;

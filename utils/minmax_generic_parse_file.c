@@ -262,8 +262,8 @@ int main (int argc, char **argv )
         //if ( ! object->ignore ) { 
         printf( "\ncomputing winner for %s %d\n", object->objstr, object->obj_id ); 
         /* heuristic */
-        //minmax_heuristic_local ( object->nimpl, nmeas, object->idx_range[0], emethods[object->obj_pos],  
-        //        commentline->nprocs, local_outlier_factor, outlier_fraction ); 
+        minmax_heuristic_local ( object->nimpl, nmeas, object->idx_range[0], emethods[object->obj_pos],  
+                commentline->nprocs, local_outlier_factor, outlier_fraction ); 
         minmax_heuristic_collective ( object->nimpl, nmeas, object->idx_range[0], timings,  
                 commentline->nprocs, collective_outlier_factor, outlier_fraction ); 
 
