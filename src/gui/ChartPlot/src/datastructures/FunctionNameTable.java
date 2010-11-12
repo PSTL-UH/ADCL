@@ -52,4 +52,9 @@ public class FunctionNameTable
 	{
 		return idToFunctionName.get(new FunctionUniqueID(requestId, functionId));
 	}
+
+	public void clear() 
+	{
+		idToFunctionName.clear();		
+	}
 }

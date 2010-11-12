@@ -80,17 +80,31 @@ public class WinnerTable
 		FunctionSetComparator fnctsetComp = new FunctionSetComparator();
 		Collections.sort(winners, fnctsetComp);
 		int fromIndex = 0;
-		for(int i = 0; i < winners.size() - 1; i++)
+		for(int i = 0; i < winners.size(); i++)
 		{
-			if(winners.get(i)._fnctsetId != winners.get(i+1)._fnctsetId)
+			if( (i == winners.size() - 1) || winners.get(i)._fnctsetId != winners.get(i+1)._fnctsetId)
 			{
-				int winnerFunctionId = getDominantWinner(winners.subList(fromIndex, i));
-				if(winnerFunctionId != -1)
-				{
-					Winner winner = winners.get(i);
-					dominantWinners += "Dominant winner for function set "+
-					winner._fnctsetId+" "+winner._fnctsetName+" is function "+winnerFunctionId+" "+
-					funcNameTable.getFunctionName(winner._requestId, winner._winnerFunctionId);
+				ArrayList<Integer> winnerFunctionIds = getDominantWinner(winners.subList(fromIndex, i+1));
+				
+				if(winnerFunctionIds != null)
+				{				
+					Winner winner = winners.get(fromIndex);
+					if(winnerFunctionIds.size() == 1)
+					{
+						dominantWinners = dominantWinners+"\nDominant winner for function set "+winner._fnctsetId+" "+
+						winner._fnctsetName +" is function "+winnerFunctionIds.get(0)+" "+
+					    funcNameTable.getFunctionName(winner._requestId, winnerFunctionIds.get(0));
+					}
+					else
+					{
+						dominantWinners = dominantWinners+"\nWinner functions ";
+						for(Integer winnerFunctionId : winnerFunctionIds)
+						{
+							dominantWinners = dominantWinners+winnerFunctionId+" "+
+							funcNameTable.getFunctionName(winner._requestId, winnerFunctionId)+" ";
+						}
+						dominantWinners = dominantWinners+"are equally dominant in function set"+winner._fnctsetId+" "+winner._fnctsetName; 
+					}
 				}
 				fromIndex = i+1;
 			}
@@ -98,9 +112,10 @@ public class WinnerTable
 		return dominantWinners;
 	}
 
-	private int getDominantWinner(List<Winner> subList) 
+	private ArrayList<Integer> getDominantWinner(List<Winner> subList) 
 	{
-		int maxCount = -1, maxFunctionId = -1;
+		int maxCount = -1, totalCount = 0;
+		ArrayList<Integer> maxFunctionIds = null;
 		HashMap<Integer, Integer> winnerFunctionToCount = new HashMap<Integer, Integer>();
 		for(Winner winner : subList)
 		{
@@ -118,12 +133,39 @@ public class WinnerTable
 		while(iterator.hasNext())
 		{
 			Map.Entry<Integer,Integer> pairs = iterator.next();
+			
 			if(pairs.getValue() > maxCount)
 			{
+				if(maxFunctionIds == null)
+				{
+					maxFunctionIds = new ArrayList<Integer>();
+				}
+				else
+				{
+					maxFunctionIds.clear();
+				}
 				maxCount = pairs.getValue();
-				maxFunctionId = pairs.getKey();
+				maxFunctionIds.add(pairs.getKey());
+				System.out.println("adding "+pairs.getKey());
+				totalCount = 1;
+			}
+			else if(pairs.getValue() == maxCount)
+			{
+				totalCount++;
+				maxFunctionIds.add(pairs.getKey());
 			}
 		}
-		return maxFunctionId;
+		
+		/*if( totalCount > 1 && maxCount <= 1)
+		{
+			return null;
+		}*/
+		
+		return maxFunctionIds;
+	}
+
+	public void clear() 
+	{
+		winners.clear();		
 	}
 }

@@ -29,7 +29,9 @@ import datastructures.SpinList;
 import datastructures.WinnerTable;
 import datastructures.ProcessDataStore.ProcessCommStatus;
 
-import eventpackage.*;
+import eventpackage.EventGenerator;
+import eventpackage.EndEvent;
+import eventpackage.CustomEventListener;
 
 
 public class StartupServer
@@ -315,16 +317,15 @@ public class StartupServer
 						//before end event
 						for(Integer key : idToFuncTime.keySet())
 						{
-							procData.addEvent(new SensitivityEvent(this, key, idToFuncTime.get(key).getSensitivity()));
+							procData.addEvent(generator.createSensitivityEvent(this, key, idToFuncTime.get(key).getSensitivity()));
 						}
-						procData.addEvent(new AnalysisEvent(this, winnerTable.analysisOfWinnerFunctions(functionNameTable)));
+						procData.addEvent(generator.createAnalysisEvent(this, winnerTable.analysisOfWinnerFunctions(functionNameTable)));
 						procData.addEvent(new EndEvent(this));
 						return false;
 					}
 					else
 					{
-						PointsEvent ptEvent = new PointsEvent(this, head.get_id(), head.get_yval());
-						procData.addEvent(ptEvent);				
+						procData.addEvent(generator.createPointsEvent(this, head.get_id(), head.get_yval()));				
 						idToFuncTime.get(head.get_id()).addTime(head.get_yval());
 					}
 					rest = rest - Header.HEADER_MESSAGE_SIZE;
@@ -378,10 +379,9 @@ public class StartupServer
 		return true;
 	}
 
-	private void parseAndStoreMessageReceived(ProcessDataStore procData,
-			Header head, byte[] msgbuf) {
-		MessageReceivedEvent messageReceived = new MessageReceivedEvent(this, head.get_id(), new String(msgbuf));
-		procData.addEvent(messageReceived);
+	private void parseAndStoreMessageReceived(ProcessDataStore procData, Header head, byte[] msgbuf) 
+	{
+		procData.addEvent(generator.createMessageReceivedEvent(this, head.get_id(), new String(msgbuf)));
 	}
 
 	private void parseAndStoreWinnerDecided(ProcessDataStore procData,
@@ -391,10 +391,11 @@ public class StartupServer
 		String entire = new String(msgbuf);
 		String objectName = entire.substring(0, 7);
 		String fnctsetName = entire.substring(8,39);
-		fnctsetName = fnctsetName.replaceAll("[^A-Za-z\\_\\s]", " ");
+		fnctsetName = fnctsetName.replaceAll("[^A-Za-z0-9\\_\\s]", " ");
 		fnctsetName = fnctsetName.trim();
-		WinnerDecidedEvent winnerDecided = new WinnerDecidedEvent(this, head.get_id(), fnctsetId, fnctsetName, functionId, objectName);
-		procData.addEvent(winnerDecided);
+		
+		procData.addEvent(generator.createWinnerDecidedEvent(this, head.get_id(), 
+				fnctsetId, fnctsetName, functionId, objectName));
 		winnerTable.addInfoToTable(head.get_id(), fnctsetId, fnctsetName, functionId);
 	}
 
@@ -403,14 +404,14 @@ public class StartupServer
 		int functionId = util.byteArrayToInt(msgbuf, 0);
 		String message = new String(msgbuf);
 		message = message.substring(4);
-		message = message.replaceAll("[^A-Za-z\\_\\s]", " ");
+		message = message.replaceAll("[^A-Za-z0-9\\_\\s]", " ");
 		if( message.indexOf(" ") > 0 )
 		{
 			message = message.substring(0, message.indexOf(" "));
 		}
-		FunctionChangeEvent funcChange = new FunctionChangeEvent(this, head.get_id(), functionId, message);
+		
 		functionNameTable.addInfoToTable(head.get_id(), functionId, message);
-		procData.addEvent(funcChange);
+		procData.addEvent(generator.createFunctionChangeEvent(this, head.get_id(), functionId, message));
 	}
 
 	private void newProcessData(SocketAddress procID) 
@@ -559,6 +560,10 @@ public class StartupServer
 			idToProcessData.clear();
 			rankToProcessData.clear();
 			processNumList.clear();
+			functionNameTable.clear();
+			winnerTable.clear();
+			functionNameTable = new FunctionNameTable();
+			winnerTable = new WinnerTable();
 			currentProcess = 0;
 			numberOfConnectedProcs = 0;
 		}

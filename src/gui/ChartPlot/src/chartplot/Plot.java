@@ -106,7 +106,8 @@ public final class Plot extends JFrame implements CustomEventListener
 		}
 	}
 
-	private Color color[]={Color.GREEN,Color.BLACK,Color.RED,Color.BLUE,Color.CYAN,Color.YELLOW,Color.GRAY,Color.PINK,Color.ORANGE,Color.WHITE,Color.MAGENTA,Color.LIGHT_GRAY};
+	private Color color[]={Color.GREEN,Color.BLACK,Color.RED,Color.BLUE,Color.CYAN,Color.YELLOW,Color.GRAY,Color.PINK,Color.ORANGE,Color.WHITE,Color.MAGENTA,Color.LIGHT_GRAY,
+			Color.GREEN,Color.BLACK,Color.RED,Color.BLUE,Color.CYAN,Color.YELLOW,Color.GRAY,Color.PINK,Color.ORANGE,Color.WHITE,Color.MAGENTA,Color.LIGHT_GRAY};
 	private XAxis xAxis;
 	private YAxis yAxis;// make changes in axisinstance in the paint function
 	private final ArrayList<Graph> graph;
@@ -125,7 +126,7 @@ public final class Plot extends JFrame implements CustomEventListener
 
 	JFileChooser chooser;
 	
-	TextArea feed;
+	TextArea feed = null;
 
 	public Plot(Dimension windowSize) 
 	{
@@ -170,9 +171,12 @@ public final class Plot extends JFrame implements CustomEventListener
 		tab.setSize((int) (getWidth()*tabFractionSize), getHeight());
 		add(tab, "0,0,1,1"); //removed getcontentpane()	
 		
-		feed = new TextArea("",120,40,TextArea.SCROLLBARS_VERTICAL_ONLY);
-		feed.setBounds((int)(getWidth()*tabFractionSize), 0, (int) (getWidth()*(1-tabFractionSize)), getHeight());
-		add(feed, "1,0,1,1");		
+		if(feed == null)
+		{
+			feed = new TextArea("",120,40,TextArea.SCROLLBARS_VERTICAL_ONLY);
+			feed.setBounds((int)(getWidth()*tabFractionSize), 0, (int) (getWidth()*(1-tabFractionSize)), getHeight());
+			add(feed, "1,0,1,1");	
+		}
 
 		for(int i=0;i<graph.size();i++)
 		{
@@ -359,6 +363,7 @@ public final class Plot extends JFrame implements CustomEventListener
 		{
 			AnalysisEvent aEvent = (AnalysisEvent)event;
 			String analysis = aEvent.getAnalysis();
+			System.out.println(analysis);
 			feed.setText(analysis);
 		}
 		
@@ -481,6 +486,7 @@ public final class Plot extends JFrame implements CustomEventListener
 		{
 			graph.clear();	
 		}
+		feed.setText("");
 		
 		init = false;
 	}

@@ -23,29 +23,57 @@ public class EventGenerator
 	        _listeners.remove( l );
 	    }
 	    
-	    public synchronized void _firePointsEvent(int id, double yval ) 
+	    public synchronized void _firePointsEvent(Object source, int id, double yval ) 
 	    {
-	        PointsEvent event = new PointsEvent( this, id, yval);
+	    	EventObject event = createPointsEvent( source, id, yval);
 	        callHandler(event);
 	    }
+
+		public EventObject createPointsEvent(Object source, int id, double yval) 
+		{
+			EventObject event = new PointsEvent( source, id, yval);
+			return event;
+		}
 	    
-	    public synchronized void _fireFunctionChangeEvent(int msgId, int funcId, String message ) 
+	    public synchronized void _fireFunctionChangeEvent(Object source, int msgId, int funcId, String message ) 
 	    {
-	        FunctionChangeEvent event = new FunctionChangeEvent( this, msgId, funcId, message);
+	    	EventObject event = createFunctionChangeEvent(source, msgId, funcId, message);
 	        callHandler(event);
 	    }
+
+		public EventObject createFunctionChangeEvent(Object source, int msgId,
+				int funcId, String message) {
+			EventObject event = new FunctionChangeEvent( this, msgId, funcId, message);
+			return event;
+		}
 	    
-	    public synchronized void _fireWinnerDecidedEvent(int messageId, int fnctsetId, String fnctsetName, int functionId, String objectName) 
+	    public synchronized void _fireWinnerDecidedEvent(Object source, int messageId, int fnctsetId, String fnctsetName, 
+	    		int functionId, String objectName) 
 	    {
-	        WinnerDecidedEvent event = new WinnerDecidedEvent( this, messageId, fnctsetId, fnctsetName, functionId, objectName);
+	    	EventObject event = createWinnerDecidedEvent(source, messageId,
+					fnctsetId, fnctsetName, functionId, objectName);
 	        callHandler(event);
 	    }
+
+		public EventObject createWinnerDecidedEvent(Object source, int messageId, int fnctsetId, String fnctsetName, 
+				int functionId, String objectName)
+		{
+			EventObject event = new WinnerDecidedEvent( this, messageId, fnctsetId, fnctsetName, 
+					functionId, objectName);
+			return event;
+		}
 	    
-	    public synchronized void _fireMessageReceivedEvent(int msgId, String message ) 
+	    public synchronized void _fireMessageReceivedEvent(Object source, int msgId, String message ) 
 	    {
-	        MessageReceivedEvent event = new MessageReceivedEvent( this, msgId, message);
+	    	EventObject event = createMessageReceivedEvent(source, msgId, message);
 	        callHandler(event);
 	    }
+
+	    public EventObject createMessageReceivedEvent(Object source, int msgId, String message) 
+	    {
+	    	EventObject event = new MessageReceivedEvent( this, msgId, message);
+			return event;
+		}
 	    
 		public synchronized void callHandler(EventObject event) 
 		{
@@ -56,15 +84,27 @@ public class EventGenerator
 	        }
 		}
 
-		public void _fireSensitivityEvent(Integer key, double sensitivity) 
+		public void _fireSensitivityEvent(Object source, Integer key, double sensitivity) 
 		{
-			SensitivityEvent event = new SensitivityEvent(this, key, sensitivity);
+			EventObject event = createSensitivityEvent(source, key, sensitivity);
 			callHandler(event);
 		}
 
-		public void _fireAnalysisEvent(String analysisOfWinnerFunctions) 
+		public EventObject createSensitivityEvent(Object source, Integer key,	double sensitivity) 
 		{
-			AnalysisEvent event = new AnalysisEvent(this,analysisOfWinnerFunctions);
+			EventObject event = new SensitivityEvent(source, key, sensitivity);
+			return event;
+		}
+
+		public void _fireAnalysisEvent(Object source, String analysisOfWinnerFunctions) 
+		{
+			EventObject event = createAnalysisEvent(source, analysisOfWinnerFunctions);
 			callHandler(event);
+		}
+
+		public EventObject createAnalysisEvent(Object source, String analysisOfWinnerFunctions) 
+		{
+			EventObject event = new AnalysisEvent(source,analysisOfWinnerFunctions);
+			return event;
 		}
 }
