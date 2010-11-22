@@ -143,7 +143,8 @@ int ADCL_display(int type,...)
 			winner_decided winner;	
 			vsprintf(winner.objname,va_arg(ap,char*),ap);
 			winner.fnctsetid = va_arg(ap,int);
-                        vsprintf(winner.fnctsetname,va_arg(ap,char*),ap);
+                        int fnctsetnamelen = vsprintf(winner.fnctsetname,va_arg(ap,char*),ap);
+                        winner.fnctsetname[fnctsetnamelen] = '\0'; // added because the names of the function set were appearing with trailing garbage characters.
 			winner.funcid = va_arg(ap,int);
 			head.len = sizeof(winner);
 			write_header(sock,head);
