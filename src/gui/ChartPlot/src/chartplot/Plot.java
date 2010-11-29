@@ -120,7 +120,7 @@ public final class Plot extends JFrame implements CustomEventListener
 
 	JTabbedPane tab = null;
 	ChartPlotController _controller;
-	WelcomeScreen ws;
+	WelcomeScreen ws = null;
 
 	Dimension _windowSize;
 
@@ -149,8 +149,11 @@ public final class Plot extends JFrame implements CustomEventListener
 
 	private void addWelcomeScreen()
 	{
-		ws = new WelcomeScreen(_windowSize, _controller);
-		add(ws);	
+		if(ws == null)
+		{
+			ws = new WelcomeScreen(_windowSize, _controller);
+			add(ws);	
+		}
 	}
 
 	public void setOnOffButton(modes onOff)
@@ -385,7 +388,8 @@ public final class Plot extends JFrame implements CustomEventListener
 
 			addFunctionToGraph(messageId);
 			addComponentsToTab(messageId);	
-			this.paint(this.getGraphics());
+			//this.paint(this.getGraphics());  //enable this and disable the line below to force immediate painting instead of waiting for jre to decide when to paint
+			this.invalidate();
 		}
 	}
 
@@ -446,6 +450,7 @@ public final class Plot extends JFrame implements CustomEventListener
 		tab.setVisible(false);
 	}
 	
+	//function to clear the view
 	public void startOver()
 	{
 		Collection<TabStatus> list = idToTabStatus.values();
@@ -479,6 +484,7 @@ public final class Plot extends JFrame implements CustomEventListener
 		{
 			JComponent toolbar = ((InteractiveGraph)graphToRemove).getToolBar();
 			toolbar.removeAll();			
+			graphToRemove.removeAllFunctions();
 			graphToRemove.removeAll();
 		}
 
@@ -489,6 +495,7 @@ public final class Plot extends JFrame implements CustomEventListener
 		feed.setText("");
 		
 		init = false;
+		System.gc();
 	}
 
 	public void hideButtons() 
