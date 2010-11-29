@@ -354,4 +354,10 @@ public void resetAdjustment(Function graphFunc)
 	repaint();	
 }
 
+
+public void removeAllFunctions() 
+{
+	functions.clear();
+}
+
 }

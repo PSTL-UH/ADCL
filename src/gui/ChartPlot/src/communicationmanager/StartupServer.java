@@ -84,8 +84,8 @@ public class StartupServer
 
 	public enum message_types {Points, Message, FunctionChange, WinnerDecided, EndOfComm};
 
-	static int numclients = 0;
-	static int port       = 31500;    
+	//static int numclients = 0;
+	static int port       = 20000;    
 
 	Utility util = Utility.getInstance();
 
@@ -450,41 +450,32 @@ public class StartupServer
 		int    numargs = args.length;
 		int    ret;
 
-		if (args.length <= 0) 
-		{
-			_model.messageOccured("USAGE: StartupServer -n <NumberOfClients> -p <port>");
-			System.exit(-1);
-		}
-		else 
+		if (args.length > 0) 
 		{
 			try {
 				while (numargs > 0) {
+
+					System.out.println("arguments are "+args[i]);
 					option = args[i];
 					numargs--;
 					i++;
-					ret = option.compareTo("-n");
+					/*ret = option.compareTo("-n");
 
 					if (ret == 0) {
 						numclients = Integer.parseInt(args[i]);
 						numargs--;
 						i++;
-					}
+					}*/
 
 					ret = option.compareTo("-p");
 
-					if (ret == 0) {
-						port = Integer.parseInt(args[i]);
-						numargs--;
-						i++;
-					}
-
-					ret = option.compareTo("-h");
-
+					System.out.println("value of ret is "+ret);
 					if (ret == 0) 
 					{
-						_model.messageOccured("USAGE: StartupServer -n <NumberOfClients>\n");
-						_model.messageOccured(" -p <port>");
-						System.exit(-1);
+						port = Integer.parseInt(args[i]);
+						System.out.println("value of port is "+port);
+						numargs--;
+						i++;
 					}
 				}
 			} 
@@ -494,11 +485,11 @@ public class StartupServer
 			}
 		}
 
-		if (numclients == 0)
+		/*if (numclients == 0)
 		{
 			_model.messageOccured("USAGE: StartupServer -n <NumberOfClients> -p <port>\n");
 			System.exit(-1);
-		}
+		}*/
 	}
 
 	public void addRecvListener(CustomEventListener gui)

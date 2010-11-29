@@ -388,7 +388,7 @@ public final class Plot extends JFrame implements CustomEventListener
 
 			addFunctionToGraph(messageId);
 			addComponentsToTab(messageId);	
-			//this.paint(this.getGraphics());  //enable this and disable the line below to force immediate painting instead of waiting for jre to decide when to paint
+			//this.paint(this.getGraphics());
 			this.invalidate();
 		}
 	}
