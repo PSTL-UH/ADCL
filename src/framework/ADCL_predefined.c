@@ -748,7 +748,7 @@ static int ADCL_neighborhood_filter(ADCL_Hist hist, void *filter_criteria )
     if ( NULL == criteria ) {
         return 1;
     }
-    if( (0 == strcmp( criteria->c_fsname, hist->h_fsname)) &&
+    if( (0 == strncmp( criteria->c_fsname, hist->h_fsname, strlen(criteria->c_fsname))) &&
         (criteria->c_tndims == hist->h_tndims) ){
 	retval = 1;
     }

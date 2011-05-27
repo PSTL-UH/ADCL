@@ -524,7 +524,6 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
     int next = ADCL_EVAL_DONE;
     int last = e->em_last, rank;
     int hist_search_res;
-    ADCL_hist_t *hist;
     ADCL_function_t *func;
     TIME_TYPE start, end;
     MPI_Comm comm; 
@@ -540,40 +539,25 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
     if ( 1 == ADCL_emethod_learn_from_hist ) {
         /* Search for solution/hints in the hist stored from previous runs */
         start = TIME;
-        hist_search_res = ADCL_hist_find( e, &hist );
+        hist_search_res = ADCL_hist_find( e );
 	end = TIME;
     }
     else {
         hist_search_res = ADCL_UNEQUAL;
     }
-    switch (hist_search_res) {
-        case ADCL_IDENT:
-            func = e->em_orgfnctset->fs_fptrs[hist->h_wfnum];
-            if ( ADCL_FUNCTION_NULL != func ) {
-                e->em_state = ADCL_STATE_REGULAR;
-                e->em_wfunction = func;
-                return ADCL_SOL_FOUND;
-            }
-            else {
-                ADCL_printf("Function %s is not found in the function set\n", hist->h_wfname );
-            }
-            break;
-        case ADCL_SIMILAR:
+    if (ADCL_SIMILAR == hist_search_res) {
+
 #ifdef HL_VERBOSE
-                if(0 == rank) {
-                    printf("Time for prediction: %f us\n", end-start);
-                }
+	if(0 == rank) {
+	    printf("Time for prediction: %f us\n", end-start);
+	}
 #endif
-                /* one idea is to increment the confidance number for 
-                   attributes values of the winning function */
-                e->em_state = ADCL_STATE_REGULAR;
-                e->em_wfunction = e->em_orgfnctset->fs_fptrs[e->em_hist->h_wfnum];
-                /* TO BE MONITORED for discarding in case bad results */
-                return ADCL_SOL_FOUND;
-            break;
-        case ADCL_UNEQUAL:
-        default:
-            break;
+	/* one idea is to increment the confidance number for 
+	   attributes values of the winning function */
+	e->em_state = ADCL_STATE_REGULAR;
+	e->em_wfunction = e->em_orgfnctset->fs_fptrs[e->em_hist->h_wfnum];
+	/* TO BE MONITORED for discarding in case bad results */
+	return ADCL_SOL_FOUND;
     }
     if ( e->em_stats[last]->s_count < ADCL_emethod_numtests ) {
         *flag = ADCL_FLAG_PERF;

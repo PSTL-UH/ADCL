@@ -102,7 +102,8 @@
 /* ADCL prediction algorithm options */
 #define ADCL_CLOSEST  0
 #define ADCL_WMV      1
-#define ADCL_SVM      2
+#define ADCL_NBC      2
+#define ADCL_SVM      3
 
 /* Define ADCL public structures */
 struct ADCL_hist_s{
@@ -118,7 +119,7 @@ struct ADCL_hist_s{
     int                 h_vndims; /* Vector number of dimensions */
     int                 *h_vdims; /* Vector extent of each the dimensions */
     int                     h_nc; /* Extent of each data point  */
-   /* Vector map information */
+    /* Vector map information */
     int                h_vectype; /* Vector type */
     int                 h_hwidth; /* Halo cells width */
     int                 *h_rcnts; /* receive counts for AllGatherV */ 
@@ -138,17 +139,13 @@ struct ADCL_hist_s{
     int                 *h_class; /* Class of the function/implementation */
     int               h_perf_win; /* The acceptable perofrmance window used for the clasification
                                      and to compute dmax */
-    double            h_distance; /* Distance to the target problem (To be predicted) */
-    int               h_relation; /* Relation between the history entry and the target problem */
+    double          *h_distances; /* Distance to the other history entries */
+    int             *h_relations; /* Relation between the history entry and the other ones */
     double                h_dmax; /* Maximum distance for a given problem size */
+    double               *h_mean; /* The mean / direction of the fitted Gaussian distribution */
+    double           *h_variance; /* Variance/direction of the fitted Gaussian distribution */
 };
 typedef struct ADCL_hist_s ADCL_hist_t;
-
-struct ADCL_hist_list_s{
-    ADCL_hist_t             *hl_curr;
-    struct ADCL_hist_list_s *hl_next;
-};
-typedef struct ADCL_hist_list_s ADCL_hist_list_t;
 
 /* define the object types visible to the user */
 typedef struct ADCL_vmap_s*      ADCL_Vmap;
@@ -266,26 +263,9 @@ typedef void ADCL_hist_writer ( FILE *fp, ADCL_Hist hist);
 typedef int ADCL_hist_filter ( ADCL_Hist hist, void *filter_criteria );
 typedef double ADCL_hist_distance ( ADCL_Hist hist1 , ADCL_Hist hist2 );
 typedef void ADCL_hist_set_criteria ( ADCL_Request request, void *filter_criteria );
-
-/* Structure holding the hstory functions and related information */
-struct ADCL_hist_functions_s{
-    ADCL_hist_reader             *hf_reader; /* Hist reading function */
-    ADCL_hist_writer             *hf_writer; /* Hist writing function */
-    ADCL_hist_filter             *hf_filter; /* Filter function according to the given criteria */
-    ADCL_hist_distance         *hf_distance; /* Distance function between two Hist */
-};
-typedef struct ADCL_hist_functions_s ADCL_hist_functions_t;
-typedef struct ADCL_hist_functions_s  *ADCL_Hist_functions;
-
-/* Structure holding the criteria and function to set them */
-struct ADCL_hist_criteria_s{
-
-    void                *hc_filter_criteria; /* Filter criteria structure */
-    ADCL_hist_set_criteria *hc_set_criteria; /* Function setting the filter criteria structure */
-    int                     hc_criteria_set; /* Flag whether the filtering criteria are set */
-};
-typedef struct ADCL_hist_criteria_s ADCL_hist_criteria_t;
+/* Other history related data types */
 typedef struct ADCL_hist_criteria_s *ADCL_Hist_criteria;
+typedef struct ADCL_hist_functions_s  *ADCL_Hist_functions;
 
 /* ADCL Function and ADCL Functionset functions */
 typedef void ADCL_work_fnct_ptr ( ADCL_Request req );

@@ -17,10 +17,18 @@
 
 extern ADCL_array_t *ADCL_hist_array;
 
+
+
+/*** ADCL history functions ***/
 int  ADCL_hist_create ( ADCL_emethod_t *e );
 void ADCL_hist_free   ( void );
-int  ADCL_hist_find   ( ADCL_emethod_t *e, ADCL_hist_t **hist );
+int  ADCL_hist_find   ( ADCL_emethod_t *e );
 void ADCL_hist_read_from_file ( ADCL_emethod_t *e );
+
+/*** History clustering functions ***/
+/* Function to create the data structures for history clustering */
+int hist_cluster ( ADCL_emethod_t *e );
+
 
 int get_int_data_from_xml (char *str, int *res);
 int get_str_data_from_xml (char *str, char **dest);

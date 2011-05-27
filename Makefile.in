@@ -48,6 +48,7 @@ all:
 	cd src/adcl/C ; make all 
 	@fortran_make@
 	cd utils ; make all 
+	@cluster_classify_make@
 	@dumpi_make@
 
 clean:
@@ -57,6 +58,7 @@ clean:
 	cd src/adcl/C ; make clean
 	@fortran_clean@
 	cd utils ; make clean
+	@cluster_classify_clean@
 	@dumpi_clean@
 	rm -rf *~ ./include/*~ 
 	rm -rf ./lib/libadcl.a

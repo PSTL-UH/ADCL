@@ -32,12 +32,13 @@ GSL_INC_FLAGS = @adcl_gsl_inc_flag@
 GSL_LD_FLAGS  = @adcl_gsl_ld_flag@
 
 #CC          = $(MPI_BIN_DIR)/@mpi_cc@
-CC	    = @c_compiler@
-CFLAGS      = @CFLAGS@ -I$(ADCL_INC_DIR) @adcl_papi_inc_flag@ @adcl_gsl_inc_flag@ 
-LDFLAGS     = @LDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm @adcl_papi_ld_flag@ @adcl_gsl_ld_flag@ 
+CC          = @c_compiler@
+CXX         = @cxx_compiler@
+CFLAGS      = @CFLAGS@ -I$(ADCL_INC_DIR) -I$(ADCL_INC_DIR)/../contrib @adcl_papi_inc_flag@ @adcl_gsl_inc_flag@ 
+LDFLAGS     = @LDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm -lstdc++ @adcl_papi_ld_flag@ @adcl_gsl_ld_flag@ 
 
 #FC          = $(MPI_BIN_DIR)/@mpi_f90@
 FC	    = @f_compiler@
 FFLAGS      = @FFLAGS@ -I$(ADCL_INC_DIR) @adcl_papi_inc_flag@ @adcl_gsl_inc_flag@ 
-FLDFLAGS    = @FLDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm @adcl_papi_ld_flag@ @adcl_gsl_ld_flag@ 
+FLDFLAGS    = @FLDFLAGS@ $(ADCL_LIB_DIR)/$(ADCL_LIB) -lm -lstdc++ @adcl_papi_ld_flag@ @adcl_gsl_ld_flag@ 
 

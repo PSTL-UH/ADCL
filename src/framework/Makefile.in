@@ -23,8 +23,10 @@ OBJ = 	ADCL_array.o 		          \
 	ADCL_topology.o                   \
 	ADCL_emethod.o 		          \
 	ADCL_hist.o 		          \
+	ADCL_hist_cluster.o               \
+	ADCL_hist_learn.o                 \
 	ADCL_hypothesis.o                 \
-        ADCL_twok.o                       \
+	ADCL_twok.o                       \
 	ADCL_predefined.o                 \
 	ADCL_predefined_alltoallv.o       \
 	ADCL_predefined_alltoall.o        \
@@ -34,7 +36,7 @@ OBJ = 	ADCL_array.o 		          \
 	ADCL_reduce.o                     \
 	ADCL_contigous.o                  \
 	ADCL_list.o                       \
-	@adcl_papi_o@ ADCL_request.o
+	@adcl_papi_o@ ADCL_request.o      
 
 .SUFFIXES: .o.c
 

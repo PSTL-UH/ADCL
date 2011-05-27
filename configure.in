@@ -184,6 +184,16 @@ AC_ARG_WITH(mpi_cc,
 dnl ==================================================	
 
 dnl ==================================================
+AC_MSG_CHECKING(for MPI C++ compiler wrapper)
+AC_ARG_WITH(mpi_cxx,
+ [  --with-mpi-cxx=mpicxx             MPI C++ compiler wrapper (default=mpiCC) ],
+    mpi_cxx="${withval}" && cxx_compiler="${mpi_bin_dir}/${mpi_cxx}",
+    mpi_cxx="mpiCC" && cxx_compiler="${mpi_bin_dir}/${mpi_cxx}")
+    AC_MSG_RESULT(${mpi_cxx})
+    AC_SUBST(mpi_cxx)
+dnl ==================================================
+
+dnl ==================================================
 AC_MSG_CHECKING(for MPI Fortran 90 compiler wrapper)
 AC_ARG_WITH(mpi_f90,
  [  --with-mpi-f90=mpif90             MPI f90 compiler wrapper (default=mpif90) ],
@@ -732,6 +742,21 @@ if test "$ADCL_DUMMY_MPI" = "yes" ; then
 fi
 
 dnl ==================================================
+AC_ARG_ENABLE(cluster_classify,
+[  --enable-cluster-classify         enable the usage of clustering and classification with SVM for historic learning (default=no)],
+[test "$enableval" = yes && ADCL_CLUSTER_CLASSIFY=yes  &&
+cluster_classify_make="cd contrib ; make all" &&
+cluster_classify_clean="cd contrib ; make clean"])
+test "$ADCL_CLUSTER_CLASSIFY" = yes || ADCL_CLUSTER_CLASSIFY=no
+AC_DEFINE(ADCL_EXT_CONTRIB)
+AC_MSG_CHECKING([whether to enable the usage of clustering and classification with SVM])
+AC_MSG_RESULT(${ADCL_CLUSTER_CLASSIFY})
+
+if test "$ADCL_CLSUTER_CLASSIFY" = "yes" ; then
+   AC_DEFINE(ADCL_CLUSTER_CLASSSIFY)
+fi
+
+dnl ==================================================
 AC_ARG_ENABLE(fortran,
 [  --disable-fortran                 compile fortran wrappers (default=yes)],
 [test "$enableval" = no && ADCL_FORTRAN=no])
@@ -745,10 +770,13 @@ if test "$ADCL_FORTRAN" = "yes" ; then
 fi
 
 AC_SUBST(c_compiler)
+AC_SUBST(cxx_compiler)
 AC_SUBST(f_compiler)
 AC_SUBST(dumpi_inc)
 AC_SUBST(dumpi_make)
 AC_SUBST(dumpi_clean)
+AC_SUBST(cluster_classify_make)
+AC_SUBST(cluster_classify_clean)
 AC_SUBST(fortran_make)
 AC_SUBST(fortran_clean)
 
@@ -768,4 +796,4 @@ dnl Checks for library functions.
 #AC_FUNC_MEMCMP
 #AC_CHECK_FUNCS(gethostname strerror strstr setlinebuf strcasecmp snprintf)
 
-AC_OUTPUT(Makefile Makefile.defs include/ADCL_sysconfig.h src/framework/Makefile src/adcl/C/Makefile src/dummympi/Makefile utils/Makefile)
+AC_OUTPUT(Makefile Makefile.defs include/ADCL_sysconfig.h src/framework/Makefile src/adcl/C/Makefile src/dummympi/Makefile utils/Makefile contrib/Makefile)

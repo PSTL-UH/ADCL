@@ -48,9 +48,8 @@ struct ADCL_emethod_s {
     ADCL_function_t          *em_wfunction; /* winner function */
     ADCL_hist_criteria_t *em_hist_criteria; /* History entries filtering criteria */
     ADCL_hist_list_t         *em_hist_list; /* History list of "filtered" entries */
+    ADCL_hist_clusters_t *em_hist_clusters; /* History clusters of the clustered entries */
     int                        em_hist_cnt; /* History entries count */
-    int                     **em_relations; /* Matrix cntXcnt of relations between history entries */
-    double                  **em_distances; /* Matrix cntXcnt of distances between history entries */
     ADCL_hist_t                   *em_hist; /* History entry of the current pb without solution */
     int				   em_root; /* root of the tree in case of reduce function set */
 

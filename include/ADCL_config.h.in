@@ -80,4 +80,7 @@
 /* Prediction algorithm to be used for historic learning */
 #define ADCL_PRED_ALGO 1
 
+/* Usage of external contributions: clustering and SVM */
+#undef ADCL_EXT_CONTRIB
+
 #endif

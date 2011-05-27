@@ -33,6 +33,7 @@ extern int ADCL_emethod_search_algo;
 extern int ADCL_emethod_learn_from_hist;
 extern int ADCL_method_total_num;
 extern int ADCL_twok_threshold;
+extern int ADCL_hist_cluster;
 
 extern char ADCL_display_ip[];
 extern int ADCL_display_port;
@@ -188,6 +189,10 @@ int ADCL_readenv()
         /*  ADCL_HIST_LEARNING */
         else if ( ADCL_is_keyword(keyword, "ADCL_HIST_LEARNING") ) {
             ADCL_set_keyword_int_value ( ptr,"ADCL_HIST_LEARNING", &ADCL_emethod_learn_from_hist );
+        }
+        /*  ADCL_HIST_CLUSTER */
+        else if ( ADCL_is_keyword(keyword, "ADCL_HIST_CLUSTER") ) {
+            ADCL_set_keyword_int_value ( ptr,"ADCL_HIST_CLSUTER", &ADCL_hist_cluster );
         }
         /*  ADCL_HIST_PREDICTOR */
         else if ( ADCL_is_keyword(keyword, "ADCL_HIST_PREDICTOR") ) {

@@ -17,12 +17,12 @@
 
 #include "ADCL.h"
 #include "ADCL_array.h"
+#include "ADCL_hist_internal.h"
 #include "ADCL_statistics.h"
 #include "ADCL_vector.h"
 #include "ADCL_topology.h"
 #include "ADCL_attribute.h"
 #include "ADCL_emethod.h"
-#include "ADCL_hist.h"
 #include "ADCL_function.h"
 #include "ADCL_memory.h"
 #include "ADCL_subarray.h"
@@ -73,8 +73,7 @@
 #define ADCL_STATISTIC_MAX             1
 
 #define ADCL_UNEQUAL                   0
-#define ADCL_IDENT                     1
-#define ADCL_SIMILAR                   2
+#define ADCL_SIMILAR                   1
 
 #define ADCL_WORST_CLASS               0
 #define ADCL_BEST_CLASS                1
