@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2012      University of Houston. All rights reserved.
  * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * $COPYRIGHT$
  *
@@ -53,6 +53,9 @@ struct ADCL_fnctset_s{
     ADCL_attrset_t               *fs_attrset; /* attribute set used to characterize the function */
     ADCL_hist_functions_t *fs_hist_functions; /* struct containing functions to manipulate history objects */
     char                            *fs_name; /* Name of the function set */
+
+   /* for meta functions in timer object */
+    ADCL_function_t **f_fnctlist; /* list of "real functions" that belong to metafunction */
 };
 typedef struct ADCL_fnctset_s ADCL_fnctset_t;
 extern ADCL_array_t *ADCL_fnctset_farray;

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2012      University of Houston. All rights reserved.
+ * Copyright (c) 2009           HLRS
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -53,6 +54,8 @@ struct ADCL_emethod_s {
     ADCL_hist_t                   *em_hist; /* History entry of the current pb without solution */
     int				   em_root; /* root of the tree in case of reduce function set */
 
+    int                em_assoc_with_timer; /* if not associated with a timer object assoc_with_timer=-1, 
+                                               else assoc_with_timer holds id of timer object */
 };
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 

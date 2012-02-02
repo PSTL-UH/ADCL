@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2012      University of Houston. All rights reserved.
  * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
@@ -50,9 +50,11 @@
 #define ADCL_INVALID_DIRECTION 29
 #define ADCL_INVALID_VMAP      30
 #define ADCL_INVALID_OP        31
+#define ADCL_INVALID_EMETHOD   32
+#define ADCL_INVALID_TIMER     33
 
 #ifdef ADCL_PAPI
-#define ADCL_INVALID_PAPI      32
+#define ADCL_INVALID_PAPI      40
 #endif
 
 #define ADCL_VECTOR_NULL    (void*) -1
@@ -66,13 +68,15 @@
 #define ADCL_NULL_FNCT_PTR  (void*) -9
 #define ADCL_VMAP_NULL      (void*) -10
 #define ADCL_VECTYPE_NULL           -11
-
+#define ADCL_EMETHOD_NULL   (void*) -12
+#define ADCL_TIMER_NULL     (void*) -13
 #ifdef ADCL_PAPI
 #define ADCL_PAPI_NULL      (void*) -15
 #endif
 
 #define ADCL_MAX_ATTRLEN 32
 #define ADCL_MAX_NAMELEN 32
+#define ADCL_MAX_ARRAYSIZE 32
 
 #define ADCL_DIRECTION_BOTH          1
 #define ADCL_DIRECTION_LEFT_TO_RIGHT 2
@@ -158,6 +162,7 @@ typedef struct ADCL_attrset_s*   ADCL_Attrset;
 typedef struct ADCL_function_s*  ADCL_Function;
 typedef struct ADCL_fnctset_s*   ADCL_Fnctset;
 typedef struct ADCL_hist_s*      ADCL_Hist;
+typedef struct ADCL_timer_s*     ADCL_Timer;
 #ifdef ADCL_PAPI
 typedef struct ADCL_papi_s*      ADCL_Papi;
 #endif
@@ -348,5 +353,14 @@ int ADCL_Request_restore_status ( ADCL_Request req, int tested_num,
 int ADCL_Request_get_fsname ( ADCL_Request req, char **fsname );
 int ADCL_Request_get_tndims ( ADCL_Request req, int *tndims );
 int ADCL_Request_get_state ( ADCL_Request req, int *state );
+
+/* ADCL Timer functions */
+int ADCL_Timer_create ( int nreq, ADCL_Request *reqs, ADCL_Timer *timer );
+int ADCL_Timer_free ( ADCL_Timer *timer );
+int ADCL_Timer_add_request ( ADCL_Timer timer, ADCL_Request req );
+int ADCL_Timer_commit ( ADCL_Timer timer );
+int ADCL_Timer_remove_request ( ADCL_Timer timer, ADCL_Request req );
+int ADCL_Timer_start ( ADCL_Timer timer );
+int ADCL_Timer_stop ( ADCL_Timer timer );
 
 #endif /* __ADCL_H__ */

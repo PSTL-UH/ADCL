@@ -35,6 +35,7 @@ int ADCL_array_set_element (ADCL_array_t *arr, int pos, int id, void *ptr);
 int ADCL_array_remove_element ( ADCL_array_t *arr, int pos );
 int ADCL_array_get_last ( ADCL_array_t *arr );
 int ADCL_array_get_size ( ADCL_array_t *arr );
+int ADCL_array_get_number_elements ( ADCL_array_t *arr ); /* get number of used elements */
 
 #endif /* __ADCL_ARRAY_H__ */
 

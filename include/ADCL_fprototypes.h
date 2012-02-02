@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2012      University of Houston. All rights reserved.
  * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * Copyright (c) 2009           HLRS. All rights reserved.
  * 
@@ -26,7 +26,7 @@
 #define ADCL_FFNCTSET_NULL    -8
 #define ADCL_FNULL_FNCT_PTR   -9
 #define ADCL_FVMAP_NULL      -10 
-
+#define ADCL_FTIMER_NULL     -11 
 
 /* ADCL environment functions */
 void adcl_init   ( int *ierror );
@@ -327,5 +327,27 @@ void adcl_request_update   ( int *req, TIME_TYPE *time, int *ierror );
 void adcl_request_update_  ( int *req, TIME_TYPE *time, int *ierror );
 void adcl_request_update__ ( int *req, TIME_TYPE *time, int *ierror );
 void ADCL_REQUEST_UPDATE   ( int *req, TIME_TYPE *time, int *ierror );
+
+/* ADCL Timer functions */
+
+void adcl_timer_create    ( int* nreq, int *reqs, int* timer, int* ierror );
+void adcl_timer_create_   ( int* nreq, int *reqs, int* timer, int* ierror );
+void adcl_timer_create__  ( int* nreq, int *reqs, int* timer, int* ierror );
+void ADCL_TIMER_CREATE  ( int* nreq, int *reqs, int* timer, int* ierror );
+
+void adcl_timer_free    ( int *timer, int *ierror );
+void adcl_timer_free_   ( int *timer, int *ierror );
+void adcl_timer_free__  ( int *timer, int *ierror );
+void ADCL_TIMER_FREE    ( int *timer, int *ierror );
+
+void adcl_timer_start   ( int *timer, int *ierror );
+void adcl_timer_start_  ( int *timer, int *ierror );
+void adcl_timer_start__ ( int *timer, int *ierror );
+void ADCL_TIMER_START   ( int *timer, int *ierror );
+
+void adcl_timer_stop    ( int *timer, int *ierror );
+void adcl_timer_stop_   ( int *timer, int *ierror );
+void adcl_timer_stop__  ( int *timer, int *ierror );
+void ADCL_TIMER_STOP    ( int *timer, int *ierror );
 
 #endif /*  __ADCL_FPROTOTYPES_H__ */

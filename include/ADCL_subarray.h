@@ -53,9 +53,6 @@
 
 */
 
-//int ADCL_subarray_init ( int topodims, int vecndims, int *vecdims,
-//               int hwidth, int nc, int order, MPI_Datatype btype,
-//               MPI_Datatype **sdats, MPI_Datatype **rdats );
 int ADCL_subarray_init ( int ntopodim, int nvecdims, int *vecdims,
              int hwidth, int nc, int order, int nneigh, MPI_Datatype btype,
              int ndats, MPI_Datatype **senddats, MPI_Datatype **recvdats);

@@ -14,7 +14,7 @@
 #include "ADCL_internal.h" 
 
 #define ADCL_ATTR_ALLTOALL_TOTAL_NUM    1 /* will be 2 later */
-#define ADCL_METHOD_ALLTOALL_TOTAL_NUM  9 /* will be larger later */
+#define ADCL_METHOD_ALLTOALL_TOTAL_NUM  8 /* will be larger later */
 #define ADCL_ATTR_ALLTOALL_ALG_MAX      3 /* Number of underlaying algorithms available */
 #define ADCL_ATTR_ALLTOALL_TRANSFER_MAX 8 /* not used right now */
 

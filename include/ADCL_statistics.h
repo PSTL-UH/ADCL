@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2012      University of Houston. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -46,7 +46,9 @@ struct ADCL_statistics_s{
     TIME_TYPE    *s_time;  /* measurements */
     int          s_flags;  /* Has this data set already been filtered? */
     double      s_lpts[3]; /* local no. of pts by this function */
+                           /* (unfiltered avg., filtered avg., percentage of outliers) */
     double      s_gpts[3]; /* global no. of pts for this function */
+                           /* (unfiltered avg., filtered avg., percentage of outliers) */
 };
 typedef struct ADCL_statistics_s ADCL_statistics_t;
 

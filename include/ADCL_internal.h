@@ -42,6 +42,7 @@
 #include "ADCL_contiguous.h"
 #include "ADCL_list.h"
 #include "ADCL_hist.h"
+#include "ADCL_timer.h"
 
 #define ADCL_DISPLAY 
 
