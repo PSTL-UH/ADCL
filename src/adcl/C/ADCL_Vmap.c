@@ -69,6 +69,9 @@ int ADCL_Vmap_allreduce_allocate ( MPI_Op op, ADCL_Vmap *vmap )
     return err;
 }
 
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
 int ADCL_Vmap_reduce_allocate ( MPI_Op op, ADCL_Vmap *vmap )
 {
     ADCL_vmap_t *tvmap=NULL;
