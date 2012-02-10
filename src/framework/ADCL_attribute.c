@@ -14,8 +14,10 @@ static int ADCL_attribute_local_counter=0;
 ADCL_array_t *ADCL_attrset_farray;
 static int ADCL_attrset_local_counter=0;
 
+/****************************************************************************/
 int ADCL_attribute_create ( int maxnvalues, int *array_of_values, char **values_names,
                             char *attr_name, ADCL_attribute_t **attribute)
+/****************************************************************************/
 {
     int i, ret = ADCL_SUCCESS;
     ADCL_attribute_t *newattribute=NULL;
@@ -157,6 +159,7 @@ int ADCL_attribute_free ( ADCL_attribute_t **attribute)
 int ADCL_attribute_get_nextval ( ADCL_attribute_t *attr, int val )
 {
     int i, nextval=-1;
+
     for ( i=0; i< attr->a_maxnvalues; i++ ) {
         if ( attr->a_values[i] == val ) {
             nextval = i;
@@ -186,6 +189,8 @@ int ADCL_attribute_get_val ( ADCL_attribute_t *attr, int attrval_pos )
 /********************************************************************************/
 /********************************************************************************/
 int ADCL_attribute_get_pos ( ADCL_attribute_t *attr, int attrval )
+/* get the position of an attribute value attrval in the array a_values of the 
+   attribute */ 
 {
     int i, pos=ADCL_ERROR_INTERNAL;
 
@@ -350,6 +355,7 @@ int ADCL_attrset_free ( ADCL_attrset_t **attrset)
 /********************************************************************************/
 /********************************************************************************/
 int ADCL_attrset_get_pos ( ADCL_attrset_t *attrset, ADCL_attribute_t *attr )
+/* get position of attribute attr in the array of attributes attrset->as_attrs  */
 {
     int i, found =0;
     for ( i=0; i< attrset->as_maxnum; i++ ) {

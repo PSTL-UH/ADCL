@@ -34,6 +34,7 @@ extern int ADCL_emethod_learn_from_hist;
 extern int ADCL_method_total_num;
 extern int ADCL_twok_threshold;
 extern int ADCL_hist_cluster;
+extern int ADCL_timer_steps_between_barriers;
 
 extern char ADCL_display_ip[];
 extern int ADCL_display_port;
@@ -67,6 +68,9 @@ int ADCL_readenv()
     char keyword[MAXLINE];
     char valstring[MAXLINE];
     char *ptr;
+//#ifdef TIMER
+    int timer_steps_between_barriers_is_set=0;
+//#endif
 
     FILE* fp;
 
@@ -211,6 +215,19 @@ int ADCL_readenv()
         else if ( ADCL_is_keyword(keyword, "ADCL_DISPLAY_RANK") ) {
             ADCL_set_keyword_int_array_value ( ptr,"ADCL_DISPLAY_RANK", &ADCL_display_rank );
         }
+
+        /*  ADCL_USE_BARRIER */
+        else if ( ADCL_is_keyword(keyword, "ADCL_USE_BARRIER") ) {
+            ADCL_set_keyword_int_value ( ptr, "ADCL_USE_BARRIER", &ADCL_use_barrier);
+        }
+//#ifdef TIMER
+        /*  ADCL_TIMER_STEPS_BETWEEN_BARRIERS */
+        else if ( ADCL_is_keyword(keyword, "ADCL_TIMER_STEPS_BETWEEN_BARRIERS") ) {
+            ADCL_set_keyword_int_value ( ptr, "ADCL_TIMER_STEPS_BETWEEN_BARRIERS", &ADCL_timer_steps_between_barriers);
+            timer_steps_between_barriers_is_set=1;
+        }
+//#endif
+
     }
 
 

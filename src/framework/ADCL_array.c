@@ -156,3 +156,20 @@ int ADCL_array_remove_element ( ADCL_array_t *arr, int pos )
 
     return ADCL_SUCCESS;
 }
+
+/* get number of used elements */
+/* this information would be in ADCL_local_id_counter, but since it is private ... */
+int ADCL_array_get_number_elements ( ADCL_array_t *arr ) {
+    int pos, count; 
+
+    count = 0;
+    for ( pos=0; pos<arr->size; pos++ ) {
+      if ( 1 == arr->array[pos].in_use ) 
+         count++;
+    }
+
+    return count;
+}
+
+
+

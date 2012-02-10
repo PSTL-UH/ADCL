@@ -11,6 +11,12 @@
 #include "ADCL_internal.h"
 #include "math.h"
 
+#ifdef ADCL_USE_BARRIER
+int ADCL_use_barrier = 1;
+#else
+int ADCL_use_barrier = 0;
+#endif
+
 static int ADCL_local_id_counter=0;
 ADCL_array_t *ADCL_request_farray;
 
@@ -511,22 +517,32 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_AVAIL );
 
+
+
+    if ( req->r_emethod->em_assoc_with_timer == -1) {
 #ifdef ADCL_NEW_OUTPUT_FORMAT
-    req->r_function = ADCL_emethod_get_function_by_state ( req->r_emethod,
-          &(req->r_erlast), &(req->r_erflag), "emethod", req->r_emethod->em_id, ADCL_COMM_AVAIL);
+	req->r_function = ADCL_emethod_get_function_by_state ( req->r_emethod,
+							       &(req->r_erlast), 
+							       &(req->r_erflag), 
+							       "emethod",
+							       req->r_emethod->em_id, 
+							       ADCL_COMM_AVAIL);
 #else
-    req->r_function = ADCL_emethod_get_function_by_state ( req->r_emethod,  
-       &(req->r_erlast), &(req->r_erflag), "req", req->r_id, ADCL_COMM_AVAIL);  
+	req->r_function = ADCL_emethod_get_function_by_state ( req->r_emethod,  
+							       &(req->r_erlast), 
+							       &(req->r_erflag), 
+							       "req", req->r_id, 
+							       ADCL_COMM_AVAIL);  
 #endif
 
 #ifdef PERF_DETAILS
     start_time = TIME;
 #endif /* PERF_DETAILS */
-#ifdef ADCL_USE_BARRIER
-    if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
+
+    if ( 1 == ADCL_use_barrier && req->r_emethod->em_state == ADCL_STATE_TESTING ) {
         MPI_Barrier ( comm );
     }
-#endif /* ADCL_USE_BARRIER */
+
 #ifdef PERF_DETAILS
     end_time = TIME;
     elapsed_time += (end_time - start_time);
@@ -539,11 +555,11 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 #ifdef PERF_DETAILS
     start_time = TIME;
 #endif /* PERF_DETAILS */
-#ifdef ADCL_USE_BARRIER
-    if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
+
+    if ( 1 == ADCL_use_barrier && req->r_emethod->em_state == ADCL_STATE_TESTING ) {
         MPI_Barrier ( comm );
     }
-#endif /* ADCL_USE_BARRIER */
+
 #ifdef PERF_DETAILS
     end_time = TIME;
     elapsed_time += (end_time - start_time);
@@ -553,7 +569,9 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
     t2 = TIME;
 #ifndef ADCL_USERLEVEL_TIMINGS
     /* Update the request with the timings */
-    ADCL_request_update ( req, t1, t2 );
+    if ( req->r_emethod->em_assoc_with_timer == -1) {
+	ADCL_request_update ( req, t1, t2 );
+    }
 #endif /* ADCL_USERLEVEL_TIMINGS */
 
     *db = req->r_function->f_db;
@@ -801,6 +819,7 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
             (*number_functions) ++;
         }
     }
+
     if (0 == *number_functions) {
         return ret;
     }

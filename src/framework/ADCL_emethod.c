@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2012      University of Houston. All rights reserved.
  * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
@@ -23,6 +23,9 @@ int ADCL_emethod_numtests = ADCL_EMETHOD_NUMTESTS;
 int ADCL_emethod_search_algo = ADCL_BRUTE_FORCE;
 int ADCL_emethod_learn_from_hist = 0;
 
+int  ADCL_emethod_is_same(ADCL_emethod_t *e, ADCL_topology_t *t, 
+			  ADCL_vector_t *v, ADCL_fnctset_t *f); 
+
 #define ADCL_ATTR_TOTAL_NUM 3
 extern ADCL_attribute_t *ADCL_neighborhood_attrs[ADCL_ATTR_TOTAL_NUM];
 
@@ -35,6 +38,7 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 {
     ADCL_emethod_t *e = NULL;
     ADCL_hypothesis_t *hypo = NULL;
+    int last, same_em;
 
     int i, ret=ADCL_SUCCESS;
 
@@ -52,70 +56,10 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
        for ( i=0; i<= last; i++ ) {
           e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos (
           ADCL_emethod_array, i );
-	  if ( NULL == e ) {
-	      continue;
-	  }
-          topo = e->em_topo;
-          vec  = e->em_vec;
-          if ( ADCL_VECTOR_NULL == vec  ) {
-              continue;
-          }
-
-          MPI_Comm_compare ( topo->t_comm, t->t_comm, &result );
-          if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
-              continue;
-          }
-          vec_map = vec->v_map;
-	  v_map   = v->v_map;
-
-          if ( ( e->em_orgfnctset != f )          ||
-               ( topo->t_ndims   != t->t_ndims  ) ||
-               ( topo->t_nneigh  != t->t_nneigh ) ||
-               ( vec->v_ndims    != v->v_ndims  ) ||
-               ( vec->v_nc       != v->v_nc     ) ||
-               ( vec_map->m_vectype != v_map->m_vectype ) || 
-               ( e->em_root != root ) ) {
-	       continue;
-          }
-
-          for ( j=0 ; j<vec->v_ndims; j++ ){
-             if ( vec->v_dims[j] != v->v_dims[j] ) {
-                goto nextemethod;
-             }
-	  }
-
-          switch (vec_map->m_vectype) {
-	  case ADCL_VECTOR_HALO:
-             if ( vec_map->m_hwidth != v_map->m_hwidth  ) {
-	        continue;
-	     }
-
-             for ( j=0; j< (2*topo->t_nneigh); j++ ) {
-                if ( topo->t_neighbors[j] != t->t_neighbors [j] ) {
-                   goto nextemethod;
-	        }
-             }
-	     break;
-	  case ADCL_VECTOR_LIST:
-             for ( j=0; j<topo->t_size; j++){
-                if ((vec_map->m_rcnts[j] != v_map->m_rcnts[j]) || 
-	           (vec_map->m_displ[j] != v_map->m_rcnts[j])) {
-	          goto nextemethod;
-	        }
-             }
-	     break;
-	  }
-
-          /* all tests OK */
-          found = i;
-          break;
-nextemethod:
-          continue;
-       }
-
-       if ( found > -1 ) {
-           e->em_rfcnt++;
-           return e;
+	  same_em = ADCL_emethod_is_same(e, t, v, f);
+          if (same_em == 1) {
+              e->em_rfcnt++;
+              return e;
        }
     }
     /* we did not find this configuraion yet, so we have to add it */
@@ -124,11 +68,11 @@ nextemethod:
         return NULL;
     }
 
+    e->em_id = ADCL_local_id_counter++; 
     ADCL_array_get_next_free_pos ( ADCL_emethod_array, &e->em_findex );
     ADCL_array_set_element ( ADCL_emethod_array, e->em_findex,
                  e->em_id, e );
 
-    e->em_id          = ADCL_local_id_counter++;
     e->em_rfcnt       = 1;
     e->em_state       = ADCL_STATE_TESTING;
     e->em_explored_hist = -2;
@@ -216,6 +160,9 @@ nextemethod:
     }
     /* Initialize history entries count to 0 */
     e->em_hist_cnt = 0;
+
+    /* timer object */
+    e->em_assoc_with_timer=-1;
  exit:
     if ( ret != ADCL_SUCCESS  ) {
         ADCL_statistics_free ( &(e->em_stats), f->fs_maxnum );
@@ -404,8 +351,10 @@ ADCL_function_t*  ADCL_emethod_get_function_by_state
 	ADCL_printf("#%d:  %s %d function set %d %s winner is %d %s\n",
 		    rank, objname, id, em->em_orgfnctset->fs_id, em->em_orgfnctset->fs_name, em->em_wfunction->f_id,
 		    em->em_wfunction->f_name); 
-	//DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,em->em_id,objname,id,em->em_wfunction->f_id)); //only id needs to be sent to identify which tab to show the message in.
-	DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,id,objname,em->em_orgfnctset->fs_id,em->em_orgfnctset->fs_name,em->em_wfunction->f_id)); //now sending the funtion set id.
+	//DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,em->em_id,objname,id,em->em_wfunction->f_id)); 
+        //only id needs to be sent to identify which tab to show the message in.
+	DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,id,objname,em->em_orgfnctset->fs_id,
+		 em->em_orgfnctset->fs_name,em->em_wfunction->f_id)); //now sending the funtion set id.
 
 #ifdef ADCL_SAVE_REQUEST_WINNER
        /* XXX not nice */
@@ -521,6 +470,10 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm, int count)
 /**********************************************************************/
 int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
 {
+    /* ! parameter mode is not used */
+    /* determines the next function and the number of measurements 
+       if testing is finished, sets the winner function */
+
     int next = ADCL_EVAL_DONE;
     int last = e->em_last, rank;
     int hist_search_res;
@@ -559,6 +512,8 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
 	/* TO BE MONITORED for discarding in case bad results */
 	return ADCL_SOL_FOUND;
     }
+
+    /* check if implementation has been called the required number of times */
     if ( e->em_stats[last]->s_count < ADCL_emethod_numtests ) {
         *flag = ADCL_FLAG_PERF;
         e->em_stats[last]->s_count++;
@@ -577,6 +532,8 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
     }
 
     ADCL_STAT_SET_TESTED ( e->em_stats[last]);
+    /* determine average time, outlier percentage, etc. */
+    /* TIMER: rank only for output, currently not used */
     ADCL_statistics_filter_timings ( &(e->em_stats[last]), 1, rank );
 
     if ( ADCL_PERF_HYPO == e->em_search_algo ) {
@@ -631,3 +588,73 @@ void ADCL_emethods_update ( ADCL_emethod_t *emethod, int pos, int flag,
 
     return;
 }
+
+/**********************************************************************/
+int  ADCL_emethod_is_same(ADCL_emethod_t *e, ADCL_topology_t *t, ADCL_vector_t *v,
+                   ADCL_fnctset_t *f) {
+/**********************************************************************/
+/* checks, if a emethod e exists which has the same topology t, the same 
+   vector v and the same functionset f 
+   Return values: 1, if exists, -1 otherwise*/ 
+
+    int found, j, result;
+    ADCL_topology_t *topo;
+    ADCL_vector_t *vec;
+    ADCL_vmap_t *vec_map, *v_map;
+
+    found = -1;
+    topo = e->em_topo;
+    vec  = e->em_vec;
+    if ( ADCL_VECTOR_NULL == vec  ) {
+        return found;
+    }
+
+    MPI_Comm_compare ( topo->t_comm, t->t_comm, &result );
+    if ( ( result != MPI_IDENT) && (result != MPI_CONGRUENT) ) {
+        return found;
+    }
+    vec_map = vec->v_map;
+    v_map   = v->v_map;
+
+    if ( ( e->em_orgfnctset != f )          ||
+         ( topo->t_ndims   != t->t_ndims  ) ||
+         ( vec->v_ndims    != v->v_ndims  ) ||
+         ( vec->v_nc       != v->v_nc     ) ||
+         ( vec->v_dat      != v->v_dat    ) ||
+         ( vec_map->m_vectype != v_map->m_vectype ) ) {
+         return found;
+    }
+
+    for ( j=0 ; j<vec->v_ndims; j++ ){
+       if ( vec->v_dims[j] != v->v_dims[j] ) {
+          return found;
+       }
+    }
+
+    switch (vec_map->m_vectype) {
+    case ADCL_VECTOR_HALO:
+       if ( vec_map->m_hwidth != v_map->m_hwidth  ) {
+          return found;
+       }
+
+       for ( j=0; j< (2*topo->t_ndims); j++ ) {
+          if ( topo->t_neighbors[j] != t->t_neighbors [j] ) {
+             return found;
+          }
+       }
+       break;
+    case ADCL_VECTOR_LIST:
+       for ( j=0; j<topo->t_size; j++){
+          if ((vec_map->m_rcnts[j] != v_map->m_rcnts[j]) || 
+             (vec_map->m_displ[j] != v_map->m_rcnts[j])) {
+             return found;
+          }
+       }
+       break;
+    }
+
+    /* all tests OK */
+    found = 1;
+    return found;
+}
+

@@ -92,7 +92,7 @@ int ADCL_predefined_alltoall ( void )
     m_alltoall_attrs[0] = ADCL_attr_alltoall_alg_native;
     /* m_alltoall_attr[1] = ADCL_attr_alltoall_transfer_Sendrecv */
     ADCL_function_create_async ( ADCL_alltoall_native, NULL, ADCL_alltoall_attrset,
-        			 m_alltoall_attrs, "Alltoall_native_SR", 
+        			 m_alltoall_attrs, "Alltoall_native", 
         			 &ADCL_alltoall_functions[count]);
     count++;
 
@@ -104,13 +104,13 @@ int ADCL_predefined_alltoall ( void )
         			 &ADCL_alltoall_functions[count]);
     count++;
 
-    /* Register function pairwise, no transfer primitives yet set */
-    m_alltoall_attrs[0] = ADCL_attr_alltoall_alg_pairwise;
-    /* m_alltoall_attr[1] = ADCL_attr_alltoall_transfer_Sendrecv */
-    ADCL_function_create_async ( ADCL_alltoall_bruck, NULL, ADCL_alltoall_attrset,
-        			 m_alltoall_attrs, "Alltoall_bruck_SR", 
-        			 &ADCL_alltoall_functions[count]);
-    count++;
+    ///* Register function pairwise, no transfer primitives yet set */
+    //m_alltoall_attrs[0] = ADCL_attr_alltoall_alg_pairwise;
+    ///* m_alltoall_attr[1] = ADCL_attr_alltoall_transfer_Sendrecv */
+    //ADCL_function_create_async ( ADCL_alltoall_bruck, NULL, ADCL_alltoall_attrset,
+    //    			 m_alltoall_attrs, "Alltoall_bruck_SR", 
+    //    			 &ADCL_alltoall_functions[count]);
+    //count++;
 
     /* Register function pairwise, no transfer primitives yet set */
     m_alltoall_attrs[0] = ADCL_attr_alltoall_alg_pairwise;
