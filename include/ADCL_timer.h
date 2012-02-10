@@ -47,7 +47,6 @@ struct ADCL_timer_s{
     int               t_barrier_cnt; /* counter for calls to timer_start and timer_stop resp. since 
                                         MPI_barrier is only called at certain intervals during testing phase */    
 };
-typedef struct ADCL_timer_s ADCL_timer_t;
 
 extern ADCL_array_t * ADCL_timer_farray;
 

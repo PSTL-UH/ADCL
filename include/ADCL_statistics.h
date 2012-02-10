@@ -50,7 +50,6 @@ struct ADCL_statistics_s{
     double      s_gpts[3]; /* global no. of pts for this function */
                            /* (unfiltered avg., filtered avg., percentage of outliers) */
 };
-typedef struct ADCL_statistics_s ADCL_statistics_t;
 
 int ADCL_statistics_create ( ADCL_statistics_t*** stats, int fs_maxnum );
 int ADCL_statistics_free   ( ADCL_statistics_t*** stats, int fs_maxnum );
@@ -75,7 +74,6 @@ struct ADCL_hypothesis_s {
     int                  h_active_attrpos; /* position of the current actively
                           investigated attribute in the attrset */
 };
-typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
 
 /* Data structure for performance hypothesis search algorithm */
 struct ADCL_twok_factorial_s {
@@ -89,6 +87,5 @@ struct ADCL_twok_factorial_s {
     double                       *twok_sst; /* SST's */
     double                         *twok_q; /* Q's */
 };
-typedef struct ADCL_twok_factorial_s ADCL_twok_factorial_t;
 
 #endif

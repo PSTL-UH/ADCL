@@ -15,7 +15,6 @@ struct ADCL_array_elem_s {
     int in_use;  /* is this element currently occupied? */
     void  *ptr;  /* data ptr */
 };
-typedef struct ADCL_array_elem_s ADCL_array_elem_t;
 
 struct ADCL_array_s {
     char            name[64];  /* name of the type, for debugging purposes */
@@ -23,7 +22,6 @@ struct ADCL_array_s {
     int                 last;  /* last used element */
     ADCL_array_elem_t *array;
 };
-typedef struct ADCL_array_s ADCL_array_t;
 
 int ADCL_array_init (ADCL_array_t **arr, const char name[64], int size );
 int ADCL_array_free (ADCL_array_t **arr );

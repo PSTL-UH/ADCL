@@ -57,7 +57,6 @@ struct ADCL_emethod_s {
     int                em_assoc_with_timer; /* if not associated with a timer object assoc_with_timer=-1, 
                                                else assoc_with_timer holds id of timer object */
 };
-typedef struct ADCL_emethod_s ADCL_emethod_t;
 
 
 ADCL_emethod_t* ADCL_emethod_init ( ADCL_topology_t *topo, ADCL_vector_t *vec,

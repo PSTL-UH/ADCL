@@ -15,6 +15,25 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+
+typedef struct ADCL_array_elem_s ADCL_array_elem_t;
+typedef struct ADCL_array_s ADCL_array_t;
+typedef struct ADCL_attribute_s ADCL_attribute_t;
+typedef struct ADCL_attrset_s ADCL_attrset_t;
+typedef struct ADCL_emethod_s ADCL_emethod_t;
+typedef struct ADCL_function_s ADCL_function_t;
+typedef struct ADCL_fnctset_s ADCL_fnctset_t;
+typedef struct ADCL_papi_s ADCL_papi_t;
+typedef struct ADCL_request_s ADCL_request_t;
+typedef struct ADCL_statistics_s ADCL_statistics_t;
+typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
+typedef struct ADCL_twok_factorial_s ADCL_twok_factorial_t;
+typedef struct ADCL_timer_s ADCL_timer_t;
+typedef struct ADCL_topology_s ADCL_topology_t;
+typedef struct ADCL_vector_s ADCL_vector_t;
+typedef struct ADCL_vectset_s ADCL_vectset_t;
+typedef struct ADCL_vmap_s ADCL_vmap_t;
+
 #include "ADCL.h"
 #include "ADCL_array.h"
 #include "ADCL_hist_internal.h"

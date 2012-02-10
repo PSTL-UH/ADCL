@@ -60,7 +60,6 @@ struct ADCL_request_s{
     TIME_TYPE                 r_time; /* temporary buffer to store the exeuction
                                          time for dual-block operations */
 };
-typedef struct ADCL_request_s ADCL_request_t;
 
 extern ADCL_array_t * ADCL_request_farray;
 

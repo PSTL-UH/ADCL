@@ -29,7 +29,6 @@ struct ADCL_vmap_s{
     int            m_scnt; /* send count for AlltoAll */
     int            m_rcnt; /* receive count for AlltoAll */
 };
-typedef struct ADCL_vmap_s ADCL_vmap_t;
 
 extern ADCL_array_t *ADCL_vmap_farray;
 

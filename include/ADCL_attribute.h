@@ -29,7 +29,6 @@ struct ADCL_attribute_s{
     char **a_values_names; /* list of names of the attribute values */
     char     *a_attr_name; /* name of the attribute */
 };
-typedef struct ADCL_attribute_s ADCL_attribute_t;
 extern ADCL_array_t *ADCL_attribute_farray;
 
 int ADCL_attribute_create ( int maxnvalues, int *array_of_values, char **values_names,
@@ -54,7 +53,6 @@ struct ADCL_attrset_s{
                                     in this attribute set */
     ADCL_attribute_t **as_attrs; /* array of ADCL_attributes in this set */
 };
-typedef struct ADCL_attrset_s ADCL_attrset_t;
 extern ADCL_array_t *ADCL_attrset_farray;
 
 int ADCL_attrset_create ( int maxnum, ADCL_attribute_t **array_of_attributes,

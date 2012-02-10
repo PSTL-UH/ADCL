@@ -29,7 +29,6 @@ struct ADCL_topology_s{
     int    *t_coords; /* coordinate of this proc in the proc-topology,
                          dimension t_ndims */
 };
-typedef struct ADCL_topology_s ADCL_topology_t;
 extern ADCL_array_t *ADCL_topology_farray;
 
 int ADCL_topology_create ( MPI_Comm cart_comm, ADCL_topology_t **topo );

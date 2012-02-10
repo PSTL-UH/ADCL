@@ -29,7 +29,6 @@ struct ADCL_vector_s{
     MPI_Datatype    v_dat; /* basic datatype */
     ADCL_vmap_t    *v_map; /* pointer to the vmap structure */
 };
-typedef struct ADCL_vector_s ADCL_vector_t;
 
 extern ADCL_array_t *ADCL_vector_farray;
 
@@ -152,7 +151,6 @@ struct ADCL_vectset_s{
     ADCL_vector_t     **vs_svecs; /* ptr to the vectors describing send data items */
     ADCL_vector_t     **vs_rvecs; /* ptr to the vectors describing recv data items */
 };
-typedef struct ADCL_vectset_s ADCL_vectset_t;
 extern ADCL_array_t *ADCL_vectset_farray;
 
 int ADCL_vectset_create ( int maxnum,

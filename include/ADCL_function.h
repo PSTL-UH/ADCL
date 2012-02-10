@@ -19,6 +19,8 @@
 #include "ADCL.h"
 #include "ADCL_attribute.h"
 
+struct ADCL_request_t;
+
 struct ADCL_function_s {
     int                     f_id; /* id of the object */
     int                 f_findex; /* index of this object in the fortran array */
@@ -31,8 +33,11 @@ struct ADCL_function_s {
     int              *f_attrvals; /* array of attribute values for this particular
                                      function */
     char                 *f_name; /* name of the function */
+
+    /* for meta functions in timer object */
+    ADCL_function_t **f_fnctlist; /* list of "real functions" that belong to metafunction */
 };
-typedef struct ADCL_function_s ADCL_function_t;
+//typedef struct ADCL_function_s ADCL_function_t;
 extern ADCL_array_t *ADCL_function_farray;
 
 int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
@@ -54,10 +59,8 @@ struct ADCL_fnctset_s{
     ADCL_hist_functions_t *fs_hist_functions; /* struct containing functions to manipulate history objects */
     char                            *fs_name; /* Name of the function set */
 
-   /* for meta functions in timer object */
-    ADCL_function_t **f_fnctlist; /* list of "real functions" that belong to metafunction */
 };
-typedef struct ADCL_fnctset_s ADCL_fnctset_t;
+//typedef struct ADCL_fnctset_s ADCL_fnctset_t;
 extern ADCL_array_t *ADCL_fnctset_farray;
 
 int ADCL_fnctset_create ( int maxnum, ADCL_function_t **fncts, char *name, 

@@ -193,7 +193,8 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     ADCL_fnctset_create ( nmetafncts, metafnctlist, "timer_pseudofnctset", &(metafnctset) );
 
     /* create a new emethod (any of the topologies will do) */
-    ttimer->t_emethod = ADCL_emethod_init( reqs_in[0]->r_emethod->em_topo, ADCL_VECTOR_NULL, metafnctset ); 
+    ttimer->t_emethod = ADCL_emethod_init( reqs_in[0]->r_emethod->em_topo, ADCL_VECTOR_NULL, 
+					   metafnctset, ADCL_NO_ROOT ); 
 
     /* set requests to first fnct, user might start request before starting the timer */
     fnct = metafnctlist[0]; 
