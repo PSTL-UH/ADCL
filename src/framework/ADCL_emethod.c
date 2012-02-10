@@ -39,28 +39,29 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     ADCL_emethod_t *e = NULL;
     ADCL_hypothesis_t *hypo = NULL;
     int last, same_em;
-
+    
     int i, ret=ADCL_SUCCESS;
-
+    
     if ( ADCL_merge_requests && v != ADCL_VECTOR_NULL ) {
-       int j, last, found=-1;
-       int result;
-       ADCL_topology_t *topo;
-       ADCL_vector_t *vec;
-       ADCL_vmap_t *vec_map, *v_map;
-
-       /* Check first, whether we have an entry in the ADCL_emethods_array,
-          which fulfills already our requirements;
-       */
-       last = ADCL_array_get_last ( ADCL_emethod_array );
-       for ( i=0; i<= last; i++ ) {
-          e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos (
-          ADCL_emethod_array, i );
-	  same_em = ADCL_emethod_is_same(e, t, v, f);
-          if (same_em == 1) {
-              e->em_rfcnt++;
-              return e;
-       }
+	int j, last, found=-1;
+	int result;
+	ADCL_topology_t *topo;
+	ADCL_vector_t *vec;
+	ADCL_vmap_t *vec_map, *v_map;
+	
+	/* Check first, whether we have an entry in the ADCL_emethods_array,
+	   which fulfills already our requirements;
+	*/
+	last = ADCL_array_get_last ( ADCL_emethod_array );
+	for ( i=0; i<= last; i++ ) {
+	    e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos (
+		ADCL_emethod_array, i );
+	    same_em = ADCL_emethod_is_same(e, t, v, f);
+	    if (same_em == 1) {
+		e->em_rfcnt++;
+		return e;
+	    }
+	}
     }
     /* we did not find this configuraion yet, so we have to add it */
     e = ( ADCL_emethod_t *) calloc (1, sizeof(ADCL_emethod_t));
