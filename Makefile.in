@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2006-2007      University of Houston. All rights reserved.
+# Copyright (c) 2006-2012      University of Houston. All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -47,7 +47,7 @@ all:
 	cd src/communication ; make 
 	cd src/adcl/C ; make all 
 	@fortran_make@
-	cd utils ; make all 
+	cd cotnrib ; make  
 	@cluster_classify_make@
 	@dumpi_make@
 
@@ -57,9 +57,10 @@ clean:
 	cd src/communication ; make clean
 	cd src/adcl/C ; make clean
 	@fortran_clean@
-	cd utils ; make clean
+	cd contrib ; make clean
 	@cluster_classify_clean@
 	@dumpi_clean@
+	cd utils ; make clean
 	rm -rf *~ ./include/*~ 
 	rm -rf ./lib/libadcl.a
 
