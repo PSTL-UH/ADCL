@@ -46,8 +46,8 @@ all:
 	cd src/memory ; make
 	cd src/communication ; make 
 	cd src/adcl/C ; make all 
+	cd contrib ; make  
 	@fortran_make@
-	cd cotnrib ; make  
 	@cluster_classify_make@
 	@dumpi_make@
 
@@ -56,8 +56,8 @@ clean:
 	cd src/memory ; make clean
 	cd src/communication ; make clean
 	cd src/adcl/C ; make clean
-	@fortran_clean@
 	cd contrib ; make clean
+	@fortran_clean@
 	@cluster_classify_clean@
 	@dumpi_clean@
 	cd utils ; make clean
