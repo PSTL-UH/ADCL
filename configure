@@ -567,6 +567,8 @@ f_compiler
 cxx_compiler
 c_compiler
 adcl_emethod_numtests
+adcl_libnbc_ld_flag
+adcl_libnbc_inc_flag
 adcl_minmax
 adcl_gsl_ld_flag
 adcl_gsl_inc_flag
@@ -677,6 +679,10 @@ enable_gsl
 with_gsl_dir
 with_gsl_inc_dir
 with_gsl_lib_dir
+enable_libnbc
+with_libnbc_dir
+with_libnbc_inc_dir
+with_libnbc_lib_dir
 enable_onesided
 enable_use_barrier
 enable_printf_tofile
@@ -1321,6 +1327,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-papi                     enable the usage of papi (default=no)
   --enable-gsl                      enable the usage of gsl (default=no)
+  --enable-libnbc                   enable the usage of libNBC (default=no)
   --enable-onesided                 enable the usage of one-sided communication (default=no)
   --enable-use-barrier              use barrier synchronization for measurements (default=yes)
   --disable-printf-tofile           dump printf statements to a file (default=yes)
@@ -1357,6 +1364,9 @@ Optional Packages:
   --with-gsl-dir=dir                Main GSL directory (default=/usr/local)
   --with-gsl-inc-dir=dir            GSL include directory (default=GSL_DIR/include/gsl)
   --with-gsl-lib-dir=dir            GSL lib directory (default=GSL_DIR/lib)
+  --with-libnbc-dir=dir             Main libNBC directory (default=/usr/local)
+  --with-libnbc-inc-dir=dir         libNBC include directory (default=LIBNBC_DIR/include)
+  --with-libnbc-lib-dir=dir         libNBC lib directory (default=LIBNBC_DIR/lib)
   --with-num-tests=NUMTESTS         Number of measurements per implementation (default=30)
   --with-perf-win=PERF-WIN          Acceptable performance window (default=10)
   --with-pred-algo=algorithm        Prediction algorithm options (default=ADCL_WMV)
@@ -3773,6 +3783,77 @@ else
 fi
 
 
+
+
+
+
+# Check whether --enable-libnbc was given.
+if test "${enable_libnbc+set}" = set; then :
+  enableval=$enable_libnbc; test "$enableval" = yes && ADCL_LIBNBC=yes
+fi
+
+test "$ADCL_LIBNBC" = yes || ADCL_LIBNBC=no
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable the usage of libNBC" >&5
+$as_echo_n "checking whether to enable the usage of libNBC... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ADCL_LIBNBC}" >&5
+$as_echo "${ADCL_LIBNBC}" >&6; }
+
+if test "$ADCL_LIBNBC" = "yes" ; then
+   $as_echo "#define ADCL_LIBNBC 1" >>confdefs.h
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for linNBC main directory" >&5
+$as_echo_n "checking for linNBC main directory... " >&6; }
+
+# Check whether --with-libnbc_dir was given.
+if test "${with_libnbc_dir+set}" = set; then :
+  withval=$with_libnbc_dir; libnbc_dir="${withval}"
+else
+  libnbc_dir=""
+fi
+
+    if test "x$libnbc_dir" = "x" ; then
+       libnbc_dir="/usr/local"
+    fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${libnbc_dir}" >&5
+$as_echo "${libnbc_dir}" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libNBC include directory" >&5
+$as_echo_n "checking for libNBC include directory... " >&6; }
+
+# Check whether --with-libnbc_inc_dir was given.
+if test "${with_libnbc_inc_dir+set}" = set; then :
+  withval=$with_libnbc_inc_dir; libnbc_inc_dir="${withval}"
+else
+  libnbc_inc_dir=""
+fi
+
+    if test "x$libnbc_inc_dir" = "x" ; then
+       libnbc_inc_dir=${libnbc_dir}/include
+    fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${libnbc_inc_dir}" >&5
+$as_echo "${libnbc_inc_dir}" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libNBC lib directory" >&5
+$as_echo_n "checking for libNBC lib directory... " >&6; }
+
+# Check whether --with-libnbc_lib_dir was given.
+if test "${with_libnbc_lib_dir+set}" = set; then :
+  withval=$with_libnbc_lib_dir; libnbc_lib_dir="${withval}"
+else
+  libnbc_lib_dir=""
+fi
+
+    if test "x$libnbc_lib_dir" = "x" ; then
+       libnbc_lib_dir=${libnbc_dir}/lib
+    fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${libnbc_lib_dir}" >&5
+$as_echo "${libnbc_lib_dir}" >&6; }
+
+   adcl_libnbc_inc_flag="-I${libnbc_inc_dir}"
+   adcl_libnbc_ld_flag="-L${libnbc_lib_dir} -lnbc"
+else
+   adcl_libnbc_inc_flag="-UGSL"
+fi
 
 
 

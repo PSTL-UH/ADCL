@@ -55,6 +55,8 @@
 /* Enable the usage of the GNU scientific libraries */
 #undef ADCL_GSL
 
+/* Enable the usage of the libNBC library */
+#undef ADCL_LIBNBC
 
 /* enable PAPI module? */
 #undef ADCL_PAPI 
