@@ -15,7 +15,7 @@
 #endif
 
 #define MAXLINE 80
-#define Debug 1
+//#define Debug 0
 
 extern int ADCL_OUTLIER_FACTOR;
 extern int ADCL_OUTLIER_FRACTION;

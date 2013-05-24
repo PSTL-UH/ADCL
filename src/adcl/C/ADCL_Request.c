@@ -175,6 +175,7 @@ int ADCL_Request_free ( ADCL_Request *req )
     return ret; 
 }
 
+
 int ADCL_Request_start ( ADCL_Request req )
 {
     int ret=ADCL_SUCCESS;
@@ -194,44 +195,29 @@ int ADCL_Request_start ( ADCL_Request req )
 
 int ADCL_Request_init ( ADCL_Request req )
 {
-    TIME_TYPE t1, t2;
     int ret=ADCL_SUCCESS;
     int db;
-    MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
 
-#ifdef ADCL_USE_BARRIER
-    if ( req->r_emethod->em_state == ADCL_STATE_TESTING ) {
-        MPI_Barrier ( comm );
-    }
-#endif /* ADCL_USE_BARRIER */
-    printf("hey \n");
-    t1 = TIME;
     ret = ADCL_request_init ( req, &db );
-    t2 = TIME;
-    req->r_time = t2-t1;
 
     return ret;
 }
 
+int ADCL_Request_progress ( ADCL_Request req ) {
+  int ret;
+
+  ret = ADCL_request_progress( req);
+
+  return ret;
+}
 
 int ADCL_Request_wait ( ADCL_Request req )
 {
     int ret=ADCL_SUCCESS;
-    TIME_TYPE t1, t2;
-    MPI_Comm comm =  req->r_emethod->em_topo->t_comm;
 
     /* Check validity of the request  */
-    t1 = TIME;
     ret = ADCL_request_wait ( req );
-#ifdef ADCL_USE_BARRIER
-    if ( req->r_emethod->em_state == ADCL_STATE_TESTING )   {
-        MPI_Barrier ( comm );
-    }
-#endif /* ADCL_USE_BARRIER */
-    t2 = TIME;
-#ifndef ADCL_USERLEVEL_TIMINGS
-    ADCL_request_update ( req, t1, (t2+req->r_time));
-#endif /* ADCL_USERLEVEL_TIMINGS */
+
     return ret;
 }
 

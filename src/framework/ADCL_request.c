@@ -56,7 +56,7 @@ int ADCL_request_create_generic_rooted ( ADCL_vector_t **svecs,
     if ( NULL == newreq ) {
         return ADCL_NO_MEMORY;
     }
-    
+	    
     /* Fill in the according elements, start with the simple ones */
     newreq->r_id = ADCL_local_id_counter++;
     ADCL_array_get_next_free_pos ( ADCL_request_farray, &(newreq->r_findex) );
@@ -444,9 +444,7 @@ int ADCL_request_free ( ADCL_request_t **req )
 	    case ADCL_VECTOR_ALLREDUCE:
 	    case ADCL_VECTOR_REDUCE:
 		ADCL_vector_free( &(preq->r_svecs[0]) ); 
-		if ( NULL != preq->r_sdats  && NULL != preq->r_rdats ) {
-		    ADCL_basic_free (&(preq->r_sdats), &(preq->r_scnts));
-		}
+		ADCL_basic_free (&(preq->r_sdats), &(preq->r_scnts));
 		break;
 	    case ADCL_VECTOR_INPLACE:
 		break;
@@ -465,9 +463,6 @@ int ADCL_request_free ( ADCL_request_t **req )
 		}
 		break;
 	    case ADCL_VECTOR_ALL:
-		ADCL_vector_free( &(preq->r_rvecs[0]) ); 
-		ADCL_contiguous_free_generic (1, &(preq->r_rdats), &(preq->r_rcnts));
-		break;
 	    case ADCL_VECTOR_LIST:
 	    case ADCL_VECTOR_ALLTOALL:
 	    case ADCL_VECTOR_ALLREDUCE:
@@ -539,64 +534,95 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 							       ADCL_COMM_AVAIL);  
 #endif
     }
-#ifdef PERF_DETAILS
-    start_time = TIME;
-#endif /* PERF_DETAILS */
     
     if ( 1 == ADCL_use_barrier && req->r_emethod->em_state == ADCL_STATE_TESTING ) {
 	MPI_Barrier ( comm );
     }
     
-#ifdef PERF_DETAILS
-    end_time = TIME;
-    elapsed_time += (end_time - start_time);
-#endif /* PERF_DETAILS */
     /* Get starting point in time after barrier */
     t1 = TIME;
     /* Execute the function */
     req->r_function->f_iptr ( req );
     
-#ifdef PERF_DETAILS
-    start_time = TIME;
-#endif /* PERF_DETAILS */
     
     if ( 1 == ADCL_use_barrier && req->r_emethod->em_state == ADCL_STATE_TESTING ) {
         MPI_Barrier ( comm );
     }
     
-#ifdef PERF_DETAILS
-    end_time = TIME;
-    elapsed_time += (end_time - start_time);
-    ADCL_printf("Total elapsed time in Barriers = %f\n",elapsed_time);    
-#endif /* PERF_DETAILS */
     /* Get ending point in time after barrier */
     t2 = TIME;
+
 #ifndef ADCL_USERLEVEL_TIMINGS
     /* Update the request with the timings */
     if ( req->r_emethod->em_assoc_with_timer == -1) {
+      if(req->r_function->f_db){
+	req->r_time = t1;
+      }else{
 	ADCL_request_update ( req, t1, t2 );
+      }
     }
 #endif /* ADCL_USERLEVEL_TIMINGS */
     
-    *db = req->r_function->f_db;
     if ( req->r_function->f_db ) {
         req->r_comm_state = ADCL_COMM_ACTIVE;
     }
+
+    *db = req->r_function->f_db;
+
     return ADCL_SUCCESS;
 }
+
 /**********************************************************************/
+/**********************************************************************/
+
+int ADCL_request_progress ( ADCL_request_t *req ){
+ 
+  CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_ACTIVE );
+
+  int ret =  NBC_Progress ( &(req->r_handle));
+
+  if( ret == NBC_OK) {
+    return ADCL_request_wait(req);
+  }else if( ret != NBC_CONTINUE){
+    return ADCL_ERROR_INTERNAL;
+  }
+ 
+  return ADCL_SUCCESS;
+}
+
+
 /**********************************************************************/
 /**********************************************************************/
 int ADCL_request_wait ( ADCL_request_t *req )
 {
+
+    TIME_TYPE t2;
+    MPI_Comm comm;
+
+    if ( ADCL_TOPOLOGY_NULL != req->r_emethod->em_topo ){
+        comm = req->r_emethod->em_topo->t_comm;
+    }
     
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_ACTIVE );
-    
+
     if ( NULL != req->r_function->f_wptr ) {
         req->r_function->f_wptr ( req );
     }
     
     req->r_comm_state = ADCL_COMM_AVAIL;
+
+#ifdef ADCL_USE_BARRIER
+    if ( 1 == ADCL_use_barrier && req->r_emethod->em_state == ADCL_STATE_TESTING )   {
+      MPI_Barrier ( comm );
+    }
+#endif /* ADCL_USE_BARRIER */
+    t2 = TIME;
+#ifndef ADCL_USERLEVEL_TIMINGS
+    if(req->r_emethod->em_assoc_with_timer == -1){
+      ADCL_request_update ( req, req->r_time, t2);
+    }
+#endif /* ADCL_USERLEVEL_TIMINGS */
+
     return ADCL_SUCCESS;
 }
 

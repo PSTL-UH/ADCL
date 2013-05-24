@@ -8,15 +8,22 @@
  *
  * $HEADER$
  */
+
+
 #ifndef __ADCL_H__
 #define __ADCL_H__
 #include <stdio.h>
+
+
 #include "ADCL_config.h"
 
 #ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #else
 #include "mpi.h"
+#endif
+#if defined(c_plusplus) || defined(__cplusplus)
+extern "C" {
 #endif
 
 /* define constants and error codes */
@@ -174,6 +181,7 @@ extern struct ADCL_fnctset_s *ADCL_allreduce_fnctset;
 extern struct ADCL_fnctset_s *ADCL_reduce_fnctset;
 extern struct ADCL_fnctset_s *ADCL_alltoallv_fnctset;
 extern struct ADCL_fnctset_s *ADCL_alltoall_fnctset;
+extern struct ADCL_fnctset_s *ADCL_ibcast_fnctset;
 extern struct ADCL_fnctset_s *ADCL_fnctset_rtol;
 extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 
@@ -185,6 +193,7 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 #define ADCL_FNCTSET_ALLTOALLV    ADCL_alltoallv_fnctset
 #define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
 #define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
+#define ADCL_FNCTSET_IBCAST       ADCL_ibcast_fnctset
 
 struct ADCL_neighborhood_criteria_s {
     char    *c_fsname; /* Function set name */
@@ -318,6 +327,7 @@ int ADCL_Request_free   ( ADCL_Request *req );
 int ADCL_Request_start  ( ADCL_Request req );
 int ADCL_Request_init   ( ADCL_Request req );
 int ADCL_Request_wait   ( ADCL_Request req );
+int ADCL_Request_progress ( ADCL_Request req);
 int ADCL_Request_update ( ADCL_Request req, TIME_TYPE time );
 int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
                                  ADCL_work_fnct_ptr *endfcnt,
@@ -362,5 +372,9 @@ int ADCL_Timer_commit ( ADCL_Timer timer );
 int ADCL_Timer_remove_request ( ADCL_Timer timer, ADCL_Request req );
 int ADCL_Timer_start ( ADCL_Timer timer );
 int ADCL_Timer_stop ( ADCL_Timer timer );
+
+#if defined(c_plusplus) || defined(__cplusplus)
+}
+#endif
 
 #endif /* __ADCL_H__ */

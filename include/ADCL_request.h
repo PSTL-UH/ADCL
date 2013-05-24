@@ -16,6 +16,8 @@
 #include "mpi.h"
 #endif
 
+#include "nbc.h"
+
 struct ADCL_vector_t;
 struct ADCL_function_t;
 struct ADCL_emethod_t;
@@ -59,6 +61,7 @@ struct ADCL_request_s{
     int                     r_erflag; /* flag to be passed to the state machine */
     TIME_TYPE                 r_time; /* temporary buffer to store the exeuction
                                          time for dual-block operations */
+	NBC_Handle				r_handle;
 };
 
 extern ADCL_array_t * ADCL_request_farray;

@@ -78,7 +78,8 @@ OBJ =	ADCL_change_sb_aao_debug.o           \
         ADCL_reduce_chain_segsize0.o                  \
         ADCL_reduce_pipeline_segsize0.o               \
         ADCL_reduce_generic.o                \
-        ADCL_reduce_topo.o
+        ADCL_reduce_topo.o			\
+        ADCL_ibcast.o
 
 
 .SUFFIXES: .o.c
