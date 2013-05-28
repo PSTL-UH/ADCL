@@ -503,8 +503,6 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 {
     TIME_TYPE t1, t2;
     MPI_Comm comm;
-    TIME_TYPE start_time, end_time;
-    static TIME_TYPE elapsed_time = 0;
     
     if ( ADCL_TOPOLOGY_NULL != req->r_emethod->em_topo ){
         comm = req->r_emethod->em_topo->t_comm;

@@ -281,8 +281,9 @@ int ADCL_timer_stop ( ADCL_timer_t *timer )
     MPI_Comm comm =  timer->t_emethod->em_topo->t_comm;
 
 
-    if (( timer->t_emethod->em_state == ADCL_STATE_TESTING && ADCL_timer_steps_between_barriers == timer->t_barrier_cnt ) || 
-          timer->t_emethod->em_state == ADCL_STATE_REGULAR ) {
+    if (( timer->t_emethod->em_state == ADCL_STATE_TESTING && 
+	  ADCL_timer_steps_between_barriers == timer->t_barrier_cnt ) || 
+	  timer->t_emethod->em_state == ADCL_STATE_REGULAR ) {
         if ( 1 == ADCL_use_barrier && timer->t_emethod->em_state == ADCL_STATE_TESTING ) {
             MPI_Barrier ( comm );
             timer->t_barrier_cnt = 1;
