@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2013      University of Houston. All rights reserved.
  * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
@@ -42,7 +42,6 @@ extern int ADCL_display_port;
 extern int *ADCL_display_rank;
 extern int ADCL_display_flag;
 extern int ADCL_display_ranks_size;
-//extern ADCL_method_t * ADCL_method_array;
 
 extern int ADCL_hist_predictor;
 
@@ -69,9 +68,7 @@ int ADCL_readenv()
     char keyword[MAXLINE];
     char valstring[MAXLINE];
     char *ptr;
-//#ifdef TIMER
     int timer_steps_between_barriers_is_set=0;
-//#endif
 
     FILE* fp;
 
@@ -221,13 +218,11 @@ int ADCL_readenv()
         else if ( ADCL_is_keyword(keyword, "ADCL_USE_BARRIER") ) {
             ADCL_set_keyword_int_value ( ptr, "ADCL_USE_BARRIER", &ADCL_use_barrier);
         }
-//#ifdef TIMER
         /*  ADCL_TIMER_STEPS_BETWEEN_BARRIERS */
         else if ( ADCL_is_keyword(keyword, "ADCL_TIMER_STEPS_BETWEEN_BARRIERS") ) {
             ADCL_set_keyword_int_value ( ptr, "ADCL_TIMER_STEPS_BETWEEN_BARRIERS", &ADCL_timer_steps_between_barriers);
             timer_steps_between_barriers_is_set=1;
         }
-//#endif
 
     }
 

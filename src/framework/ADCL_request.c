@@ -11,11 +11,7 @@
 #include "ADCL_internal.h"
 #include "math.h"
 
-#ifdef ADCL_USE_BARRIER
 int ADCL_use_barrier = 1;
-#else
-int ADCL_use_barrier = 0;
-#endif
 
 static int ADCL_local_id_counter=0;
 ADCL_array_t *ADCL_request_farray;
@@ -519,20 +515,12 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
     
     
     if ( req->r_emethod->em_assoc_with_timer == -1) {
-#ifdef ADCL_NEW_OUTPUT_FORMAT
 	req->r_function = ADCL_emethod_get_function_by_state ( req->r_emethod,
 							       &(req->r_erlast), 
 							       &(req->r_erflag), 
 							       "emethod",
 							       req->r_emethod->em_id, 
 							       ADCL_COMM_AVAIL);
-#else
-	req->r_function = ADCL_emethod_get_function_by_state ( req->r_emethod,  
-							       &(req->r_erlast), 
-							       &(req->r_erflag), 
-							       "req", req->r_id, 
-							       ADCL_COMM_AVAIL);  
-#endif
     }
     
     if ( 1 == ADCL_use_barrier && req->r_emethod->em_state == ADCL_STATE_TESTING ) {
@@ -611,11 +599,10 @@ int ADCL_request_wait ( ADCL_request_t *req )
     
     req->r_comm_state = ADCL_COMM_AVAIL;
 
-#ifdef ADCL_USE_BARRIER
     if ( 1 == ADCL_use_barrier && req->r_emethod->em_state == ADCL_STATE_TESTING )   {
       MPI_Barrier ( comm );
     }
-#endif /* ADCL_USE_BARRIER */
+
     t2 = TIME;
 #ifndef ADCL_USERLEVEL_TIMINGS
     if(req->r_emethod->em_assoc_with_timer == -1){
@@ -636,37 +623,20 @@ int ADCL_request_update ( ADCL_request_t *req,
     if ( (t1 == -1 ) && ( t2 == -1 ) ) {
         return ADCL_SUCCESS;
     }
-/*
-  printf("method %d (%s) %8.4f \n",
-  req->r_function->f_id,
-  req->r_function->f_name, 
-  t2>t1 ? (t2-t1):(1000000-t1+t2));
-*/
     
     if ( ADCL_TOPOLOGY_NULL != req->r_emethod->em_topo ) {
-#ifdef ADCL_NEW_OUTPUT_FORMAT
         ADCL_printf("%d: emethod %d method %d (%s) %8.4f \n",
 		    req->r_emethod->em_topo->t_rank, req->r_emethod->em_id, req->r_function->f_id,
-		    req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
-#else
-        ADCL_printf("%d: request %d method %d (%s) %8.4f \n",
-		    req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
 		    req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
         // DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"%d: request %d method %d (%s) %8.4f \n",
         //          req->r_emethod->em_topo->t_rank, req->r_id, req->r_function->f_id,
         //	    req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
-#endif
     }
     else {
-#ifdef ADCL_NEW_OUTPUT_FORMAT
         ADCL_printf("emethod %d method %d (%s) %8.4f \n", req->r_emethod->em_id, 
-		    req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
-#else
-        ADCL_printf("request %d method %d (%s) %8.4f \n", req->r_id, 
 		    req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2));
         // DISPLAY((ADCL_DISPLAY_MESSAGE,req->r_emethod->em_id,"request %d method %d (%s) %8.4f \n", req->r_id,
         //            req->r_function->f_id, req->r_function->f_name, t2>t1 ? (t2-t1):(1000000-t1+t2)));
-#endif
     }
     switch ( req->r_emethod->em_state ) {
 	case ADCL_STATE_TESTING:

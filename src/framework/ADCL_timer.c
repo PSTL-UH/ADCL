@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2013      University of Houston. All rights reserved.
  * Copyright (c) 2008           HLRS. All rights reserved.
  * $COPYRIGHT$
  *
@@ -261,19 +261,11 @@ int ADCL_timer_start ( ADCL_timer_t *timer )
            } 
        }
 
-#ifdef PERF_DETAILS
-       start_time = TIME;
-#endif /* PERF_DETAILS */
-#ifdef ADCL_USE_BARRIER
        if ( 1 == ADCL_use_barrier && timer->t_emethod->em_state == ADCL_STATE_TESTING ) {
             //  already fulfilled: && 1 == timer->t_barrier_cnt ) {
            MPI_Barrier ( comm );
        }
-#endif /* ADCL_USE_BARRIER */
-#ifdef PERF_DETAILS
-       end_time = TIME;
-       elapsed_time += (end_time - start_time);
-#endif /* PERF_DETAILS */
+
        /* Get starting point in time after barrier */
        timer->t_t1 = TIME;
     }
@@ -288,27 +280,13 @@ int ADCL_timer_stop ( ADCL_timer_t *timer )
     TIME_TYPE t2;
     MPI_Comm comm =  timer->t_emethod->em_topo->t_comm;
 
-#ifdef PERF_DETAILS
-    TIME_TYPE start_time, end_time;
-    static TIME_TYPE elapsed_time = 0;
-#endif /* PERF_DETAILS */
 
     if (( timer->t_emethod->em_state == ADCL_STATE_TESTING && ADCL_timer_steps_between_barriers == timer->t_barrier_cnt ) || 
           timer->t_emethod->em_state == ADCL_STATE_REGULAR ) {
-#ifdef PERF_DETAILS
-        start_time = TIME;
-#endif /* PERF_DETAILS */
-#ifdef ADCL_USE_BARRIER
         if ( 1 == ADCL_use_barrier && timer->t_emethod->em_state == ADCL_STATE_TESTING ) {
             MPI_Barrier ( comm );
             timer->t_barrier_cnt = 1;
         }
-#endif /* ADCL_USE_BARRIER */
-
-#ifdef PERF_DETAILS
-        end_time = TIME;
-        elapsed_time += (end_time - start_time);
-#endif
         /* Get ending point in time after barrier */
         t2 = TIME;
 
@@ -317,7 +295,8 @@ int ADCL_timer_stop ( ADCL_timer_t *timer )
         ADCL_timer_update ( timer, timer->t_t1, t2 );
 #endif /* ADCL_USERLEVEL_TIMINGS */
     }
-    else if ( timer->t_emethod->em_state == ADCL_STATE_TESTING && ADCL_timer_steps_between_barriers != timer->t_barrier_cnt ) {
+    else if ( timer->t_emethod->em_state == ADCL_STATE_TESTING && 
+	      ADCL_timer_steps_between_barriers != timer->t_barrier_cnt ) {
         timer->t_barrier_cnt++;
     }
 
