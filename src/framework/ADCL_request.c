@@ -562,7 +562,8 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 /**********************************************************************/
 
 int ADCL_request_progress ( ADCL_request_t *req ){
- 
+
+#ifdef ADCL_LIBNBC
   CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_ACTIVE );
 
   int ret =  NBC_Progress ( &(req->r_handle));
@@ -572,6 +573,7 @@ int ADCL_request_progress ( ADCL_request_t *req ){
   }else if( ret != NBC_CONTINUE){
     return ADCL_ERROR_INTERNAL;
   }
+#endif
  
   return ADCL_SUCCESS;
 }

@@ -70,3 +70,4 @@ install:
 	test -z "@prefix@/include" || mkdir -p "@prefix@/include"	
 	install -c -m 644 $(ADCL_INC_DIR)/ADCL.h  @prefix@/include/	
 	install -c -m 644 $(ADCL_INC_DIR)/ADCL.inc @prefix@/include/
+	install -c -m 644 $(ADCL_INC_DIR)/ADCL_config.h @prefix@/include/

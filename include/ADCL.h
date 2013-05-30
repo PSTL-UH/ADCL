@@ -181,7 +181,9 @@ extern struct ADCL_fnctset_s *ADCL_allreduce_fnctset;
 extern struct ADCL_fnctset_s *ADCL_reduce_fnctset;
 extern struct ADCL_fnctset_s *ADCL_alltoallv_fnctset;
 extern struct ADCL_fnctset_s *ADCL_alltoall_fnctset;
+#ifdef ADCL_NBC
 extern struct ADCL_fnctset_s *ADCL_ibcast_fnctset;
+#endif
 extern struct ADCL_fnctset_s *ADCL_fnctset_rtol;
 extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 
@@ -193,7 +195,9 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 #define ADCL_FNCTSET_ALLTOALLV    ADCL_alltoallv_fnctset
 #define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
 #define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
+#ifdef ADCL_NBC
 #define ADCL_FNCTSET_IBCAST       ADCL_ibcast_fnctset
+#endif
 
 struct ADCL_neighborhood_criteria_s {
     char    *c_fsname; /* Function set name */

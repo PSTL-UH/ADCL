@@ -528,7 +528,9 @@ int ADCL_predefined_init ( void )
 /* IBCAST							                                   */
 /* ******************************************************************** */
 
+#ifdef ADCL_LIBNBC
 	ADCL_predefined_ibcast ();
+#endif
 
     return ADCL_SUCCESS;
 }

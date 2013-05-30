@@ -151,6 +151,9 @@ test-timerobject-onereq:  test-timerobject-onereq.o aux-data-2D.o
 test-timerobject-tworeq:  test-timerobject-tworeq.o aux-data-2D.o
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
+###################################################################################################
+ibcast:  ibcast.o 
+	$(CXX) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 
 ###################################################################################################
@@ -252,23 +255,23 @@ aux-data-4D-dp_f.o: adcl_f.o aux-data-4D_f.f90
 
 clean:
 	rm -rf *.o *~ *.out *.mod
-	rm -f $(ADCL_BIN_DIR)/*.out
+	rm -f ./*.out
 
-	rm -f $(ADCL_BIN_DIR)/first $(ADCL_BIN_DIR)/second $(ADCL_BIN_DIR)/third $(ADCL_BIN_DIR)/fourth \
-	      $(ADCL_BIN_DIR)/one-dim $(ADCL_BIN_DIR)/two-dim $(ADCL_BIN_DIR)/three-dim \
-	      $(ADCL_BIN_DIR)/test-fnctset-noattrs $(ADCL_BIN_DIR)/test-fnctset-single $(ADCL_BIN_DIR)/test-fnctset-single-2 \
-	      $(ADCL_BIN_DIR)/test-fnctset-allgatherv-1d $(ADCL_BIN_DIR)/test-fnctset-alltoallv-1d \
-	      $(ADCL_BIN_DIR)/test-fnctset-alltoall $(ADCL_BIN_DIR)/test-fnctset-allreduce \
-              $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d \
-	      $(ADCL_BIN_DIR)/attrs_1 $(ADCL_BIN_DIR)/attrs_2 $(ADCL_BIN_DIR)/attrs_3 $(ADCL_BIN_DIR)/attrs_3a $(ADCL_BIN_DIR)/attrs_4 \
-	      $(ADCL_BIN_DIR)/data_1 $(ADCL_BIN_DIR)/twok_1 $(ADCL_BIN_DIR)/PbSizes_1D $(ADCL_BIN_DIR)/PbSizes_2D $(ADCL_BIN_DIR)/PbSizes_3D
+	rm -f ./first ./second ./third ./fourth \
+	      ./one-dim ./two-dim ./three-dim \
+	      ./test-fnctset-noattrs ./test-fnctset-single ./test-fnctset-single-2 \
+	      ./test-fnctset-allgatherv-1d ./test-fnctset-alltoallv-1d \
+	      ./test-fnctset-alltoall ./test-fnctset-allreduce \
+              ./test-fnctset-extneigh-2d ./test-fnctset-extneigh-3d \
+	      ./attrs_1 ./attrs_2 ./attrs_3 ./attrs_3a ./attrs_4 \
+	      ./data_1 ./twok_1 ./PbSizes_1D ./PbSizes_2D ./PbSizes_3D
 
-	rm -f $(ADCL_BIN_DIR)/= $(ADCL_BIN_DIR)/first_f $(ADCL_BIN_DIR)/second_f \
-	      $(ADCL_BIN_DIR)/one-dim-f $(ADCL_BIN_DIR)/two-dim-f $(ADCL_BIN_DIR)/three-dim-f 	$(ADCL_BIN_DIR)/three-dim-large \
-	      $(ADCL_BIN_DIR)/test-fnctset-noattrs_f $(ADCL_BIN_DIR)/test-fnctset-single_f \
-	      $(ADCL_BIN_DIR)/test-fnctset-allgatherv_f \
-              $(ADCL_BIN_DIR)/test-fnctset-extneigh-2d_f $(ADCL_BIN_DIR)/test-fnctset-extneigh-3d_f \
-	      $(ADCL_BIN_DIR)/test-fnctset-alltoall_f  $(ADCL_BIN_DIR)/test-fnctset-allreduce_f \
-	      $(ADCL_BIN_DIR)/test-prometheus
+	rm -f ./= ./first_f ./second_f \
+	      ./one-dim-f ./two-dim-f ./three-dim-f 	./three-dim-large \
+	      ./test-fnctset-noattrs_f ./test-fnctset-single_f \
+	      ./test-fnctset-allgatherv_f \
+              ./test-fnctset-extneigh-2d_f ./test-fnctset-extneigh-3d_f \
+	      ./test-fnctset-alltoall_f  ./test-fnctset-allreduce_f \
+	      ./test-prometheus
 
-
+	rm -f ./ibcast

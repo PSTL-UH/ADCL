@@ -62,7 +62,10 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 #include "ADCL_list.h"
 #include "ADCL_hist.h"
 #include "ADCL_timer.h"
+
+#ifdef ADCL_LIBNBC
 #include "ADCL_ibcast.h"
+#endif
 
 #define ADCL_DISPLAY 
 
