@@ -6,7 +6,7 @@
 
 int main (int argc, char *argv[])
 {
-  int i, cnt, dim, err;
+  int i, cnt, dim, err, j, maxit;
   int rank, size;
   int cdims=0;
   int periods=0;
@@ -15,6 +15,8 @@ int main (int argc, char *argv[])
   ADCL_Vector svec, rvec;
   ADCL_Vmap svmap, rvmap;
   ADCL_Request request;
+  ADCL_Timer timer;
+
   int root = 0;
   cnt = 1;
   dim = 1;
@@ -49,36 +51,62 @@ int main (int argc, char *argv[])
   // Creating the ADCL Request
   err = ADCL_Request_create_generic_rooted ( svec, rvec, topo, ADCL_FNCTSET_IBCAST, root, &request );
   if ( ADCL_SUCCESS != err) goto exit;   
-  
-  for ( i = 0; i< 150; i++ ) {  
+
+  // define timer object
+  ADCL_Timer_create ( 1, &request, &timer );
+
+  maxit=150;
+  for ( i = 0; i<maxit ; i++ ) {  
+
+    ADCL_Timer_start( timer );
+
+    // set buffer values
     if(rank == root){
       *sdata = 123+i;
     }else{
       *sdata = 10;
     }
 
-    // Request start (ibcast)
-    err = ADCL_Request_start( request );
+    // request start instead of request init + request progress
+    // err = ADCL_Request_start( request );
 
-
-
-//    err = ADCL_Request_init( request );
+    // request init
+    err = ADCL_Request_init( request );
     if ( ADCL_SUCCESS != err) goto exit;
 
 
     // do something incredibly important
 
-  //  err = ADCL_Request_wait ( request );
+    // call progress function
+    j=0;
+    while(1){
+      err = ADCL_Request_progress ( request );
+      if ( ADCL_CONTINUE == err) {
+	j++;
+	continue;
+      }
+      break;
+    }
+    if(rank == root) printf("N. progress calls: %d\n",j);
+
+    // extra call to wait
+    err = ADCL_Request_wait ( request );
+
     if ( ADCL_SUCCESS != err) goto exit;   
-    
+
+    // check if bcast value is correct
     if ( *sdata != 123+i ) {
       printf("Process: %d, buff: %d\n",rank,*sdata);
     }
+
+    ADCL_Timer_stop( timer );
+
   }
   
   exit:
     if ( ADCL_SUCCESS != err) { printf("ADCL error nr. %d\n", err); } 
 
+    if ( ADCL_TIMER_NULL != timer)     ADCL_Timer_free   ( &timer );
     if ( ADCL_REQUEST_NULL != request) ADCL_Request_free ( &request );
     if ( ADCL_VECTOR_NULL  != svec)    ADCL_Vector_free ( &svec );
     if ( ADCL_VECTOR_NULL  != rvec)    ADCL_Vector_free ( &rvec );

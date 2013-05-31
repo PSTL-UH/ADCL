@@ -575,7 +575,7 @@ int ADCL_request_progress ( ADCL_request_t *req ){
   }
 #endif
  
-  return ADCL_SUCCESS;
+  return ADCL_CONTINUE;
 }
 
 
