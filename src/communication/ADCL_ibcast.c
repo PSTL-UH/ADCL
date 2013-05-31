@@ -121,17 +121,6 @@ int ADCL_Ibcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Co
   
   segsize = 16384;
 
-  // if(p <= 4) {
-  // alg = NBC_BCAST_LINEAR;
-  // } else if(size*count < 65536) {
-  // alg = NBC_BCAST_BINOMIAL;
-  // } else if(size*count < 524288) {
-  // alg = NBC_BCAST_CHAIN;
-  // segsize = 65536/2;
-  // }
-
-  if( size*count < 524288) segsize = 65536/2;
-
   handle->tmpbuf=NULL;
 
 #ifdef NBC_CACHE_SCHEDULE
@@ -156,6 +145,13 @@ int ADCL_Ibcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Co
       res = bcast_sched_binomial(rank, p, root, schedule, buffer, count, datatype);
       break;
     case NBC_BCAST_CHAIN:
+
+      if(size*count > 65536 && size*count < 524288) {
+	segsize = 16384/2;
+      }else if(size*count > 524288){
+	segsize = 65536/2;
+      }
+
       res = bcast_sched_chain(rank, p, root, schedule, buffer, count, datatype, segsize, size);
       break;
     }
