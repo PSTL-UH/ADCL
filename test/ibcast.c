@@ -55,7 +55,7 @@ int main (int argc, char *argv[])
   // define timer object
   ADCL_Timer_create ( 1, &request, &timer );
 
-  maxit=150;
+  maxit=350;
   for ( i = 0; i<maxit ; i++ ) {  
 
     ADCL_Timer_start( timer );
