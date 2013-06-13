@@ -780,7 +780,7 @@ exit:
 int ADCL_request_get_winner_stat ( ADCL_request_t *req, double *filtered_avg,
                                    double *unfiltered_avg, double *outliers_num )
 {
-    ADCL_fnctset_t *fnctset = req->r_emethod->em_orgfnctset;
+    ADCL_fnctset_t *fnctset = &(req->r_emethod->em_fnctset);
     ADCL_function_t *func = req->r_emethod->em_wfunction;
     int i;
     
@@ -788,7 +788,7 @@ int ADCL_request_get_winner_stat ( ADCL_request_t *req, double *filtered_avg,
         return ADCL_INVALID_ARG;
     }
     for ( i=0; i<fnctset->fs_maxnum; i++ ) {
-        if ( func == fnctset->fs_fptrs[i] ) {
+        if ( func->f_id == fnctset->fs_fptrs[i]->f_id ) {
             if ( 0 != req->r_emethod->em_stats[i]->s_gpts[0] ) {
                 *unfiltered_avg = req->r_emethod->em_stats[i]->s_gpts[0];
                 *filtered_avg = req->r_emethod->em_stats[i]->s_gpts[1];
@@ -811,7 +811,7 @@ int ADCL_request_get_functions_with_average ( ADCL_request_t *req,
                                               int ***attrs_values_num )
 {
     int i, j, k, n, ret = ADCL_SUCCESS;
-    ADCL_fnctset_t *fnctset = req->r_emethod->em_orgfnctset;
+    ADCL_fnctset_t *fnctset = &(req->r_emethod->em_fnctset);
     
     for ( i=0; i<fnctset->fs_maxnum; i++ ) {
         if ( (req->r_emethod->em_stats[i]->s_gpts[1]>= filtered_average) &&
