@@ -56,6 +56,8 @@ struct ADCL_emethod_s {
 
     int                em_assoc_with_timer; /* if not associated with a timer object assoc_with_timer=-1, 
                                                else assoc_with_timer holds id of timer object */
+  ADCL_statistics_t           **em_orgstats;
+
 };
 
 
@@ -88,3 +90,4 @@ int ADCL_emethod_get_stats_by_attrs ( ADCL_emethod_t *em, int *attrval,
 
 
 #endif /* __ADCL_EMETHOD_H__ */
+

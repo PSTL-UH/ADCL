@@ -49,6 +49,7 @@ struct ADCL_statistics_s{
                            /* (unfiltered avg., filtered avg., percentage of outliers) */
     double      s_gpts[3]; /* global no. of pts for this function */
                            /* (unfiltered avg., filtered avg., percentage of outliers) */
+int         s_pos;/* Position*/ 
 };
 
 int ADCL_statistics_create ( ADCL_statistics_t*** stats, int fs_maxnum );
@@ -87,5 +88,6 @@ struct ADCL_twok_factorial_s {
     double                       *twok_sst; /* SST's */
     double                         *twok_q; /* Q's */
 };
+
 
 #endif

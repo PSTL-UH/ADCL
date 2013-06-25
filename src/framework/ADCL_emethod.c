@@ -207,6 +207,20 @@ void ADCL_emethod_free ( ADCL_emethod_t * e )
 	    }
 	    free ( e->em_stats );
 	}
+
+
+	if ( NULL != e->em_orgstats  ) { 
+	  for ( i=0; i< e->em_orgfnctset->fs_maxnum; i++ ) {
+	    if ( NULL != e->em_orgstats[i] ) { 
+	      if ( NULL != e->em_orgstats[i]->s_time ) { 
+		free ( e->em_orgstats[i]->s_time );
+	      }
+	      free ( e->em_orgstats[i] );
+	    }
+	  }
+	  free ( e->em_orgstats );
+	}
+
         ADCL_vector_free(&(e->em_vec));
 	if ( NULL != hypo ) {
 	    if ( NULL != hypo->h_attr_hypothesis ) {
