@@ -182,7 +182,7 @@ int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_t *e,
     ADCL_printf("#Fnctset has been shrinked from %d to %d entries\n",
         org_count, count );
 
-
+    ADCL_hypothesis_sync_statobjects ( e );
     /* Finally, adjust the attribute list and the attrset to the new values */
     attrset->as_attrs[attr_pos]->a_maxnvalues =  1;
     attrset->as_attrs[attr_pos]->a_values[0]  =  required_value;

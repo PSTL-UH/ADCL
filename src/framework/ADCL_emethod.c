@@ -477,6 +477,7 @@ int ADCL_emethods_get_winner (ADCL_emethod_t *emethod, MPI_Comm comm, int count)
     emethod->em_filtering = ADCL_statistics_get_winner_v3 ( emethod->em_stats,
 							    count, &winner );
 
+    ADCL_hypothesis_sync_statobjects ( emethod );
     return winner;
 }
 
