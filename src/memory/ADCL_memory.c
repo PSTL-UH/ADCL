@@ -21,6 +21,9 @@ void* ADCL_allocate_matrix ( int ndims, int *dims, MPI_Datatype dat, void *matpt
     else if ( dat == MPI_INT ) {
         return ADCL_allocate_int_matrix  (ndims, dims, matpt );
     }
+    else if ( dat == MPI_BYTE ) {
+        return ADCL_allocate_byte_matrix  (ndims, dims, matpt );
+    }
     else {
         ADCL_printf("Datatype not supported by ADCL right now!\n");
     }
@@ -39,6 +42,9 @@ void ADCL_free_matrix ( int ndims, MPI_Datatype dat, void *mat )
     }
     else if ( dat == MPI_INT ) {
         ADCL_free_int_matrix ( ndims, mat );
+    }
+    else if ( dat == MPI_BYTE ) {
+        ADCL_free_byte_matrix ( ndims, mat );
     }
     else {
         ADCL_printf("Datatype not supported by ADCL right now!\n");

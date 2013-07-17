@@ -12,7 +12,8 @@ include ../../Makefile.defs
 OBJ =	ADCL_memory.o 		\
 	ADCL_memory_backend_double.o \
 	ADCL_memory_backend_float.o  \
-	ADCL_memory_backend_int.o 
+	ADCL_memory_backend_int.o \
+	ADCL_memory_backend_byte.o 
 
 
 HEADER = $(ADCL_INC_DIR)/ADCL.h           \
@@ -28,7 +29,7 @@ HEADER = $(ADCL_INC_DIR)/ADCL.h           \
 .SUFFIXES: .o.c
 
 all:    ADCL_memory_backend_double.o ADCL_memory_backend_float.o \
-	ADCL_memory_backend_int.o
+	ADCL_memory_backend_int.o ADCL_memory_backend_byte.o
 	make $(ADCL_LIB) 
 
 
@@ -46,6 +47,10 @@ ADCL_memory_backend_float.o:  ADCL_memory_backend.c
 ADCL_memory_backend_int.o:  ADCL_memory_backend.c 
 	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=3   \
 	                -o ADCL_memory_backend_int.o
+
+ADCL_memory_backend_byte.o:  ADCL_memory_backend.c 
+	$(CC) $(CFLAGS) -c ADCL_memory_backend.c -DTYPEMODE=4   \
+	                -o ADCL_memory_backend_byte.o
 
 $(OBJ):	$(HEADER)
 .c.o:	$(HEADER)

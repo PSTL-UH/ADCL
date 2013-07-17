@@ -62,7 +62,9 @@ int ADCL_request_create_generic_rooted ( ADCL_vector_t **svecs,
 			     newreq );
     
     newreq->r_comm_state = ADCL_COMM_AVAIL;
+  
     if ( NULL != svecs && NULL != rvecs ) {
+
         /* copy data arrays */
         if ( ADCL_VECTOR_HALO == svecs[0]->v_map->m_vectype ) {
 	    /* assume, someone uses old settings with ADCL_VECTOR_HALO */
@@ -551,6 +553,10 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
     
     if ( req->r_function->f_db ) {
         req->r_comm_state = ADCL_COMM_ACTIVE;
+	req->r_progress = req->r_function->f_attrvals[req->r_function->f_attrset->as_maxnum-1]-100;
+	
+	int rank;
+	MPI_Comm_rank (MPI_COMM_WORLD, &rank);
     }
 
     *db = req->r_function->f_db;
@@ -565,13 +571,19 @@ int ADCL_request_progress ( ADCL_request_t *req ){
 
 #ifdef ADCL_LIBNBC
   CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_ACTIVE );
+    int rank;
+    MPI_Comm_rank (MPI_COMM_WORLD, &rank);
 
-  int ret =  NBC_Progress ( &(req->r_handle));
+  if(--req->r_progress == 0){
+    req->r_progress = req->r_function->f_attrvals[req->r_function->f_attrset->as_maxnum-1]-100;
 
-  if( ret == NBC_OK) {
-    return ADCL_request_wait(req);
-  }else if( ret != NBC_CONTINUE){
-    return ADCL_ERROR_INTERNAL;
+    int ret =  NBC_Progress ( &(req->r_handle));
+
+    if( ret == NBC_OK) {
+      return ADCL_request_wait(req);
+    }else if( ret != NBC_CONTINUE){
+      return ADCL_ERROR_INTERNAL;
+    }
   }
 #endif
  

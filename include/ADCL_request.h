@@ -23,7 +23,15 @@
 struct ADCL_vector_t;
 struct ADCL_function_t;
 struct ADCL_emethod_t;
-struct ADCL_topology_t; 
+struct ADCL_topology_t;
+
+#ifdef ADCL_LIBNBC
+typedef struct {
+  int alg;
+  int fanout;
+  NBC_Schedule *schedule;
+} ADCL_Ibcast_args;
+#endif
 
 #define ADCL_COMM_ACTIVE 1024
 #define ADCL_COMM_AVAIL  1025
@@ -62,10 +70,12 @@ struct ADCL_request_s{
     int                     r_erlast; /* last method used */
     int                     r_erflag; /* flag to be passed to the state machine */
     TIME_TYPE                 r_time; /* temporary buffer to store the exeuction
-                                         time for dual-block operations */
+				         time for dual-block operations */
  
 #ifdef ADCL_LIBNBC
    NBC_Handle	            r_handle;
+   int                      r_progress;
+   ADCL_Ibcast_args         r_Ibcast_args;
 #endif
 };
 

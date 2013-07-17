@@ -27,6 +27,11 @@ void ADCL_free_float_matrix ( int ndims, void *mat);
 void* ADCL_allocate_int_matrix ( int ndims, int *dims, void *pt);
 void ADCL_free_int_matrix ( int ndims, void *mat);
 
+
+void* ADCL_allocate_byte_matrix ( int ndims, int *dims, void *pt);
+void ADCL_free_byte_matrix ( int ndims, void *mat);
+
+
 #if defined TYPEMODE
 #if TYPEMODE == 1
 #define TYPE double
@@ -70,6 +75,20 @@ void ADCL_free_int_matrix ( int ndims, void *mat);
 #define ADCL_free_4D_TYPE_matrix     ADCL_free_4D_int_matrix
 #define ADCL_free_5D_TYPE_matrix     ADCL_free_5D_int_matrix
 
+#elif TYPEMODE == 4
+#define TYPE char
+#define ADCL_allocate_TYPE_matrix    ADCL_allocate_byte_matrix
+#define ADCL_allocate_2D_TYPE_matrix ADCL_allocate_2D_byte_matrix
+#define ADCL_allocate_3D_TYPE_matrix ADCL_allocate_3D_byte_matrix
+#define ADCL_allocate_4D_TYPE_matrix ADCL_allocate_4D_byte_matrix
+#define ADCL_allocate_5D_TYPE_matrix ADCL_allocate_5D_byte_matrix
+
+#define ADCL_free_TYPE_matrix        ADCL_free_byte_matrix
+#define ADCL_free_2D_TYPE_matrix     ADCL_free_2D_byte_matrix
+#define ADCL_free_3D_TYPE_matrix     ADCL_free_3D_byte_matrix
+#define ADCL_free_4D_TYPE_matrix     ADCL_free_4D_byte_matrix
+#define ADCL_free_5D_TYPE_matrix     ADCL_free_5D_byte_matrix
+
 #endif
 #endif
 
@@ -106,6 +125,16 @@ int ADCL_free_2D_int_matrix(int ***matrix);
 int ADCL_free_3D_int_matrix(int ****matrix);
 int ADCL_free_4D_int_matrix(int *****matrix);
 int ADCL_free_5D_int_matrix(int ******matrix);
+
+int ADCL_allocate_2D_byte_matrix(char ***matrix,int dims[2]);
+int ADCL_allocate_3D_byte_matrix(char ****matrix,int dims[3]);
+int ADCL_allocate_4D_byte_matrix(char *****matrix,int dims[4]);
+int ADCL_allocate_5D_byte_matrix(char ******matrix, int dims[5]);
+
+int ADCL_free_2D_byte_matrix(char ***matrix);
+int ADCL_free_3D_byte_matrix(char ****matrix);
+int ADCL_free_4D_byte_matrix(char *****matrix);
+int ADCL_free_5D_byte_matrix(char ******matrix);
 
 
 #endif /* __ADCL_MEMORY_H__ */

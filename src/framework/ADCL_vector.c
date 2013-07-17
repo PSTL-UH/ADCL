@@ -78,7 +78,6 @@ int ADCL_vector_allocate_generic ( int ndims, int *dims, int nc,
     ADCL_vector_t *tvec=NULL;
     int rndims, *rdims=NULL;
 
-
     /* Verification of the input parameters has been done in the
        user level layer. Allocate now a new vector object */
     tvec = (ADCL_vector_t *) calloc ( 1, sizeof (ADCL_vector_t) );

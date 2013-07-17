@@ -28,55 +28,56 @@ int ADCL_function_create_async ( ADCL_work_fnct_ptr *init_fnct,
                                  int *array_of_attrvalues, char *name,
                                  ADCL_function_t **fnct)
 {
-    ADCL_function_t *newfunction;
-    int ret=ADCL_SUCCESS;
+  ADCL_function_t *newfunction;
+  int ret=ADCL_SUCCESS;
 
-    newfunction = ( ADCL_function_t *) calloc (1, sizeof (ADCL_function_t));
-    if ( NULL == newfunction ) {
-        return ADCL_NO_MEMORY;
+  newfunction = ( ADCL_function_t *) calloc (1, sizeof (ADCL_function_t));
+  if ( NULL == newfunction ) {
+    return ADCL_NO_MEMORY;
+  }
+
+  newfunction->f_id = ADCL_local_function_counter++;
+  ADCL_array_get_next_free_pos ( ADCL_function_farray, &(newfunction->f_findex));
+  ADCL_array_set_element ( ADCL_function_farray, newfunction->f_findex,
+			   newfunction->f_id, newfunction );
+
+  newfunction->f_attrset = attrset;
+  if (ADCL_ATTRSET_NULL != attrset ) {
+    newfunction->f_attrvals = (int *) malloc ( sizeof(int) * attrset->as_maxnum );
+    if ( NULL == newfunction->f_attrvals ) {
+      ret = ADCL_NO_MEMORY;
+      goto exit;
     }
+    memcpy (newfunction->f_attrvals, array_of_attrvalues, attrset->as_maxnum*sizeof(int));
+  }
 
-    newfunction->f_id = ADCL_local_function_counter++;
-    ADCL_array_get_next_free_pos ( ADCL_function_farray, &(newfunction->f_findex));
-    ADCL_array_set_element ( ADCL_function_farray, newfunction->f_findex,
-                             newfunction->f_id, newfunction );
+  if ( NULL != name ) {
+    newfunction->f_name = strdup ( name );
+  }
 
-    newfunction->f_attrset = attrset;
-    if (ADCL_ATTRSET_NULL != attrset ) {
-        newfunction->f_attrvals = (int *) malloc ( sizeof(int) * attrset->as_maxnum );
-        if ( NULL == newfunction->f_attrvals ) {
-            ret = ADCL_NO_MEMORY;
-            goto exit;
-        }
-        memcpy (newfunction->f_attrvals, array_of_attrvalues, attrset->as_maxnum*sizeof(int));
-    }
-
-    if ( NULL != name ) {
-        newfunction->f_name = strdup ( name );
-    }
-
-    newfunction->f_iptr = init_fnct;
-    newfunction->f_wptr = wait_fnct;
-    if ( NULL != wait_fnct && ADCL_FUNCTION_NULL != wait_fnct ) {
-        newfunction->f_db   = 1; /* true */
-    }
+  newfunction->f_iptr = init_fnct;
+  newfunction->f_wptr = wait_fnct;
+  if ( NULL != wait_fnct && ADCL_FUNCTION_NULL != wait_fnct ) {
+    newfunction->f_db   = 1; /* true */
+  }
 
  exit:
-    if ( ret != ADCL_SUCCESS ) {
-        ADCL_array_remove_element ( ADCL_function_farray, newfunction->f_findex );
+  if ( ret != ADCL_SUCCESS ) {
+    ADCL_array_remove_element ( ADCL_function_farray, newfunction->f_findex );
 
-        if ( NULL != newfunction->f_attrvals ) {
-            free ( newfunction->f_attrvals );
-        }
-        if ( NULL != newfunction->f_name ) {
-            free ( newfunction->f_name );
-        }
-        free ( newfunction );
+    if ( NULL != newfunction->f_attrvals ) {
+      free ( newfunction->f_attrvals );
     }
+    if ( NULL != newfunction->f_name ) {
+      free ( newfunction->f_name );
+    }
+    free ( newfunction );
+  }
 
-    *fnct = newfunction;
-    return ret;
+  *fnct = newfunction;
+  return ret;
 }
+
 /********************************************************************************/
 /********************************************************************************/
 /********************************************************************************/

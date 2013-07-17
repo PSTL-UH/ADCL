@@ -120,8 +120,11 @@ int ADCL_Request_create_generic_rooted ( ADCL_Vector svec, ADCL_Vector rvec,
                                   ADCL_Topology topo, ADCL_Fnctset fnctset, int root,
                                   ADCL_Request *req )
 {
+  
+    if(rvec == ADCL_VECTOR_NULL) rvec = svec;
+
     if ( ( NULL == svec ) ||
-         ( NULL == rvec ) ||
+	 ( NULL == rvec ) ||
          ( NULL == topo )    ||
          ( NULL == fnctset ) ||
          ( NULL == req ) || ( root < 0 && root >= topo->t_size) ){

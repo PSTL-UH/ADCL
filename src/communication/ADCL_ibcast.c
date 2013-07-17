@@ -14,114 +14,48 @@
 #define true 1
 #define false 0
 
-int ADCL_ibcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, NBC_Handle* handle, int alg, int fanout);
-static __inline__ int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype);
-static __inline__ int bcast_sched_linear(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype);
-static __inline__ int bcast_sched_chain(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size);
-static __inline__ int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fanout);
+int ADCL_ibcast(ADCL_request_t *req, int alg, int fanout);
+static int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype);
+static int bcast_sched_linear(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype);
+static int bcast_sched_chain(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size);
+static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fanout);
 
 void ADCL_ibcast_linear( ADCL_request_t *req )
 {
 
-   ADCL_topology_t *topo = req->r_emethod->em_topo;
+  ADCL_ibcast(req, ADCL_IBCAST_LINEAR, 0);
 
-   int root = req->r_emethod->em_root; 
-   int rank;
-      
-   MPI_Comm comm = topo->t_comm;
-   
-   /* careful, pointers to sbuf are modified! */
-   void *sbuf = req->r_svecs[0]->v_data;
-
-   /* use receive vector */
-   MPI_Datatype dtype = req->r_rdats[0]; 
-   int count = req->r_rvecs[0]->v_dims[0];
-   MPI_Comm_rank ( comm, &rank );
-   if ( rank == root ) printf("ADCL_ibcast_linear\n");   
-   ADCL_ibcast(sbuf, count, dtype, root, comm, &(req->r_handle), ADCL_IBCAST_LINEAR, 0);
-
-    /* All done */
-    return;
+  /* All done */
+  return;
 }
 
 void ADCL_ibcast_binomial( ADCL_request_t *req )
 {
 
-   ADCL_topology_t *topo = req->r_emethod->em_topo;
+  ADCL_ibcast(req, ADCL_IBCAST_BINOMIAL, 0);
 
-   int root = req->r_emethod->em_root; 
-   int rank;
-   MPI_Comm comm = topo->t_comm;
-   
-   /* careful, pointers to sbuf are modified! */
-   void *sbuf = req->r_svecs[0]->v_data;
-
-   /* use receive vector */
-   MPI_Datatype dtype = req->r_rdats[0]; 
-   int count = req->r_rvecs[0]->v_dims[0];
-   
-   MPI_Comm_rank ( comm, &rank );
-   if ( rank == root ) printf("ADCL_ibcast_binomial\n");   
-   ADCL_ibcast(sbuf, count, dtype, root, comm, &(req->r_handle), ADCL_IBCAST_BINOMIAL, 0);
-
-    /* All done */
-    return;
+  /* All done */
+  return;
 }
 
 void ADCL_ibcast_chain( ADCL_request_t *req )
 {
 
-   ADCL_topology_t *topo = req->r_emethod->em_topo;
+  ADCL_ibcast(req, ADCL_IBCAST_CHAIN, 0);
 
-   int root = req->r_emethod->em_root;
-   int rank;
-   MPI_Comm comm = topo->t_comm;
-   
-   /* careful, pointers to sbuf are modified! */
-   void *sbuf = req->r_svecs[0]->v_data;
-
-   /* use receive vector */
-   MPI_Datatype dtype = req->r_rdats[0]; 
-   int count = req->r_rvecs[0]->v_dims[0];
-   
-   MPI_Comm_rank ( comm, &rank );
-   if ( rank == root ) printf("ADCL_ibcast_chain\n");   
-   ADCL_ibcast(sbuf, count, dtype, root, comm, &(req->r_handle), ADCL_IBCAST_CHAIN, 0);
-
-    /* All done */
-    return;
+  /* All done */
+  return;
 }
 
 void ADCL_ibcast_generic( ADCL_request_t *req )
 {
 
-   ADCL_topology_t *topo = req->r_emethod->em_topo;
+  int fanout = req->r_function->f_attrvals[1];
+  ADCL_ibcast(req, ADCL_IBCAST_GENERIC, fanout);
 
-   int root = req->r_emethod->em_root;
-   int rank;
-   int fanout;
-   MPI_Comm comm = topo->t_comm;
-   
-   /* careful, pointers to sbuf are modified! */
-   void *sbuf = req->r_svecs[0]->v_data;
-
-   /* use receive vector */
-   MPI_Datatype dtype = req->r_rdats[0]; 
-   int count = req->r_rvecs[0]->v_dims[0];
-   
-   MPI_Comm_rank ( comm, &rank );
-
-   // determine the  number of fanout
-   fanout = req->r_function->f_attrvals[1];
-
-   if ( rank == root ) printf("ADCL_ibcast_generic, fanout = %d\n",fanout);   
-
-   ADCL_ibcast(sbuf, count, dtype, root, comm, &(req->r_handle), ADCL_IBCAST_GENERIC, fanout);
-
-    /* All done */
-    return;
+  /* All done */
+  return;
 }
-
 
 void ADCL_ibcast_wait( ADCL_request_t *req )
 {
@@ -133,12 +67,24 @@ void ADCL_ibcast_wait( ADCL_request_t *req )
 #define NBC_Ibcast PNBC_Ibcast
 #endif
 
-int ADCL_ibcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, NBC_Handle* handle, int alg, int fanout) {
+int ADCL_ibcast(ADCL_request_t *req, int alg, int fanout) {
+
+  ADCL_topology_t *topo = req->r_emethod->em_topo;
+
+  int root = req->r_emethod->em_root;
+  MPI_Comm comm = topo->t_comm;
+
+  NBC_Handle *handle = &(req->r_handle);
+      
+  /* careful, pointers to sbuf are modified! */
+  void *buffer = req->r_svecs[0]->v_data;
+
+  /* use receive vector */
+  MPI_Datatype datatype = req->r_rdats[0]; 
+  int count = req->r_rvecs[0]->v_dims[0];
+   
   int rank, p, res, size, segsize;
   NBC_Schedule *schedule;
-#ifdef NBC_CACHE_SCHEDULE
-  NBC_Bcast_args *args, *found, search;
-#endif
 
   // enum { NBC_IBCAST_LINEAR, NBC_IBCAST_BINOMIAL, NBC_IBCAST_CHAIN } alg;
   
@@ -155,14 +101,9 @@ int ADCL_ibcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Co
 
   handle->tmpbuf=NULL;
 
-#ifdef NBC_CACHE_SCHEDULE
-  /* search schedule in communicator specific tree */
-  search.buffer=buffer;
-  search.count=count;
-  search.datatype=datatype;
-  search.root=root;
-  found = (NBC_Bcast_args*)hb_tree_search((hb_tree*)handle->comminfo->NBC_Dict[NBC_IBCAST], &search);
-  if(found == NULL) {
+#ifdef ADCL_CACHE_SCHEDULE
+  /* Check if alg or fanout changed */
+  if( req->r_Ibcast_args.schedule == NULL || alg != req->r_Ibcast_args.alg || fanout != req->r_Ibcast_args.fanout) {
 #endif
     schedule = (NBC_Schedule*)malloc(sizeof(NBC_Schedule));
     
@@ -193,23 +134,13 @@ int ADCL_ibcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Co
     
     res = NBC_Sched_commit(schedule);
     if (NBC_OK != res) { printf("Error in NBC_Sched_commit() (%i)\n", res); return res; }
-#ifdef NBC_CACHE_SCHEDULE
-    /* save schedule to tree */
-    args = (NBC_Bcast_args*)malloc(sizeof(NBC_Bcast_args));
-    args->buffer=buffer;
-    args->count=count;
-    args->datatype=datatype;
-    args->root=root;
-    args->schedule=schedule;
-    res = hb_tree_insert ((hb_tree*)handle->comminfo->NBC_Dict[NBC_IBCAST], args, args, 0);
-    if(res != 0) printf("error in dict_insert() (%i)\n", res);
-    /* increase number of elements for A2A */
-    if(++handle->comminfo->NBC_Dict_size[NBC_IBCAST] > NBC_SCHED_DICT_UPPER) {
-      NBC_SchedCache_dictwipe((hb_tree*)handle->comminfo->NBC_Dict[NBC_IBCAST], &handle->comminfo->NBC_Dict_size[NBC_IBCAST]);
-    }
-  } else {
-    /* found schedule */
-    schedule=found->schedule;
+#ifdef ADCL_CACHE_SCHEDULE
+    /* save schedule to list */
+    req->r_Ibcast_args.alg = alg;
+    req->r_Ibcast_args.fanout = fanout;
+    req->r_Ibcast_args.schedule = schedule;
+  }else{
+    schedule = req->r_Ibcast_args.schedule;
   }
 #endif
   
@@ -232,20 +163,20 @@ int ADCL_ibcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Co
  * - each node sends each round r to node vrank + 2^r
  * - a node stops to send if 2^r > commsize  
  */
-#define RANK2VRANK(rank, vrank, root) \
-  { \
-  vrank = rank; \
-  if (rank == 0) vrank = root; \
-  if (rank == root) vrank = 0; \
+#define RANK2VRANK(rank, vrank, root)		\
+  {						\
+    vrank = rank;				\
+    if (rank == 0) vrank = root;		\
+    if (rank == root) vrank = 0;		\
   }
-#define VRANK2RANK(rank, vrank, root) \
-  { \
-  rank = vrank; \
-  if (vrank == 0) rank = root; \
-  if (vrank == root) rank = 0; \
+#define VRANK2RANK(rank, vrank, root)		\
+  {						\
+    rank = vrank;				\
+    if (vrank == 0) rank = root;		\
+    if (vrank == root) rank = 0;		\
   }
 
-static __inline__ int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype) {
+static int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype) {
   int maxr, vrank, peer, r, res;
   
   maxr = (int)ceil((log(p)/LOG2));
@@ -278,7 +209,7 @@ static __inline__ int bcast_sched_binomial(int rank, int p, int root, NBC_Schedu
 }
 
 /* simple linear MPI_Ibcast */
-static __inline__ int bcast_sched_linear(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype) {
+static int bcast_sched_linear(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype) {
   int peer, res;  
 
   /* send to all others */
@@ -300,7 +231,7 @@ static __inline__ int bcast_sched_linear(int rank, int p, int root, NBC_Schedule
 }
 
 /* simple chained MPI_Ibcast */
-static __inline__ int bcast_sched_chain(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size) {
+static int bcast_sched_chain(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size) {
   int res, vrank, rpeer, speer, numfrag, fragnum, fragcount, thiscount;
   MPI_Aint ext;
   char *buf;
