@@ -107,8 +107,6 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 
 #define ADCL_NO_ROOT		       -1
 
-#define ADCL_CACHE_SCHEDULE
-
 /* Some prototypes of functions which do not deserve their own header file */
 int ADCL_printf_init     ( void );
 int ADCL_printf_finalize ( void );

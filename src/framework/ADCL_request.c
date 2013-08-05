@@ -571,22 +571,32 @@ int ADCL_request_progress ( ADCL_request_t *req ){
 
 #ifdef ADCL_LIBNBC
   CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_ACTIVE );
-    int rank;
-    MPI_Comm_rank (MPI_COMM_WORLD, &rank);
-
-  if(--req->r_progress == 0){
-    req->r_progress = req->r_function->f_attrvals[req->r_function->f_attrset->as_maxnum-1]-100;
-
-    int ret =  NBC_Progress ( &(req->r_handle));
-
+  int rank, ret, flag=1;
+  MPI_Comm_rank (MPI_COMM_WORLD, &rank);
+#ifdef ADCL_TUNE_PROGRESS
+  // req->r_progress++;
+  // if( req->r_progress > 100) if(!(req->r_progress % 10)) flag = 1;
+  //  else if( !((req->r_progress % 10)%(int)(req->r_progress/10))) flag = 1;
+  // Alternative :
+  // div_t div_res;
+  // div_res = div (req->r_progress,10);
+  // if( !(div_res.rem % div_res.quot)){
+#endif
+  if(flag){
+    ret =  NBC_Progress ( &(req->r_handle));
     if( ret == NBC_OK) {
       return ADCL_request_wait(req);
-    }else if( ret != NBC_CONTINUE){
+    }else if( ret != NBC_CONTINUE  && ret != NBC_NEXT_ROUND){
       return ADCL_ERROR_INTERNAL;
     }
   }
+#ifdef ADCL_TUNE_PROGRESS
+  if( flag && ret == NBC_NEXT_ROUND){
+    req->r_progress = 10;
+  }
 #endif
- 
+#endif
+
   return ADCL_CONTINUE;
 }
 
@@ -974,3 +984,11 @@ int ADCL_request_get_state ( ADCL_request_t *req, int *state )
     }
     return ADCL_SUCCESS;
 }
+
+#ifdef ADCL_LIBNBC
+int ADCL_request_get_handle ( ADCL_request_t *req, NBC_Handle **handle )
+{
+  *handle = &(req->r_handle);
+  return ADCL_SUCCESS;
+}
+#endif

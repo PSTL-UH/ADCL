@@ -411,3 +411,13 @@ int ADCL_Request_get_state ( ADCL_Request req, int *state )
     }
     return ADCL_request_get_state ( req, state );
 }
+
+#ifdef ADCL_LIBNBC
+int ADCL_Request_get_handle ( ADCL_Request req, NBC_Handle **handle )
+{
+    if ( handle == NULL ) {
+        return ADCL_INVALID_HANDLE;
+    }
+    return ADCL_request_get_handle ( req, handle );
+}
+#endif

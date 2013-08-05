@@ -22,6 +22,9 @@
 #else
 #include "mpi.h"
 #endif
+#ifdef ADCL_LIBNBC
+#include "nbc.h"
+#endif
 #if defined(c_plusplus) || defined(__cplusplus)
 extern "C" {
 #endif
@@ -60,7 +63,9 @@ extern "C" {
 #define ADCL_INVALID_OP        31
 #define ADCL_INVALID_EMETHOD   32
 #define ADCL_INVALID_TIMER     33
-
+#ifdef ADCL_LIBNBC
+#define ADCL_INVALID_HANDLE    34
+#endif
 #ifdef ADCL_PAPI
 #define ADCL_INVALID_PAPI      40
 #endif
@@ -182,7 +187,7 @@ extern struct ADCL_fnctset_s *ADCL_allreduce_fnctset;
 extern struct ADCL_fnctset_s *ADCL_reduce_fnctset;
 extern struct ADCL_fnctset_s *ADCL_alltoallv_fnctset;
 extern struct ADCL_fnctset_s *ADCL_alltoall_fnctset;
-#ifdef ADCL_NBC
+#ifdef ADCL_LIBNBC
 extern struct ADCL_fnctset_s *ADCL_ibcast_fnctset;
 #endif
 extern struct ADCL_fnctset_s *ADCL_fnctset_rtol;
@@ -196,7 +201,7 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 #define ADCL_FNCTSET_ALLTOALLV    ADCL_alltoallv_fnctset
 #define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
 #define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
-#ifdef ADCL_NBC
+#ifdef ADCL_LIBNBC
 #define ADCL_FNCTSET_IBCAST       ADCL_ibcast_fnctset
 #endif
 
@@ -377,6 +382,10 @@ int ADCL_Timer_commit ( ADCL_Timer timer );
 int ADCL_Timer_remove_request ( ADCL_Timer timer, ADCL_Request req );
 int ADCL_Timer_start ( ADCL_Timer timer );
 int ADCL_Timer_stop ( ADCL_Timer timer );
+
+#ifdef ADCL_LIBNBC
+int ADCL_Request_get_handle(ADCL_Request req, NBC_Handle **handle);
+#endif
 
 #if defined(c_plusplus) || defined(__cplusplus)
 }
