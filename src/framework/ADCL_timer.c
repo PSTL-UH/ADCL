@@ -46,6 +46,8 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     int aoffset, foffset;     /* offsets for attributes and functions, resp. */ 
     int nems_tot;             /* number of emethods in array ADCL_emethod_array */
 
+    int no_selection;         /* check if winner already set */
+
     ADCL_timer_t     *ttimer; /* temporary timer object for creation */
     ADCL_attrset_t *tattrset; /* temporary attribute set */
     int        *tmp_attrvals; /* temporary copy of attribute values */ 
@@ -154,9 +156,18 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     metafnctlist = (ADCL_function_t **) malloc ( nmetafncts * sizeof(ADCL_function_t *) );
     tmp_attrvals = (int*) malloc ( nmetaattrs * sizeof(int) );
     comb     = (int *) calloc ( nemethods, sizeof(int) );
-    ub       = (int *) malloc ( nemethods * sizeof(int) ); 
-    for ( i=0; i<nemethods; i++ ) 
-        ub[i] = emethods[i]->em_fnctset.fs_maxnum-1; 
+    ub       = (int *) malloc ( nemethods * sizeof(int) );
+    
+    /* set no_selection flag to true if selection enforced by the user */
+    no_selection = emethods[i]->em_state == ADCL_STATE_REGULAR && emethods[i]->em_wfunction != NULL;
+
+    for ( i=0; i<nemethods; i++ ) {
+      if(no_selection){
+	ub[i]=1;
+	continue;
+      }
+      ub[i] = emethods[i]->em_fnctset.fs_maxnum-1; 
+    }
    
     done = 0; 
     foffset = 0;
@@ -167,13 +178,16 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
        aoffset = 0;
        fnctlist = (ADCL_function_t **) malloc ( nemethods * sizeof(ADCL_function_t *) );
        for ( i=0; i<nemethods; i++ ) {
-           fnctlist[i] = emethods[i]->em_fnctset.fs_fptrs[comb[i]]; /* same idx for emethod and function pointer OK */ 
+	 if(no_selection)
+	   fnctlist[i] = emethods[i]->em_wfunction;
+	 else
+	   fnctlist[i] = emethods[i]->em_fnctset.fs_fptrs[comb[i]]; /* same idx for emethod and function pointer OK */ 
 
            /* copy its attrvals to tmp_attrvals at the right position */
-           if ( ADCL_ATTRSET_NULL != emethods[i]->em_fnctset.fs_attrset ) {
-              memcpy (&(tmp_attrvals[aoffset]), fnctlist[i]->f_attrvals, fnctlist[i]->f_attrset->as_maxnum * sizeof(int) ); 
-              aoffset += emethods[i]->em_fnctset.fs_attrset->as_maxnum;
-           }
+         if ( ADCL_ATTRSET_NULL != emethods[i]->em_fnctset.fs_attrset ) {
+            memcpy (&(tmp_attrvals[aoffset]), fnctlist[i]->f_attrvals, fnctlist[i]->f_attrset->as_maxnum * sizeof(int) ); 
+            aoffset += emethods[i]->em_fnctset.fs_attrset->as_maxnum;
+         }
        } 
    
        /* give the child a name: meta_t1:r1_r2_func1_r3_func4 */
@@ -195,13 +209,19 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     /* create a new emethod (any of the topologies will do) */
     ttimer->t_emethod = ADCL_emethod_init( reqs_in[0]->r_emethod->em_topo, ADCL_VECTOR_NULL, 
 					   metafnctset, ADCL_NO_ROOT ); 
+    
+    /* if  */
+    if(ttimer->t_emethod->em_fnctset.fs_maxnum == 1){
+      ttimer->t_emethod->em_state = ADCL_STATE_REGULAR;
+      ttimer->t_emethod->em_wfunction = ttimer->t_emethod->em_fnctset.fs_fptrs;
+    }
 
     /* set requests to first fnct, user might start request before starting the timer */
     fnct = metafnctlist[0]; 
     for ( i=0; i<ttimer->t_nemethods; i++) { 
         for ( j=ttimer->t_offset_reqs[i]; j<ttimer->t_offset_reqs[i+1]; j++) {
             ttimer->t_reqs[j]->r_function = fnct->f_fnctlist[i]; 
-        } 
+        }
     }
 
     *timer = ttimer;

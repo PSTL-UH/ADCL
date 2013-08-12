@@ -14,34 +14,14 @@
 #define true 1
 #define false 0
 
-int ADCL_ibcast(ADCL_request_t *req, int alg, int fanout);
-static int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype);
-static int bcast_sched_linear(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype);
-static int bcast_sched_chain(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size);
-static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fanout);
-
-void ADCL_ibcast_linear( ADCL_request_t *req )
-{
-
-  ADCL_ibcast(req, ADCL_IBCAST_LINEAR, 0);
-
-  /* All done */
-  return;
-}
+int ADCL_ibcast(ADCL_request_t *req, int alg, int segsize, int fanout);
+static int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size);
+static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size, int fanout);
 
 void ADCL_ibcast_binomial( ADCL_request_t *req )
 {
-
-  ADCL_ibcast(req, ADCL_IBCAST_BINOMIAL, 0);
-
-  /* All done */
-  return;
-}
-
-void ADCL_ibcast_chain( ADCL_request_t *req )
-{
-
-  ADCL_ibcast(req, ADCL_IBCAST_CHAIN, 0);
+  int segsize = req->r_function->f_attrvals[2]*1024;
+  ADCL_ibcast(req, ADCL_IBCAST_BINOMIAL, segsize, 0);
 
   /* All done */
   return;
@@ -49,9 +29,9 @@ void ADCL_ibcast_chain( ADCL_request_t *req )
 
 void ADCL_ibcast_generic( ADCL_request_t *req )
 {
-
+  int segsize = req->r_function->f_attrvals[2]*1024;
   int fanout = req->r_function->f_attrvals[1];
-  ADCL_ibcast(req, ADCL_IBCAST_GENERIC, fanout);
+  ADCL_ibcast(req, ADCL_IBCAST_GENERIC, segsize, fanout);
 
   /* All done */
   return;
@@ -67,8 +47,7 @@ void ADCL_ibcast_wait( ADCL_request_t *req )
 #define NBC_Ibcast PNBC_Ibcast
 #endif
 
-int ADCL_ibcast(ADCL_request_t *req, int alg, int fanout) {
-
+int ADCL_ibcast(ADCL_request_t *req, int alg, int segsize, int fanout) {
   ADCL_topology_t *topo = req->r_emethod->em_topo;
 
   int root = req->r_emethod->em_root;
@@ -83,7 +62,7 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int fanout) {
   MPI_Datatype datatype = req->r_rdats[0]; 
   int count = req->r_rvecs[0]->v_dims[0];
    
-  int rank, p, res, size, segsize;
+  int rank, p, res, size;
   NBC_Schedule *schedule;
 
   // enum { NBC_IBCAST_LINEAR, NBC_IBCAST_BINOMIAL, NBC_IBCAST_CHAIN } alg;
@@ -97,13 +76,11 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int fanout) {
   res = MPI_Type_size(datatype, &size);
   if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Type_size() (%i)\n", res); return res; }
   
-  segsize = 16384;
-
   handle->tmpbuf=NULL;
 
 #ifdef ADCL_CACHE_SCHEDULE
   /* Check if alg or fanout changed */
-  if( req->r_Ibcast_args.schedule == NULL || alg != req->r_Ibcast_args.alg || fanout != req->r_Ibcast_args.fanout) {
+  if( req->r_Ibcast_args.schedule == NULL || alg != req->r_Ibcast_args.alg || segsize != req->r_Ibcast_args.segsize || fanout != req->r_Ibcast_args.fanout) {
 #endif
     schedule = (NBC_Schedule*)malloc(sizeof(NBC_Schedule));
     
@@ -111,22 +88,11 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int fanout) {
     if(res != NBC_OK) { printf("Error in NBC_Sched_create, res = %i\n", res); return res; }
 
     switch(alg) {
-    case ADCL_IBCAST_LINEAR:
-      res = bcast_sched_linear(rank, p, root, schedule, buffer, count, datatype);
-      break;
     case ADCL_IBCAST_BINOMIAL:
-      res = bcast_sched_binomial(rank, p, root, schedule, buffer, count, datatype);
-      break;
-    case ADCL_IBCAST_CHAIN:
-      if(size*count > 65536 && size*count < 524288) {
-	segsize = 16384/2;
-      }else if(size*count > 524288){
-	segsize = 65536/2;
-      }
-      res = bcast_sched_chain(rank, p, root, schedule, buffer, count, datatype, segsize, size);
+      res = bcast_sched_binomial(rank, p, root, schedule, buffer, count, datatype, segsize, size);
       break;
     case ADCL_IBCAST_GENERIC:
-      res = bcast_sched_generic(rank, p, root, schedule, buffer, count, datatype, fanout);
+      res = bcast_sched_generic(rank, p, root, schedule, buffer, count, datatype, segsize, size, fanout);
       break;
     }
 
@@ -137,6 +103,7 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int fanout) {
 #ifdef ADCL_CACHE_SCHEDULE
     /* save schedule to list */
     req->r_Ibcast_args.alg = alg;
+    req->r_Ibcast_args.segsize = segsize;
     req->r_Ibcast_args.fanout = fanout;
     req->r_Ibcast_args.schedule = schedule;
   }else{
@@ -176,72 +143,16 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int fanout) {
     if (vrank == root) rank = 0;		\
   }
 
-static int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype) {
-  int maxr, vrank, peer, r, res;
-  
-  maxr = (int)ceil((log(p)/LOG2));
+static int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size) {
 
-  RANK2VRANK(rank, vrank, root);
-
-  /* receive from the right hosts  */
-  if(vrank != 0) {
-    for(r=0; r<maxr; r++) {
-      if((vrank >= (1<<r)) && (vrank < (1<<(r+1)))) {
-        VRANK2RANK(peer, vrank-(1<<r), root);
-        res = NBC_Sched_recv(buffer, false, count, datatype, peer, schedule);
-        if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
-      }
-    }
-    res = NBC_Sched_barrier(schedule);
-    if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; }
-  }
-
-  /* now send to the right hosts */
-  for(r=0; r<maxr; r++) {
-    if(((vrank + (1<<r) < p) && (vrank < (1<<r))) || (vrank == 0)) {
-      VRANK2RANK(peer, vrank+(1<<r), root);
-      res = NBC_Sched_send(buffer, false, count, datatype, peer, schedule);
-      if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
-    }
-  }
-
-  return NBC_OK;
-}
-
-/* simple linear MPI_Ibcast */
-static int bcast_sched_linear(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype) {
-  int peer, res;  
-
-  /* send to all others */
-  if(rank == root) {
-    for (peer=0; peer<p;peer++) {
-      if(peer != root) {
-        /* send msg to peer */
-        res = NBC_Sched_send(buffer, false, count, datatype, peer, schedule);
-        if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
-      }
-    }
-  } else {
-    /* recv msg from root */
-    res = NBC_Sched_recv(buffer, false, count, datatype, root, schedule);
-    if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
-  }
-  
-  return NBC_OK;
-}
-
-/* simple chained MPI_Ibcast */
-static int bcast_sched_chain(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size) {
-  int res, vrank, rpeer, speer, numfrag, fragnum, fragcount, thiscount;
+  int maxr, vrank, rpeer, speer, r, res;
+  int numfrag, fragnum, fragcount, thiscount;
   MPI_Aint ext;
   char *buf;
 
-  RANK2VRANK(rank, vrank, root);
-  VRANK2RANK(rpeer, vrank-1, root);
-  VRANK2RANK(speer, vrank+1, root);
   res = MPI_Type_extent(datatype, &ext);
   if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Type_extent() (%i)\n", res); return res; }
-  
+
   if(count == 0) return NBC_OK;
 
   numfrag = count*size/fragsize;
@@ -249,6 +160,10 @@ static int bcast_sched_chain(int rank, int p, int root, NBC_Schedule *schedule, 
   fragcount = count/numfrag;
   /*if(!rank) printf("numfrag: %i, count: %i, size: %i, fragcount: %i\n", numfrag, count, size, fragcount);*/
   
+  maxr = (int)ceil((log(p)/LOG2));
+
+  RANK2VRANK(rank, vrank, root);
+
   for(fragnum = 0; fragnum < numfrag; fragnum++) {
     buf = (char*)buffer+fragnum*fragcount*ext;
     thiscount = fragcount;
@@ -257,49 +172,81 @@ static int bcast_sched_chain(int rank, int p, int root, NBC_Schedule *schedule, 
       thiscount = count-fragcount*fragnum;
     }
 
-    /* root does not receive */
+    /* receive from the right hosts  */
     if(vrank != 0) {
-      res = NBC_Sched_recv(buf, false, thiscount, datatype, rpeer, schedule);
-      if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
+      for(r=0; r<maxr; r++) {
+	if((vrank >= (1<<r)) && (vrank < (1<<(r+1)))) {
+	  VRANK2RANK(rpeer, vrank-(1<<r), root);
+	  res = NBC_Sched_recv(buffer, false, thiscount, datatype, rpeer, schedule);
+	  if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
+	}
+      }
       res = NBC_Sched_barrier(schedule);
+      if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; }
     }
 
-    /* last rank does not send */
-    if(vrank != p-1) {
-      res = NBC_Sched_send(buf, false, thiscount, datatype, speer, schedule);
-      if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
-      /* this barrier here seems awaward but isn't!!!! */
-      if(vrank == 0) res = NBC_Sched_barrier(schedule);
+    /* now send to the right hosts */
+    for(r=0; r<maxr; r++) {
+      if(((vrank + (1<<r) < p) && (vrank < (1<<r))) || (vrank == 0)) {
+	VRANK2RANK(speer, vrank+(1<<r), root);
+	res = NBC_Sched_send(buffer, false, thiscount, datatype, speer, schedule);
+	if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
+	if(vrank == 0) res = NBC_Sched_barrier(schedule);
+      }
     }
   }
-  
+
   return NBC_OK;
 }
 
-static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fanout) {
-  int maxr, vrank, peer, r, res,i;
+static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule, void *buffer, int count, MPI_Datatype datatype, int fragsize, int size, int fanout) {
+
+  int maxr, vrank, rpeer, speer, r, res, i;
+  int numfrag, fragnum, fragcount, thiscount;
+  MPI_Aint ext;
+  char *buf;
+
+  RANK2VRANK(rank, vrank, root);
+  VRANK2RANK(rpeer, (int)(vrank-1)/fanout, root);
+
+  res = MPI_Type_extent(datatype, &ext);
+  if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Type_extent() (%i)\n", res); return res; }
+
+  if(count == 0) return NBC_OK;
+
+  numfrag = count*size/fragsize;
+  if((count*size)%fragsize != 0) numfrag++;
+  fragcount = count/numfrag;
+  /*if(!rank) printf("numfrag: %i, count: %i, size: %i, fragcount: %i\n", numfrag, count, size, fragcount);*/
 
   maxr = (int)ceil((log(p)/LOG2));
 
-  RANK2VRANK(rank, vrank, root);
+  for(fragnum = 0; fragnum < numfrag; fragnum++) {
+    buf = (char*)buffer+fragnum*fragcount*ext;
+    thiscount = fragcount;
+    if(fragnum == numfrag-1) {
+      /* last fragment may not be full */
+      thiscount = count-fragcount*fragnum;
+    }
 
-  /* receive from the right hosts  */
-  if(vrank != 0) {
-    VRANK2RANK(peer, (int)(vrank-1)/fanout, root);
-    res = NBC_Sched_recv(buffer, false, count, datatype, peer, schedule);
-    //printf("process %d receives from peer = %d\n",rank, peer);                                                                                                                    
-    if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
-    res = NBC_Sched_barrier(schedule);
-    if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; }
-  }
+    /* receive from the right hosts  */
+    if(vrank != 0) {
+      res = NBC_Sched_recv(buffer, false, thiscount, datatype, rpeer, schedule);
+      //printf("process %d receives from rpeer = %d\n",rank, rpeer);                                                                                                                    
+      if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
+      res = NBC_Sched_barrier(schedule);
+      if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; }
+    }
 
-  /* now send to the right hosts */
-  for(i=1;i<=fanout;i++){
-    VRANK2RANK(peer, (vrank*fanout+i), root);
-    if(peer < p) {
-      res = NBC_Sched_send(buffer, false, count, datatype, peer, schedule);
-      //printf("process %d sends to peer = %d\n",rank, peer);                                                                                                                       
-      if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
+    /* now send to the right hosts */
+    for(i=1;i<=fanout;i++){
+      VRANK2RANK(speer, (vrank*fanout+i), root);
+      if(speer < p) {
+	res = NBC_Sched_send(buffer, false, thiscount, datatype, speer, schedule);
+	//printf("process %d sends to speer = %d\n",rank, speer);                                                                                                                       
+	if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
+	if(vrank == 0) res = NBC_Sched_barrier(schedule);
+      }
     }
   }
 

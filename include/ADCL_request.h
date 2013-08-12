@@ -28,6 +28,7 @@ struct ADCL_topology_t;
 #ifdef ADCL_LIBNBC
 typedef struct {
   int alg;
+  int segsize;
   int fanout;
   NBC_Schedule *schedule;
 } ADCL_Ibcast_args;

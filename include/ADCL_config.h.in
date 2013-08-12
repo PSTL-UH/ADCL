@@ -79,4 +79,10 @@
 /* Usage of external contributions: clustering and SVM */
 #undef ADCL_EXT_CONTRIB
 
+/* Tuning the number of progress calls for libnbc */
+// #define ADCL_TUNE_PROGRESS 1
+
+/* Caching nbc schedule */
+#define ADCL_CACHE_SCHEDULE 1
+
 #endif

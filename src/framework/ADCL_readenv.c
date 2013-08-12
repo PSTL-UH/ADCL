@@ -27,6 +27,7 @@ extern int ADCL_emethod_allreduce_selection;
 extern int ADCL_emethod_reduce_selection;
 extern int ADCL_emethod_alltoall_selection;
 extern int ADCL_emethod_alltoallv_selection;
+extern int ADCL_emethod_ibcast_selection;
 extern int ADCL_emethod_numtests;
 extern int ADCL_printf_silence;
 extern int ADCL_emethod_search_algo;
@@ -176,6 +177,11 @@ int ADCL_readenv()
             ADCL_set_predefined_function( ptr, "ADCL_EMETHOD_ALLTOALLV_SELECTION", ADCL_alltoallv_fnctset->fs_maxnum,
                     ADCL_alltoallv_fnctset->fs_fptrs, &ADCL_emethod_alltoallv_selection );
         }
+        /*  ADCL_EMETHOD_IBCAST_SELECTION */
+        else if ( ADCL_is_keyword(keyword,"ADCL_EMETHOD_IBCAST_SELECTION") ) {
+            ADCL_set_predefined_function( ptr, "ADCL_EMETHOD_IBCAST_SELECTION", ADCL_ibcast_fnctset->fs_maxnum,
+                    ADCL_ibcast_fnctset->fs_fptrs, &ADCL_emethod_ibcast_selection );
+        }
         /*  ADCL_PRINTF_SILENCE  */
         else if ( ADCL_is_keyword(keyword, "ADCL_PRINTF_SILENCE") ) {
             ADCL_set_keyword_int_value ( ptr, "ADCL_PRINTF_SILENCE", &ADCL_printf_silence); 
@@ -254,6 +260,10 @@ int ADCL_readenv()
     /*  ADCL_EMETHOD_ALLTOALLV_SELECTION */
     if ( 0 <= ADCL_emethod_alltoallv_selection ) {
         ADCL_print_keyword_int_value ( "ADCL_EMETHOD_ALLTOALLV_SELECTION",  &ADCL_emethod_alltoallv_selection );
+    }
+    /*  ADCL_EMETHOD_IBCAST_SELECTION */
+    if ( 0 <= ADCL_emethod_ibcast_selection ) {
+        ADCL_print_keyword_int_value ( "ADCL_EMETHOD_IBCAST_SELECTION",  &ADCL_emethod_ibcast_selection );
     }
  
     ADCL_print_keyword_int_value ( "ADCL_PRINTF_SILENCE", &ADCL_printf_silence); 

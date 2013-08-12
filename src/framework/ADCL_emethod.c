@@ -18,6 +18,7 @@ int ADCL_emethod_allreduce_selection = -1;
 int ADCL_emethod_reduce_selection = -1;
 int ADCL_emethod_alltoall_selection = -1;
 int ADCL_emethod_alltoallv_selection = -1;
+int ADCL_emethod_ibcast_selection = -1;
 int ADCL_merge_requests = 1;
 int ADCL_emethod_numtests = ADCL_EMETHOD_NUMTESTS;
 int ADCL_emethod_search_algo = ADCL_BRUTE_FORCE;
@@ -150,6 +151,12 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
         if ( -1 != ADCL_emethod_alltoallv_selection ) {
             e->em_state = ADCL_STATE_REGULAR;
             e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_alltoallv_selection );
+        }
+    }
+    if ( 0 == strcmp ( f->fs_name , "Ibcast") ) {
+        if ( -1 != ADCL_emethod_ibcast_selection ) {
+            e->em_state = ADCL_STATE_REGULAR;
+            e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_ibcast_selection );
         }
     }
 
