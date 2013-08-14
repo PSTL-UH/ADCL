@@ -106,7 +106,8 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
     ** initiated.
     */
     ADCL_fnctset_dup ( f, &(e->em_fnctset));
-    ADCL_statistics_create ( &(e->em_stats), f->fs_maxnum ); 
+    ADCL_statistics_create ( &(e->em_stats), f->fs_maxnum, 1 ); 
+    ADCL_statistics_create ( &(e->em_stats), f->fs_maxnum, 0 ); 
 
     DISPLAY((ADCL_DISPLAY_CHANGE_FUNCTION,e->em_id,e->em_fnctset.fs_fptrs[0]->f_id,e->em_fnctset.fs_fptrs[0]->f_name));
     /* initiate the performance hypothesis structure */

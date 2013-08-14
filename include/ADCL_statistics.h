@@ -52,7 +52,7 @@ struct ADCL_statistics_s{
 int         s_pos;/* Position*/ 
 };
 
-int ADCL_statistics_create ( ADCL_statistics_t*** stats, int fs_maxnum );
+int ADCL_statistics_create ( ADCL_statistics_t*** stats, int fs_maxnum, int flag );
 int ADCL_statistics_free   ( ADCL_statistics_t*** stats, int fs_maxnum );
 
 int ADCL_statistics_filter_timings  ( ADCL_statistics_t **stats, int count,
