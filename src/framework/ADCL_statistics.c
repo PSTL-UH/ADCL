@@ -71,10 +71,10 @@ int ADCL_statistics_create ( ADCL_statistics_t*** stats, int fs_maxnum, int flag
             goto exit;
 	  }
 	}
-    }
 
-    /*ADDED BY SHWETA JHA*/
-    tstats[i]->s_pos = i;
+	/*ADDED BY SHWETA JHA*/
+	tstats[i]->s_pos = i;
+    }
 
  exit:
     if ( ret != ADCL_SUCCESS  ) {

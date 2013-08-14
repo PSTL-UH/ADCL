@@ -46,8 +46,6 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     int aoffset, foffset;     /* offsets for attributes and functions, resp. */ 
     int nems_tot;             /* number of emethods in array ADCL_emethod_array */
 
-    int no_selection;         /* check if winner already set */
-
     ADCL_timer_t     *ttimer; /* temporary timer object for creation */
     ADCL_attrset_t *tattrset; /* temporary attribute set */
     int        *tmp_attrvals; /* temporary copy of attribute values */ 
@@ -106,7 +104,10 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
         if (e->em_assoc_with_timer != ttimer->t_id ) 
            continue; 
         nemethods++;
-        nmetafncts *= e->em_fnctset.fs_maxnum;
+	// this "if" statement checks if the selection is enforced by the user
+	if(e->em_state != ADCL_STATE_REGULAR || e->em_wfunction == NULL)
+	  // REMARK: nmetafncts represents the number of possible combinations (see "comb" below)
+	  nmetafncts *= e->em_fnctset.fs_maxnum;
         if ( ADCL_ATTRSET_NULL != e->em_fnctset.fs_attrset ) {
            nmetaattrs += e->em_fnctset.fs_attrset->as_maxnum;
         }
@@ -157,13 +158,11 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     tmp_attrvals = (int*) malloc ( nmetaattrs * sizeof(int) );
     comb     = (int *) calloc ( nemethods, sizeof(int) );
     ub       = (int *) malloc ( nemethods * sizeof(int) );
-    
-    /* set no_selection flag to true if selection enforced by the user */
-    no_selection = emethods[i]->em_state == ADCL_STATE_REGULAR && emethods[i]->em_wfunction != NULL;
 
     for ( i=0; i<nemethods; i++ ) {
-      if(no_selection){
-	ub[i]=1;
+      // this "if" statement checks if the selection is enforced by the user
+      if(emethods[i]->em_state == ADCL_STATE_REGULAR && emethods[i]->em_wfunction != NULL){
+	ub[i]=0;
 	continue;
       }
       ub[i] = emethods[i]->em_fnctset.fs_maxnum-1; 
@@ -178,7 +177,8 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
        aoffset = 0;
        fnctlist = (ADCL_function_t **) malloc ( nemethods * sizeof(ADCL_function_t *) );
        for ( i=0; i<nemethods; i++ ) {
-	 if(no_selection)
+	 // this "if" statement checks if the selection is enforced by the user
+	 if(emethods[i]->em_state == ADCL_STATE_REGULAR && emethods[i]->em_wfunction != NULL)
 	   fnctlist[i] = emethods[i]->em_wfunction;
 	 else
 	   fnctlist[i] = emethods[i]->em_fnctset.fs_fptrs[comb[i]]; /* same idx for emethod and function pointer OK */ 
@@ -191,7 +191,7 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
        } 
    
        /* give the child a name: meta_t1:r1_r2_func1_r3_func4 */
-       ADCL_timer_name_metafnct(ttimer, nemethods, emethods, comb, tfnct_name); 
+       ADCL_timer_name_metafnct(ttimer, nemethods, emethods, comb, tfnct_name);
 
        /* make a copy of fnct with new attrset and new fattrvals_tmp and save to metafnctlist */
        ADCL_function_create_async ( ADCL_FUNCTION_NULL, ADCL_FUNCTION_NULL, metaattrset, tmp_attrvals, 
@@ -210,10 +210,10 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     ttimer->t_emethod = ADCL_emethod_init( reqs_in[0]->r_emethod->em_topo, ADCL_VECTOR_NULL, 
 					   metafnctset, ADCL_NO_ROOT ); 
     
-    /* if  */
-    if(ttimer->t_emethod->em_fnctset.fs_maxnum == 1){
+    // case of only one combination is found (eg. nemethods == 1 and selection enforced by the user)
+    if(nmetafncts == 1){
       ttimer->t_emethod->em_state = ADCL_STATE_REGULAR;
-      ttimer->t_emethod->em_wfunction = ttimer->t_emethod->em_fnctset.fs_fptrs;
+      ttimer->t_emethod->em_wfunction = metafnctlist[0];
     }
 
     /* set requests to first fnct, user might start request before starting the timer */
@@ -369,7 +369,7 @@ int ADCL_get_next_comb( int n, int *ub, int *comb){
 /***************************************************************************************************/
 /* gets the next combination of an array comb with upper bounds ub 
    e.g. comb[3, 2, 1], ub[4, 2, 2] -> comb[4, 2, 1]
-        comb[4, 2, 1], ub[4, 2, 2] -> comb[1, 1, 2]
+        comb[4, 2, 1], ub[4, 2, 2] -> comb[0, 0, 2]
    n       (IN)    - dimension of the array 
    ub[n]   (IN)    - upper bounds of array 
    comb[n] (INOUT) - array with current / updated combination, lower boundary is 0 
@@ -480,9 +480,15 @@ int* ADCL_timer_name_metafnct( ADCL_timer_t* timer, int nemethods, ADCL_emethod_
     sprintf(itoabuf, "%d", timer->t_id);
     strcat(tfnct_name, itoabuf);
     for ( i=0; i<nemethods; i++ ) {
-        tfnct = emethods[i]->em_fnctset.fs_fptrs[comb[i]]; /* same idx for emethod and function pointer OK */ 
+      
+      // check if the selection is enforced by the user
+        if(emethods[i]->em_state == ADCL_STATE_REGULAR && emethods[i]->em_wfunction != NULL)
+	  tfnct = emethods[i]->em_wfunction;
+	else
+	  tfnct = emethods[i]->em_fnctset.fs_fptrs[comb[i]]; /* same idx for emethod and function pointer OK */ 
         for ( k=timer->t_offset_reqs[i]; k<timer->t_offset_reqs[i+1]; k++) { 
            strcat(tfnct_name,"_r");
+
            sprintf(itoabuf, "%d", timer->t_reqs[k]->r_id);
            strcat(tfnct_name, itoabuf);
         }

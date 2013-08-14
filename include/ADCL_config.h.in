@@ -80,9 +80,12 @@
 #undef ADCL_EXT_CONTRIB
 
 /* Tuning the number of progress calls for libnbc */
-// #define ADCL_TUNE_PROGRESS 1
+//#define ADCL_TUNE_PROGRESS
 
 /* Caching nbc schedule */
-#define ADCL_CACHE_SCHEDULE 1
+#define ADCL_CACHE_SCHEDULE
+
+/* Segmentation (eg. in ibcast) */
+#define ADCL_SEGMENTATION
 
 #endif

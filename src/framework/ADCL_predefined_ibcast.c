@@ -30,7 +30,7 @@ int ADCL_predefined_ibcast( void )
     int ADCL_attr_ibcast_segsize[ADCL_ATTR_IBCAST_SEGSIZE_MAX];
 
     char * ADCL_attr_ibcast_alg_names[ADCL_ATTR_IBCAST_ALG_MAX] = { "Ibcast_binomial","Ibcast_generic"}; 
-    char * ADCL_attr_ibcast_fanout_names[ADCL_ATTR_IBCAST_FANOUT_MAX] = { "0","1","2","3","4","5","n" };
+    char * ADCL_attr_ibcast_fanout_names[ADCL_ATTR_IBCAST_FANOUT_MAX] = { "0","1","2","3","4","5"};
     char * ADCL_attr_ibcast_segsize_names[ADCL_ATTR_IBCAST_SEGSIZE_MAX] = { "32","64","128" };
 
     ADCL_attr_ibcast_alg[0] = ADCL_attr_ibcast_alg_binomial;
