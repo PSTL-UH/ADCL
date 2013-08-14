@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2013      University of Houston. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -19,7 +19,6 @@ int ADCL_Init (void )
 
     /* Initialize the request, topology and vector fortran pointer arrays */
     ADCL_array_init ( &(ADCL_vector_farray),    "ADCL_Vector",    ADCL_MAX_ARRAYSIZE );
-    ADCL_array_init ( &(ADCL_vectset_farray),   "ADCL_Vectset",   ADCL_MAX_ARRAYSIZE );
     ADCL_array_init ( &(ADCL_emethod_array),    "ADCL_emethod",   ADCL_MAX_ARRAYSIZE );
     ADCL_array_init ( &(ADCL_hist_array),       "ADCL_hist",      ADCL_MAX_ARRAYSIZE );
     ADCL_array_init ( &(ADCL_request_farray),   "ADCL_Request",   ADCL_MAX_ARRAYSIZE );
@@ -30,12 +29,6 @@ int ADCL_Init (void )
     ADCL_array_init ( &(ADCL_fnctset_farray),   "ADCL_Fnctgrp",   ADCL_MAX_ARRAYSIZE );
     ADCL_array_init ( &(ADCL_vmap_farray),      "ADCL_vmap",      ADCL_MAX_ARRAYSIZE );
     ADCL_array_init ( &(ADCL_timer_farray),     "ADCL_timer",     ADCL_MAX_ARRAYSIZE );
-
-#ifdef ADCL_PAPI
-    ADCL_array_init ( &(ADCL_papi_farray),      "ADCL_Papi",      ADCL_MAX_ARRAYSIZE );
-    /* Initialize the PAPI library */
-    ADCL_papi_init ();
-#endif
 
     ret = ADCL_predefined_init ();
     ret = ADCL_readenv();
@@ -57,7 +50,6 @@ int ADCL_Finalize ( void )
     ADCL_predefined_finalize ();
     /* free the request and vector fortran pointer arrays */
     ret = ADCL_array_free ( &(ADCL_vector_farray));
-    ret = ADCL_array_free ( &(ADCL_vectset_farray));
     ret = ADCL_array_free ( &(ADCL_emethod_array));
     ret = ADCL_array_free ( &(ADCL_hist_array));
     ret = ADCL_array_free ( &(ADCL_request_farray));
@@ -68,9 +60,6 @@ int ADCL_Finalize ( void )
     ret = ADCL_array_free ( &(ADCL_fnctset_farray));
     ret = ADCL_array_free ( &(ADCL_vmap_farray));
     ret = ADCL_array_free ( &(ADCL_timer_farray));
-#ifdef ADCL_PAPI
-    ret = ADCL_array_free ( &(ADCL_papi_farray));
-#endif
 
     ADCL_printf_finalize ();
     return ret;

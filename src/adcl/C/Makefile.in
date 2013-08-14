@@ -15,7 +15,7 @@ OBJ =  	ADCL.o		        \
 	ADCL_Topology.o         \
 	ADCL_Vmap.o             \
 	ADCL_Timer.o            \
-	@adcl_Papi_o@ ADCL_Request.o 
+	ADCL_Request.o 
 
 
 .SUFFIXES: .o.c

@@ -177,11 +177,13 @@ int ADCL_readenv()
             ADCL_set_predefined_function( ptr, "ADCL_EMETHOD_ALLTOALLV_SELECTION", ADCL_alltoallv_fnctset->fs_maxnum,
                     ADCL_alltoallv_fnctset->fs_fptrs, &ADCL_emethod_alltoallv_selection );
         }
+#ifdef ADCL_LIBNBC
         /*  ADCL_EMETHOD_IBCAST_SELECTION */
         else if ( ADCL_is_keyword(keyword,"ADCL_EMETHOD_IBCAST_SELECTION") ) {
             ADCL_set_predefined_function( ptr, "ADCL_EMETHOD_IBCAST_SELECTION", ADCL_ibcast_fnctset->fs_maxnum,
                     ADCL_ibcast_fnctset->fs_fptrs, &ADCL_emethod_ibcast_selection );
         }
+#endif
         /*  ADCL_PRINTF_SILENCE  */
         else if ( ADCL_is_keyword(keyword, "ADCL_PRINTF_SILENCE") ) {
             ADCL_set_keyword_int_value ( ptr, "ADCL_PRINTF_SILENCE", &ADCL_printf_silence); 

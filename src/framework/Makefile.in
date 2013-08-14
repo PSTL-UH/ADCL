@@ -37,7 +37,7 @@ OBJ = 	ADCL_array.o 		          \
 	ADCL_contigous.o                  \
 	ADCL_list.o                       \
         ADCL_timer.o                     \
-	@adcl_papi_o@ ADCL_request.o      
+	ADCL_request.o      
 
 .SUFFIXES: .o.c
 

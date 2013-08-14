@@ -20,9 +20,6 @@ struct ADCL_vector_s{
     int           v_ndims; /* number of dimensions */
     int              v_nc; /* extent of each point */
 
-//    int         v_vectype; /* communication type */
-//    int          v_hwidth; /* how many halo-cells are being used */
-
     int           *v_dims; /* extent of each of the dimensions */
     void        *v_matrix; /* the matrix pointer */
     void          *v_data; /* pointer to the data array */
@@ -141,23 +138,5 @@ void* ADCL_vector_get_data_ptr ( ADCL_vector_t *vec );
 /* increments / decrements the vector reference counters and those of the 
  * underlying structures (e.g. vmap) */
 int ADCL_vector_add_reference ( ADCL_vector_t *vec );
-
-
-
-struct ADCL_vectset_s{
-    int                    vs_id; /* id of the object */
-    int                vs_findex; /* index of this object in the fortran array */
-    int                vs_maxnum; /* no. of vector objects in this vector-group */
-    ADCL_vector_t     **vs_svecs; /* ptr to the vectors describing send data items */
-    ADCL_vector_t     **vs_rvecs; /* ptr to the vectors describing recv data items */
-};
-extern ADCL_array_t *ADCL_vectset_farray;
-
-int ADCL_vectset_create ( int maxnum,
-                          ADCL_vector_t **svecs,
-                          ADCL_vector_t **rvecs,
-                          ADCL_vectset_t **vectset );
-
-int ADCL_vectset_free   ( ADCL_vectset_t **vectset );
 
 #endif /* __ADCL_VECTOR_H__ */

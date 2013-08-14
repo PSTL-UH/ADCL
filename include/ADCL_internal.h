@@ -23,7 +23,6 @@ typedef struct ADCL_attrset_s ADCL_attrset_t;
 typedef struct ADCL_emethod_s ADCL_emethod_t;
 typedef struct ADCL_function_s ADCL_function_t;
 typedef struct ADCL_fnctset_s ADCL_fnctset_t;
-typedef struct ADCL_papi_s ADCL_papi_t;
 typedef struct ADCL_request_s ADCL_request_t;
 typedef struct ADCL_statistics_s ADCL_statistics_t;
 typedef struct ADCL_hypothesis_s ADCL_hypothesis_t;
@@ -71,9 +70,6 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 
 #include "ADCL_display.h"
 
-#ifdef ADCL_PAPI
-#include "ADCL_papi.h"
-#endif
 
 #ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"

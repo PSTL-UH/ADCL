@@ -553,8 +553,9 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
     
     if ( req->r_function->f_db ) {
         req->r_comm_state = ADCL_COMM_ACTIVE;
+#ifdef ADCL_LIBNBC
 	req->r_progress = req->r_function->f_attrvals[req->r_function->f_attrset->as_maxnum-1]-100;
-	
+#endif
 	int rank;
 	MPI_Comm_rank (MPI_COMM_WORLD, &rank);
     }

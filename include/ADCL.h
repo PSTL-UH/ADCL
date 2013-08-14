@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2013      University of Houston. All rights reserved.
  * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
@@ -37,7 +37,7 @@ extern "C" {
 #define ADCL_UNDEFINED      -4
 #define ADCL_NOT_FOUND      -5
 #define ADCL_CHANGE_OCCURED -6
-#define ADCL_CONTINUE -7
+#define ADCL_CONTINUE       -7
 
 #define ADCL_INVALID_ARG       10
 #define ADCL_INVALID_NDIMS     11
@@ -57,35 +57,27 @@ extern "C" {
 #define ADCL_INVALID_WORK_FUNCTION_PTR  25
 #define ADCL_INVALID_FNCTSET   26
 #define ADCL_INVALID_VECTOR    27
-#define ADCL_INVALID_VECTSET   28
-#define ADCL_INVALID_DIRECTION 29
-#define ADCL_INVALID_VMAP      30
-#define ADCL_INVALID_OP        31
-#define ADCL_INVALID_EMETHOD   32
-#define ADCL_INVALID_TIMER     33
+#define ADCL_INVALID_DIRECTION 28
+#define ADCL_INVALID_VMAP      29
+#define ADCL_INVALID_OP        30
+#define ADCL_INVALID_EMETHOD   31
+#define ADCL_INVALID_TIMER     32
 #ifdef ADCL_LIBNBC
-#define ADCL_INVALID_HANDLE    34
-#endif
-#ifdef ADCL_PAPI
-#define ADCL_INVALID_PAPI      40
+#define ADCL_INVALID_HANDLE    33
 #endif
 
 #define ADCL_VECTOR_NULL    (void*) -1
-#define ADCL_VECTSET_NULL   (void*) -2
-#define ADCL_REQUEST_NULL   (void*) -3
-#define ADCL_TOPOLOGY_NULL  (void*) -4
-#define ADCL_ATTRIBUTE_NULL (void*) -5
-#define ADCL_ATTRSET_NULL   (void*) -6
-#define ADCL_FUNCTION_NULL  (void*) -7
-#define ADCL_FNCTSET_NULL   (void*) -8
-#define ADCL_NULL_FNCT_PTR  (void*) -9
-#define ADCL_VMAP_NULL      (void*) -10
-#define ADCL_VECTYPE_NULL           -11
-#define ADCL_EMETHOD_NULL   (void*) -12
-#define ADCL_TIMER_NULL     (void*) -13
-#ifdef ADCL_PAPI
-#define ADCL_PAPI_NULL      (void*) -15
-#endif
+#define ADCL_REQUEST_NULL   (void*) -2
+#define ADCL_TOPOLOGY_NULL  (void*) -3
+#define ADCL_ATTRIBUTE_NULL (void*) -4
+#define ADCL_ATTRSET_NULL   (void*) -5
+#define ADCL_FUNCTION_NULL  (void*) -6
+#define ADCL_FNCTSET_NULL   (void*) -7
+#define ADCL_NULL_FNCT_PTR  (void*) -8
+#define ADCL_VMAP_NULL      (void*) -9
+#define ADCL_VECTYPE_NULL           -10
+#define ADCL_EMETHOD_NULL   (void*) -11
+#define ADCL_TIMER_NULL     (void*) -12
 
 #define ADCL_MAX_ATTRLEN 32
 #define ADCL_MAX_NAMELEN 32
@@ -167,7 +159,6 @@ typedef struct ADCL_hist_s ADCL_hist_t;
 /* define the object types visible to the user */
 typedef struct ADCL_vmap_s*      ADCL_Vmap;
 typedef struct ADCL_vector_s*    ADCL_Vector;
-typedef struct ADCL_vectset_s*   ADCL_Vectset;
 typedef struct ADCL_request_s*   ADCL_Request;
 typedef struct ADCL_topology_s*  ADCL_Topology;
 typedef struct ADCL_attribute_s* ADCL_Attribute;
@@ -176,9 +167,6 @@ typedef struct ADCL_function_s*  ADCL_Function;
 typedef struct ADCL_fnctset_s*   ADCL_Fnctset;
 typedef struct ADCL_hist_s*      ADCL_Hist;
 typedef struct ADCL_timer_s*     ADCL_Timer;
-#ifdef ADCL_PAPI
-typedef struct ADCL_papi_s*      ADCL_Papi;
-#endif
 
 /* define predefined functionsets */
 extern struct ADCL_fnctset_s *ADCL_neighborhood_fnctset;
@@ -199,8 +187,6 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 #define ADCL_FNCTSET_REDUCE       ADCL_reduce_fnctset
 #define ADCL_FNCTSET_ALLTOALL     ADCL_alltoall_fnctset
 #define ADCL_FNCTSET_ALLTOALLV    ADCL_alltoallv_fnctset
-#define ADCL_FNCTSET_SHIFT_LTOR   ADCL_fnctset_shift_ltor
-#define ADCL_FNCTSET_SHIFT_RTOL   ADCL_fnctset_shift_rtol
 #ifdef ADCL_LIBNBC
 #define ADCL_FNCTSET_IBCAST       ADCL_ibcast_fnctset
 #endif
@@ -232,23 +218,13 @@ int ADCL_Vmap_inplace_allocate ( ADCL_Vmap *vec );
 int ADCL_Vmap_free  ( ADCL_Vmap *vec );
 
 /* ADCL Vector functions and ADCL Vectorset functions */
-int ADCL_Vector_allocate   ( int ndims, int *dims, int nc, int vectype, int hwidth,
-                             MPI_Datatype dat, void *data, ADCL_Vector *vec );
 int ADCL_Vector_allocate_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
                            MPI_Datatype dat, void *data, ADCL_Vector *vec ); 
 int ADCL_Vector_free       ( ADCL_Vector *vec );
-int ADCL_Vector_register   ( int ndims, int *dims, int nc, int vectype, int hwidth,
-                             MPI_Datatype dat, void *data, ADCL_Vector *vec );
 int ADCL_Vector_register_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
                            MPI_Datatype dat, void *data, ADCL_Vector *vec );
 int ADCL_Vector_deregister ( ADCL_Vector *vec );
 
-int ADCL_Vectset_create ( int maxnum,
-                          ADCL_Vector  *svecs,
-                          ADCL_Vector  *rvecs,
-                          ADCL_Vectset *vectset );
-
-int ADCL_Vectset_free   ( ADCL_Vectset *vectset );
 
 /* ADCL Topology functions */
 int ADCL_Topology_create_generic ( int ndims, int nneigh, int *lneighbors, int *flip, 
@@ -262,15 +238,6 @@ int ADCL_Topology_dump  ( ADCL_Topology topo );
 int ADCL_Topology_get_cart_number_neighbors ( int ndims, int extended, int* nneigh );
 int ADCL_Topology_get_cart_neighbors ( int nneigh, int* lneighbors, int* rneighbors, 
         int *flip, MPI_Comm cart_comm );
-
-#ifdef ADCL_PAPI
-/* ADCL PAPI functions */
-int ADCL_Papi_create (ADCL_Papi *papi);
-int ADCL_Papi_free   (ADCL_Papi *papi);
-int ADCL_Papi_enter  (ADCL_Papi papi);
-int ADCL_Papi_leave  (ADCL_Papi papi);
-int ADCL_Papi_print  (ADCL_Papi papi);
-#endif
 
 /* ADCL Attributes and Attributeset fucntions */
 int ADCL_Attribute_create ( int maxnvalues, int *array_of_values, char **values_names,
