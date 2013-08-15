@@ -47,13 +47,9 @@ void ADCL_REDUCE_BINARY( ADCL_request_t *req )
 {
    int segsize /*= 32*1024*/,max_outstanding_reqs = 0;
    int root = req->r_emethod->em_root;
-   ADCL_topology_t *topo = req->r_emethod->em_topo;
-   MPI_Comm comm = topo->t_comm;
    MPI_Datatype datatype = req->r_rdats[0];
    int  count = req->r_rvecs[0]->v_dims[0];
-   int size = topo->t_size;
   
-   int lastsegcount; //to be initialized
    int segcount = count;
    int typelng;
    ADCL_tree_t *tree;

@@ -35,6 +35,8 @@
  */
 #include "ADCL_internal.h"
 
+
+
 void ADCL_alltoall_bruck ( ADCL_request_t *req ) 
 {
     ADCL_topology_t *topo = req->r_emethod->em_topo;
@@ -49,9 +51,9 @@ void ADCL_alltoall_bruck ( ADCL_request_t *req )
     int scount        = vmap->m_scnt;
     int rcount        = vmap->m_rcnt;
 
-    int err = 0, line = -1;
+    int err = MPI_SUCCESS, line = -1;
     int rank, size;
-    MPI_Aint sext, rext, lb, ddt_ext;
+    MPI_Aint sext, rext, lb;
     int i, k;
     int sendto, recvfrom, distance, *displs = NULL, *blen = NULL;
     void *tmpbuf = NULL, *tmpbuf_free = NULL;
@@ -137,6 +139,9 @@ void ADCL_alltoall_bruck ( ADCL_request_t *req )
 
     /* Step 4 - clean up */
 err_hndl:
+    if ( MPI_SUCCESS != err ) {
+	printf("error in file %s, ret=%d in line=%d\n", __FILE__, err, line );
+    }
     if (tmpbuf != NULL) free(tmpbuf_free);
     if (weallocated) {
         if (displs != NULL) free(displs);
@@ -180,10 +185,6 @@ err_hndl:
  *
  * $HEADER$
  */
-#include "ADCL_internal.h"
-
-int ADCL_ddt_copy_content_same_ddt_generic ( MPI_Datatype dtype, int count,
-                                       void* destination_base, void* source_base, int contiguous ); 
 
 int ADCL_ddt_copy_content_same_ddt_generic ( MPI_Datatype dtype, int count,
                                        void* destination_base, void* source_base, int contiguous )
@@ -214,7 +215,7 @@ int ADCL_ddt_copy_content_same_ddt_generic ( MPI_Datatype dtype, int count,
         destination += true_lb;
         source      += true_lb;
 
-        memcpy ( destination, source, ext * count);
+        memcpy ( (void *) destination, (void *) source, ext * count);
         return 0;  /* completed */
     }
 
@@ -237,7 +238,7 @@ int ADCL_ddt_copy_content_same_ddt_generic ( MPI_Datatype dtype, int count,
                     src  = source      + displ * old_ext;
                     dest = destination + displ * old_ext;
 
-                    memcpy ( dest, src, blocklength*old_ext );  
+                    memcpy ( (void *)dest, (void *)src, blocklength*old_ext );  
                 }
                 source += ext; 
                 destination += ext; 

@@ -60,9 +60,9 @@
 void  ADCL_allreduce_linear( ADCL_request_t *req)
 { 
     /*  MPI_Comm comm = topo->t_comm;
-      ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
-      MPI_Op op = rvmap->m_op; */
-    int rank, err;
+	ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
+	MPI_Op op = rvmap->m_op; */
+    int rank;
     MPI_Aint true_lb, true_extent, lb, extent;
     ADCL_topology_t *topo = req->r_emethod->em_topo;
     void *sbuf = req->r_svecs[0]->v_data;
@@ -99,7 +99,7 @@ void  ADCL_allreduce_linear( ADCL_request_t *req)
        MPI_Type_get_extent(dtype, &lb, &extent);
        MPI_Type_get_true_extent(dtype, &true_lb, &true_extent);
        bcount = true_extent + (count - 1) * extent;
-       err = ADCL_ddt_copy_content_same_ddt(dtype, bcount, (char*) sbuf, (char*) rbuf);
+       ADCL_ddt_copy_content_same_ddt(dtype, bcount, (char*) sbuf, (char*) rbuf);
     }
 
     ADCL_bcast_linear( req );

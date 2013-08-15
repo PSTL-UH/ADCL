@@ -139,4 +139,8 @@ int ADCL_fortran_string_c2f(char *cstr, char *fstr, int len);
 int ADCL_twok_init ( ADCL_emethod_t *e );
 int ADCL_twok_get_next( ADCL_emethod_t *e );
 
+int ADCL_ddt_copy_content_same_ddt_generic ( MPI_Datatype dtype, int count,
+					     void* d_base, void* s_base, int contiguous ); 
+
+
 #endif /* __ADCL_INTERNAL_H__ */

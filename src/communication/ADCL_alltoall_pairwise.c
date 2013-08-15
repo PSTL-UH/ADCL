@@ -47,7 +47,7 @@ void ADCL_alltoall_pairwise( ADCL_request_t *req )
    int scount        = vmap->m_scnt;
    int rcount        = vmap->m_rcnt;
 
-   int line = -1, err = 0;
+   int err = MPI_SUCCESS;
    int rank, size, step;
    int sendto, recvfrom;
    void * tmpsend, *tmprecv;
@@ -58,10 +58,10 @@ void ADCL_alltoall_pairwise( ADCL_request_t *req )
     rank = topo->t_rank;
 
     err = MPI_Type_get_extent(sdtype, &lb, &sext);
-    if ( MPI_SUCCESS != err) { line = __LINE__; return; }
+    if ( MPI_SUCCESS != err) { return; }
 
     err = MPI_Type_get_extent(rdtype, &lb, &rext);
-    if ( MPI_SUCCESS != err) { line = __LINE__; return; }
+    if ( MPI_SUCCESS != err) { return; }
 
     //    err = ADCL_ddt_copy_content_same_ddt ( sdtype, scount*ext, 
     //    				       tmprecv, tmpsend );
@@ -86,7 +86,7 @@ void ADCL_alltoall_pairwise( ADCL_request_t *req )
         err = MPI_Sendrecv ( tmpsend, scount, sdtype, sendto, ADCL_TAG_ALLTOALL,
 			     tmprecv, rcount, rdtype, recvfrom, ADCL_TAG_ALLTOALL,
 			     comm, MPI_STATUS_IGNORE);
-        if (err != MPI_SUCCESS) { line = __LINE__; return;  }
+        if (err != MPI_SUCCESS) { return;  }
    }
 
    return;

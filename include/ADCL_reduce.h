@@ -96,4 +96,6 @@ void ADCL_reduce_pipeline_segsize128k( ADCL_request_t *req );
 void ADCL_reduce_in_order_binary_segsize4k( ADCL_request_t *req );
 void ADCL_reduce_in_order_binary_segsize32k( ADCL_request_t *req );
 void ADCL_reduce_in_order_binary_segsize128k( ADCL_request_t *req );
+
+
 #endif

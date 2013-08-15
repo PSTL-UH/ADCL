@@ -97,7 +97,7 @@
  */
 void ADCL_allgatherv_bruck( ADCL_request_t *req )
 {
-   int line = -1, err = 0;
+   int line = -1, err = MPI_SUCCESS;
    int rank, size;
    int sendto, recvfrom, distance, blockcount, i;
    int *new_rcounts = NULL, *new_rdispls = NULL;
@@ -208,6 +208,9 @@ void ADCL_allgatherv_bruck( ADCL_request_t *req )
    }
 
  err_hndl:
+    if ( MPI_SUCCESS != err ) {
+	printf("error in file %s, ret=%d in line=%d\n", __FILE__, err, line );
+    }
    if( NULL != new_rcounts ) free(new_rcounts);
    if( NULL != new_rdispls ) free(new_rdispls);
    if( NULL != new_scounts ) free(new_scounts);

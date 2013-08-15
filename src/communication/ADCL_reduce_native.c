@@ -41,7 +41,6 @@ ADCL_reduce_native( ADCL_request_t *req )
    int err;
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
-   ADCL_vmap_t *svmap = req->r_svecs[0]->v_map;
    ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
    void *sbuf = req->r_svecs[0]->v_data;
    void *rbuf = req->r_rvecs[0]->v_data;
@@ -51,15 +50,15 @@ ADCL_reduce_native( ADCL_request_t *req )
    MPI_Op op = rvmap->m_op;
 
    rank = topo->t_rank;
-if(sbuf == MPI_IN_PLACE)
-{
-if(rank == 0)
-   err = MPI_Reduce(MPI_IN_PLACE, rbuf, count, dtype, op, root, comm);
-else
-   err = MPI_Reduce(rbuf, rbuf, count, dtype, op, root, comm);
-}
-else
-   err = MPI_Reduce(sbuf, rbuf, count, dtype, op, root, comm);
+   if(sbuf == MPI_IN_PLACE)
+   {
+       if(rank == 0)
+	   err = MPI_Reduce(MPI_IN_PLACE, rbuf, count, dtype, op, root, comm);
+       else
+	   err = MPI_Reduce(rbuf, rbuf, count, dtype, op, root, comm);
+   }
+   else
+       err = MPI_Reduce(sbuf, rbuf, count, dtype, op, root, comm);
    if (MPI_SUCCESS != err) {
        return;
    }

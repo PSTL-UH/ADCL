@@ -35,8 +35,6 @@
 
 void ADCL_alltoall_native( ADCL_request_t *req ) 
 {
-   int err;
-
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm         = topo->t_comm;
    MPI_Datatype dtype    = req->r_rdats[0]; 
@@ -49,8 +47,8 @@ void ADCL_alltoall_native( ADCL_request_t *req )
    int scount       = svmap->m_scnt;
    int rcount       = rvmap->m_rcnt;
 
-   err = MPI_Alltoall (sbuf, scount, dtype,
-		       rbuf, rcount, dtype, comm);
+   MPI_Alltoall (sbuf, scount, dtype,
+		 rbuf, rcount, dtype, comm);
    return;
 }
 

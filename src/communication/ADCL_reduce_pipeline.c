@@ -22,7 +22,7 @@
  * */
 
 /*
- * Copyright (c) 2008      University of Houston. All rights reserved.
+ * Copyright (c) 2008-2013 University of Houston. All rights reserved.
  * Copyright (c) 2008      High Performance Computing Center Stuttgart,
  *                         University of Stuttgart.  All rights reserved.
  * $COPYRIGHT$
@@ -46,8 +46,6 @@
 void ADCL_REDUCE_PIPELINE( ADCL_request_t *req )
 {
    int root = 0, segsize /*= 1024*/, max_outstanding_reqs = 0;
-   ADCL_topology_t *topo = req->r_emethod->em_topo;
-   MPI_Comm comm = topo->t_comm;
    MPI_Datatype datatype = req->r_rdats[0];
    int  count = req->r_rvecs[0]->v_dims[0];
    int segcount = count;

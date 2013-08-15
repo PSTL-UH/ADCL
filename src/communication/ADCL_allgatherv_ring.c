@@ -59,7 +59,7 @@ void ADCL_allgatherv_ring( ADCL_request_t *req )
     int line = -1;
     int rank, size;
     int sendto, recvfrom, i, recvdatafrom, senddatafrom;
-    int err = 0;
+    int err = MPI_SUCCESS;
     MPI_Aint rlb, rext;
     char *tmpsend = NULL, *tmprecv = NULL;
 
@@ -127,6 +127,9 @@ void ADCL_allgatherv_ring( ADCL_request_t *req )
 
 
 err_hndl:
+    if ( MPI_SUCCESS != err ) {
+	printf("error in file %s line %d err=%d\n", __FILE__, line, err );
+    }
     return ;
 }
 

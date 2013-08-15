@@ -77,17 +77,16 @@
 
 void ADCL_allreduce_recursivedoubling ( ADCL_request_t *req )
 {
-   int ret, line;
+   int ret = MPI_SUCCESS, line;
    int rank, size, adjsize, remote, distance;
    int newrank, newremote, extra_ranks;
    char *tmpsend = NULL, *tmprecv = NULL, *tmpswap = NULL, *inplacebuf = NULL;
-   int error_hndl, bcount;
+   int bcount;
    MPI_Aint true_lb, true_extent, lb, extent;
    MPI_Request reqs[2];
 
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
-   ADCL_vmap_t *svmap = req->r_svecs[0]->v_map;
    ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
 
    void *sbuf = req->r_svecs[0]->v_data;
@@ -221,6 +220,9 @@ void ADCL_allreduce_recursivedoubling ( ADCL_request_t *req )
    }
 
 error_hndl:
+   if ( MPI_SUCCESS != ret ) {
+       printf("error in file %s line %d err=%d\n", __FILE__, line, ret );
+    }
    if (NULL != inplacebuf) free(inplacebuf);
    return;
 }

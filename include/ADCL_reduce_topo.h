@@ -18,4 +18,7 @@
     ADCL_tree_t* ADCL_build_in_order_bintree( ADCL_request_t *req );
     ADCL_tree_t* ADCL_build_in_order_bmtree( ADCL_request_t *req, int root );
     ADCL_tree_t* ADCL_build_chain( ADCL_request_t *req, int root,int fanout );
+
+void ADCL_reduce_generic( ADCL_request_t *req,void *sendbuf,void *recvbuf,int root,ADCL_tree_t *tree,int count_by_segment, int max_outstanding_reqs );
+
 #endif

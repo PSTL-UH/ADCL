@@ -36,12 +36,8 @@
 void
 ADCL_allreduce_native( ADCL_request_t *req ) 
 {
-   int rank;
-   int err;
-
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
-   ADCL_vmap_t *svmap = req->r_svecs[0]->v_map;
    ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
    void *sbuf = req->r_svecs[0]->v_data;
    void *rbuf = req->r_rvecs[0]->v_data;
@@ -51,12 +47,7 @@ ADCL_allreduce_native( ADCL_request_t *req )
    int count = req->r_rvecs[0]->v_dims[0];
    MPI_Op op = rvmap->m_op;
 
-   rank = topo->t_rank;
-
-   err = MPI_Allreduce(sbuf, rbuf, count, dtype, op, comm);
-   if (MPI_SUCCESS != err) {
-       return;
-   }
-
+   MPI_Allreduce(sbuf, rbuf, count, dtype, op, comm);
+   return;
 }
 

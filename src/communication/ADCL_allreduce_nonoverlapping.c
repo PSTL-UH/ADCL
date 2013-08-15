@@ -47,7 +47,7 @@
 void
 ADCL_allreduce_nonoverlapping(ADCL_request_t *req)
 {
-   int rank, err;
+   int rank;
    
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
@@ -65,16 +65,16 @@ ADCL_allreduce_nonoverlapping(ADCL_request_t *req)
    /* Reduce to 0 and broadcast. */
    if (MPI_IN_PLACE == sbuf) {
        if (0 == rank) {
-            err = MPI_Reduce (MPI_IN_PLACE, rbuf, count, dtype,
-                                            op, 0, comm);
+	   MPI_Reduce (MPI_IN_PLACE, rbuf, count, dtype,
+		       op, 0, comm);
         } else {
-            err = MPI_Reduce (rbuf, NULL, count, dtype, op, 0,
-                                            comm);
+            MPI_Reduce (rbuf, NULL, count, dtype, op, 0,
+			comm);
         }
     } else {
-      err = MPI_Reduce (sbuf, rbuf, count, dtype, op, 0, comm);
+      MPI_Reduce (sbuf, rbuf, count, dtype, op, 0, comm);
     }
 
-    err = MPI_Bcast (rbuf, count, dtype, 0, comm);
+    MPI_Bcast (rbuf, count, dtype, 0, comm);
     return;
 }

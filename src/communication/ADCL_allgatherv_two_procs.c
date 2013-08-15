@@ -105,6 +105,9 @@ void ADCL_allgatherv_two_procs(ADCL_request_t *req )
 
 
  err_hndl:
+    if ( MPI_SUCCESS != err ) {
+	printf("error in file %s line %d err=%d\n", __FILE__, line, err );
+    }
 
     return;
 }

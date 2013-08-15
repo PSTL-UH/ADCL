@@ -66,12 +66,10 @@ ADCL_bcast_linear ( ADCL_request_t *req )
    int i;
    int size;
    int rank;
-   int err;
    int root = 0; 
 
    ADCL_topology_t *topo = req->r_emethod->em_topo;
    MPI_Comm comm = topo->t_comm;
-   ADCL_vmap_t *svmap = req->r_svecs[0]->v_map;
    void *sbuf = req->r_svecs[0]->v_data; 
    void *rbuf = req->r_rvecs[0]->v_data;
    void *buf; 
@@ -106,14 +104,13 @@ ADCL_bcast_linear ( ADCL_request_t *req )
 	  mpi_reqs[i] = MPI_REQUEST_NULL;
 	  continue;
        }
-       err = MPI_Isend(buf, count, btype, i, ADCL_TAG_BCAST, comm, &mpi_reqs[i]);
+       MPI_Isend(buf, count, btype, i, ADCL_TAG_BCAST, comm, &mpi_reqs[i]);
     }
-    err = MPI_Waitall(size, mpi_reqs, MPI_STATUSES_IGNORE);
+    MPI_Waitall(size, mpi_reqs, MPI_STATUSES_IGNORE);
 
     /* Free the reqs */
     free(mpi_reqs);
 
     /* All done */
-
     return;
 }

@@ -46,10 +46,6 @@
 void ADCL_REDUCE_CHAIN( ADCL_request_t *req )
 {
    int root = 0, segsize /*= 0*/, max_outstanding_reqs = 0; // to be sent as arguments
-   ADCL_topology_t *topo = req->r_emethod->em_topo;
-   MPI_Comm comm = topo->t_comm;
-   int size = topo->t_size;
-   int rank = topo->t_rank;
    MPI_Datatype datatype = req->r_rdats[0];
    int  count = req->r_rvecs[0]->v_dims[0];
   

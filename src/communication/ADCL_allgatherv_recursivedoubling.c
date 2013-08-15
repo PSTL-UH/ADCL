@@ -176,6 +176,9 @@ void ADCL_allgatherv_recursivedoubling(ADCL_request_t *req)
    }
 
  err_hndl:
+    if ( MPI_SUCCESS != err ) {
+	printf("error in file %s line %d err=%d\n", __FILE__, line, err );
+    }
    free( sendblocklocation );
    return;
 }

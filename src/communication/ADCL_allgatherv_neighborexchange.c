@@ -104,7 +104,7 @@ void ADCL_allgatherv_neighborexchange(ADCL_request_t *req)
     int neighbor[2], offset_at_step[2], recv_data_from[2], send_data_from;
     int new_scounts[2], new_sdispls[2], new_rcounts[2], new_rdispls[2];
     int i, even_rank;
-    int err = 0;
+    int err = MPI_SUCCESS;
     MPI_Aint rlb, rext;
     char *tmpsend = NULL, *tmprecv = NULL;
     MPI_Datatype  new_rdtype, new_sdtype;
@@ -240,6 +240,9 @@ void ADCL_allgatherv_neighborexchange(ADCL_request_t *req)
     }
 
  err_hndl:
+    if ( MPI_SUCCESS != err ) {
+	printf("error in file %s line %d err=%d\n", __FILE__, line, err );
+    }
     return;
 }
 

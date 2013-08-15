@@ -51,7 +51,7 @@ void ADCL_alltoall_linear ( ADCL_request_t *req )
     MPI_Request *rreqs;  //= &req->r_rreqs[0];
     MPI_Request *mpireq; // = rreqs;
 
-    int i, line = -1, err = 0;
+    int i, err = MPI_SUCCESS;
     int rank, size;
     void *psnd, *prcv;
     MPI_Aint sext, rext, lb;
@@ -63,11 +63,11 @@ void ADCL_alltoall_linear ( ADCL_request_t *req )
    /* Initialize. */
 
     err = MPI_Type_get_extent(sdtype, &lb, &sext);
-    if ( MPI_SUCCESS != err) { line = __LINE__; return; }
+    if ( MPI_SUCCESS != err) { return; }
     sext *= scount;
 
     err = MPI_Type_get_extent(rdtype, &lb, &rext);
-    if ( MPI_SUCCESS != err) { line = __LINE__; return; }
+    if ( MPI_SUCCESS != err) { return; }
     rext *= rcount;
 
     /* simple optimization */
@@ -76,7 +76,7 @@ void ADCL_alltoall_linear ( ADCL_request_t *req )
 
     err = MPI_Sendrecv(psnd, scount, sdtype, rank, ADCL_TAG_ALLTOALL, 
                        prcv, rcount, rdtype, rank, ADCL_TAG_ALLTOALL, comm, MPI_STATUS_IGNORE );
-    if ( MPI_SUCCESS != err) { line = __LINE__; return; }
+    if ( MPI_SUCCESS != err) { return; }
 
     /* If only one process, we're done. */
     if (1 == size) {

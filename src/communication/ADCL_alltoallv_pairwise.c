@@ -49,52 +49,49 @@ void ADCL_alltoallv_pairwise( ADCL_request_t *req )
    int *sdispls       = svmap->m_displ;
    int *rdispls       = rvmap->m_displ;
 
-   int line = -1, err = 0;
    int rank, size, step;
    int sendto, recvfrom;
    void *psnd, *prcv;
    MPI_Aint ext, lb;
 
 
-    size = topo->t_size;
-    rank = topo->t_rank;
+   size = topo->t_size;
+   rank = topo->t_rank;
 
-    err = MPI_Type_get_extent(dtype, &lb, &ext);
-    if ( MPI_SUCCESS != err) { line = __LINE__; return; }
+   MPI_Type_get_extent(dtype, &lb, &ext);
 
+   psnd = ((char *) sbuf) + (sdispls[rank] * ext);
+   prcv = ((char *) rbuf) + (rdispls[rank] * ext);
+   
+   if (0 != scounts[rank]) {
+       ADCL_ddt_copy_content_same_ddt ( dtype, scounts[rank]*ext, 
+					prcv, psnd );
+   }
 
-    psnd = ((char *) sbuf) + (sdispls[rank] * ext);
-    prcv = ((char *) rbuf) + (rdispls[rank] * ext);
-
-    if (0 != scounts[rank]) {
-	err = ADCL_ddt_copy_content_same_ddt ( dtype, scounts[rank]*ext, 
-					       prcv, psnd );
-    }
-
-    /* If only one process, we're done. */
-    if (1 == size) {
-        return;
-    }
-
-    /* Perform pairwise exchange starting from 1 since local exhange is done */
-    for (step = 1; step < size + 1; step++) {
-
-        /* Determine sender and receiver for this step. */
-        sendto  = (rank + step) % size;
-        recvfrom = (rank + size - step) % size;
-
-        /* Determine sending and receiving locations */
-        psnd = (char*)sbuf + sdispls[sendto] * ext;
-        prcv = (char*)rbuf + rdispls[recvfrom] * ext;
-
-        /* send and receive */
-        err = MPI_Sendrecv ( psnd, scounts[sendto], dtype, sendto,
-			     ADCL_TAG_ALLTOALLV,
-			     prcv, rcounts[recvfrom], dtype, recvfrom,
-			     ADCL_TAG_ALLTOALLV,
-			     comm, MPI_STATUS_IGNORE);
-    }
-
+   /* If only one process, we're done. */
+   if (1 == size) {
+       return;
+   }
+   
+   /* Perform pairwise exchange starting from 1 since local exhange is done */
+   for (step = 1; step < size + 1; step++) {
+       
+       /* Determine sender and receiver for this step. */
+       sendto  = (rank + step) % size;
+       recvfrom = (rank + size - step) % size;
+       
+       /* Determine sending and receiving locations */
+       psnd = (char*)sbuf + sdispls[sendto] * ext;
+       prcv = (char*)rbuf + rdispls[recvfrom] * ext;
+       
+       /* send and receive */
+       MPI_Sendrecv ( psnd, scounts[sendto], dtype, sendto,
+		      ADCL_TAG_ALLTOALLV,
+		      prcv, rcounts[recvfrom], dtype, recvfrom,
+		      ADCL_TAG_ALLTOALLV,
+		      comm, MPI_STATUS_IGNORE);
+   }
+   
 
    return;
 }

@@ -52,9 +52,6 @@ void ADCL_REDUCE_IN_ORDER_BINARY( ADCL_request_t *req )
    int  count = req->r_rvecs[0]->v_dims[0];
    void *sendbuf = req->r_svecs[0]->v_data;
    void *recvbuf = req->r_rvecs[0]->v_data;
-   ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
-   MPI_Op op = rvmap->m_op;
-   int ret;
    int io_root;
    int rank = topo->t_rank;
    int size = topo->t_size;
@@ -66,6 +63,7 @@ void ADCL_REDUCE_IN_ORDER_BINARY( ADCL_request_t *req )
     segsize = REDUCE_SEGSIZE;
     root = req->r_emethod->em_root;
     tree = ADCL_build_in_order_bintree( req );
+
     /**
      * Determine number of segments and number of elements
      * sent per operation
@@ -101,27 +99,32 @@ void ADCL_REDUCE_IN_ORDER_BINARY( ADCL_request_t *req )
             use_this_recvbuf = tmpbuf;
         }
     }
-/*here the send and recv buffers have been changed and are not same as the ones in request object. what to do? - sarat
-*/
+    /* here the send and recv buffers have been changed and are not same as the ones in request object. 
+       what to do? - sarat */
     /* Use generic reduce with in-order binary tree topology and io_root */
-    ret = ADCL_reduce_generic( req,use_this_sendbuf, use_this_recvbuf, io_root, 
-                               tree, segcount, max_outstanding_reqs );
-/* Clean up */
+    ADCL_reduce_generic ( req, 
+			  use_this_sendbuf, 
+			  use_this_recvbuf, 
+			  io_root, 
+			  tree, 
+			  segcount, 
+			  max_outstanding_reqs );
+    /* Clean up */
     if (io_root != root) {
         if (root == rank) {
             /* Receive result from rank io_root to recvbuf */
-            ret = MPI_Recv(recvbuf, count, datatype, io_root,
-                                    ADCL_TAG_REDUCE, comm,
-                                    MPI_STATUS_IGNORE);
+            MPI_Recv(recvbuf, count, datatype, io_root,
+		     ADCL_TAG_REDUCE, comm,
+		     MPI_STATUS_IGNORE);
             if (MPI_IN_PLACE == sendbuf) {
                 free(use_this_sendbuf);
             }
 
         } else if (io_root == rank) {
             /* Send result from use_this_recvbuf to root */
-            ret = MPI_Send(use_this_recvbuf, count, datatype, root,
-                                    ADCL_TAG_REDUCE,
-                                    comm);
+            MPI_Send(use_this_recvbuf, count, datatype, root,
+		     ADCL_TAG_REDUCE,
+		     comm);
             free(use_this_recvbuf);
         }
     }

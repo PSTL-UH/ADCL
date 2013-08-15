@@ -50,7 +50,7 @@ void ADCL_alltoallv_linear ( ADCL_request_t *req )
     int *rdispls       = rvmap->m_displ;
     
     MPI_Request *preq;
-    int i, line = -1, err = 0;
+    int i, err = 0;
     int rank, size;
     void *psnd, *prcv;
     MPI_Aint ext, lb;
@@ -59,8 +59,7 @@ void ADCL_alltoallv_linear ( ADCL_request_t *req )
     size = topo->t_size;
     rank = topo->t_rank;
     
-    err = MPI_Type_get_extent(dtype, &lb, &ext);
-    if ( MPI_SUCCESS != err) { line = __LINE__; return; }
+    MPI_Type_get_extent(dtype, &lb, &ext);
     
     nreqs = 2 * size;
     preq = ( MPI_Request * )malloc ( nreqs * sizeof (MPI_Request));

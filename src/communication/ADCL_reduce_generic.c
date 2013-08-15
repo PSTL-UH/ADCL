@@ -45,10 +45,8 @@
 
 static int op_is_commute(MPI_Op op);
 
-void ADCL_reduce_generic( ADCL_request_t *req,void *sendbuf,void *recvbuf,int root,ADCL_tree_t *tree,int count_by_segment,int max_outstanding_reqs )
+void ADCL_reduce_generic( ADCL_request_t *req,void *sendbuf, void *recvbuf, int root, ADCL_tree_t *tree, int count_by_segment,int max_outstanding_reqs )
 {
-/*not defined yet
-root, tree, count_by_segment, max_outstanding_reqs*/
     ADCL_topology_t *topo = req->r_emethod->em_topo;
     MPI_Comm comm         = topo->t_comm;
     ADCL_vmap_t *rvmap = req->r_rvecs[0]->v_map;
@@ -59,14 +57,13 @@ root, tree, count_by_segment, max_outstanding_reqs*/
     int original_count = req->r_rvecs[0]->v_dims[0];
      // to be initialized
     
-    int err;
     char *inbuf[2] = {NULL,NULL} , *inbuf_free[2] = {NULL,NULL};
     char *accumbuf = NULL, *accumbuf_free = NULL;
     char *local_op_buffer = NULL, *sendtmpbuf = NULL;
     MPI_Aint  rext,  lb, segment_increment;
     int typelng;
     MPI_Request reqs[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};//depending on where it is used it can be rreqs and sreqs
-    int num_segments, line, ret, segindex, i, rank;
+    int num_segments, line, segindex, i, rank, ret=MPI_SUCCESS;
     int recvcount, prevcount, inbi;
     int bcount;
 
@@ -77,7 +74,7 @@ root, tree, count_by_segment, max_outstanding_reqs*/
 
     rank = topo->t_rank;
 
-    err = MPI_Type_get_extent(dtype, &lb, &rext);
+    ret = MPI_Type_get_extent(dtype, &lb, &rext);
     MPI_Type_size(dtype, &typelng);
     num_segments = (original_count + count_by_segment - 1) / count_by_segment;
     segment_increment = count_by_segment * rext;
@@ -103,15 +100,16 @@ root, tree, count_by_segment, max_outstanding_reqs*/
             }
             accumbuf = accumbuf_free - lb;
         }
-/* If this is a non-commutative operation we must copy
+	/* If this is a non-commutative operation we must copy
            sendbuf to the accumbuf, in order to simplfy the loops */
         if (!op_is_commute(op))//no alternative available
 	{
-		 err = ADCL_ddt_copy_content_same_ddt_generic (dtype, bcount,
-            (char*)accumbuf, (char*)sendtmpbuf, 1);  //generic or without
+	    ret = ADCL_ddt_copy_content_same_ddt_generic (dtype, bcount,
+							  (char*)accumbuf, (char*)sendtmpbuf, 1);  //generic or without
 
         }
-/* Allocate two buffers for incoming segments */
+
+	/* Allocate two buffers for incoming segments */
         real_segment_size = true_ext + (count_by_segment - 1) * rext;
         inbuf_free[0] = (char*) malloc(real_segment_size);
         if( inbuf_free[0] == NULL ) {
@@ -137,7 +135,7 @@ root, tree, count_by_segment, max_outstanding_reqs*/
             recvcount = count_by_segment;
             if( segindex == (num_segments-1) )
                 recvcount = original_count - count_by_segment * segindex;
- /* for each child */
+	    /* for each child */
             for( i = 0; i < tree->tree_nextsize; i++ ) {
                 /**
                  * We try to overlap communication:
@@ -333,6 +331,9 @@ local_op_buffer = inbuf[inbi ^ 1];
     return;
 
  error_hndl:  /* error handler */
+    if ( MPI_SUCCESS != ret ) {
+	printf("error in file %s, ret=%d in line=%d\n", __FILE__, ret, line );
+    }
     if( inbuf_free[0] != NULL ) free(inbuf_free[0]);
     if( inbuf_free[1] != NULL ) free(inbuf_free[1]);
     if( accumbuf_free != NULL ) free(accumbuf);

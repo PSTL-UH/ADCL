@@ -78,7 +78,6 @@ void ADCL_allgatherv_linear ( ADCL_request_t *req )
     void *rbuf = req->r_rvecs[0]->v_data;
     MPI_Comm comm = topo->t_comm;
     
-    MPI_Datatype sdtype;
     int scount;
     MPI_Datatype rdtype = req->r_rdats[0];
 

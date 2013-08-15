@@ -50,7 +50,7 @@ void ADCL_ALLTOALL_LADD ( ADCL_request_t *req )
     MPI_Request *reqs;  //= &req->r_sreqs[0];
     MPI_Status *stats; 
 
-    int i, line = -1, err = 0;
+    int i, err = 0;
     int rank, size;
     MPI_Aint sext, rext, lb;
     int dst, ii, ss, bblock;

@@ -47,14 +47,14 @@ void ADCL_alltoall_linear_sync ( ADCL_request_t *req )
    int scount        = vmap->m_scnt;
    int rcount        = vmap->m_rcnt;
 
-   int i, line = -1, error = 0;
+   int line = -1, error = MPI_SUCCESS;
    int rank, size;
    MPI_Aint sext, rext, lb;
-    int ri, si;
-    int nreqs, nrreqs, nsreqs, total_reqs;
-    char *psnd;
-    char *prcv;
-
+   int ri, si;
+   int nreqs, nrreqs, nsreqs, total_reqs;
+   char *psnd;
+   char *prcv;
+   
     MPI_Request *reqs = NULL;
 
     /* Initialize. */
@@ -62,11 +62,11 @@ void ADCL_alltoall_linear_sync ( ADCL_request_t *req )
     rank = topo->t_rank;
 
     error = MPI_Type_get_extent(sdtype, &lb, &sext);
-    if ( MPI_SUCCESS != error ) { line = __LINE__; return; }
+    if ( MPI_SUCCESS != error ) { return; }
     sext *= scount;
 
     error = MPI_Type_get_extent(rdtype, &lb, &rext);
-    if ( MPI_SUCCESS != error ) { line = __LINE__; return; }
+    if ( MPI_SUCCESS != error ) { return; }
     rext *= rcount;
 
 
@@ -141,6 +141,9 @@ void ADCL_alltoall_linear_sync ( ADCL_request_t *req )
     }
 
 error_hndl:
+    if ( MPI_SUCCESS != error ) {
+	printf("error in file %s line %d ret=%d\n", __FILE__, line, error );
+    }
     if (NULL != reqs) free(reqs);
     return;
 }

@@ -100,7 +100,7 @@
 void
 ADCL_allreduce_ring( ADCL_request_t* req )
 {
-   int ret, line;
+   int ret = MPI_SUCCESS, line;
    int rank, size, k, recvfrom, sendto;
    int segcount, lastsegcount, maxsegcount;
    int blockcount, inbi;
@@ -279,6 +279,10 @@ ADCL_allreduce_ring( ADCL_request_t* req )
    return;
 
 error_hndl:
+   if ( MPI_SUCCESS != ret ) {
+       printf("error in file %s line %d err=%d\n", __FILE__, line, ret );
+    }
+
    if (NULL != inbuf[0]) free(inbuf[0]);
    if (NULL != inbuf[1]) free(inbuf[1]);
    return;

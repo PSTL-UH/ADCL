@@ -36,8 +36,8 @@ void ADCL_alltoall_pairwise_excl( ADCL_request_t *req )
     int scount        = vmap->m_scnt;
     int rcount        = vmap->m_rcnt;
 
-    int line = -1, err = 0, i;
-    int rank, size, step;
+    int err = 0, i;
+    int rank, size;
     int src, dst;
     int rsend, ssend; 
     MPI_Aint sext, rext, lb;
@@ -48,11 +48,11 @@ void ADCL_alltoall_pairwise_excl( ADCL_request_t *req )
     rank = topo->t_rank;
 
     err = MPI_Type_get_extent(sdtype, &lb, &sext);
-    if ( MPI_SUCCESS != err) { line = __LINE__; return; }
+    if ( MPI_SUCCESS != err) { return; }
     ssend = scount*sext; 
 
     err = MPI_Type_get_extent(rdtype, &lb, &rext);
-    if ( MPI_SUCCESS != err) { line = __LINE__; return; }
+    if ( MPI_SUCCESS != err) { return; }
     rsend = rcount*rext; 
     //    err = ADCL_ddt_copy_content_same_ddt ( sdtype, scount*ext, 
     //    				       tmprecv, tmpsend );
@@ -64,7 +64,7 @@ void ADCL_alltoall_pairwise_excl( ADCL_request_t *req )
     /* Make local copy first */
     err = MPI_Sendrecv(((char *)sbuf + rank*ssend), scount, sdtype, rank, ADCL_TAG_ALLTOALL,
             ((char *)rbuf + rank*rsend), rcount, rdtype, rank, ADCL_TAG_ALLTOALL, comm, &status);
-    if (err != MPI_SUCCESS) { line = __LINE__; return;  }
+    if (err != MPI_SUCCESS) { return;  }
 
     /* Is size a power-of-two? */
     i = 1;
@@ -88,9 +88,7 @@ void ADCL_alltoall_pairwise_excl( ADCL_request_t *req )
 
         err = MPI_Sendrecv(((char *)sbuf + dst*ssend), scount, sdtype, dst, ADCL_TAG_ALLTOALL, 
                 ((char *)rbuf + src*rsend), rcount, rdtype, src, ADCL_TAG_ALLTOALL, comm, &status);
-        if (err != MPI_SUCCESS) { line = __LINE__; return;  }
     }
-
 
     return;
 }
