@@ -145,7 +145,9 @@ ADCL_allreduce_ring( ADCL_request_t* req )
 
    /* Special case for count less than size - 1 - use recursive doubling */
    if (count < size - 1) {
+#ifdef ADCL_VERBOSE
       printf("WARNING: ADCL_allreduce_ring falls back to ADCL_allreduce_recursivedoubling.\n");
+#endif
       ADCL_allreduce_recursivedoubling( req );
       return;
    }

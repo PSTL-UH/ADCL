@@ -112,6 +112,7 @@ extern ADCL_function_t *ADCL_neighborhood_functions[ADCL_METHOD_NN_TOTAL_NUM];
 extern ADCL_function_t *ADCL_allgatherv_functions[ADCL_METHOD_ALLGATHERV_TOTAL_NUM];
 extern ADCL_function_t *ADCL_allreduce_functions[ADCL_METHOD_ALLREDUCE_TOTAL_NUM];
 
+
 //void ADCL_neighborhood_set_criteria( void *filter_criteria, ADCL_request_t *req );
 
 #endif

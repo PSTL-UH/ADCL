@@ -113,7 +113,6 @@ int ADCL_predefined_finalize ( void )
     ADCL_Fnctset_free ( &ADCL_allreduce_fnctset );
     ADCL_Fnctset_free ( &ADCL_alltoall_fnctset );
     ADCL_Fnctset_free ( &ADCL_alltoallv_fnctset );
-    ADCL_Fnctset_free ( &ADCL_allreduce_fnctset );
 
 #ifdef ADCL_LIBNBC
     ADCL_Fnctset_free ( &ADCL_ibcast_fnctset );
