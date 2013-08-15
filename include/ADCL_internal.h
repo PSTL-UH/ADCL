@@ -109,6 +109,9 @@ int ADCL_readenv( void );
 
 int ADCL_predefined_init ( void );
 int ADCL_predefined_finalize ( void );
+int ADCL_predefined_neighborhood ( void );
+int ADCL_predefined_allgatherv ( void );
+int ADCL_predefined_allreduce ( void );
 int ADCL_predefined_alltoall ( void );
 int ADCL_predefined_alltoallv ( void );
 int ADCL_predefined_reduce ( void );

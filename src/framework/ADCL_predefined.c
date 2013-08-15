@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2013      University of Houston. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -25,10 +25,6 @@ ADCL_attrset_t *ADCL_neighborhood_attrset;
 ADCL_function_t *ADCL_neighborhood_functions[ADCL_METHOD_NN_TOTAL_NUM];
 ADCL_fnctset_t *ADCL_neighborhood_fnctset;
 
-ADCL_fnctset_t *ADCL_fnctset_rtol;
-ADCL_fnctset_t *ADCL_fnctset_ltor;
-
-
 const int ADCL_attr_mapping_aao=100;
 const int ADCL_attr_mapping_pair=101;
 const int ADCL_attr_mapping_hierarch=102;
@@ -52,24 +48,86 @@ const int ADCL_attr_transfer_allgatherv_linear=140;
 const int ADCL_attr_numblocks_single=130;
 const int ADCL_attr_numblocks_dual=131;
 
-ADCL_attribute_t *ADCL_allgatherv_attrs[ADCL_ATTR_ALLGATHERV_TOTAL_NUM];
-ADCL_attrset_t *ADCL_allgatherv_attrset;
-ADCL_function_t *ADCL_allgatherv_functions[ADCL_METHOD_ALLGATHERV_TOTAL_NUM];
-ADCL_fnctset_t *ADCL_allgatherv_fnctset;
 
-ADCL_attribute_t *ADCL_allreduce_attrs[ADCL_ATTR_ALLREDUCE_TOTAL_NUM];
-ADCL_attrset_t *ADCL_allreduce_attrset;
-ADCL_function_t *ADCL_allreduce_functions[ADCL_METHOD_ALLREDUCE_TOTAL_NUM];
-ADCL_fnctset_t *ADCL_allreduce_fnctset;
+extern ADCL_fnctset_t *ADCL_allreduce_fnctset;
+extern ADCL_fnctset_t *ADCL_allgatherv_fnctset;
+extern ADCL_fnctset_t *ADCL_alltoall_fnctset;
+extern ADCL_fnctset_t *ADCL_alltoallv_fnctset;
+extern ADCL_fnctset_t *ADCL_reduce_fnctset;
 
-
+#ifdef ADCL_LIBNBC
+extern ADCL_fnctset_t *ADCL_allreduce_ibcast;
+#endif
 
 int ADCL_predefined_init ( void )
 {
+
+/* ******************************************************************** */
+/* NEIGHBORHOOD  - Fortran function set 0                               */
+/* ******************************************************************** */
+    ADCL_predefined_neighborhood ( );
+
+/* ******************************************************************** */
+/* ALLGATHERV  - Fortran function set 1                                 */
+/* ******************************************************************** */
+    ADCL_predefined_allgatherv ();
+
+/* ******************************************************************** */
+/* ALLREDUCE - Fortran function set 2                                   */
+/* ******************************************************************** */
+    ADCL_predefined_allreduce ();
+
+/* ******************************************************************** */
+/* ALLTOALLV - Fortran function set 3                                   */
+/* ******************************************************************** */
+    ADCL_predefined_alltoallv ();
+
+/* ******************************************************************** */
+/* ALLTOALL - Fortran function set 4                                    */
+/* ******************************************************************** */
+    ADCL_predefined_alltoall ();
+
+/* ******************************************************************** */
+/* REDUCE - Fortran function set 5                                      */
+/* ******************************************************************** */
+    ADCL_predefined_reduce ();
+
+/* ******************************************************************** */
+/* IBCAST - Fortran function set 6	                                */
+/* ******************************************************************** */
+#ifdef ADCL_LIBNBC
+    ADCL_predefined_ibcast ();
+#endif
+
+    return ADCL_SUCCESS;
+}
+
+int ADCL_predefined_finalize ( void )
+{
+    /* Free the created function set */
+    ADCL_Fnctset_free ( &ADCL_neighborhood_fnctset );
+    /* Free the atrtribute set */
+    ADCL_Attrset_free ( &ADCL_neighborhood_attrset );
+
+    ADCL_Fnctset_free ( &ADCL_allgatherv_fnctset );
+    ADCL_Fnctset_free ( &ADCL_allreduce_fnctset );
+    ADCL_Fnctset_free ( &ADCL_alltoall_fnctset );
+    ADCL_Fnctset_free ( &ADCL_alltoallv_fnctset );
+    ADCL_Fnctset_free ( &ADCL_allreduce_fnctset );
+
+#ifdef ADCL_LIBNBC
+    ADCL_Fnctset_free ( &ADCL_ibcast_fnctset );
+#endif
+
+    return ADCL_SUCCESS;
+}
+
+
+int ADCL_predefined_neighborhood ( void )
+{
+
     int count=0;
     int m_nn_attr[3];
-    int m_allgatherv_attr[1];
-    int m_allreduce_attr[1];
     int ADCL_attr_mapping[ADCL_ATTR_MAPPING_MAX];
     int ADCL_attr_noncont[ADCL_ATTR_NONCONT_MAX];
     int ADCL_attr_transfer_nn[ADCL_ATTR_TRANSFER_MAX];
@@ -86,13 +144,8 @@ int ADCL_predefined_init ( void )
     char *ADCL_attr_transfer_nn_names[ADCL_ATTR_TRANSFER_MAX] = { "IsendIrecv", "Send_Recv",
                                                                   "Sendrecv", "SendIrecv" };
 #endif
-    //char *ADCL_attr_transfer_allgatherv_names[ADCL_ATTR_TRANSFER_MAX] = { "linear" };
-       /* bruck, linear, neighbor_exchange, ring, two_procs */
     ADCL_hist_functions_t *ADCL_neighborhood_hist_functions;
 
-/* ******************************************************************** */
-/* NEIGHBORHOOD  - Fortran function set 0                               */
-/* ******************************************************************** */
     ADCL_attr_mapping[0] = ADCL_attr_mapping_aao;
     ADCL_attr_mapping[1] = ADCL_attr_mapping_pair;
 
@@ -381,166 +434,6 @@ int ADCL_predefined_init ( void )
         ADCL_printf("Total Number wrong\n");
         return ADCL_ERROR_INTERNAL;
     }
-
-/* ******************************************************************** */
-/* ALLGATHERV  - Fortran function set 1                                 */
-/* ******************************************************************** */
-
-
-/*    ADCL_attribute_create ( ADCL_ATTR_TRANSFER_MAX, ADCL_attr_transfer_allgatherv,
-                            ADCL_attr_transfer_allgatherv_names , "transfer primitive",
-                            &ADCL_allgatherv_attrs[1]);
-
-    ADCL_attrset_create ( ADCL_ATTR_ALLGATHERV_TOTAL_NUM, ADCL_allgatherv_attrs,
-                          &ADCL_allgatherv_attrset); */
-
-
-    count = 0;
-    /* Register function aao, ddt, IsendIrecv */
-    //m_allgatherv_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_allgatherv_linear;
-
-    ADCL_function_create_async ( ADCL_allgatherv_native, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_native",
-                                 & ADCL_allgatherv_functions[count]);
-    count++;
-
-    ADCL_function_create_async ( ADCL_allgatherv_recursivedoubling, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_recursive_doubling",
-                                 & ADCL_allgatherv_functions[count]);
-    count++;
-
-    ADCL_function_create_async ( ADCL_allgatherv_linear, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_linear",
-                                 & ADCL_allgatherv_functions[count]);
-    count++;
-
-    ADCL_function_create_async ( ADCL_allgatherv_bruck, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_bruck",
-                                 & ADCL_allgatherv_functions[count]);
-    count++;
-
-    ADCL_function_create_async ( ADCL_allgatherv_neighborexchange, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_neighbor_exchange",
-                                 & ADCL_allgatherv_functions[count]);
-    count++;
-
-    ADCL_function_create_async ( ADCL_allgatherv_ring, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allgatherv_attr, "Allgatherv_ring",
-                                 & ADCL_allgatherv_functions[count]);
-    count++;
-
-
-    /* this algo only works for topo->t_size == 2
-     * ADCL_function_create_async ( ADCL_allgatherv_two_procs, NULL,
-     *                              ADCL_ATTRSET_NULL,
-     *                              m_allgatherv_attr, "Allgatherv_two_procs",
-     *                              & ADCL_allgatherv_functions[count]);
-     * count++; */
-
-//    m_nn_attr[ADCL_ATTR_TRANSFER]  = ADCL_attr_transfer_nn_PostStartPut;
-//    /* m_nn_attr[ADCL_ATTR_NUMBLOCKS] = ADCL_attr_numblocks_single; */
-//    ADCL_function_create_async ( ADCL_change_sb_aao_post_start_put, NULL,
-//                                 ADCL_neighborhood_attrset,
-//                                 m_nn_attr, "PostStartPut_aao",
-//                                 &ADCL_neighborhood_functions[count]);
-
-    ADCL_fnctset_create ( ADCL_METHOD_ALLGATHERV_TOTAL_NUM,
-                          ADCL_allgatherv_functions,
-                          "AllGatherV",
-                          &ADCL_allgatherv_fnctset );
-
-    if ( count != ADCL_METHOD_ALLGATHERV_TOTAL_NUM) {
-        ADCL_printf("Total Number wrong\n");
-        return ADCL_ERROR_INTERNAL;
-    }
-
-
-/* ******************************************************************** */
-/* ALLREDUCE - Fortran function set 2                                   */
-/* ******************************************************************** */
-
-    count = 0;
-
-    ADCL_function_create_async ( ADCL_allreduce_native, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_native",
-                                 & ADCL_allreduce_functions[count]);
-    count++;
-
-    ADCL_function_create_async ( ADCL_allreduce_linear, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_linear",
-                                 & ADCL_allreduce_functions[count]);
-    count++;
-
-    ADCL_function_create_async ( ADCL_allreduce_nonoverlapping, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_nonoverlapping",
-                                 & ADCL_allreduce_functions[count]);
-    count++;
-
-    ADCL_function_create_async ( ADCL_allreduce_recursivedoubling, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_recursive_doubling",
-                                 & ADCL_allreduce_functions[count]);
-    count++;
-
-    ADCL_function_create_async ( ADCL_allreduce_ring, NULL,
-                                 ADCL_ATTRSET_NULL,
-                                 m_allreduce_attr, "Allreduce_ring",
-                                 & ADCL_allreduce_functions[count]);
-    count++;
-
-    ADCL_fnctset_create ( ADCL_METHOD_ALLREDUCE_TOTAL_NUM,
-                          ADCL_allreduce_functions,
-                          "AllReduce",
-                          &ADCL_allreduce_fnctset );
-
-
-    if ( count != ADCL_METHOD_ALLREDUCE_TOTAL_NUM) {
-        ADCL_printf("Total Number wrong\n");
-        return ADCL_ERROR_INTERNAL;
-    }
-
-
-/* ******************************************************************** */
-/* ALLTOALLV - Fortran function set 3                                   */
-/* ******************************************************************** */
-    ADCL_predefined_alltoallv ();
-
-/* ******************************************************************** */
-/* ALLTOALL - Fortran function set 4                                    */
-/* ******************************************************************** */
-    ADCL_predefined_alltoall ();
-/* ******************************************************************** */
-/* REDUCE - Fortran function set 5                                   */
-/* ******************************************************************** */
-
-    ADCL_predefined_reduce ();
-	
-/* ******************************************************************** */
-/* IBCAST							                                   */
-/* ******************************************************************** */
-
-#ifdef ADCL_LIBNBC
-	ADCL_predefined_ibcast ();
-#endif
-
-    return ADCL_SUCCESS;
-}
-
-int ADCL_predefined_finalize ( void )
-{
-    /* Free the created function set */
-    ADCL_Fnctset_free ( &ADCL_neighborhood_fnctset );
-    /* Free the atrtribute set */
-    ADCL_Attrset_free ( &ADCL_neighborhood_attrset );
 
     return ADCL_SUCCESS;
 }

@@ -22,7 +22,7 @@
 */
 
 /*
- * Copyright (c) 2008      University of Houston. All rights reserved.
+ * Copyright (c) 2008-2013 University of Houston. All rights reserved.
  * Copyright (c) 2008      High Performance Computing Center Stuttgart,
  *                         University of Stuttgart.  All rights reserved.
  * $COPYRIGHT$
@@ -41,9 +41,7 @@ ADCL_ddt_copy_content_same_ddt(MPI_Datatype dtype, int count, char* dest, char* 
     /* this is not a good idea, but should work for contiguous data types */
     memcpy( dest, src, count );
 
-error_hndl:
     return ret;
-
 }
 
 
