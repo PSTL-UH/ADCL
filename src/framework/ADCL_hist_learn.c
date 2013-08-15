@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010      University of Houston. All rights reserved.
+ * Copyright (c) 2010-2013      University of Houston. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -22,12 +22,6 @@ extern int ADCL_hist_predictor;
 /* Whether a clustering of the history entries is applied or not */
 extern int ADCL_hist_cluster;
 
-/* Prediction algorithms from neighbors within dmax */
-int hist_learn_from_neighbors( ADCL_emethod_t *e );
-/* Prediction algorithm using a Naive bayes classifier */
-int hist_learn_with_nbc( ADCL_emethod_t *e );
-/* Prediction algorithm using a Support Vector Machine classifier */
-int hist_learn_with_svm( ADCL_emethod_t *e );
 
 /***  Function for learning from neighbors  ***/
 /* A function that filter an array of zeros and ones according to a window size */
@@ -66,7 +60,7 @@ int hist_learn_from_neighbors( ADCL_emethod_t *e )
     double *dup_distances;
     /* For closest algo */
     int i, j, retval, init;
-    double min_dist, prob, max_prob;
+    double  prob, max_prob;
     /* For WMV algo */
     double dist, max_weight;
     double *prediction_weight;
@@ -368,13 +362,9 @@ int hist_learn_with_nbc( ADCL_emethod_t *e )
 {
 
     ADCL_hist_nbc_t *hn;
-    ADCL_hist_list_t *hl;
-    ADCL_hist_clusters_t *hc;
 
     /* Initializations */
     hn = ADCL_hist_nbc;
-    hl = e->em_hist_list;
-    hc = e->em_hist_clusters;
 
     /* Creating the NBC model */
     if ( NULL == hn) {

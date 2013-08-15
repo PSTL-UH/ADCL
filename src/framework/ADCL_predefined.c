@@ -661,9 +661,7 @@ void ADCL_neighborhood_read( FILE *fp, ADCL_Hist hist )
 
 static void ADCL_neighborhood_write( FILE *fp, ADCL_Hist hist )
 {
-    int i, j, tndims, vndims ;
-    int nchar = 80, nch;
-    char *line = NULL;
+    int j, tndims, vndims ;
 
     fprintf ( fp, "  <RECORD>\n" );
     /* Network Topology information */
@@ -705,7 +703,7 @@ static void ADCL_neighborhood_write( FILE *fp, ADCL_Hist hist )
         fprintf ( fp, "          <DISPL>%d</DISPL>\n", hist->h_displ[j] );
     }
     fprintf ( fp, "        </DISPLS>\n" );
-    fprintf ( fp, "        <OP>%d</OP>\n", hist->h_op );
+    fprintf ( fp, "        <OP>%d</OP>\n", (int)((int *) hist->h_op ));
     fprintf ( fp, "        <INPLACE>%d</INPLACE>\n", hist->h_inplace );
     fprintf ( fp, "      </MAP>\n");
     fprintf ( fp, "    </VECT>\n" );

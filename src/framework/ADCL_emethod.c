@@ -39,16 +39,12 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 {
     ADCL_emethod_t *e = NULL;
     ADCL_hypothesis_t *hypo = NULL;
-    int last, same_em;
+    int  same_em;
     
     int i, ret=ADCL_SUCCESS;
     
     if ( ADCL_merge_requests && v != ADCL_VECTOR_NULL ) {
-	int j, last, found=-1;
-	int result;
-	ADCL_topology_t *topo;
-	ADCL_vector_t *vec;
-	ADCL_vmap_t *vec_map, *v_map;
+	int last;
 	
 	/* Check first, whether we have an entry in the ADCL_emethods_array,
 	   which fulfills already our requirements;
@@ -501,8 +497,9 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
     int next = ADCL_EVAL_DONE;
     int last = e->em_last, rank;
     int hist_search_res;
-    ADCL_function_t *func;
+#ifdef HL_VERBOSE
     TIME_TYPE start, end;
+#endif
     MPI_Comm comm; 
 
     if ( ADCL_TOPOLOGY_NULL == e->em_topo ) {
@@ -515,9 +512,13 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
     }
     if ( 1 == ADCL_emethod_learn_from_hist ) {
         /* Search for solution/hints in the hist stored from previous runs */
+#ifdef HL_VERBOSE
         start = TIME;
+#endif
         hist_search_res = ADCL_hist_find( e );
+#ifdef HL_VERBOSE
 	end = TIME;
+#endif
     }
     else {
         hist_search_res = ADCL_UNEQUAL;
@@ -582,8 +583,7 @@ int ADCL_emethods_get_next ( ADCL_emethod_t *e, int *flag )
             e->em_stats[next]->s_count++;
         }
     }
-    if(!(next == ADCL_EVAL_DONE || next == ADCL_SOL_FOUND || next == ADCL_ERROR_INTERNAL) )
-    {
+    if(!(next == ADCL_EVAL_DONE || next == ADCL_SOL_FOUND || next == ADCL_ERROR_INTERNAL) )  {
 	DISPLAY((ADCL_DISPLAY_CHANGE_FUNCTION,e->em_id,e->em_fnctset.fs_fptrs[next]->f_id,e->em_fnctset.fs_fptrs[next]->f_name));
      	DISPLAY((ADCL_DISPLAY_MESSAGE, e->em_id, "Function set:%d %s, next function to be tested: %d %s\n", e->em_fnctset.fs_id, 
                  e->em_fnctset.fs_name, e->em_fnctset.fs_fptrs[next]->f_id, e->em_fnctset.fs_fptrs[next]->f_name));

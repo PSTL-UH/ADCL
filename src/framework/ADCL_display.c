@@ -13,7 +13,7 @@ int ADCL_display_port = 20000;
 int *ADCL_display_rank;
 int ADCL_display_flag = 0;
 int ADCL_display_ranks_size = 0;
-static char strres[128];
+// static char strres[128];
 
 static int sock;
 char *hostname, *msgbuf;
@@ -22,6 +22,8 @@ int selfrank =0;
 static int host_is_little = 0;
 static int is_init=0;
 /* Prototypes */
+
+static int validate_rank(void);
 
 typedef struct
 {
@@ -388,7 +390,7 @@ static void endian_init ()
   is_init = 1;
 }
             
-int validate_rank(void)
+static int validate_rank(void)
 {
    if(ADCL_display_flag)
    {

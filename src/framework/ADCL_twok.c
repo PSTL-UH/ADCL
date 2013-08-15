@@ -19,13 +19,16 @@ void generate_sign_table( ADCL_twok_factorial_t *twok );
 void compute_sign_table(ADCL_twok_factorial_t *twok, int *flag, int start, int *comb_no);
 void compute_sign_table_header(ADCL_twok_factorial_t *twok, int start, int *comb_no, int *temp);
 void print_sign_table( ADCL_twok_factorial_t *twok );
+
 /* Qs and SSTs */
 void compute_Qs( ADCL_emethod_t *e );
 void compute_SSTs( ADCL_twok_factorial_t *twok );
 void print_SSTs( ADCL_twok_factorial_t *twok );
+
 /* Reduce the function set according to the 2k results */
 void reduce_fnctset( ADCL_emethod_t *e );
 /* Get next function to be tested from remaining if there is one */
+
 int get_from_remaining( ADCL_emethod_t *e );
 
 /* Threshold to decide if an attribute is important for performance */
@@ -64,7 +67,7 @@ int ADCL_twok_init ( ADCL_emethod_t *e )
 /* Generates Two-k Function Set from an original function set */
 int get_twok_function_set( ADCL_twok_factorial_t *twok, ADCL_fnctset_t *org_fnctset, ADCL_fnctset_t **twok_fnctset )
 {
-    int i,j, current_func;
+    int current_func;
     int *attr_values;
     char *name;
     ADCL_function_t **fncts;
@@ -133,7 +136,7 @@ void get_twok_functions( ADCL_twok_factorial_t *twok, ADCL_fnctset_t *org_fnctse
 /* Generats Sign Table */
 void generate_sign_table( ADCL_twok_factorial_t *twok )
 {
-    int i, j, k, m, comb_no;
+    int i, k, comb_no;
     int *tmp; /* tmp buffer */
     ADCL_fnctset_t *fnctset = twok->twok_fnctset;
     /* Memeory allocation for the sign table and he labels */
@@ -209,7 +212,7 @@ int ADCL_twok_get_next( ADCL_emethod_t *e )
     static int twokdone = 0;
     static int next = 0;
     ADCL_twok_factorial_t *twok = e->em_twok;
-    int i, pos, rank;
+    int rank;
 
     if(!twokdone) {
         /* A brute force like search on the 2k function set */
@@ -267,7 +270,6 @@ void compute_Qs( ADCL_emethod_t *e )
 {
     int i, j, f, pos;
     ADCL_twok_factorial_t *twok = e->em_twok;
-    ADCL_fnctset_t *fnctset = twok->twok_fnctset;
 
     /* Memory allocation */
     twok->twok_q = (double *)calloc(twok->twok_num, sizeof(double));

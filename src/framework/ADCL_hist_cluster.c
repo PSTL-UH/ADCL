@@ -77,7 +77,6 @@ void hist_cluster_init_data( ADCL_hist_clusters_t *hist_clusters,  ADCL_hist_lis
 
 void hist_cluster_hierarchical( ADCL_hist_clusters_t *hist_clusters )
 {
-    int i;
 
     /* Run the tree clustering */
     hist_clusters->hc_tree = treecluster( hist_clusters->hc_nrows,
@@ -112,7 +111,7 @@ void hist_cluster_hierarchical( ADCL_hist_clusters_t *hist_clusters )
         }
     }
 #endif
-
+    return;
 }
 
 /* Deternime the winners to be used for each cluster */

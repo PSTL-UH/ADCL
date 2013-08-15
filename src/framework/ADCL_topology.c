@@ -13,7 +13,6 @@ ADCL_array_t *ADCL_topology_farray;
 static int ADCL_local_id_counter=0;
 static int ADCL_get_cart_neighbor_pair ( MPI_Comm cart_comm, int ndims, int* coords, int* direction, 
      int* periods, int *cdims, int* rank1, int* rank2 );
-static int ADCL_topology_flip_neighbors ( int* coords, int idim, int* flip, int* lneighbor, int* rneighbor );
 
 int ADCL_topology_create_generic ( int ndims, int nneigh, int *lneighbors, int *rneighbors, int* flip, 
                    int *coords, int direction, MPI_Comm comm,
@@ -324,35 +323,36 @@ int ADCL_get_cart_neighbor_pair ( MPI_Comm cart_comm, int ndims, int* coords, in
   coords_up   = (int*) malloc( ndims * sizeof(int) );
 
 
-    for ( i=0; i<ndims; i++) {
-        coords_down[i] = coords[i] - direction[i];
-        if ( ( coords_down[i] < 0 || coords_down[i] >= cdims[i] ) && periods[i] == 0 ) {
-            inrange1 = 0;
-        }
+  for ( i=0; i<ndims; i++) {
+      coords_down[i] = coords[i] - direction[i];
+      if ( ( coords_down[i] < 0 || coords_down[i] >= cdims[i] ) && periods[i] == 0 ) {
+	  inrange1 = 0;
+      }
+      
+      coords_up[i]   = coords[i] + direction[i]; 
+      if ( ( coords_up[i] < 0 || coords_up[i] >= cdims[i] ) && periods[i] == 0 ) {
+	  inrange2 = 0;
+      }
+  }
 
-        coords_up[i]   = coords[i] + direction[i]; 
-            if ( ( coords_up[i] < 0 || coords_up[i] >= cdims[i] ) && periods[i] == 0 ) {
-                inrange2 = 0;
-            }
-    }
+  if ( inrange1 ) {
+      MPI_Cart_rank (cart_comm, coords_down, rank1 );
+  }
+  else {
+      *rank1 = MPI_PROC_NULL;
+  }
+  
+  if ( inrange2 ) {
+      MPI_Cart_rank (cart_comm, coords_up, rank2 );
+  }
+  else {
+      *rank2 = MPI_PROC_NULL;
+  }
+  
 
-    if ( inrange1 ) {
-        MPI_Cart_rank (cart_comm, coords_down, rank1 );
-    }
-    else {
-        *rank1 = MPI_PROC_NULL;
-    }
-
-    if ( inrange2 ) {
-        MPI_Cart_rank (cart_comm, coords_up, rank2 );
-    }
-    else {
-        *rank2 = MPI_PROC_NULL;
-    }
-
-
-    free( coords_down );
-    free( coords_up ); 
+  free( coords_down );
+  free( coords_up ); 
+  return ADCL_SUCCESS;
 }
 
 

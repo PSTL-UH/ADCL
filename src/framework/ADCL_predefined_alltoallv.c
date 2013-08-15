@@ -39,13 +39,14 @@ int ADCL_predefined_alltoallv ( void )
     int count;
     int m_alltoallv_attrs[2];
     int ADCL_attr_alltoallv_alg[ADCL_ATTR_ALLTOALLV_ALG_MAX];
-    int ADCL_attr_alltoallv_transfer[ADCL_ATTR_ALLTOALLV_TRANSFER_MAX];
+/*    int ADCL_attr_alltoallv_transfer[ADCL_ATTR_ALLTOALLV_TRANSFER_MAX]; */
     
 
     char * ADCL_attr_alltoallv_alg_names[ADCL_ATTR_ALLTOALLV_ALG_MAX] = {"Alltoallv_native",
 									 "Alltoallv_pair",
 									 "Alltoallv_linear" };
-
+/* Not yet implemented  but foreseen */
+/*
 #ifdef MPI_WIN
     char *ADCL_attr_alltoallv_transfer_names[ADCL_ATTR_ALLTOALLV_TRANSFER_MAX] = { "IsendIrecv", "SendIrecv",
                                                                "Send_Recv", "Sendrecv",
@@ -55,7 +56,7 @@ int ADCL_predefined_alltoallv ( void )
     char *ADCL_attr_alltoallv_transfer__names[ADCL_ATTR_ALLTOALLV_TRANSFER_MAX] = { "IsendIrecv", "SendIrecv",
 									  "Send_Recv", "Sendrecv" };
 #endif
-
+*/
 
     ADCL_attr_alltoallv_alg[0] = ADCL_attr_alltoallv_alg_native;
     ADCL_attr_alltoallv_alg[1] = ADCL_attr_alltoallv_alg_pairwise;

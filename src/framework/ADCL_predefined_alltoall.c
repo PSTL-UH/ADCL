@@ -45,6 +45,8 @@ int ADCL_predefined_alltoall ( void )
     char * ADCL_attr_alltoall_alg_names[ADCL_ATTR_ALLTOALL_ALG_MAX] = 
         {"Alltoall_native",  "Alltoall_pair", "Alltoall_linear"}; //, "Alltoall_bruck" };
 
+/* Not yet implemted but foreseen */
+/*
 #ifdef MPI_WIN
     char *ADCL_attr_alltoall_transfer_names[ADCL_ATTR_ALLTOALL_TRANSFER_MAX] = { "IsendIrecv", "SendIrecv",
                                                                "Send_Recv", "Sendrecv",
@@ -54,7 +56,7 @@ int ADCL_predefined_alltoall ( void )
     char *ADCL_attr_alltoall_transfer__names[ADCL_ATTR_ALLTOALL_TRANSFER_MAX] = { "IsendIrecv", "SendIrecv",
 									  "Send_Recv", "Sendrecv" };
 #endif
-
+*/
 
     ADCL_attr_alltoall_alg[0] = ADCL_attr_alltoall_alg_native;
     ADCL_attr_alltoall_alg[1] = ADCL_attr_alltoall_alg_pairwise;

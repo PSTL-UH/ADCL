@@ -300,7 +300,7 @@ int ADCL_fnctset_reg_hist_fnct ( ADCL_hist_functions_t *hist_functions, ADCL_fnc
 
     /* Copy the pointer to the history functions st given by user */
     fnctset->fs_hist_functions = hist_functions;
-
+    return ADCL_SUCCESS;
 }
 
 /********************************************************************************/
@@ -362,11 +362,12 @@ int ADCL_fnctset_get_fnct_num ( ADCL_fnctset_t *fnctset, ADCL_function_t*fnct )
 {
     int i=-1;
     for (i=0; i<fnctset->fs_maxnum; i++) {
-        if(fnct == fnctset->fs_fptrs[i])
-	{
-	    return i;
+        if(fnct == fnctset->fs_fptrs[i]) {
+	    break;
 	}
     }
+
+    return i;
 }
 
 /********************************************************************************/

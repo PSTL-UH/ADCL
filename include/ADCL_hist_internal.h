@@ -91,4 +91,14 @@ struct ADCL_hist_nbc_s{
 };
 typedef struct ADCL_hist_nbc_s ADCL_hist_nbc_t;
 
+
+/* Prediction algorithms from neighbors within dmax */
+int hist_learn_from_neighbors( ADCL_emethod_t *e );
+/* Prediction algorithm using a Naive bayes classifier */
+int hist_learn_with_nbc( ADCL_emethod_t *e );
+/* Prediction algorithm using a Support Vector Machine classifier */
+int hist_learn_with_svm( ADCL_emethod_t *e );
+
+void hist_svm_free();
+
 #endif /* __ADCL_HIST_INTERNAL_H__ */

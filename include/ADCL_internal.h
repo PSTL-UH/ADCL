@@ -67,9 +67,7 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 #endif
 
 #define ADCL_DISPLAY 
-
 #include "ADCL_display.h"
-
 
 #ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
@@ -77,7 +75,6 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 
 #include "ADCL_config.h"
 #include "ADCL_sysconfig.h"
-
 
 #define TRUE                           1
 #define FALSE                          0
@@ -112,7 +109,12 @@ int ADCL_readenv( void );
 
 int ADCL_predefined_init ( void );
 int ADCL_predefined_finalize ( void );
+int ADCL_predefined_alltoall ( void );
 int ADCL_predefined_alltoallv ( void );
+int ADCL_predefined_reduce ( void );
+#ifdef ADCL_LIBNBC
+int ADCL_predefined_ibcast ( void );
+#endif
 
 int ADCL_hypothesis_init ( ADCL_emethod_t *e );
 int ADCL_hypothesis_shrinklist_byattr ( ADCL_emethod_t *e, int attr_pos,
@@ -126,11 +128,12 @@ int ADCL_hypothesis_eval_one_attr    ( ADCL_emethod_t *e, int num_attrs,
                        ADCL_function_t **tmp_funcs );
 int ADCL_hypothesis_eval_v3 ( ADCL_emethod_t *e );
 int ADCL_hypothesis_get_next ( ADCL_emethod_t *e );
+int ADCL_hypothesis_sync_statobjects ( ADCL_emethod_t *e );
 
 int ADCL_fortran_string_f2c(char *fstr, int *len, char **cstr);
 int ADCL_fortran_string_c2f(char *cstr, char *fstr, int len);
 
-int ADCL_two_init ( ADCL_emethod_t *e );
+int ADCL_twok_init ( ADCL_emethod_t *e );
 int ADCL_twok_get_next( ADCL_emethod_t *e );
 
 #endif /* __ADCL_INTERNAL_H__ */

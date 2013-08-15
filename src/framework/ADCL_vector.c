@@ -103,7 +103,7 @@ int ADCL_vector_free  ( ADCL_vector_t **vec )
         ret = ADCL_ERROR_INTERNAL;
     }
 
-    return ADCL_SUCCESS;
+    return ret;
 }
 
 

@@ -285,11 +285,8 @@ int ADCL_hist_find ( ADCL_emethod_t *e )
 {
 
     ADCL_fnctset_t *fnctset = e->em_orgfnctset;
-    ADCL_hist_list_t *hist_list = e->em_hist_list;
-    ADCL_hist_t *hist;
     FILE *fp;
     int nhist = 0;
-    int explored_hist;
     int retval;
 
     if( -2 == e->em_explored_hist ) {
@@ -556,7 +553,7 @@ static int hist_read_header(FILE **fp, int *nhist)
 /* Reading the history entries and checking for indentical solved problems */
 static int hist_read_entries(FILE *fp, int nhist, ADCL_emethod_t *e )
 {
-    int i, ident, pass_filter;
+    int i, pass_filter;
     ADCL_fnctset_t *fnctset = e->em_orgfnctset;
     ADCL_hist_t *hist;
     ADCL_hist_list_t *hist_list = e->em_hist_list;

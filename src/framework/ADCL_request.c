@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007      University of Houston. All rights reserved.
+ * Copyright (c) 2006-2013      University of Houston. All rights reserved.
  * Copyright (c) 2007           Cisco, Inc. All rights reserved.
  * Copyright (c) 2009           HLRS. All rights reserved.
  * $COPYRIGHT$
@@ -496,7 +496,7 @@ int ADCL_request_free ( ADCL_request_t **req )
     }
     
     *req = ADCL_REQUEST_NULL;
-    return ADCL_SUCCESS;
+    return ret;
 }
 /**********************************************************************/
 /**********************************************************************/
