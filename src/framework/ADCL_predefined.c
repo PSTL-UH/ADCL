@@ -56,7 +56,8 @@ extern ADCL_fnctset_t *ADCL_alltoallv_fnctset;
 extern ADCL_fnctset_t *ADCL_reduce_fnctset;
 
 #ifdef ADCL_LIBNBC
-extern ADCL_fnctset_t *ADCL_allreduce_ibcast;
+extern ADCL_fnctset_t *ADCL_ibcast_fnctset;
+extern ADCL_fnctset_t *ADCL_ialltoall_fnctset;
 #endif
 
 int ADCL_predefined_init ( void )
@@ -99,6 +100,13 @@ int ADCL_predefined_init ( void )
     ADCL_predefined_ibcast ();
 #endif
 
+/* ******************************************************************** */
+/* IALLTOALL - Fortran function set 7	                                */
+/* ******************************************************************** */
+#ifdef ADCL_LIBNBC
+    //    ADCL_predefined_ialltoall ();
+#endif
+
     return ADCL_SUCCESS;
 }
 
@@ -116,6 +124,7 @@ int ADCL_predefined_finalize ( void )
 
 #ifdef ADCL_LIBNBC
     ADCL_Fnctset_free ( &ADCL_ibcast_fnctset );
+    //    ADCL_Fnctset_free ( &ADCL_ialltoall_fnctset );
 #endif
 
     return ADCL_SUCCESS;

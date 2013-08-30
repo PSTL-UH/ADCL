@@ -64,6 +64,7 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 
 #ifdef ADCL_LIBNBC
 #include "ADCL_ibcast.h"
+#include "ADCL_ialltoall.h"
 #endif
 
 #define ADCL_DISPLAY 
@@ -104,6 +105,7 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 int ADCL_printf_init     ( void );
 int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);
+int ADCL_printf_winner   ( const char* format, ... );
 
 int ADCL_readenv( void );
 
@@ -117,6 +119,7 @@ int ADCL_predefined_alltoallv ( void );
 int ADCL_predefined_reduce ( void );
 #ifdef ADCL_LIBNBC
 int ADCL_predefined_ibcast ( void );
+int ADCL_predefined_ialltoall ( void );
 #endif
 
 int ADCL_hypothesis_init ( ADCL_emethod_t *e );

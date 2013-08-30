@@ -341,9 +341,13 @@ AC_MSG_CHECKING(for linNBC main directory)
        libnbc_dir="/usr/local"
        adcl_ibcast_o=""
        adcl_predefined_ibcast_o=""
+       adcl_ialltoall_o=""
+       adcl_predefined_ialltoall_o=""
     else
        adcl_ibcast_o="ADCL_ibcast.o"
        adcl_predefined_ibcast_o="ADCL_predefined_ibcast.o"
+       adcl_ialltoall_o="ADCL_ialltoall.o"
+       adcl_predefined_ialltoall_o="ADCL_predefined_ialltoall.o"
     fi
     AC_MSG_RESULT(${libnbc_dir})
   dnl ==================================================	
@@ -378,6 +382,8 @@ AC_SUBST(adcl_libnbc_inc_flag)
 AC_SUBST(adcl_libnbc_ld_flag)
 AC_SUBST(adcl_ibcast_o)
 AC_SUBST(adcl_predefined_ibcast_o)
+AC_SUBST(adcl_ialltoall_o)
+AC_SUBST(adcl_predefined_ialltoall_o)
 
 dnl ==================================================
 dnl Try to compile a trivial C MPI application

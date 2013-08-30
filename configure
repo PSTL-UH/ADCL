@@ -575,6 +575,8 @@ f_compiler
 cxx_compiler
 c_compiler
 adcl_emethod_numtests
+adcl_predefined_ialltoall_o
+adcl_ialltoall_o
 adcl_predefined_ibcast_o
 adcl_ibcast_o
 adcl_libnbc_ld_flag
@@ -3793,9 +3795,13 @@ fi
        libnbc_dir="/usr/local"
        adcl_ibcast_o=""
        adcl_predefined_ibcast_o=""
+       adcl_ialltoall_o=""
+       adcl_predefined_ialltoall_o=""
     else
        adcl_ibcast_o="ADCL_ibcast.o"
        adcl_predefined_ibcast_o="ADCL_predefined_ibcast.o"
+       adcl_ialltoall_o="ADCL_ialltoall.o"
+       adcl_predefined_ialltoall_o="ADCL_predefined_ialltoall.o"
     fi
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${libnbc_dir}" >&5
 $as_echo "${libnbc_dir}" >&6; }
@@ -3835,6 +3841,8 @@ $as_echo "${libnbc_lib_dir}" >&6; }
 else
    adcl_libnbc_inc_flag="-UGSL"
 fi
+
+
 
 
 

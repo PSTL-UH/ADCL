@@ -57,7 +57,7 @@ int ADCL_printf ( const char* format, ... )
 {
     va_list ap;
 
-    if ( !ADCL_printf_silence ) {
+    if ( ADCL_printf_silence == 0 ) {
     va_start ( ap, format );
 #ifdef ADCL_FILE_PER_PROC
 /*  vfprintf(fd, format, ap ); */
@@ -80,6 +80,24 @@ int ADCL_printf ( const char* format, ... )
     vprintf( format, ap );
 #endif
     va_end (ap);
+    }
+
+    return ADCL_SUCCESS;
+}
+
+int ADCL_printf_winner ( const char* format, ... )
+{
+  int ret;
+    va_list ap;
+    va_start ( ap, format );
+
+    if ( ADCL_printf_silence == 0 ) {
+      ret = ADCL_printf( format, ap );
+      va_end (ap);
+      return ret;
+    }else if(ADCL_printf_silence == 2){
+      vprintf( format, ap );
+      va_end ( ap );
     }
 
     return ADCL_SUCCESS;

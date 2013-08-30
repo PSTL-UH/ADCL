@@ -367,7 +367,7 @@ ADCL_function_t*  ADCL_emethod_get_function_by_state
         em->em_last    = tmp;
         em->em_wfunction = ADCL_emethod_get_function (em, tmp);
 
-	ADCL_printf("#%d:  %s %d function set %d %s winner is %d %s\n",
+	ADCL_printf_winner("#%d:  %s %d function set %d %s winner is %d %s\n",
 		    rank, objname, id, em->em_orgfnctset->fs_id, em->em_orgfnctset->fs_name, em->em_wfunction->f_id,
 		    em->em_wfunction->f_name); 
 	//DISPLAY((ADCL_DISPLAY_WINNER_DECIDED,em->em_id,objname,id,em->em_wfunction->f_id)); 

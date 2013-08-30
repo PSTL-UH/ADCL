@@ -20,7 +20,7 @@ static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule
 
 void ADCL_ibcast_binomial( ADCL_request_t *req )
 {
-  int segsize = req->r_function->f_attrvals[2]*1024;
+  int segsize = req->r_function->f_attrvals[2] * 1024;
   ADCL_ibcast(req, ADCL_IBCAST_BINOMIAL, segsize, 0);
 
   /* All done */
@@ -29,7 +29,7 @@ void ADCL_ibcast_binomial( ADCL_request_t *req )
 
 void ADCL_ibcast_generic( ADCL_request_t *req )
 {
-  int segsize = req->r_function->f_attrvals[2]*1024;
+  int segsize = req->r_function->f_attrvals[2] * 1024;
   int fanout = req->r_function->f_attrvals[1];
   ADCL_ibcast(req, ADCL_IBCAST_GENERIC, segsize, fanout);
 
@@ -61,7 +61,7 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int segsize, int fanout) {
   /* use receive vector */
   MPI_Datatype datatype = req->r_rdats[0]; 
   int count = req->r_rvecs[0]->v_dims[0];
-   
+
   int rank, p, res, size;
   NBC_Schedule *schedule;
 
@@ -75,7 +75,16 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int segsize, int fanout) {
   if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Comm_rank() (%i)\n", res); return res; }
   res = MPI_Type_size(datatype, &size);
   if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Type_size() (%i)\n", res); return res; }
-  
+
+  // case where message shorter than segment
+  //  if(count*size < segsize) segsize = count*size;
+   
+  // case of linear ibcast algorithm
+  if(fanout == -1){
+    if(p > 1) fanout = p-1;
+    else fanout = 1;
+  }
+
   handle->tmpbuf=NULL;
 
 #ifdef ADCL_CACHE_SCHEDULE
@@ -165,7 +174,7 @@ static int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedul
   numfrag = count*size/fragsize;
   if((count*size)%fragsize != 0) numfrag++;
   fragcount = count/numfrag;
-  /*if(!rank) printf("numfrag: %i, count: %i, size: %i, fragcount: %i\n", numfrag, count, size, fragcount);*/
+  /* if(!rank) printf("numfrag: %i, count: %i, size: %i, fragcount: %i\n", numfrag, count, size, fragcount); */
 #endif
   
   maxr = (int)ceil((log(p)/LOG2));
@@ -207,7 +216,7 @@ static int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedul
 #endif
 	if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
 #ifdef ADCL_SEGMENTATION
-	if(vrank == 0) res = NBC_Sched_barrier(schedule);
+	if(vrank == 0 && fragnum+1 < numfrag) res = NBC_Sched_barrier(schedule);
 	//res = NBC_Sched_barrier(schedule);
 	if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; }
 #endif
@@ -243,7 +252,7 @@ static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule
   numfrag = count*size/fragsize;
   if((count*size)%fragsize != 0) numfrag++;
   fragcount = count/numfrag;
-  /*if(!rank) printf("numfrag: %i, count: %i, size: %i, fragcount: %i\n", numfrag, count, size, fragcount);*/
+  /* if(!rank) printf("numfrag: %i, count: %i, size: %i, fragcount: %i\n", numfrag, count, size, fragcount); */
 #endif
 
 #ifdef ADCL_SEGMENTATION
@@ -280,7 +289,7 @@ static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule
 	//printf("process %d sends to speer = %d\n",rank, speer);
 	if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
 #ifdef ADCL_SEGMENTATION
-	if(vrank == 0) res = NBC_Sched_barrier(schedule);
+	if(vrank == 0 && fragnum+1 < numfrag) res = NBC_Sched_barrier(schedule);
 	//res = NBC_Sched_barrier(schedule);
 	if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; }
 #endif

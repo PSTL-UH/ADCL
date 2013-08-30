@@ -11,14 +11,14 @@ extern "C" {
 
 #define ADCL_ATTR_IBCAST_TOTAL_NUM  3
 
-#define ADCL_ATTR_IBCAST_ALG_MAX 2
-#define ADCL_ATTR_IBCAST_FANOUT_MAX 6
+#define ADCL_ATTR_IBCAST_ALG_MAX 3
+#define ADCL_ATTR_IBCAST_FANOUT_MAX 7
 #define ADCL_ATTR_IBCAST_SEGSIZE_MAX 3
+
+#define ADCL_METHOD_IBCAST_TOTAL_NUM 21
 
 #define ADCL_IBCAST_BINOMIAL 1
 #define ADCL_IBCAST_GENERIC 2
-
-#define ADCL_METHOD_IBCAST_TOTAL_NUM 18
 
 void ADCL_ibcast_binomial (ADCL_request_t *req );
 void ADCL_ibcast_generic( ADCL_request_t *req );
