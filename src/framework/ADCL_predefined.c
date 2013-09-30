@@ -104,7 +104,7 @@ int ADCL_predefined_init ( void )
 /* IALLTOALL - Fortran function set 7	                                */
 /* ******************************************************************** */
 #ifdef ADCL_LIBNBC
-    //    ADCL_predefined_ialltoall ();
+    ADCL_predefined_ialltoall ();
 #endif
 
     return ADCL_SUCCESS;
@@ -124,7 +124,7 @@ int ADCL_predefined_finalize ( void )
 
 #ifdef ADCL_LIBNBC
     ADCL_Fnctset_free ( &ADCL_ibcast_fnctset );
-    //    ADCL_Fnctset_free ( &ADCL_ialltoall_fnctset );
+    ADCL_Fnctset_free ( &ADCL_ialltoall_fnctset );
 #endif
 
     return ADCL_SUCCESS;

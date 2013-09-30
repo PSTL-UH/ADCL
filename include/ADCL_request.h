@@ -32,6 +32,12 @@ typedef struct {
   int fanout;
   NBC_Schedule *schedule;
 } ADCL_Ibcast_args;
+
+typedef struct {
+  int alg;
+  NBC_Schedule *schedule;
+} ADCL_Ialltoall_args;
+
 #endif
 
 #define ADCL_COMM_ACTIVE 1024
@@ -77,6 +83,7 @@ struct ADCL_request_s{
    NBC_Handle	            r_handle;
    int                      r_progress;
    ADCL_Ibcast_args         r_Ibcast_args;
+   ADCL_Ialltoall_args      r_Ialltoall_args;
 #endif
 };
 

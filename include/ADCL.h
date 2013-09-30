@@ -177,6 +177,7 @@ extern struct ADCL_fnctset_s *ADCL_alltoallv_fnctset;
 extern struct ADCL_fnctset_s *ADCL_alltoall_fnctset;
 #ifdef ADCL_LIBNBC
 extern struct ADCL_fnctset_s *ADCL_ibcast_fnctset;
+extern struct ADCL_fnctset_s *ADCL_ialltoall_fnctset;
 #endif
 extern struct ADCL_fnctset_s *ADCL_fnctset_rtol;
 extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
@@ -189,6 +190,7 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 #define ADCL_FNCTSET_ALLTOALLV    ADCL_alltoallv_fnctset
 #ifdef ADCL_LIBNBC
 #define ADCL_FNCTSET_IBCAST       ADCL_ibcast_fnctset
+#define ADCL_FNCTSET_IALLTOALL    ADCL_ialltoall_fnctset
 #endif
 
 struct ADCL_neighborhood_criteria_s {

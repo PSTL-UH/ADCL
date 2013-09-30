@@ -18,7 +18,10 @@ int ADCL_emethod_allreduce_selection = -1;
 int ADCL_emethod_reduce_selection = -1;
 int ADCL_emethod_alltoall_selection = -1;
 int ADCL_emethod_alltoallv_selection = -1;
+#ifdef ADCL_LIBNBC
 int ADCL_emethod_ibcast_selection = -1;
+int ADCL_emethod_ialltoall_selection = -1;
+#endif
 int ADCL_merge_requests = 1;
 int ADCL_emethod_numtests = ADCL_EMETHOD_NUMTESTS;
 int ADCL_emethod_search_algo = ADCL_BRUTE_FORCE;
@@ -150,12 +153,20 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
             e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_alltoallv_selection );
         }
     }
+#ifdef ADCL_LIBNBC
     if ( 0 == strcmp ( f->fs_name , "Ibcast") ) {
         if ( -1 != ADCL_emethod_ibcast_selection ) {
             e->em_state = ADCL_STATE_REGULAR;
             e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_ibcast_selection );
         }
     }
+    if ( 0 == strcmp ( f->fs_name , "Ialltoall") ) {
+        if ( -1 != ADCL_emethod_ialltoall_selection ) {
+            e->em_state = ADCL_STATE_REGULAR;
+            e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_ialltoall_selection );
+        }
+    }
+#endif
 
     /* History list initialization */
     e->em_hist_list =  (ADCL_hist_list_t *)calloc(1, sizeof(ADCL_hist_list_t));

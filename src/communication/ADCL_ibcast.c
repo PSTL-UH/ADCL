@@ -80,7 +80,7 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int segsize, int fanout) {
   //  if(count*size < segsize) segsize = count*size;
    
   // case of linear ibcast algorithm
-  if(fanout == -1){
+  if(fanout == 10){
     if(p > 1) fanout = p-1;
     else fanout = 1;
   }
@@ -180,6 +180,7 @@ static int bcast_sched_binomial(int rank, int p, int root, NBC_Schedule *schedul
   maxr = (int)ceil((log(p)/LOG2));
 
 #ifdef ADCL_SEGMENTATION
+  //  if(vrank == 0)printf("Num frag : %d \n", numfrag);
   for(fragnum = 0; fragnum < numfrag; fragnum++) {
     buf = (char*)buffer+fragnum*fragcount*ext;
     thiscount = fragcount;
@@ -256,6 +257,7 @@ static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule
 #endif
 
 #ifdef ADCL_SEGMENTATION
+  //  if(vrank == 0)printf("Num frag : %d \n", numfrag);
   for(fragnum = 0; fragnum < numfrag; fragnum++) {
     buf = (char*)buffer+fragnum*fragcount*ext;
     thiscount = fragcount;

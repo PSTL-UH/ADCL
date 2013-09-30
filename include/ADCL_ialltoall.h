@@ -31,6 +31,8 @@ extern "C" {
 void ADCL_ialltoall_linear (ADCL_request_t *req );
 void ADCL_ialltoall_pairwise( ADCL_request_t *req );
 void ADCL_ialltoall_diss( ADCL_request_t *req );
+void ADCL_ialltoall_wait( ADCL_request_t *req );
+
 
 #if defined(c_plusplus) || defined(__cplusplus)
 }

@@ -85,20 +85,17 @@ int ADCL_printf ( const char* format, ... )
     return ADCL_SUCCESS;
 }
 
-int ADCL_printf_winner ( const char* format, ... )
+int ADCL_printf_winner ( const char* format,int rank, const char* objname, int id, int fnctset_id, const char* fnctset_name, int function_id, const char* function_name )
 {
   int ret;
-    va_list ap;
-    va_start ( ap, format );
 
     if ( ADCL_printf_silence == 0 ) {
-      ret = ADCL_printf( format, ap );
-      va_end (ap);
+      ret = ADCL_printf( format, rank, objname, id, fnctset_id, fnctset_name, function_id, function_name );
       return ret;
-    }else if(ADCL_printf_silence == 2){
-      vprintf( format, ap );
-      va_end ( ap );
+    // Only process with rank 0 writes the winner function set/function
+    }else if(ADCL_printf_silence == 2 && rank ==0){
+      printf( format, rank, objname, id, fnctset_id, fnctset_name, function_id, function_name );
     }
-
+ 
     return ADCL_SUCCESS;
 }

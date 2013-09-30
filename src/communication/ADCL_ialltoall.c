@@ -7,6 +7,86 @@
 
 #include <math.h>
 
+  //////////////////////// NBC required definitions ////////////////////////
+
+#ifndef MPI_IN_PLACE
+#define MPI_IN_PLACE (void*)1
+#endif
+
+  static __inline__ int NBC_Copy(void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, MPI_Comm comm);
+  static __inline__ int NBC_Type_intrinsic(MPI_Datatype type);
+
+#define NBC_IN_PLACE(sendbuf, recvbuf, inplace) \
+  {						\
+    inplace = 0;				\
+    if(recvbuf == sendbuf) {			\
+      inplace = 1;				\
+    } else					\
+      if(sendbuf == MPI_IN_PLACE) {		\
+	sendbuf = recvbuf;			\
+	inplace = 1;				\
+      } else					\
+	if(recvbuf == MPI_IN_PLACE) {		\
+	  recvbuf = sendbuf;			\
+	  inplace = 1;				\
+	}					\
+  }
+
+  static __inline__ int NBC_Copy(void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, MPI_Comm comm) {
+    int size, pos, res;
+    MPI_Aint ext;
+    void *packbuf;
+
+    if((srctype == tgttype) && NBC_Type_intrinsic(srctype)) {
+      /* if we have the same types and they are contiguous (intrinsic                                                                                                                 
+       * types are contiguous), we can just use a single memcpy */
+      res = MPI_Type_extent(srctype, &ext);
+      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Type_extent() (%i)\n", res); return res; }
+      memcpy(tgt, src, srccount*ext);
+    } else {
+      /* we have to pack and unpack */
+      res = MPI_Pack_size(srccount, srctype, comm, &size);
+      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Pack_size() (%i)\n", res); return res; }
+      packbuf = malloc(size);
+      if (NULL == packbuf) { printf("Error in malloc()\n"); return res; }
+      pos=0;
+      res = MPI_Pack(src, srccount, srctype, packbuf, size, &pos, comm);
+      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Pack() (%i)\n", res); return res; }
+      pos=0;
+      res = MPI_Unpack(packbuf, size, &pos, tgt, tgtcount, tgttype, comm);
+      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Unpack() (%i)\n", res); return res; }
+      free(packbuf);
+    }
+
+    return NBC_OK;
+  }
+
+  static __inline__ int NBC_Type_intrinsic(MPI_Datatype type) {
+
+    if( ( type == MPI_INT ) ||
+	( type == MPI_LONG ) ||
+	( type == MPI_SHORT ) ||
+	( type == MPI_UNSIGNED ) ||
+	( type == MPI_UNSIGNED_SHORT ) ||
+	( type == MPI_UNSIGNED_LONG ) ||
+	( type == MPI_FLOAT ) ||
+	( type == MPI_DOUBLE ) ||
+	( type == MPI_LONG_DOUBLE ) ||
+	( type == MPI_BYTE ) ||
+	( type == MPI_FLOAT_INT) ||
+	( type == MPI_DOUBLE_INT) ||
+	( type == MPI_LONG_INT) ||
+	( type == MPI_2INT) ||
+	( type == MPI_SHORT_INT) ||
+	( type == MPI_LONG_DOUBLE_INT))
+      return 1;
+    else
+      return 0;
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 /* log(2) */
 #define LOG2 0.69314718055994530941
 
@@ -30,7 +110,7 @@ void ADCL_ialltoall_linear( ADCL_request_t *req )
 
 void ADCL_ialltoall_pairwise( ADCL_request_t *req )
 {
-  ADCL_ialltoall_pairwise(req, ADCL_IALLTOALL_PAIRWISE);
+  ADCL_ialltoall(req, ADCL_IALLTOALL_PAIRWISE);
 
   /* All done */
   return;
@@ -38,7 +118,7 @@ void ADCL_ialltoall_pairwise( ADCL_request_t *req )
 
 void ADCL_ialltoall_diss( ADCL_request_t *req )
 {
-  ADCL_ialltoall_diss(req, ADCL_IALLTOALL_DISS);
+  ADCL_ialltoall(req, ADCL_IALLTOALL_DISS);
 
   /* All done */
   return;
@@ -69,14 +149,16 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
   MPI_Datatype sendtype = req->r_sdats[0];
   MPI_Datatype recvtype = req->r_rdats[0];
 
-  int sendcount = req->r_svecs[0]->v_dims[0];
-  int recvcount = req->r_rvecs[0]->v_dims[0];
-
+  int sendcount = req->r_svecs[0]->v_map->m_rcnt;
+  int recvcount = req->r_rvecs[0]->v_map->m_rcnt;
+  
   char *rbuf, *sbuf, inplace;
 
   int rank, p, res, a2asize, sndsize, datasize;
   NBC_Schedule *schedule;
   MPI_Aint rcvext, sndext;
+
+  NBC_IN_PLACE(sendbuf, recvbuf, inplace);
 
   res = NBC_Init_handle(handle, comm);
   if(res != NBC_OK) { printf("Error in NBC_Init_handle(%i)\n", res); return res; }
@@ -91,20 +173,6 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
   res = MPI_Type_size(sendtype, &sndsize);
   if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Type_size() (%i)\n", res); return res; }
 
-  /* algorithm selection */
-  a2asize = sndsize*sendcount*p;
-  /* this number is optimized for TCP on odin.cs.indiana.edu */
-  if((p <= 8) && ((a2asize < 1<<17) || (sndsize*sendcount < 1<<12))) {
-    /* just send as fast as we can if we have less than 8 peers, if the                                                                                                             
-     * total communicated size is smaller than 1<<17 *and* if we don't                                                                                                              
-     * have eager messages (msgsize < 1<<13) */
-    alg = NBC_A2A_LINEAR;
-  } else if(a2asize < (1<<12)*p) {
-    /*alg = NBC_A2A_DISS;*/
-    alg = NBC_A2A_LINEAR;
-  } else
-    alg = NBC_A2A_LINEAR; /*NBC_A2A_PAIRWISE;*/
-
   if(!inplace) {
     /* copy my data to receive buffer */
     rbuf = ((char *)recvbuf) + (rank*recvcount*rcvext);
@@ -114,7 +182,7 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
   }
 
   /* allocate temp buffer if we need one */
-  if(alg == NBC_A2A_DISS) {
+  if(alg == ADCL_IALLTOALL_DISS) {
     /* only A2A_DISS needs buffers */
     if(NBC_Type_intrinsic(sendtype)) {
       datasize = sndext*sendcount;
@@ -161,14 +229,14 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
     if(res != NBC_OK) { printf("Error in NBC_Sched_create, res = %i\n", res); return res; }
 
     switch(alg) {
-    case ADCL_IALLTOAll_LINEAR:
-      res = a2a_sched_linear(rank, p, root, schedule, buffer, count, datatype, segsize, size);
+    case ADCL_IALLTOALL_LINEAR:
+      res = a2a_sched_linear(rank, p, sndext, rcvext, schedule, sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm);
       break;
     case ADCL_IALLTOALL_PAIRWISE:
-      res = a2a_sched_pairwise(rank, p, root, schedule, buffer, count, datatype, segsize, size, fanout);
+      res = a2a_sched_pairwise(rank, p, sndext, rcvext, schedule, sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm);
       break;
     case ADCL_IALLTOALL_DISS:
-      res = a2a_sched_diss(rank, p, root, schedule, buffer, count, datatype, segsize, size, fanout);
+      res = a2a_sched_diss(rank, p, sndext, rcvext, schedule, sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm, handle);
       break;
     }
 
@@ -188,7 +256,7 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
   
   res = NBC_Start(handle, schedule);
   if (NBC_OK != res) { printf("Error in NBC_Start() (%i)\n", res); return res; }
-  
+
   return NBC_OK;
 }
 

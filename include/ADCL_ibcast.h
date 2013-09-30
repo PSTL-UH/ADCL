@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2008-2009      HLRS. All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ */
 
 #ifndef __ADCL_IBCAST__
 #define __ADCL_IBCAST__

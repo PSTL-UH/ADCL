@@ -6,6 +6,7 @@
  *
  * $HEADER$
  */
+
 #include <math.h>
 #include "ADCL_ialltoall.h"
 #include "ADCL_config.h"
@@ -43,19 +44,19 @@ int ADCL_predefined_ialltoall ( void )
     count=0;
 
     m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_linear;
-    ADCL_function_create_async ( ADCL_ialltoall_linear, NULL, ADCL_ialltoall_attrset,
+    ADCL_function_create_async ( ADCL_ialltoall_linear, ADCL_ialltoall_wait, ADCL_ialltoall_attrset,
         			 m_ialltoall_attrs, "Ialltoall_linear", 
         			 &ADCL_ialltoall_functions[count]);
     count++;
 
     m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_pairwise;
-    ADCL_function_create_async ( ADCL_ialltoall_pairwise, NULL, ADCL_ialltoall_attrset,
+    ADCL_function_create_async ( ADCL_ialltoall_pairwise, ADCL_ialltoall_wait, ADCL_ialltoall_attrset,
         			 m_ialltoall_attrs, "Ialltoall_pairwise", 
         			 &ADCL_ialltoall_functions[count]);
     count++;
 
     m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_diss;
-    ADCL_function_create_async ( ADCL_ialltoall_diss, NULL, ADCL_ialltoall_attrset,
+    ADCL_function_create_async ( ADCL_ialltoall_diss, ADCL_ialltoall_wait, ADCL_ialltoall_attrset,
         			 m_ialltoall_attrs, "Ialltoall_diss", 
         			 &ADCL_ialltoall_functions[count]);
     count++;

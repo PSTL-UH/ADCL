@@ -1,8 +1,8 @@
 #include <math.h>
 #include "ADCL_ibcast.h"
 
-const int ADCL_attr_ibcast_alg_linear=1000;
-const int ADCL_attr_ibcast_alg_binomial=1001;
+const int ADCL_attr_ibcast_alg_binomial=1000;
+const int ADCL_attr_ibcast_alg_linear=1001;
 const int ADCL_attr_ibcast_alg_generic=1002;
 
 // Fanout = 0 means undetermined (eg. for binomial alg.)
@@ -13,7 +13,7 @@ const int ADCL_attr_ibcast_fanout_3 = 3;
 const int ADCL_attr_ibcast_fanout_4 = 4;
 const int ADCL_attr_ibcast_fanout_5 = 5;
 // case of linear ibcast algorithm
-const int ADCL_attr_ibcast_fanout_n = -1;
+const int ADCL_attr_ibcast_fanout_n = 10;
 
 const int ADCL_attr_ibcast_segsize_32 = 32;
 const int ADCL_attr_ibcast_segsize_64 = 64;
@@ -36,8 +36,8 @@ int ADCL_predefined_ibcast( void )
     char * ADCL_attr_ibcast_fanout_names[ADCL_ATTR_IBCAST_FANOUT_MAX] = { "0","1","2","3","4","5","n"};
     char * ADCL_attr_ibcast_segsize_names[ADCL_ATTR_IBCAST_SEGSIZE_MAX] = { "32","64","128" };
 
-    ADCL_attr_ibcast_alg[0] = ADCL_attr_ibcast_alg_linear;
-    ADCL_attr_ibcast_alg[1] = ADCL_attr_ibcast_alg_binomial;
+    ADCL_attr_ibcast_alg[0] = ADCL_attr_ibcast_alg_binomial;
+    ADCL_attr_ibcast_alg[1] = ADCL_attr_ibcast_alg_linear;
     ADCL_attr_ibcast_alg[2] = ADCL_attr_ibcast_alg_generic;
 
     ADCL_attr_ibcast_fanout[0] = ADCL_attr_ibcast_fanout_0;
@@ -61,7 +61,7 @@ int ADCL_predefined_ibcast( void )
     ADCL_attribute_create ( ADCL_ATTR_IBCAST_SEGSIZE_MAX, ADCL_attr_ibcast_segsize,
                             ADCL_attr_ibcast_segsize_names, "ibcast segsize values",
                             &ADCL_ibcast_attrs[2] );
-
+    
     ADCL_attrset_create ( ADCL_ATTR_IBCAST_TOTAL_NUM, ADCL_ibcast_attrs, &ADCL_ibcast_attrset);
 
 /* ******************************************************************** */
@@ -69,39 +69,6 @@ int ADCL_predefined_ibcast( void )
 /* ******************************************************************** */
 
     count = 0;
-
-    m_ibcast_attr[0] = ADCL_attr_ibcast_alg_linear;
-    m_ibcast_attr[1] = ADCL_attr_ibcast_fanout_n;
-    m_ibcast_attr[2] = ADCL_attr_ibcast_segsize_32;
-
-    ADCL_function_create_async( ADCL_ibcast_generic, ADCL_ibcast_wait,
-                                  ADCL_ibcast_attrset,
-                                  m_ibcast_attr, "Ibcast_linear_32",
-                                  & ADCL_ibcast_functions[count]);
-
-    count+= 1;
-
-    m_ibcast_attr[0] = ADCL_attr_ibcast_alg_linear;
-    m_ibcast_attr[1] = ADCL_attr_ibcast_fanout_n;
-    m_ibcast_attr[2] = ADCL_attr_ibcast_segsize_64;
-
-    ADCL_function_create_async( ADCL_ibcast_generic, ADCL_ibcast_wait,
-                                  ADCL_ibcast_attrset,
-                                  m_ibcast_attr, "Ibcast_linear_64",
-                                  & ADCL_ibcast_functions[count]);
-
-    count+= 1;
-
-    m_ibcast_attr[0] = ADCL_attr_ibcast_alg_linear;
-    m_ibcast_attr[1] = ADCL_attr_ibcast_fanout_n;
-    m_ibcast_attr[2] = ADCL_attr_ibcast_segsize_128;
-
-    ADCL_function_create_async( ADCL_ibcast_generic, ADCL_ibcast_wait,
-                                  ADCL_ibcast_attrset,
-                                  m_ibcast_attr, "Ibcast_linear_128",
-                                  & ADCL_ibcast_functions[count]);
-
-    count+= 1;
 
     m_ibcast_attr[0] = ADCL_attr_ibcast_alg_binomial;
     m_ibcast_attr[1] = ADCL_attr_ibcast_fanout_0;
@@ -133,6 +100,39 @@ int ADCL_predefined_ibcast( void )
                                   ADCL_ibcast_attrset,
                                   m_ibcast_attr, "Ibcast_binomial_128",
                                   & ADCL_ibcast_functions[count]);
+
+    count+= 1;
+
+    m_ibcast_attr[0] = ADCL_attr_ibcast_alg_linear;
+    m_ibcast_attr[1] = ADCL_attr_ibcast_fanout_n;
+    m_ibcast_attr[2] = ADCL_attr_ibcast_segsize_32;
+
+    ADCL_function_create_async( ADCL_ibcast_generic, ADCL_ibcast_wait,
+                                  ADCL_ibcast_attrset,
+                                  m_ibcast_attr, "Ibcast_linear_32",
+                                  & ADCL_ibcast_functions[count]);
+
+    count+= 1;
+
+    m_ibcast_attr[0] = ADCL_attr_ibcast_alg_linear;
+    m_ibcast_attr[1] = ADCL_attr_ibcast_fanout_n;
+    m_ibcast_attr[2] = ADCL_attr_ibcast_segsize_64;
+
+    ADCL_function_create_async( ADCL_ibcast_generic, ADCL_ibcast_wait,
+                                  ADCL_ibcast_attrset,
+                                  m_ibcast_attr, "Ibcast_linear_64",
+                                  & ADCL_ibcast_functions[count]);
+
+    count+= 1;
+
+    m_ibcast_attr[0] = ADCL_attr_ibcast_alg_linear;
+    m_ibcast_attr[1] = ADCL_attr_ibcast_fanout_n;
+    m_ibcast_attr[2] = ADCL_attr_ibcast_segsize_128;
+
+    ADCL_function_create_async( ADCL_ibcast_generic, ADCL_ibcast_wait,
+                                  ADCL_ibcast_attrset,
+                                  m_ibcast_attr, "Ibcast_linear_128",
+				& ADCL_ibcast_functions[count]);
 
     count+= 1;
 

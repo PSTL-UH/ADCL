@@ -613,7 +613,7 @@ int ADCL_request_wait ( ADCL_request_t *req )
     if ( ADCL_TOPOLOGY_NULL != req->r_emethod->em_topo ){
         comm = req->r_emethod->em_topo->t_comm;
     }
-    
+
     CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_ACTIVE );
 
     if ( NULL != req->r_function->f_wptr ) {

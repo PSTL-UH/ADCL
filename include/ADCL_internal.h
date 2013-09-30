@@ -105,7 +105,7 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 int ADCL_printf_init     ( void );
 int ADCL_printf_finalize ( void );
 int ADCL_printf          ( const char *format, ...);
-int ADCL_printf_winner   ( const char* format, ... );
+int ADCL_printf_winner ( const char* format,int rank, const char* objname, int id, int fnctset_id, const char* fnctset_name, int function_id, const char* function_name);
 
 int ADCL_readenv( void );
 
