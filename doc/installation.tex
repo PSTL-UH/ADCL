@@ -1,0 +1,151 @@
+\section{Installation}
+
+ADCL follows the regular UNIX/LINUX software configuration and installation
+model, requiring a sequence of 
+
+\begin{verbatim}
+configure
+make
+make install
+\end{verbatim}
+
+\subsection{Prerequisites}
+
+ADCL requires a working installation of an MPI
+library, complying to the MPI-2 standard. ADCL has been tested with a large
+number of MPI libraries and on multiple platforms, including Open MPI, MPICH,
+MVAPICH, IBM MPI, and Cray MPI.
+
+For the non-blocking operations supported by ADCL, a valid and working
+installation of the libNBC library has to be provided, compiled with the same
+MPI library as the one being used for ADCL.
+
+The GNU scientific library is used for some clusternig algorithm, and can
+optionally be provided. The PAPI hardware performance counter library can be
+utilized by ADCL for high resolution timers.
+
+\subsection{Configure Options}
+ADCL can be customized with a number of options, which can be devided into
+three sections: enabling or disabling certain features, providing additional
+libraries (e.g. libNBC, GSL, PAPI) to enabel certain features, and change the
+default behavior of ADCL. The following is a list of all configure options
+supported by ADCL.
+
+\small
+\begin{verbatim}
+Configuration:
+  -h, --help              display this help and exit
+      --help=short        display options specific to this package
+      --help=recursive    display the short help of all the included packages
+  -V, --version           display version information and exit
+  -q, --quiet, --silent   do not print `checking ...' messages
+      --cache-file=FILE   cache test results in FILE [disabled]
+  -C, --config-cache      alias for `--cache-file=config.cache'
+  -n, --no-create         do not create output files
+      --srcdir=DIR        find the sources in DIR [configure dir or `..']
+
+Installation directories:
+  --prefix=PREFIX         install architecture-independent files in PREFIX
+                          [/home/gabriel/ADCL]
+  --exec-prefix=EPREFIX   install architecture-dependent files in EPREFIX
+                          [PREFIX]
+
+By default, `make install' will install all the files in
+`/home/gabriel/ADCL/bin', `/home/gabriel/ADCL/lib' etc.  You can specify
+an installation prefix other than `/home/gabriel/ADCL' using `--prefix',
+for instance `--prefix=$HOME'.
+
+For better control, use the options below.
+
+Fine tuning of the installation directories:
+  --bindir=DIR            user executables [EPREFIX/bin]
+  --sbindir=DIR           system admin executables [EPREFIX/sbin]
+  --libexecdir=DIR        program executables [EPREFIX/libexec]
+  --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
+  --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
+  --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --libdir=DIR            object code libraries [EPREFIX/lib]
+  --includedir=DIR        C header files [PREFIX/include]
+  --oldincludedir=DIR     C header files for non-gcc [/usr/include]
+  --datarootdir=DIR       read-only arch.-independent data root [PREFIX/share]
+  --datadir=DIR           read-only architecture-independent data [DATAROOTDIR]
+  --infodir=DIR           info documentation [DATAROOTDIR/info]
+  --localedir=DIR         locale-dependent data [DATAROOTDIR/locale]
+  --mandir=DIR            man documentation [DATAROOTDIR/man]
+  --docdir=DIR            documentation root [DATAROOTDIR/doc/PACKAGE]
+  --htmldir=DIR           html documentation [DOCDIR]
+  --dvidir=DIR            dvi documentation [DOCDIR]
+  --pdfdir=DIR            pdf documentation [DOCDIR]
+  --psdir=DIR             ps documentation [DOCDIR]
+
+System types:
+  --build=BUILD     configure for building on BUILD [guessed]
+  --host=HOST       cross-compile to build programs to run on HOST [BUILD]
+  --target=TARGET   configure for building compilers for TARGET [HOST]
+
+Optional Features:
+  --disable-option-checking  ignore unrecognized --enable/--with options
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-gsl                      enable the usage of gsl (default=no)
+  --enable-libnbc                   enable the usage of libNBC (default=no)
+  --enable-onesided                 enable the usage of one-sided communication (default=no)
+  --disable-printf-tofile           dump printf statements to a file (default=yes)
+  --enable-userlevel-timings        disable ADCL internal timing routines (default=no)
+  --enable-knowledge-tofile         dump the ADCL knowledge to an XML file (default=no)
+  --disable-saving-request-winner   save the winner of a request (default=yes)
+  --enable-smooth-hist              smooth the history data (default=no)
+  --enable-dummy-mpi                enable the usage of dummy-mpi (default=no)
+  --enable-cluster-classify         enable the usage of clustering and
+                                    classification with SVM for historic learning (default=no)
+  --disable-fortran                 compile fortran wrappers (default=yes)
+
+Optional Packages:
+  --with-PACKAGE[=ARG]              use PACKAGE [ARG=yes]
+  --without-PACKAGE                 do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-adcl-dir=dir               Main ADCL directory (default=$PWD)
+  --with-adcl-inc-dir=dir           ADCL include directory (default=ADCL_DIR/include)
+  --with-adcl-lib-dir=dir           ADCL lib directory (default=ADCL_DIR/lib)
+  --with-adcl-bin-dir=dir           ADCL bin directory (default=ADCL_DIR/bin)
+  --with-adcl-lib-name=name         Name of the ADCL library (default=libadcl.a)
+  --with-adcl-timer=timer           Timer options (default=TIMER_GETTIMEOFDAY)
+  --with-mpi-dir=dir                Installation directory of MPI
+  --with-mpi-inc-dir=dir            Include directory of MPI (default=MPI_DIR/include)
+  --with-mpi-lib-dir=dir            Library directory of MPI (default=MPI_DIR/lib)
+  --with-mpi-bin-dir=dir            Bin directory of MPI (default=MPI_DIR/bin)
+  --with-mpi-cc=mpicc               MPI C compiler wrapper (default=mpicc)
+  --with-mpi-cxx=mpicxx             MPI C++ compiler wrapper (default=mpiCC)
+  --with-mpi-f90=mpif90             MPI f90 compiler wrapper (default=mpif90)
+  --with-papi-dir=dir               Main PAPI directory (default=$PWD)
+  --with-papi-inc-dir=dir           PAPI include directory (default=PAPI_DIR/include)
+  --with-papi-lib-dir=dir           PAPI lib directory (default=PAPI_DIR/lib)
+  --with-papi-lib-name=name         Name of the PAPI library (default=papi)
+  --with-gsl-dir=dir                Main GSL directory (default=/usr/local)
+  --with-gsl-inc-dir=dir            GSL include directory (default=GSL_DIR/include/gsl)
+  --with-gsl-lib-dir=dir            GSL lib directory (default=GSL_DIR/lib)
+  --with-libnbc-dir=dir             Main libNBC directory (default=/usr/local)
+  --with-libnbc-inc-dir=dir         libNBC include directory (default=LIBNBC_DIR/include)
+  --with-libnbc-lib-dir=dir         libNBC lib directory (default=LIBNBC_DIR/lib)
+  --with-num-tests=NUMTESTS         Number of measurements per implementation (default=30)
+  --with-perf-win=PERF-WIN          Acceptable performance window (default=10)
+  --with-pred-algo=algorithm        Prediction algorithm options (default=ADCL_WMV)
+  --with-smooth-win=WIN-SIZE        Size of the smoothing window (default=3)
+
+Some influential environment variables:
+  CC          C compiler command
+  CFLAGS      C compiler flags
+  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
+              nonstandard directory <lib dir>
+  LIBS        libraries to pass to the linker, e.g. -l<library>
+  CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
+              you have headers in a nonstandard directory <include dir>
+  CXX         C++ compiler command
+  CXXFLAGS    C++ compiler flags
+  F77         Fortran 77 compiler command
+  FFLAGS      Fortran 77 compiler flags
+
+Use these variables to override the choices made by `configure' or to help
+it to find libraries and programs with nonstandard names/locations.
+
+Report bugs to the package provider.
+\end{verbatim}

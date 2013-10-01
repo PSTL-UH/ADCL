@@ -1,0 +1,118 @@
+\section{Runtime Configuration}
+
+There are multiple ways on how to influence or enforce a particular behavior
+of ADCL at runtime. ADCL reads a configuration file {\tt config.adcl}, from
+the same director as the executable is located (1st option) or from {\tt
+  \$(HOME)/.adcl} (2nd option).
+
+The configuration file has the format:
+\begin{verbatim}
+OPTION: value
+\end{verbatim}
+
+with the OPTION being a key word recognized by ADCL, and value being a valid
+value for that key word. Currently recognized key words and there
+corresponding valid values are as follows:
+
+\paragraph{Generic parameters influencing the behavior of ADCL}
+\begin{itemize}
+\item {\tt ADCL\_MERGE\_REQUESTS}: value indicating whether multiple requests
+that have identical functionsets and vmap objects, but differ in the vector
+object (i.e. the actual array used is different but everything else is
+identical) shall be co-tuned or tuned separately. Valid values: 1 (enable
+co-tuning) or 0 (disable co-tuning).
+
+\item{\tt ADCL\_PRINTF\_SILENCE}: whether ADCL should log the the tuning into into
+  the per process output files (rank.out) or not. Valid values: 0 (write
+  logging), 1 (dont write logging).
+
+\item {\tt ADCL\_EMETHOD\_SEARCH\_ALGO}: search algorithm to be used for
+  tuning. Valid values: 0 (brute force search), 1 (orthogonal attribute based
+  search), 2 ( 2k factorial design based search). Note, that only function
+  sets with attributes can use algorithms 1 and 2.
+
+\item{\tt ADCL\_EMETHOD\_NUMTESTS}: number of measurements to be performed per
+  function. Valid values: anything between 1 and the value provided at
+  configure time (default: 30).
+
+\item{\tt ADCL\_USE\_BARRIER}: Valid values: 0 ( don't use  MPI\_Barrier
+  before every invocation of a function), 1 (use a barrier before every
+  invocation of a function).
+
+\item {\tt ADCL\_TIMER\_STEPS\_BETWEEN\_BARRIER}: t.b.d.
+
+\item{\tt ADCL\_OUTLIER\_FRACTION}: percentage of measurements that are
+  allowed to be classified as outliers. Valid values: 
+\item{\tt ADCL\_OUTLIER\_FACTOR}:  An outlier is defined as a data point that
+  is {\tt ADCL\_OUTLIER\_FACTOR} times larger than the minimum value on a per
+  process basis.
+%\item{\tt ADCL\_STATISTIC\_METHOD}: algorithm used to determine
+%  outliers. Valid values are: ADCL\_STATISTIC\_MAX. REmoved from document
+% for now since it only has one option.
+
+\end{itemize}
+
+
+\paragraph{Parameters influencing a particular function set}
+\begin{itemize}
+\item{\tt ADCL\_EMETHOD\_ALLGATHERV\_SELECTION}: force the usage of a particular
+  implementation for the Allgatherv function set. Setting this value
+  disables runtime tuning of this function set. Valid values: Allgatherv\_bruck, Allgatherv\_linear,
+  Allgatherv\_native, Allgatherv\_neighbor\_exchange,
+  Allgatherv\_recursive\_doubling, Allgatherv\_ring
+
+\item{\tt ADCL\_EMETHOD\_ALLREDUCE\_SELECTION}: force the usage of a
+  particular implementation for the Allreduce function set. Setting this value
+  disables runtime tuning of this function set. Valid values:
+  Allreduce\_native, Allreduce\_linear, Allreduce\_ring,
+  Allreduce\_recoursive\_doubling, Allreduce\_nonoverlapping.
+
+\item{\tt ADCL\_EMETHOD\_REDUCE\_SELECTION}: t.b.d.
+
+\item{\tt ADCL\_EMETHOD\_ALLTOALL\_SELECTION}:force the usage of a
+  particular implementation for the Alltoall function set. Setting this value
+  disables runtime tuning of this function set. Valid values:
+  Alltoall\_native\_SR, Alltoall\_bruck\_SR, Alltoall\_ladd\_block2,
+  Alltoall\_ladd\_block4, Alltoall\_ladd\_block8, Alltoall\_linear\_SR,
+  Alltoall\_linear\_sync\_SR, Alltoall\_pair\_excl\_SR.
+
+\item{\tt ADCL\_EMETHOD\_ALLTOALLV\_SELECTION}: t.b.d.
+
+\item {\tt ADCL\_EMETHOD\_SELECTION}:force the usage of a particular
+  implementation for the Neighborhood function set. Setting this value
+  disables runtime tuning of this function set. Valid values: IsendIrecv\_aao,
+  IsendIrecv\_aao\_pack, IsendIrecv\_pair, IsendIrecv\_pair\_pack,
+  SendIrecv\_aao, SendIrecv\_aao\_pack, SendIrecv\_pair, SendIrecv\_pair\_pack,
+  Sendrecv\_pair, Sendrecv\_pair\_pack, SendRecv\_pair,
+  SendRecv\_pair\_pack. 
+
+  If one sided communication has been enabled at configure time, the following
+  values can also be used for neighborhood commmunication: PostStartGet\_aao,
+  PostStartGet\_aao\_pair, PostStartPut\_aao, PostStartPut\_pair,
+  WinFenceGet\_pair, WinFenceGet\_aao, WinFencePut\_pair, WinFencePut\_aao.
+ 
+\item{\tt ADCL\_EMETHOD\_IBCAST\_SELECTION}: to be done by Youcef.
+\item{\tt ADCL\_EMETHOD\_IALLTOALL\_SELECTION}: to be done by Youcef.
+\end{itemize}
+
+
+\paragraph{Parameters influencing the ADCL GUI}
+\begin{itemize}
+\item {\tt ADCL\_DISPLAY\_IP}: IP address of the host running the ADCL GUI.
+\item{\tt ADCL\_DISPLAY\_PORT}: TCP port used by the ADCL GUI.
+\item{\tt ADCL\_DISPLAY\_RANK}: comma separated list of MPI ranks that should connect to the
+  ADCL GUI. 
+\end{itemize}
+  
+
+\paragraph{Parameters influencing Historic Learning}
+\begin{itemize}
+\item{\tt ADCL\_HIST\_LEARNING}: controls the utilization of historic
+  learning. Valid values: 0 ( disable historic learning), 1 (enable historic
+  learning).
+
+\item{\tt ADCL\_HIST\_PREDICTOR}: prediction algorithm used if historic
+  learning has been enabled. Valid values: 0 (no clue), 1 (need to look it
+  up).
+\item{\tt ADCL\_HIST\_CLUSTER}:
+\end{itemize}

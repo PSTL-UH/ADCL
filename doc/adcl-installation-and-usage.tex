@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage{lineno}
+%\usepackage{epsf}
+\usepackage{graphicx}
+\usepackage{headerfooter}
+
+
+%\setlength{\parindent}{0.em}
+
+\def\rationale#1{
+  \vspace{0.5em}
+  \hspace{1cm}
+%  \newlength{\mylength}
+%  \setlength{\mylength}{\textwidth}
+%  \addtolength{\mylength}{-1.cm}
+  \begin{minipage}{11cm}
+    ~\newline
+    {\sl Rationale:}
+    \textnormal{#1}
+  \end{minipage}
+  \newline\vspace{0.5em}
+}
+
+\def\advicetousers#1{
+  \vspace{0.5em}
+  \hspace{1cm}
+  \begin{minipage}{11cm}
+    ~\newline
+    {\sl Advice to users:}
+    \textnormal{#1}
+  \end{minipage}
+  \newline\vspace{0.5em}
+}
+
+\def\advicetoimpl#1{
+  \vspace{0.5em}
+  \hspace{1cm}
+  \begin{minipage}{11cm}
+    ~\newline
+    {\sl Advice to implementors:}
+    \textnormal{#1}
+  \end{minipage}
+  \newline\vspace{0.5em}
+}
+
+\def\fordiscussion#1{
+  \vspace{0.5em}
+  \hspace{1cm}
+  \begin{minipage}{11cm}
+    ~\newline
+    {\sl For discussion:}
+    \textnormal{#1}
+  \end{minipage}
+  \newline\vspace{0.5em}
+}
+
+
+%\DeclareOption{pagewise}{\setpagewiselinenumbers
+%  \realpagewiselinenumbers}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{titlepage}
+ \begin{center}
+  \vfill
+  {~}
+  \vfill
+  \vfill
+  \vfill
+  \vfill
+  \vfill
+
+    {\Large
+      ADCL: Abstract Data and Communication Library \\
+      Installation and User Guide \par}
+  \vfill
+  \today\\
+  \vfill
+     {\large (c) Parallel Software Technologies Laboratory, \\
+       Department of Computer Science, \\
+       University of Houston, 2007, 2013}\\
+  \vfill
+  \vfill
+  \vfill
+  \vfill
+\end{center}                                                     
+\end{titlepage}
+
+
+\tableofcontents
+\cleardoublepage
+
+
+\pagewiselinenumbers
+\include{introduction}
+
+\include{installation}
+\include{configuration}
+\include{gui}
+
+%\include{conclusions}
+\bibliographystyle{unsrt}
+\bibliography{adcl-spec}
+\end{document}
