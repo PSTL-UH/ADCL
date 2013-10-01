@@ -3,16 +3,44 @@
 An {\tt ADCL\_Vector} combined with the {\tt ADCL\_Vmap} specifies the data
 structures  to be used during the communication and the actual data. 
 
+For the collectives defined in the MPI standard it is noticed that the
+arguments of the parameters can be separated into three groups: information
+concerning the data (buffer, data type), concerning the process topology
+(communicator, root) and related to the communication pattern (element counts,
+reduction operation, array of element counts or displacements). As an example,
+for the {\tt MPI\_Bcast} interface, the information about the data consists of
+the buffer and the data type, root and the MPI communicator comm give
+information about the process topology and count is related to the
+communication pattern. As each of the parameters of the MPI collectives falls
+into one of these three groups, they form the basis of the ADCL objects:
+information concerning the data is stored in the ADCL vector object,
+information concerning the process topology in the ADCL topology object and
+information related to the communication pattern becomes part of the new vmap
+object. As of today, there are five different Vmap types defined in ADCL:'
+\begin{itemize}
+\item {\tt HALO}: specifies the number of halo-cells in each direction (hwidth).
+\item {\tt ALL}: a value specifiying the number of elements used in the
+  communication (count).
+\item{\tt REDUCE}: a value specifying the number of elements used in the
+  communication (count) along  with an operation (op) to be performed on the
+  data.
+\item{\tt LIST}: an array of values specifying the number of elements
+  communicated to each process, with the element at position $i$ in the array
+  used to communicate to rank $i$. In addition, an array of displacements has
+  to be provided following the same rules as for the array of counts
+  arguments.
+\item{\tt INPLACE}: an abstract vmap object that can be used similarly to
+  MPI\_INPLACE as an argument to some function sets.
 
-ADCL distinguishes between allocating a
-vector and registering a vector. The difference is, that in the first case,
-the library allocates the memory for the object as specified by the user,
-while in the second case the memory has to be allocated by the application.
+\end{itemize}
 
+The following are the (brief) interfaces to allocate each Vmap object. For the
+sake of brevity we do not detail all arguments at this point.
 
 \begin{verbatim}
 int ADCL_Vmap_halo_allocate ( int hwidth, ADCL_Vmap *vec );
-int ADCL_Vmap_list_allocate ( int size, int* rcnts, int* displ, ADCL_Vmap *vec );
+int ADCL_Vmap_list_allocate ( int size, int* rcnts, int* displ, 
+                              ADCL_Vmap *vec );
 int ADCL_Vmap_allreduce_allocate ( MPI_Op op, ADCL_Vmap *vec );
 int ADCL_Vmap_reduce_allocate ( MPI_Op op, ADCL_Vmap *vec );
 int ADCL_Vmap_alltoall_allocate ( int scnt, int rcnt, ADCL_Vmap *vec );
@@ -21,9 +49,23 @@ int ADCL_Vmap_inplace_allocate ( ADCL_Vmap *vec );
 int ADCL_Vmap_free  ( ADCL_Vmap *vec );
 \end{verbatim}
 
+Similarly to all other objects, the Vmap object can be freed after utilizion
+using 
+
 \begin{verbatim}
-int ADCL_Vector_allocate_generic ( int ndims, int *dims, int nc, ADCL_Vmap vmap,
-                           MPI_Datatype dat, void *data, ADCL_Vector *vec )
+int ADCL_Vmap_free ( ADCL_Vmap *vmap )
+\end{verbatim}
+
+ADCL distinguishes between allocating a
+vector and registering a vector. The difference is, that in the first case,
+the library allocates the memory for the object as specified by the user,
+while in the second case the memory has to be allocated by the application.
+
+
+\begin{verbatim}
+int ADCL_Vector_allocate_generic ( int ndims, int *dims, int nc, 
+                           ADCL_Vmap vmap, MPI_Datatype dat, 
+                           void *data, ADCL_Vector *vec )
 
 \end{verbatim}
 with
@@ -35,7 +77,7 @@ with
 \item {\tt nc}(IN): number of elements per entry. Since many scientific codes
   have matrices where each entry of the matrix is a submatrix itself, this
   argument gives the possibility to specify the dimension of the submatrix.
-\item {\tt vmap}(IN): .
+\item {\tt vmap}(IN): vector map to be used for this vector.
 \item {\tt dat}(IN): basic MPI datatype describing the data type of the matrix
 \item {\tt data}(OUT): pointer to the buffer allocated. This pointer will be
   required for calculations within the user code, since the buffer has been
@@ -76,11 +118,8 @@ with
   have matrices where each entry of the matrix is a submatrix itself, this
   argument gives the possibility to specify the dimension of the submatrix.
 \item {\tt vmap}(IN): variable describing which parts of the matrix can be
-  used for communication. Currently supported values are {\tt
-    ADCL\_VECTOR\_HALO} if a halo-cell structure shall be used, {\tt
-    ADCL\_VECTOR\_ALL} if the entire matrix shall be communicated. Not yet
-  implemented are support for upper and lower triangular matrices ( {\tt
-    ADCL\_VECTOR\_UP\_TRIANGLE} and {\tt ADCL\_VECTOR\_LOW\_TRIANG} ).
+  used for communication. The Vmap object is typically the result of an {\tt
+    ADCL\_Vmap\_allocate*} function as shown above.
 \item {\tt dat}(IN): basic MPI datatype describing the data type of the matrix
 \item {\tt data}(IN): pointer to the data array. Please note, that the buffer
   pointer has to be the pointer to the multi-dimensional matrix itself, and
@@ -123,16 +162,8 @@ with
 \end{itemize}
 
 
-The second example assumes, that each entry of this matrix contains of a
-vector with five elements. The difference between allocating/registering a
-two-dimensional matrix using the {\tt nc} argument and allocating/registering
-a three-dimensional matrix setting the {\tt nc} argument to zero is, that the
-first approach matches a 2-D process topology, while the second approach
-matches a 3-D process topology. Thus, setting the {\tt nc} argument to a
-non-negative, non-zero value is equivalent to a data decomposition of one
-dimension lower than the data object, where the last dimension is not
-distributed across the processes. Please note in the example below the change
-in the dimension of the {\tt data} matrix.
+The following example assumes, that each entry of this matrix contains of a
+vector with five elements. 
 
 \begin{verbatim}
 #include <stdio.h>
@@ -149,14 +180,16 @@ int main ( int argc, char ** argv )
     int nc=5, hwidth=1;
     double ***data;
     ADCL_Vector vec;
-    
+    ADCL_Vmap vmap;    
+
     MPI_Init ( &argc, &argv );
     ADCL_Init ();
     
     dims[0] = DIM0 + 2*hwidth;
     dims[1] = DIM1 + 2*hwidth;
-    ADCL_Vector_allocate ( 2,  dims, nc, ADCL_VECTOR_HALO, 
-        hwidth, MPI_DOUBLE, &data, &vec );
+    ADCL_Vmap_halo_allocate ( hwidth, &vmap);
+    ADCL_Vector_allocate_generic ( 2,  dims, nc, vmap,
+        MPI_DOUBLE, &data, &vec );
     
     /* now you can access the elements of the vector in order to perform 
        computations, e.g */
@@ -168,6 +201,7 @@ int main ( int argc, char ** argv )
     }
     
     ADCL_Vector_free ( &vec );        
+    ADCL_Vmap_free ( &vmap );
     ADCL_Finalize ();
     MPI_Finalize ();
     return 0;

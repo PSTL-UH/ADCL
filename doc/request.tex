@@ -134,32 +134,32 @@ with
 \end{itemize}
 \hspace{1cm}
 
-The following is an interface, where the user pass in additional function
-pointers in order to evaluate the effect of overlapping communication and
-computation. The proper interface is still being investigated and might
-change.
-
-\begin{verbatim}
-int ADCL_Request_start_overlap ( ADCL_Request req, 
-         ADCL_work_fnct_ptr* midfctn,
-         ADCL_work_fnct_ptr *endfcnt, 
-	 ADCL_work_fnct_ptr *totalfcnt );
-
-subroutine ADCL_Request_start_overlap ( req, midfctn,
-                endfnct, totalfnct, ierror )
-integer req, ierror
-external midfnct, endfnct, totalfnct
-\end{verbatim}
-with
-\begin{itemize}
-\item {\tt req}(IN): valid ADCL request handle
-\item {\tt midfnct}(IN): function to be called after initiating communication
-\item {\tt endfnct}(IN): function to be called after communication is finished
-\item {\tt totalfnct}(IN): function to be called in case the communication is
-  blocking. Typically, {\tt totalfnct} will be an integrated version of {\tt
-    midfnct} plus {\tt endfnct}.
-\end{itemize}
-\hspace{1cm}
+%The following is an interface, where the user pass in additional function
+%pointers in order to evaluate the effect of overlapping communication and
+%computation. The proper interface is still being investigated and might
+%change.
+%
+%\begin{verbatim}
+%int ADCL_Request_start_overlap ( ADCL_Request req, 
+%         ADCL_work_fnct_ptr* midfctn,
+%         ADCL_work_fnct_ptr *endfcnt, 
+%	 ADCL_work_fnct_ptr *totalfcnt );
+%
+%subroutine ADCL_Request_start_overlap ( req, midfctn,
+%                endfnct, totalfnct, ierror )
+%integer req, ierror
+%external midfnct, endfnct, totalfnct
+%\end{verbatim}
+%with
+%\begin{itemize}
+%\item {\tt req}(IN): valid ADCL request handle
+%\item {\tt midfnct}(IN): function to be called after initiating communication
+%\item {\tt endfnct}(IN): function to be called after communication is finished
+%\item {\tt totalfnct}(IN): function to be called in case the communication is
+%  blocking. Typically, {\tt totalfnct} will be an integrated version of {\tt
+%    midfnct} plus {\tt endfnct}.
+%\end{itemize}
+%\hspace{1cm}
 
 \subsection{Retrieving internal components}
 

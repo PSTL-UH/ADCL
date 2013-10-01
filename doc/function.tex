@@ -31,14 +31,21 @@ char name (*)
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt fnctp}(IN): function pointer to the actual implementation. The prototype has
-     to be of type {\tt ADCL\_work\_fnct\_ptr}.
-\item {\tt attrset}(IN): valid ADCL attribute-set handle, or {\tt ADCL\_ATTRSET\_NULL}. Passing the NULL attribute-set 
-   object in forces ADCL to use the brute-force runtime search algorithm.
-\item {\tt array\_of\_attrvalues}(IN): if an attribute-set has been specified, this array of
- integers has to provide the values for each attribute in the attribute-set. 
-\item {\tt name}(IN): name for the function. The length of the character string can not exceed 
-   {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a NULL pointer instead of a string.
+\item {\tt fnctp}(IN): function pointer to the actual implementation. The
+  prototype has to be of type {\tt ADCL\_work\_fnct\_ptr}.
+
+\item {\tt attrset}(IN): valid ADCL attribute-set handle, or {\tt
+  ADCL\_ATTRSET\_NULL}. Passing the NULL attribute-set object in forces ADCL
+  to use the brute-force runtime search algorithm.
+
+\item {\tt array\_of\_attrvalues}(IN): if an attribute-set has been specified,
+  this array of integers has to provide the values for each attribute in the
+  attribute-set.
+
+\item {\tt name}(IN): name for the function. The length of the character
+  string can not exceed {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a
+  NULL pointer instead of a string.
+
 \item {\tt fnct}(OUT): handle to the ADCL function object.
 \end{itemize}
 
@@ -58,16 +65,27 @@ char name (*)
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt init\_fnct}(IN): function pointer to the actual implementation of the initiation function. The prototype has
-     to be of type {\tt ADCL\_work\_fnct\_ptr}.
-\item {\tt wait\_fnct}(IN): function pointer to the actual implementation of the completion function. The prototype has
-     to be of type {\tt ADCL\_work\_fnct\_ptr}.
-\item {\tt attrset}(IN): valid ADCL attribute-set handle, or {\tt ADCL\_ATTRSET\_NULL}. Passing the NULL attribute-set 
-   object in forces ADCL to use the brute-force runtime search algorithm.
-\item {\tt array\_of\_attrvalues}(IN): if an attribute-set has been specified, this array of
- integers has to provide the values for each attribute in the attribute-set. 
-\item {\tt name}(IN): name for the function. The length of the character string can not exceed 
-  {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a NULL pointer instead of a string.
+
+\item {\tt init\_fnct}(IN): function pointer to the actual implementation of
+  the initiation function. The prototype has to be of type {\tt
+    ADCL\_work\_fnct\_ptr}.
+
+\item {\tt wait\_fnct}(IN): function pointer to the actual implementation of
+  the completion function. The prototype has to be of type {\tt
+    ADCL\_work\_fnct\_ptr}.
+
+\item {\tt attrset}(IN): valid ADCL attribute-set handle, or {\tt
+  ADCL\_ATTRSET\_NULL}. Passing the NULL attribute-set object in forces ADCL
+  to use the brute-force runtime search algorithm.
+
+\item {\tt array\_of\_attrvalues}(IN): if an attribute-set has been specified,
+  this array of integers has to provide the values for each attribute in the
+  attribute-set.
+
+\item {\tt name}(IN): name for the function. The length of the character
+  string can not exceed {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a
+  NULL pointer instead of a string.
+
 \item {\tt fnct}(OUT): handle to the ADCL function object.
 \end{itemize}
 
@@ -81,7 +99,9 @@ integer fnct, ierror
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt fnct}(INOUT): valid handle to an ADCL function. Upon return, the handle is set to {\tt ADCL\_FUNCTION\_NULL}
+
+\item {\tt fnct}(INOUT): valid handle to an ADCL function. Upon return, the
+  handle is set to {\tt ADCL\_FUNCTION\_NULL}
 \end{itemize}
 
 \hspace{1cm}
@@ -134,18 +154,30 @@ char name (*)
 \end{verbatim}
 with
 \begin{itemize}
+
 \item {\tt init\_fnct}(IN): function pointer to the actual implementation of
-  the init function. The prototype has to be of type {\tt ADCL\_work\_fnct\_ptr}.
+  the init function. The prototype has to be of type {\tt
+    ADCL\_work\_fnct\_ptr}.
+
 \item {\tt wait\_fnct}(IN): function pointer to the actual implementation of
-  the completion function. The prototype has to be of type {\tt ADCL\_work\_fnct\_ptr}.
-  It is allowed to pass in a NULL pointer if there is no need to a completion function.
+  the completion function. The prototype has to be of type {\tt
+    ADCL\_work\_fnct\_ptr}.  It is allowed to pass in a NULL pointer if there
+  is no need to a completion function.
+
 \item {\tt attrset}(IN): valid ADCL attribute-set handle, or {\tt
-    ADCL\_ATTRSET\_NULL}. It is illegal for this function to pass in the NULL attribute-set 
-    handle.
-\item {\tt name}(IN): name for the function. The length of the character string can not exceed 
-  {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a NULL pointer instead of a string.
-\item {\tt without\_attr\_vals}(IN): array containing the attribute values that the user want to exclude.
-\item {\tt num\_without\_attr\_vals}(IN): number of entries in the array containing the attribute values that the user want to exclude.
+  ADCL\_ATTRSET\_NULL}. It is illegal for this function to pass in the NULL
+  attribute-set handle.
+
+\item {\tt name}(IN): name for the function. The length of the character
+  string can not exceed {\tt ADCL\_MAX\_NAMELEN}. It is allowed to pass in a
+  NULL pointer instead of a string.
+
+\item {\tt without\_attr\_vals}(IN): array containing the attribute values
+  that the user want to exclude.
+
+\item {\tt num\_without\_attr\_vals}(IN): number of entries in the array
+  containing the attribute values that the user want to exclude.
+
 \item {\tt fnctset}(OUT): handle to the ADCL function-set object.
 \end{itemize}
 \hspace{1cm}
@@ -157,7 +189,9 @@ integer fnctset, ierror
 \end{verbatim}
 with
 \begin{itemize}
-\item {\tt fnctset}(INOUT): valid ADCL function-set handle to be freed. After successful completion, the handle is set to {\tt ADCL\_FNCTSET\_NULL}.
+
+\item {\tt fnctset}(INOUT): valid ADCL function-set handle to be freed. After
+  successful completion, the handle is set to {\tt ADCL\_FNCTSET\_NULL}.
 \end{itemize}
 
 
@@ -165,15 +199,29 @@ with
 \subsection{Predefined Function-sets}
 \label{fnctset-predef}
 
-ADCL currently supports two predefined function-sets: 
+ADCL currently supports the following  predefined function-sets: 
 \begin{itemize}
 \item {\tt ADCL\_FNCTSET\_NEIGHBORHOOD}: a function-set supporting
   n-dimensional neighborhood communication. The dimension of the neighborhood
   communication is determined by the dimension of the vector object used
   during the request creation time.
-\item {\tt ADCL\_FNCTSET\_SHIFT}: a function-set supporting n-dimensional
-  shift operations. The dimension of the shift operation is determined by the
-  vector object(s) used during the request creation.
+\item {\tt ADCL\_FNCTSET\_ALLGATHERV}: a function-set supporting an
+  MPI\_Allgatherv style communication.
+\item {\tt ADCL\_FNCTSET\_ALLREDUCE}: a function-set supporting an
+  MPI\_Allreduce style communication.
+\item {\tt ADCL\_FNCTSET\_REDUCE}: a function-set supporting an
+  MPI\_Reduce style communication.
+\item {\tt ADCL\_FNCTSET\_ALLTOALL}: a function-set supporting an
+  MPI\_Alltoall style communication.
+\item {\tt ADCL\_FNCTSET\_ALLTOALLVV}: a function-set supporting an
+  MPI\_Alltoallv style communication.
+\item {\tt ADCL\_FNCTSET\_IBCAST}: a function-set supporting a non-blocking
+  broadcast operation similarly to MPI\_Ibcast. Requires a functional
+  implementation of the LibNBC library.
+\item {\tt ADCL\_FNCTSET\_IALLTOALL}: a function-set supporting a non-blocking
+  all-to-all operation similarly to MPI\_IAlltoall. Requires a functional
+  implementation of the LibNBC library.
+ 
 \end{itemize}
 
 Other predefined function-sets might be added in following releases of ADCL.
@@ -250,3 +298,4 @@ void test_func_3 ( ADCL_Request req ) {
 }
 
 \end{verbatim}
+
