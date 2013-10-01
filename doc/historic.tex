@@ -1,1 +1,50 @@
 \section{Historic Learning}
+
+Historic Learning is a feature of ADCL that allows an application to transfer tuning
+information across multiple executions/runs. It requires additional
+functionality, that most function-sets (including predefined function sets) do
+not provide out of the box. Specifically, right now only the neighborhood
+communciation function set has support for historic learning and has been
+evaluated. Users should be cautios with using this features especially for
+non-blocking operations. 
+
+We provide some of the fundamental structures and functions here. Please
+contact us however back if you would like to utilize this features of ADCL for
+your function-sets.
+
+The interfaces in ADCL 
+\begin{verbatim}
+/* Function to register history functions to a function set */
+int ADCL_Fnctset_reg_hist_fnct ( ADCL_Hist_functions hist_functions,
+ADCL_Fnctset fnctset );
+
+/* Structure holding the history functions and related information */
+struct ADCL_hist_functions_s{
+    ADCL_hist_reader    *hf_reader; /* Hist reading function */
+    ADCL_hist_writer    *hf_writer; /* Hist writing function */
+    ADCL_hist_filter    *hf_filter; /* Filter function according to the given criteria */
+    ADCL_hist_distance  *hf_distance; /* Distance function between two Hist */
+};
+
+/* Function to register criteria function to a given ADCL request */
+int ADCL_Request_reg_hist_criteria ( ADCL_Request req, ADCL_Hist_criteria hist_criteria);
+
+/* Structure holding the criteria and function to set them */
+struct ADCL_hist_criteria_s{
+
+    void                *hc_filter_criteria; /* Filter criteria structure */
+    ADCL_hist_set_criteria *hc_set_criteria; /* Function setting the filter criteria structure */
+    int                     hc_criteria_set; /* Flag whether the filtering criteria are set */
+};
+\end{verbatim}
+
+The prototypes for the read, write, filter and distance functions are as follows.
+\begin{verbatim}
+/* ADCL History functions types definition */
+typedef void ADCL_hist_reader ( FILE *fp, ADCL_Hist hist);
+typedef void ADCL_hist_writer ( FILE *fp, ADCL_Hist hist);
+typedef int ADCL_hist_filter ( ADCL_Hist hist, void *filter_criteria );
+typedef double ADCL_hist_distance ( ADCL_Hist hist1 , ADCL_Hist hist2 );
+typedef void ADCL_hist_set_criteria ( ADCL_Request request, void *filter_criteria );
+/* Other history related data types */
+\end{verbatim}
