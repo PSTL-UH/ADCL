@@ -15,6 +15,7 @@ OBJ =  	ADCL.o		        \
 	ADCL_Topology.o         \
 	ADCL_Vmap.o             \
 	ADCL_Timer.o            \
+	ADCL_Highlevel.o        \
 	ADCL_Request.o 
 
 

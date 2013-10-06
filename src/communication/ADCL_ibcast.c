@@ -20,7 +20,7 @@ static int bcast_sched_generic(int rank, int p, int root, NBC_Schedule *schedule
 
 void ADCL_ibcast_binomial( ADCL_request_t *req )
 {
-  int segsize = req->r_function->f_attrvals[2] * 1024;
+  int segsize = req->r_function->f_attrvals[1] * 1024;
   ADCL_ibcast(req, ADCL_IBCAST_BINOMIAL, segsize, 0);
 
   /* All done */
@@ -29,8 +29,8 @@ void ADCL_ibcast_binomial( ADCL_request_t *req )
 
 void ADCL_ibcast_generic( ADCL_request_t *req )
 {
-  int segsize = req->r_function->f_attrvals[2] * 1024;
-  int fanout = req->r_function->f_attrvals[1];
+  int segsize = req->r_function->f_attrvals[1] * 1024;
+  int fanout = req->r_function->f_attrvals[2];
   ADCL_ibcast(req, ADCL_IBCAST_GENERIC, segsize, fanout);
 
   /* All done */

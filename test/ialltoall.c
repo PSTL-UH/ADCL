@@ -16,8 +16,6 @@ int main (int argc, char *argv[])
   int periods=0;
   
   ADCL_Topology topo;
-  ADCL_Vector svec, rvec;
-  ADCL_Vmap vmap;
   ADCL_Request request;
   ADCL_Timer timer;
 
@@ -36,10 +34,6 @@ int main (int argc, char *argv[])
   
   
   // Creating the ADCL Topology  
-  MPI_Dims_create ( size, 1, &cdims );
-  MPI_Cart_create ( MPI_COMM_WORLD, 1, &cdims, &periods, 0, &cart_comm);
-  err = ADCL_Topology_create ( cart_comm, &topo );
-  if ( ADCL_SUCCESS != err) goto exit;
   
   /*
   // Creating the ADCL Vector map
@@ -61,29 +55,11 @@ int main (int argc, char *argv[])
 
   //////////////////////////
 
-    int dim;
-    int* cnts;
-
-    /* set up arrays for verification */
-    cnts = (int*) calloc ( size, sizeof(int) );
-
-    for ( i=0;i<size;i++){
-      cnts[i] = dims;
-    }
-
-    err = ADCL_Vmap_alltoall_allocate( cnts[0], cnts[0], &vmap );
-    if ( ADCL_SUCCESS != err) goto exit;
-
-    dim = dims*size;
-    err = ADCL_Vector_allocate_generic ( 1,  &dim, 0, vmap, MPI_BYTE, &sdata, &svec );
-    if ( ADCL_SUCCESS != err) goto exit;
-    err = ADCL_Vector_allocate_generic ( 1,  &dim, 0, vmap, MPI_BYTE, &rdata, &rvec );
-    if ( ADCL_SUCCESS != err) goto exit;
-
-    err = ADCL_Request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_IALLTOALL, &request );
-    if ( ADCL_SUCCESS != err) goto exit;
+  ADCL_Ialltoall_init(&sdata, dims, MPI_BYTE, &rdata, dims, MPI_BYTE, 0, MPI_COMM_WORLD, &request);
 
   //////////////////////////
+
+  int dim = dims * size;
 
   // define timer object
   ADCL_Timer_create ( 1, &request, &timer );
@@ -162,12 +138,12 @@ int main (int argc, char *argv[])
 
     if ( ADCL_TIMER_NULL != timer)     ADCL_Timer_free   ( &timer );
     if ( ADCL_REQUEST_NULL != request) ADCL_Request_free ( &request );
-    if ( ADCL_VECTOR_NULL  != svec)    ADCL_Vector_free ( &svec );
-    if ( ADCL_VECTOR_NULL  != rvec)    ADCL_Vector_free ( &rvec );
-    if ( ADCL_VMAP_NULL    != vmap)   ADCL_Vmap_free (&vmap);
+    //if ( ADCL_VECTOR_NULL  != svec)    ADCL_Vector_free ( &svec );
+    //if ( ADCL_VECTOR_NULL  != rvec)    ADCL_Vector_free ( &rvec );
+    //if ( ADCL_VMAP_NULL    != vmap)   ADCL_Vmap_free (&vmap);
 	
-    if ( ADCL_TOPOLOGY_NULL != topo)   ADCL_Topology_free ( &topo );
-    MPI_Comm_free ( &cart_comm );
+    //if ( ADCL_TOPOLOGY_NULL != topo)   ADCL_Topology_free ( &topo );
+    //MPI_Comm_free ( &cart_comm );
     ADCL_Finalize ();
     MPI_Finalize ();
 

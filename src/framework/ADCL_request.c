@@ -52,6 +52,9 @@ int ADCL_request_create_generic_rooted ( ADCL_vector_t **svecs,
     if ( NULL == newreq ) {
         return ADCL_NO_MEMORY;
     }
+
+    // Assume the request is not created from a high level interface
+    newreq->r_highlevel = 0;
 	    
     /* Fill in the according elements, start with the simple ones */
     newreq->r_id = ADCL_local_id_counter++;
@@ -554,7 +557,9 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
     if ( req->r_function->f_db ) {
         req->r_comm_state = ADCL_COMM_ACTIVE;
 #ifdef ADCL_LIBNBC
-	req->r_progress = req->r_function->f_attrvals[req->r_function->f_attrset->as_maxnum-1]-100;
+#ifdef ADCL_TUNE_PROGRESS
+	//req->r_progress = req->r_function->f_attrvals[req->r_function->f_attrset->as_maxnum-1]-100;
+#endif
 #endif
 	int rank;
 	MPI_Comm_rank (MPI_COMM_WORLD, &rank);
@@ -593,7 +598,7 @@ int ADCL_request_progress ( ADCL_request_t *req ){
   }
 #ifdef ADCL_TUNE_PROGRESS
   if( flag && ret == NBC_NEXT_ROUND){
-    req->r_progress = 10;
+    // req->r_progress = 10;
   }
 #endif
 #endif
