@@ -27,10 +27,12 @@ int main (int argc, char *argv[])
   MPI_Comm_size (MPI_COMM_WORLD, &size);
   
   char *sdata;//char  *rdata;
+
+  sdata = (char*) calloc(dim, sizeof(char));
   
   ADCL_Init ();
 
-  ADCL_Ibcast_init(&sdata, dim, MPI_BYTE, 0, MPI_COMM_WORLD, &request);
+  ADCL_Ibcast_init(sdata, dim, MPI_BYTE, root, MPI_COMM_WORLD, &request);
   
   // define timer object
   // ADCL_Timer_create ( 1, &request, &timer );
@@ -75,7 +77,6 @@ int main (int argc, char *argv[])
 
     // extra call to wait
     err = ADCL_Request_wait ( request );
-
     if ( ADCL_SUCCESS != err) goto exit;   
 
     // check if bcast value is correct
@@ -84,7 +85,6 @@ int main (int argc, char *argv[])
 	printf("Wrong value, Process: %d, buff: %c\n",rank,sdata[k]);
       }
     }
-
     // ADCL_Timer_stop( timer );
 
   }

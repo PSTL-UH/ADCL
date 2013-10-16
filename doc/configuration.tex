@@ -91,8 +91,12 @@ co-tuning) or 0 (disable co-tuning).
   PostStartGet\_aao\_pair, PostStartPut\_aao, PostStartPut\_pair,
   WinFenceGet\_pair, WinFenceGet\_aao, WinFencePut\_pair, WinFencePut\_aao.
  
-\item{\tt ADCL\_EMETHOD\_IBCAST\_SELECTION}: to be done by Youcef.
-\item{\tt ADCL\_EMETHOD\_IALLTOALL\_SELECTION}: to be done by Youcef.
+\item{\tt ADCL\_EMETHOD\_IBCAST\_SELECTION}: force the usage of a particular
+  implementation for the Ibcast function set. Setting this value
+  disables runtime tuning of this function set. Valid values follow the pattern: Ibcast\_linear\_segmentsize, where segmentsize represents the segment size in KB, it can be: 32, 64 or 128. For instance, {\tt ADCL\_EMETHOD\_IBCAST\_SELECTION: Ibcast\_linear\_32} forces the usage of the linear non-blocking broadcast algorithm with a segment size of 32 KB. Other valid values are: Ibcast\_generic\_fanout\_segmentsize, where segmentsize represents the segment size in KB, it can be: 32, 64 or 128; and fanout represents the number of child nodes (processes) per node within the broadcast tree-based (generic) algorithm. Fanout can take a value from 1 to 5. For instance, {\tt ADCL\_EMETHOD\_IBCAST\_SELECTION: Ibcast\_generic\_3\_64} forces the usage of the generic non-blocking broadcast algorithm where each node has at most three child nodes and a segment size of 64KB.
+\item{\tt ADCL\_EMETHOD\_IALLTOALL\_SELECTION}: force the usage of a particular
+  implementation for the Ibcast function set. Setting this value
+  disables runtime tuning of this function set. Valid values: Ialltoall\_linear, Ialltoall\_pairwise, Ialltoall\_diss.
 \end{itemize}
 
 

@@ -354,8 +354,8 @@ int ADCL_Timer_stop ( ADCL_Timer timer );
 
 #ifdef ADCL_LIBNBC
 int ADCL_Request_get_handle(ADCL_Request req, NBC_Handle **handle);
-int ADCL_Ibcast_init ( void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, ADCL_Request* req);
-int ADCL_Ialltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void *rbuffer, int rcount, MPI_Datatype rdatatype, int root, MPI_Comm comm, ADCL_Request* req);
+  int ADCL_Ibcast_init ( void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, ADCL_Request* req);
+int ADCL_Ialltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void *rbuffer, int rcount, MPI_Datatype rdatatype, MPI_Comm comm, ADCL_Request* req);
 #endif
 
 #if defined(c_plusplus) || defined(__cplusplus)

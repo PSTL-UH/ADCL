@@ -30,8 +30,7 @@ int main (int argc, char *argv[])
   
   char *sdata;char  *rdata;
   
-  ADCL_Init ();
-  
+  ADCL_Init ();  
   
   // Creating the ADCL Topology  
   
@@ -53,9 +52,12 @@ int main (int argc, char *argv[])
 
   dims = 1024;
 
+  sdata = (char*) calloc(dims*size, sizeof(char));
+  rdata = (char*) calloc(dims*size, sizeof(char));
+
   //////////////////////////
 
-  ADCL_Ialltoall_init(&sdata, dims, MPI_BYTE, &rdata, dims, MPI_BYTE, 0, MPI_COMM_WORLD, &request);
+  ADCL_Ialltoall_init(sdata, dims, MPI_BYTE, rdata, dims, MPI_BYTE, MPI_COMM_WORLD, &request);
 
   //////////////////////////
 

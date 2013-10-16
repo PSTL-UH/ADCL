@@ -1,1 +1,81 @@
 \section{High level API}
+
+
+The high level API in ADCL imitates the classic MPI collective communications API. It allows the user to bypass the creation of {\tt ADCL\_Topology}, {\tt ADCL\_Vmap} and {\tt ADCL\_Vector} when using the ADCL predefined function-sets. So far, it has been implemented for {\tt ADCL\_FNCTSET\_IBCAST} and {\tt ADCL\_FNCT\_IALLTOALL} function-sets. When the user calls a high level function, all these steps are handled internally, and a persistent ADCL request is created similarly to {\tt MPI\_Send\_init}.
+
+\subsection{Ibcast}
+
+(Requires a functional implementation of the LibNBC library)
+
+\begin{verbatim}
+int ADCL_Ibcast_init int ADCL_Ibcast_init ( void *buffer, int count,
+         MPI_Datatype datatype, int root, MPI_Comm comm, ADCL_Request* req);
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt buffer}(IN/OUT): starting address of buffer.
+\item {\tt count}(IN): number of entries in buffer.
+\item {\tt datatype}(IN): data type of buffer.
+\item {\tt root}(IN): rank of broadcast root.
+\item {\tt comm}(IN): MPI communicator.
+\item {\tt req}(OUT): handle to the newly created ADCL request object.
+\end{itemize}
+
+\subsection{Ialltoall}
+
+(Requires a functional implementation of the LibNBC library)
+
+\begin{verbatim}
+int ADCL_Ialltoall_init ( void *sendbuf, int sendcount, MPI_Datatype sendtype,
+         void *recvbuf, int recvcount, MPI_Datatype recvdatatype, int root,
+         MPI_Comm comm, ADCL_Request* req)
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt sendbuf}(IN): starting address of send buffer.
+\item {\tt sendcount}(IN): number of elements to send to each process.
+\item {\tt sendtype}(IN): data type of send buffer elements.
+\item {\tt recvbuf}(OUT): address of receive buffer.
+\item {\tt recvcount}(IN): number of elements received from any process.
+\item {\tt sendtype}(IN): data type of receive buffer elements.
+\item {\tt root}(IN): rank of root (required for ADCL request creation).
+\item {\tt comm}(IN): MPI communicator.
+\item {\tt req}(OUT): handle to the newly created ADCL request object.
+\end{itemize}
+
+\subsection{Example}
+
+The following example shows the usage of the ADCL high level API to broadcast an integer.
+
+\begin{verbatim}
+#include <stdio.h>
+#include "mpi.h"
+#include "ADCL.h"
+#include "nbc.h"
+
+int main ( int argc, char ** argv ) 
+{
+    
+    ADCL_Request request;
+
+    MPI_Init ( &argc, &argv );
+    ADCL_Init ();
+    
+    int data = 10;
+    
+    /******************************************************************/
+
+    ADCL_Ibcast_init(&data, 1, MPI_INT, 0, MPI_COMM_WORLD, &request);
+    
+    /* start the communication. call the following function an arbitrary number of times */ 
+    ADCL_Request_start ( request );
+
+
+    /* if communication is done, free all handles */
+    ADCL_Request_free ( &request );
+    
+    ADCL_Finalize ();
+    MPI_Finalize ();
+    return 0;
+}
+\end{verbatim}

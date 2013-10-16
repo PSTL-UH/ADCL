@@ -84,6 +84,9 @@ int ADCL_Request_create_generic ( ADCL_Vector svec, ADCL_Vector rvec,
                                   ADCL_Topology topo, ADCL_Fnctset fnctset,
                                   ADCL_Request *req )
 {
+
+    if(rvec == ADCL_VECTOR_NULL) rvec = svec;
+
     if ( ( NULL == svec ) ||
          ( NULL == rvec ) ||
          ( NULL == topo )    ||
@@ -175,22 +178,22 @@ int ADCL_Request_free ( ADCL_Request *req )
     }
 
     // In case the request was created from a high level interface, free the topology, vmap and vector that belong to it
-    /* if(preq->r_highlevel){
+    if(preq->r_highlevel){
       topo = preq->r_Highlevel.topo;
       vmap = preq->r_Highlevel.svmap;
       vec = preq->r_Highlevel.svec;
-    }*/
+    }
 
     ret = ADCL_request_free ( req );
 
-    /*if(preq->r_highlevel){
+    if(preq->r_highlevel){
       ret = ADCL_Topology_free (topo);
       if ( ADCL_SUCCESS != ret) return ret;
       ret = ADCL_Vmap_free (vmap);
       if ( ADCL_SUCCESS != ret) return ret;
       ret = ADCL_Vector_free (vec);
       if ( ADCL_SUCCESS != ret) return ret;
-    }*/
+    }
 
     req = ADCL_REQUEST_NULL;
 
