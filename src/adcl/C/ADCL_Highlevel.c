@@ -10,6 +10,8 @@
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
+#ifdef ADCL_LIBNBC
+
 int ADCL_Ibcast_init ( void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, ADCL_Request* req)
 {
 
@@ -116,3 +118,5 @@ int ADCL_Ialltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, voi
   return ADCL_SUCCESS;
 
 }
+
+#endif

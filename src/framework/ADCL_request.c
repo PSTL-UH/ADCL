@@ -53,8 +53,10 @@ int ADCL_request_create_generic_rooted ( ADCL_vector_t **svecs,
         return ADCL_NO_MEMORY;
     }
 
+    #ifdef ADCL_LIBNBC
     // Assume the request is not created from a high level interface
     newreq->r_highlevel = 0;
+    #endif
 	    
     /* Fill in the according elements, start with the simple ones */
     newreq->r_id = ADCL_local_id_counter++;
