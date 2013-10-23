@@ -352,11 +352,19 @@ int ADCL_Timer_remove_request ( ADCL_Timer timer, ADCL_Request req );
 int ADCL_Timer_start ( ADCL_Timer timer );
 int ADCL_Timer_stop ( ADCL_Timer timer );
 
+/* ADCL highlevel interfaces */
+
 #ifdef ADCL_LIBNBC
 int ADCL_Request_get_handle(ADCL_Request req, NBC_Handle **handle);
   int ADCL_Ibcast_init ( void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, ADCL_Request* req);
 int ADCL_Ialltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void *rbuffer, int rcount, MPI_Datatype rdatatype, MPI_Comm comm, ADCL_Request* req);
 #endif
+
+int ADCL_Reduce_init ( void *sbuffer, void *rbuffer, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, ADCL_Request* req);
+int ADCL_Allreduce_init ( void *sbuffer, void *rbuffer, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, ADCL_Request* req);
+int ADCL_Alltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void *rbuffer, int rcount, MPI_Datatype rdatatype, MPI_Comm comm, ADCL_Request* req);
+int ADCL_Alltoallv_init ( void *sbuffer, int* scounts, int *sdispls, MPI_Datatype sdatatype, void *rbuffer, int* rcounts, int *rdispls, MPI_Datatype rdatatype, MPI_Comm comm, ADCL_Request* req);
+ int ADCL_Allgatherv_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void *rbuffer, int* rcounts, int *displs, MPI_Datatype rdatatype, MPI_Comm comm, ADCL_Request* req);
 
 #if defined(c_plusplus) || defined(__cplusplus)
 }

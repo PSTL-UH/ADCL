@@ -174,17 +174,29 @@ int ADCL_Request_free ( ADCL_Request *req )
         return ADCL_INVALID_REQUEST;
     }
 
-#ifdef ADCL_LIBNBC
     // In case the request was created from a high level interface, free the topology, vmap and vector that belong to it
     if(preq->r_highlevel){
-      ret = ADCL_Topology_free (preq->r_Highlevel.topo);
-      if ( ADCL_SUCCESS != ret) return ret;
-      ret = ADCL_Vmap_free (preq->r_Highlevel.svmap);
-      if ( ADCL_SUCCESS != ret) return ret;
-      ret = ADCL_Vector_free (preq->r_Highlevel.svec);
-      if ( ADCL_SUCCESS != ret) return ret;
+      if(preq->r_Highlevel.topo != NULL){
+	ret = ADCL_Topology_free (preq->r_Highlevel.topo);
+	if ( ADCL_SUCCESS != ret) return ret;
+      }
+      if(preq->r_Highlevel.svmap != NULL){
+	ret = ADCL_Vmap_free (preq->r_Highlevel.svmap);
+	if ( ADCL_SUCCESS != ret) return ret;
+      }
+      if(preq->r_Highlevel.rvmap != NULL){
+	ret = ADCL_Vmap_free (preq->r_Highlevel.rvmap);
+	if ( ADCL_SUCCESS != ret) return ret;
+      }
+      if(preq->r_Highlevel.svec != NULL){
+	ret = ADCL_Vector_free (preq->r_Highlevel.svec);
+	if ( ADCL_SUCCESS != ret) return ret;
+      }
+      if(preq->r_Highlevel.rvec != NULL){
+	ret = ADCL_Vector_free (preq->r_Highlevel.rvec);
+	if ( ADCL_SUCCESS != ret) return ret;
+      }
     }
-#endif
 
     ret = ADCL_request_free ( req );
 

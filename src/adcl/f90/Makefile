@@ -17,8 +17,8 @@ OBJ =  	ADCL_f.o		  \
 	ADCL_Request_f.o          \
 	ADCL_Vmap_f.o             \
 	ADCL_Timer_f.o            \
-	ADCL_strings.o
-        
+	ADCL_Highlevel_f.o	  \
+	ADCL_strings.o		  
 
 .SUFFIXES: .o.c
 

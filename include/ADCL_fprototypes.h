@@ -350,4 +350,44 @@ void adcl_timer_stop_   ( int *timer, int *ierror );
 void adcl_timer_stop__  ( int *timer, int *ierror );
 void ADCL_TIMER_STOP    ( int *timer, int *ierror );
 
+#ifdef ADCL_LIBNBC
+
+void adcl_ibcast_init   ( void* buffer, int* count, int* datatype, int* root, int* comm, int* req, int* ierror);
+void adcl_ibcast_init_  ( void* buffer, int* count, int* datatype, int* root, int* comm, int* req, int* ierror);
+void adcl_ibcast_init__ ( void* buffer, int* count, int* datatype, int* root, int* comm, int* req, int* ierror);
+void ADCL_IBCAST_INIT   ( void* buffer, int* count, int* datatype, int* root, int* comm, int* req, int* ierror);
+
+void adcl_ialltoall_init   ( void* sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror);
+void adcl_ialltoall_init_  ( void* sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror);
+void adcl_ialltoall_init__ ( void* sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror);
+void ADCL_IALLTOALL_INIT   ( void* sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror);
+
+#endif
+
+void adcl_reduce_init   ( void *sbuffer, void *rbuffer, int* count, int* datatype, int* op, int* root, int* comm, int* req, int* ierror);
+void adcl_reduce_init_  ( void *sbuffer, void *rbuffer, int* count, int* datatype, int* op, int* root, int* comm, int* req, int* ierror);
+void adcl_reduce_init__ ( void *sbuffer, void *rbuffer, int* count, int* datatype, int* op, int* root, int* comm, int* req, int* ierror);
+void ADCL_REDUCE_INIT   ( void *sbuffer, void *rbuffer, int* count, int* datatype, int* op, int* root, int* comm, int* req, int* ierror);
+
+void adcl_allreduce_init  ( void *sbuffer, void *rbuffer, int* count, int* datatype, int* op, int* comm, int* req, int* ierror);
+void adcl_allreduce_init_  ( void *sbuffer, void *rbuffer, int* count, int* datatype, int* op, int* comm, int* req, int* ierror);
+void adcl_allreduce_init__ ( void *sbuffer, void *rbuffer, int* count, int* datatype, int* op, int* comm, int* req, int* ierror);
+void ADCL_ALLREDUCE_INIT   ( void *sbuffer, void *rbuffer, int* count, int* datatype, int* op, int* comm, int* req, int* ierror);
+
+void adcl_alltoall_init   ( void *sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror);
+void adcl_alltoall_init_  ( void *sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror);
+void adcl_alltoall_init__ ( void *sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror);
+void ADCL_ALLTOALL_INIT   ( void *sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror);
+
+void adcl_alltoallv_init   ( void *sbuffer, int* scounts, int* sdispls, int* sdatatype, void *rbuffer, int* rcounts, int* rdispls, int* rdatatype, int* comm, int* req, int* ierror);
+void adcl_alltoallv_init_  ( void *sbuffer, int* scounts, int* sdispls, int* sdatatype, void *rbuffer, int* rcounts, int* rdispls, int* rdatatype, int* comm, int* req, int* ierror);
+void adcl_alltoallv_init__ ( void *sbuffer, int* scounts, int* sdispls, int* sdatatype, void *rbuffer, int* rcounts, int* rdispls, int* rdatatype, int* comm, int* req, int* ierror);
+void ADCL_ALLTOALLV_INIT   ( void *sbuffer, int* scounts, int* sdispls, int* sdatatype, void *rbuffer, int* rcounts, int* rdispls, int* rdatatype, int* comm, int* req, int* ierror);
+
+void adcl_allgatherv_init   ( void *sbuffer, int* scount, int* sdatatype, void *rbuffer, int* rcounts, int *displs, int* rdatatype, int* comm, int* req, int* ierror);
+void adcl_allgatherv_init_  ( void *sbuffer, int* scount, int* sdatatype, void *rbuffer, int* rcounts, int *displs, int* rdatatype, int* comm, int* req, int* ierror);
+void adcl_allgatherv_init__ ( void *sbuffer, int* scount, int* sdatatype, void *rbuffer, int* rcounts, int *displs, int* rdatatype, int* comm, int* req, int* ierror);
+void ADCL_ALLGATHERV_INIT   ( void *sbuffer, int* scount, int* sdatatype, void *rbuffer, int* rcounts, int *displs, int* rdatatype, int* comm, int* req, int* ierror);
+
+
 #endif /*  __ADCL_FPROTOTYPES_H__ */
