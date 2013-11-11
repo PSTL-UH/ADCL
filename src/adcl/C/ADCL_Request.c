@@ -189,11 +189,11 @@ int ADCL_Request_free ( ADCL_Request *req )
 	if ( ADCL_SUCCESS != ret) return ret;
       }
       if(preq->r_Highlevel.svec != NULL){
-	ret = ADCL_Vector_free (preq->r_Highlevel.svec);
+	ret = ADCL_Vector_deregister (preq->r_Highlevel.svec);
 	if ( ADCL_SUCCESS != ret) return ret;
       }
       if(preq->r_Highlevel.rvec != NULL){
-	ret = ADCL_Vector_free (preq->r_Highlevel.rvec);
+	ret = ADCL_Vector_deregister (preq->r_Highlevel.rvec);
 	if ( ADCL_SUCCESS != ret) return ret;
       }
     }

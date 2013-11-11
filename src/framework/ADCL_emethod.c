@@ -56,6 +56,8 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
 	for ( i=0; i<= last; i++ ) {
 	    e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos (
 		ADCL_emethod_array, i );
+	    // case where the emethod has been deleted already
+	    //if(e == NULL) continue;
 	    same_em = ADCL_emethod_is_same(e, t, v, f);
 	    if (same_em == 1) {
 		e->em_rfcnt++;
@@ -638,8 +640,14 @@ int  ADCL_emethod_is_same(ADCL_emethod_t *e, ADCL_topology_t *t, ADCL_vector_t *
     ADCL_vmap_t *vec_map, *v_map;
 
     found = -1;
+
     topo = e->em_topo;
     vec  = e->em_vec;
+
+    /* if ( NULL == vec || NULL == topo  ) { */
+    /*     return found; */
+    /* } */
+
     if ( ADCL_VECTOR_NULL == vec  ) {
         return found;
     }

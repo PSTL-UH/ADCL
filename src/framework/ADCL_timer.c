@@ -101,8 +101,10 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     nems_tot = ADCL_array_get_number_elements ( ADCL_emethod_array ); 
     for ( id=0; id<nems_tot; id++ ) {
         e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_id ( ADCL_emethod_array, id );
+	// case where the emethod has been deleted already
+	if (e == NULL) continue;
         if (e->em_assoc_with_timer != ttimer->t_id ) 
-           continue; 
+	  continue; 
         nemethods++;
 	// this "if" statement checks if the selection is enforced by the user
 	if(e->em_state != ADCL_STATE_REGULAR || e->em_wfunction == NULL)
@@ -118,6 +120,8 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     nemethods  = 0;
     for ( i=0; i<nems_tot ; i++ ) {
         e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos ( ADCL_emethod_array, i );
+	// case where the emethod has been deleted already
+	if (e == NULL) continue;
         if (e->em_assoc_with_timer == ttimer->t_id ) {
             emethods[nemethods] = e;
             nemethods++; 
@@ -247,7 +251,7 @@ int ADCL_timer_free  ( ADCL_timer_t **timer )
  
     /* free arrays */
     if ( NULL              != ttimer->t_reqs ) free ( ttimer->t_reqs ); 
-    if ( ADCL_EMETHOD_NULL != ttimer->t_emethod )  free ( ttimer->t_emethod );  
+    if ( ADCL_EMETHOD_NULL != ttimer->t_emethod )  ADCL_emethod_free ( ttimer->t_emethod );  
 
     ADCL_array_remove_element ( ADCL_timer_farray, ttimer->t_findex);
     free ( ttimer );
@@ -428,8 +432,10 @@ int * ADCL_timer_get_assoc_reqs ( ADCL_timer_t *timer, int nreq_in, ADCL_request
        /*  find requests that have this emethod */
        for ( id=0; id<nreqs_tot; id++) {
           /* get request */ 
+	  
           treq = ADCL_array_get_ptr_by_id ( ADCL_request_farray, id );
- 
+	  // case where the request has been deleted already
+	  if (treq == NULL) continue;
           if ( treq->r_emethod->em_id == e->em_id ){ 
              treqs[offset_reqs] = treq; 
              offset_reqs++;

@@ -143,15 +143,23 @@ int ADCL_array_set_element (ADCL_array_t *arr, int pos, int id, void *ptr)
 
 int ADCL_array_remove_element ( ADCL_array_t *arr, int pos )
 {
+
+    int c;
+
     if ( 1 == arr->array[pos].in_use ) {
     arr->array[pos].ptr    = NULL;
     arr->array[pos].id     = MPI_UNDEFINED;
     arr->array[pos].in_use = FALSE;
 
-    if ( pos == arr->last ) {
-        arr->last--;
+    if ( pos == arr->last ) { 
+      arr->last--; 
+    } 
     }
-    }
+
+    /* for ( c = pos ; c < arr->last ; c++ ) */
+    /*   arr->array[c] = arr->array[c+1]; */
+
+    //arr->last--;
 
 
     return ADCL_SUCCESS;
@@ -164,7 +172,7 @@ int ADCL_array_get_number_elements ( ADCL_array_t *arr ) {
 
     count = 0;
     for ( pos=0; pos<arr->size; pos++ ) {
-      if ( 1 == arr->array[pos].in_use ) 
+      //      if ( 1 == arr->array[pos].in_use ) 
          count++;
     }
 
