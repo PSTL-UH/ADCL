@@ -250,7 +250,7 @@ int ADCL_timer_free  ( ADCL_timer_t **timer )
     }
  
     /* free arrays */
-    if ( NULL              != ttimer->t_reqs ) free ( ttimer->t_reqs ); 
+    if ( NULL              != ttimer->t_reqs ) free ( ttimer->t_reqs );
     if ( ADCL_EMETHOD_NULL != ttimer->t_emethod )  ADCL_emethod_free ( ttimer->t_emethod );  
 
     ADCL_array_remove_element ( ADCL_timer_farray, ttimer->t_findex);
@@ -414,7 +414,7 @@ int * ADCL_timer_get_assoc_reqs ( ADCL_timer_t *timer, int nreq_in, ADCL_request
     emethods[nemethods] (IN)    - array of emethods associated with the timer
 */
 /***************************************************************************************************/
-    int i, k, id, found, rank;
+    int i, k, pos, found, rank;
     ADCL_emethod_t *e; 
     ADCL_request_t *treq, **treqs;  /* temporary request and array of requests */
     int offset_reqs, nreqs_tot;
@@ -430,10 +430,10 @@ int * ADCL_timer_get_assoc_reqs ( ADCL_timer_t *timer, int nreq_in, ADCL_request
        e = emethods[i];
 
        /*  find requests that have this emethod */
-       for ( id=0; id<nreqs_tot; id++) {
+       for ( pos=0; pos<nreqs_tot; pos++) {
           /* get request */ 
 	  
-          treq = ADCL_array_get_ptr_by_id ( ADCL_request_farray, id );
+          treq = ADCL_array_get_ptr_by_pos ( ADCL_request_farray, pos );
 	  // case where the request has been deleted already
 	  if (treq == NULL) continue;
           if ( treq->r_emethod->em_id == e->em_id ){ 

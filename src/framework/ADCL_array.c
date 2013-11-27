@@ -172,7 +172,7 @@ int ADCL_array_get_number_elements ( ADCL_array_t *arr ) {
 
     count = 0;
     for ( pos=0; pos<arr->size; pos++ ) {
-      //      if ( 1 == arr->array[pos].in_use ) 
+      if ( 1 == arr->array[pos].in_use ) 
          count++;
     }
 
