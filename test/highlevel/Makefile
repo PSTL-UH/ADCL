@@ -7,27 +7,15 @@
 #
 # $HEADER$
 #
-include ../Makefile.defs
+include ../../Makefile.defs
 
-CEXECS = first second third fourth \
-	 one-dim two-dim three-dim \
-	 test-fnctset-noattrs test-fnctset-single test-fnctset-single-2 \
-	 test-fnctset-allgatherv-1d  test-fnctset-alltoallv-1d \
-	 test-fnctset-alltoall test-fnctset-allreduce test-fnctset-reduce \
-	 attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
-	 data_1 twok_1 PbSizes_1D PbSizes_2D PbSizes_3D \
-	 test-fnctset-extneigh-2d test-fnctset-extneigh-3d \
-	test-timerobject test-timerobject-onereq test-timerobject-tworeq
+CEXECS = test-fnctset-allgatherv-1d  test-fnctset-alltoallv-1d \
+	 test-fnctset-alltoall test-fnctset-allreduce test-fnctset-reduce
 
 
-FEXECS = first_f second_f \
-	 one-dim-f two-dim-f three-dim-f three-dim-large \
-	 test-fnctset-noattrs_f test-fnctset-single_f     \
-	 test-fnctset-allgatherv_f \
-	 test-fnctset-alltoall_f test-fnctset-allreduce_f  \
-	 test-fnctset-extneigh-2d_f test-fnctset-extneigh-3d_f \
-	 test-prometheus test-timerobject-onereq-f test-timerobject-tworeq-f
-
+FEXECS = test-fnctset-allgatherv_f \
+	 test-fnctset-alltoall_f test-fnctset-allreduce_f
+	 
 ADCL_LIB_ = $(ADCL_LIB_DIR)/$(ADCL_LIB)
 
 .SUFFIXES: .c .h .f90 
@@ -44,114 +32,25 @@ ftests:	$(FEXECS)
 ###################################################################################################
 ### CTESTS                                                                                      ###
 ###################################################################################################
-
-first: first.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-second: second.o 
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-third: third.o 
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-fourth: fourth.o 
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-###################################################################################################
-
-one-dim: one-dim.o 
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-two-dim: aux-data-2D.o two-dim.o  
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-three-dim: aux-data-3D.o aux-data-4D.o three-dim.o 
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-###################################################################################################
-
-test-fnctset-noattrs: test-fnctset-noattrs.o 
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-test-fnctset-single: test-fnctset-single.o 
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-test-fnctset-single-2: test-fnctset-single-2.o
-	$(CC) $^ -o $@ $(LDFLAGS)
 #
 test-fnctset-allgatherv-1d: aux-data-1D.o test-fnctset-allgatherv-1d.o 
-	$(CC) $^ -o $@ $(LDFLAGS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 #
 test-fnctset-alltoallv-1d: aux-data-1D.o test-fnctset-alltoallv-1d.o 
-	$(CC) $^ -o $@ $(LDFLAGS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 #
 test-fnctset-alltoall: aux-data-1D.o test-fnctset-alltoall.o 
-	$(CC) $^ -o $@ $(LDFLAGS) 
+	$(CXX) $^ -o $@ $(LDFLAGS) 
 #
 test-fnctset-allreduce: test-fnctset-allreduce.o
-	$(CC) $^ -o $@ $(LDFLAGS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
 #
 test-fnctset-reduce: test-fnctset-reduce.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-###################################################################################################
-
-attrs_1: attrs_1.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-attrs_2: attrs_2.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-attrs_3: attrs_3.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-attrs_3a: attrs_3a.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-attrs_4: attrs_4.o
-	$(CC) $^ -o $@ $(LDFLAGS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
 ###################################################################################################
 
-twok_1: twok_1.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-###################################################################################################
-
-data_1: data_1.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-###################################################################################################
-
-PbSizes_3D: PbSizes_3D.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-PbSizes_2D: PbSizes_2D.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-#
-PbSizes_1D: PbSizes_1D.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-###################################################################################################
-
-test-fnctset-extneigh-2d: aux-data-2D.o aux-data-3D.o test-fnctset-extneigh-2d.o 
-	$(CC) $^ $(LDFLAGS) -o $@
-
-test-fnctset-extneigh-3d: aux-data-3D.o aux-data-4D.o test-fnctset-extneigh-3d.o 
-	$(CC) $^ $(LDFLAGS) -o $@
-
-###################################################################################################
-
-test-timerobject:  test-timerobject.o aux-data-2D.o
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
-
-test-timerobject-onereq:  test-timerobject-onereq.o aux-data-2D.o
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
-
-test-timerobject-tworeq:  test-timerobject-tworeq.o aux-data-2D.o
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
-
-###################################################################################################
 ibcast:  ibcast.o 
 	$(CXX) $(CFLAGS) $^ $(LDFLAGS) -o $@
 

@@ -173,7 +173,6 @@ int ADCL_Request_free ( ADCL_Request *req )
     if ( ADCL_COMM_AVAIL != preq->r_comm_state ) {
         return ADCL_INVALID_REQUEST;
     }
-
     // In case the request was created from a high level interface, free the topology, vmap and vector that belong to it
     if(preq->r_highlevel){
       if(preq->r_Highlevel.topo != NULL){
@@ -197,9 +196,7 @@ int ADCL_Request_free ( ADCL_Request *req )
 	if ( ADCL_SUCCESS != ret) return ret;
       }
     }
-
     ret = ADCL_request_free ( req );
-
     req = ADCL_REQUEST_NULL;
 
     return ret; 

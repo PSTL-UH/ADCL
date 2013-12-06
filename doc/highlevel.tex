@@ -1,7 +1,15 @@
 \section{High level API}
 
 
-The high level API in ADCL imitates the classic MPI collective communications API. It allows the user to bypass the creation of {\tt ADCL\_Topology}, {\tt ADCL\_Vmap} and {\tt ADCL\_Vector} when using the ADCL predefined function-sets. So far, it has been implemented for {\tt ADCL\_FNCTSET\_IBCAST} and {\tt ADCL\_FNCT\_IALLTOALL} function-sets. When the user calls a high level function, all these steps are handled internally, and a persistent ADCL request is created similarly to {\tt MPI\_Send\_init}.
+The high level API in ADCL imitates the classic MPI collective communications
+API. It allows the user to bypass the creation of {\tt ADCL\_Topology}, {\tt
+  ADCL\_Vmap} and {\tt ADCL\_Vector} when using the ADCL predefined
+function-sets. So far, it has been implemented for {\tt
+  ADCL\_FNCTSET\_IBCAST}, {\tt ADCL\_FNCT\_IALLTOALL}, {\tt
+  ADCL\_FNCT\_ALLTOALL}, {\tt ADCL\_FNCT\_ALLTOALLV}, {\tt
+  ADCL\_FNCT\_REDUCE}, {\tt ADCL\_FNCT\_ALLREDUCE} and {\tt ADCL\_FNCT\_ALLGATHERV} function-sets. When the user calls a high
+level function, all these steps are handled internally, and a persistent ADCL
+request is created in the same way as {\tt MPI\_Send\_init}.
 
 \subsection{Ibcast}
 
@@ -27,8 +35,9 @@ with
 
 \begin{verbatim}
 int ADCL_Ialltoall_init ( void *sendbuf, int sendcount, MPI_Datatype sendtype,
-         void *recvbuf, int recvcount, MPI_Datatype recvdatatype, int root,
-         MPI_Comm comm, ADCL_Request* req)
+         void *recvbuf, int recvcount, MPI_Datatype recvdatatype, MPI_Comm
+comm,
+         ADCL_Request* req)
 \end{verbatim}
 with
 \begin{itemize}
@@ -37,11 +46,30 @@ with
 \item {\tt sendtype}(IN): data type of send buffer elements.
 \item {\tt recvbuf}(OUT): address of receive buffer.
 \item {\tt recvcount}(IN): number of elements received from any process.
-\item {\tt sendtype}(IN): data type of receive buffer elements.
-\item {\tt root}(IN): rank of root (required for ADCL request creation).
+\item {\tt recvtype}(IN): data type of receive buffer elements.
 \item {\tt comm}(IN): MPI communicator.
 \item {\tt req}(OUT): handle to the newly created ADCL request object.
 \end{itemize}
+
+\subsection{Alltoall}
+
+\begin{verbatim}
+int ADCL_Alltoall_init ( void *sendbuf, int sendcount, MPI_Datatype sendtype,
+         void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm,
+         ADCL_Request* req)
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt sendbuf}(IN): starting address of send buffer.
+\item {\tt sendcount}(IN): number of elements to send to each process.
+\item {\tt sendtype}(IN): data type of send buffer elements.
+\item {\tt recvbuf}(OUT): address of receive buffer.
+\item {\tt recvcount}(IN): number of elements received from any process.
+\item {\tt recvtype}(IN): data type of receive buffer elements.
+\item {\tt comm}(IN): MPI communicator.
+\item {\tt req}(OUT): handle to the newly created ADCL request object.
+\end{itemize}
+
 
 \subsection{Example}
 

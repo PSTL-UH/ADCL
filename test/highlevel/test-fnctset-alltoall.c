@@ -64,9 +64,8 @@ void alltoall_test(int cnt, int dims, int rank, int size,
     int dim, i; 
     int* cnts, *displ;
     int err, errc; 
-    ADCL_Vector svec, rvec;
-    ADCL_Vmap vmap;
     ADCL_Request request;
+    ADCL_Timer timer;
 
     /* set up arrays for verification */ 
     cnts = (int*) calloc ( size, sizeof(int) );
@@ -77,19 +76,20 @@ void alltoall_test(int cnt, int dims, int rank, int size,
         displ[i] = dims*i;
     }
 
-    err = ADCL_Vmap_alltoall_allocate( cnts[0], cnts[0], &vmap ); 
-    if ( ADCL_SUCCESS != err) goto exit;   
-
     dim = dims*size;
-    err = ADCL_Vector_allocate_generic ( 1,  &dim, 0, vmap, MPI_DOUBLE, &sdata, &svec );
-    if ( ADCL_SUCCESS != err) goto exit;   
-    err = ADCL_Vector_allocate_generic ( 1,  &dim, 0, vmap, MPI_DOUBLE, &rdata, &rvec );
-    if ( ADCL_SUCCESS != err) goto exit;   
 
-    err = ADCL_Request_create_generic ( svec, rvec, topo, ADCL_FNCTSET_ALLTOALL, &request );
-    if ( ADCL_SUCCESS != err) goto exit;   
+    sdata = (double *) calloc(dim, sizeof(double));
+    rdata = (double *) calloc(dim, sizeof(double));
+
+    err = ADCL_Alltoall_init ( sdata, dims, MPI_DOUBLE, rdata, dims, MPI_DOUBLE,MPI_COMM_WORLD, &request);
+    if ( ADCL_SUCCESS != err) goto exit;
+    err = ADCL_Timer_create (1, &request, &timer);
+    if ( ADCL_SUCCESS != err) goto exit;
 
     for (i=0; i<cnt; i++){
+
+        ADCL_Timer_start(timer);
+
 	set_data_1D ( sdata, rank, dim );
 	set_data_1D ( rdata, -1,   dim);
 
@@ -109,6 +109,9 @@ void alltoall_test(int cnt, int dims, int rank, int size,
        /* check data */
        errc = check_data_1D ( rdata, cnts, displ, rank, size);
        if (errc) goto exit;   
+
+       ADCL_Timer_stop(timer);
+
     }
 
     MPI_Barrier ( MPI_COMM_WORLD);
@@ -118,10 +121,8 @@ exit:
 
     if ( NULL != cnts) free(cnts);
     if ( NULL != displ) free(displ);
+    if ( ADCL_TIMER_NULL != timer) ADCL_Timer_free ( &timer );
     if ( ADCL_REQUEST_NULL != request) ADCL_Request_free ( &request );
-    if ( ADCL_VECTOR_NULL  != svec)    ADCL_Vector_free ( &svec );
-    if ( ADCL_VECTOR_NULL  != rvec)    ADCL_Vector_free ( &rvec );
-    if ( ADCL_VMAP_NULL    != vmap)    ADCL_Vmap_free (&vmap);
 
     return;
 }

@@ -243,48 +243,48 @@ void allreduce_test4(int cnt, int dim, int rank, int size, ADCL_Topology topo)
 /**********************************************************************/
 /**********************************************************************/
 {
-    int *data;
-    int i, err, cerr; 
-    ADCL_Request request;
-    ADCL_Timer timer;
+  int *data;
+  int i, err, cerr;
+  ADCL_Request request;
+  ADCL_Timer timer;
 
-    data = (int*) calloc(dim, sizeof(int));
+  data = (int*) calloc(dim, sizeof(int));
 
-    err = ADCL_Allreduce_init ( MPI_IN_POLACE, data, dim, MPI_INT, MPI_MIN, MPI_COMM_WORLD, &request);
-    if ( ADCL_SUCCESS != err) goto exit;
-    err = ADCL_Timer_create (1, &request, &timer);
-    if ( ADCL_SUCCESS != err) goto exit;
+  err = ADCL_Allreduce_init ( MPI_IN_PLACE, data, dim, MPI_INT, MPI_MIN, MPI_COMM_WORLD, &request);
+  if ( ADCL_SUCCESS != err) goto exit;
+  err = ADCL_Timer_create (1, &request, &timer);
+  if ( ADCL_SUCCESS != err) goto exit;
 
-    for (i=0; i<cnt; i++){
+  for (i=0; i<cnt; i++){
 
-       ADCL_Timer_start(timer);
+    ADCL_Timer_start(timer);
 
-       set_data_int ( data, size-rank, dim);
+    set_data_int ( data, size-rank, dim);
 
 #ifdef VERBOSE
-       dump_vector_int ( data, rank, dim);
+    dump_vector_int ( data, rank, dim);
 #endif
 
-       err = ADCL_Request_start( request );
-       if ( ADCL_SUCCESS != err) goto exit;   
+    err = ADCL_Request_start( request );
+    if ( ADCL_SUCCESS != err) goto exit;
 
-       cerr = check_data_int_min ( data, rank, dim, size);
-       if (cerr) goto exit;
+    cerr = check_data_int_min ( data, rank, dim, size);
+    if (cerr) goto exit;
 
-       ADCL_Timer_stop(timer);
+    ADCL_Timer_stop(timer);
 
-    }
+  }
 
-    MPI_Barrier ( MPI_COMM_WORLD);
+  MPI_Barrier ( MPI_COMM_WORLD);
 
-exit:
-    if ( ADCL_SUCCESS != err) { printf("ADCL error nr. %d\n", err); } 
+ exit:
+  if ( ADCL_SUCCESS != err) { printf("ADCL error nr. %d\n", err); }
 
-    if ( ADCL_TIMER_NULL != timer) ADCL_Timer_free ( &timer );
-    if ( ADCL_REQUEST_NULL != request) ADCL_Request_free ( &request );
-    free(data);
+  if ( ADCL_TIMER_NULL != timer) ADCL_Timer_free ( &timer );
+  if ( ADCL_REQUEST_NULL != request) ADCL_Request_free ( &request );
+  free(data);
 
-    return;
+  return;
 }
 
 /**********************************************************************/

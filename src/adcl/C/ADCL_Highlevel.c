@@ -91,8 +91,13 @@ int ADCL_Ialltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, voi
   ret = ADCL_Topology_create ( comm, topo );
   if ( ADCL_SUCCESS != ret) return ret;
 
-  ret = ADCL_Vmap_alltoall_allocate( scount, scount, svmap );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vmap_inplace_allocate( svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vmap_alltoall_allocate( scount, scount, svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vmap_alltoall_allocate( rcount, rcount, rvmap );
   if ( ADCL_SUCCESS != ret) return ret;
@@ -101,8 +106,13 @@ int ADCL_Ialltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, voi
   scount = scount*size;
   rcount = rcount*size;
 
-  ret = ADCL_Vector_register_generic ( 1, &scount, 0, *svmap, sdatatype, sbuffer, svec );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vector_allocate_generic ( 0, NULL, 0, *svmap, MPI_DATATYPE_NULL, NULL, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vector_register_generic ( 1, &scount, 0, *svmap, sdatatype, sbuffer, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vector_register_generic ( 1, &rcount, 0, *rvmap, rdatatype, rbuffer, rvec );
   if ( ADCL_SUCCESS != ret) return ret;
@@ -156,14 +166,24 @@ int ADCL_Reduce_init ( void *sbuffer, void *rbuffer, int count, MPI_Datatype dat
   ret = ADCL_Topology_create ( comm, topo );
   if ( ADCL_SUCCESS != ret) return ret;
 
-  ret = ADCL_Vmap_reduce_allocate( op, svmap );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vmap_inplace_allocate( svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vmap_reduce_allocate( op, svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vmap_reduce_allocate( op, rvmap );
   if ( ADCL_SUCCESS != ret) return ret;
 
-  ret = ADCL_Vector_register_generic ( 1, &count, 0, *svmap, datatype, sbuffer, svec );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vector_allocate_generic ( 0, NULL, 0, *svmap, MPI_DATATYPE_NULL, NULL, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vector_register_generic ( 1, &count, 0, *svmap, datatype, sbuffer, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vector_register_generic ( 1, &count, 0, *rvmap, datatype, rbuffer, rvec );
   if ( ADCL_SUCCESS != ret) return ret;
@@ -209,14 +229,24 @@ int ADCL_Allreduce_init ( void *sbuffer, void *rbuffer, int count, MPI_Datatype 
   ret = ADCL_Topology_create ( comm, topo );
   if ( ADCL_SUCCESS != ret) return ret;
 
-  ret = ADCL_Vmap_allreduce_allocate( op, svmap );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vmap_inplace_allocate( svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vmap_allreduce_allocate( op, svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
-  ret = ADCL_Vmap_allreduce_allocate( op, rvmap );
-  if ( ADCL_SUCCESS != ret) return ret;
-
-  ret = ADCL_Vector_register_generic ( 1, &count, 0, *svmap, datatype, sbuffer, svec );
-  if ( ADCL_SUCCESS != ret) return ret;
+    ret = ADCL_Vmap_allreduce_allocate( op, rvmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vector_allocate_generic ( 0, NULL, 0, *svmap, MPI_DATATYPE_NULL, NULL, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vector_register_generic ( 1, &count, 0, *svmap, datatype, sbuffer, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vector_register_generic ( 1, &count, 0, *rvmap, datatype, rbuffer, rvec );
   if ( ADCL_SUCCESS != ret) return ret;
@@ -264,8 +294,13 @@ int ADCL_Alltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void
   ret = ADCL_Topology_create ( comm, topo );
   if ( ADCL_SUCCESS != ret) return ret;
 
-  ret = ADCL_Vmap_alltoall_allocate( scount, scount, svmap );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vmap_inplace_allocate( svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vmap_alltoall_allocate( scount, scount, svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vmap_alltoall_allocate( rcount, rcount, rvmap );
   if ( ADCL_SUCCESS != ret) return ret;
@@ -274,8 +309,13 @@ int ADCL_Alltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void
   scount = scount*size;
   rcount = rcount*size;
 
-  ret = ADCL_Vector_register_generic ( 1, &scount, 0, *svmap, sdatatype, sbuffer, svec );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vector_allocate_generic ( 0, NULL, 0, *svmap, MPI_DATATYPE_NULL, NULL, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vector_register_generic ( 1, &scount, 0, *svmap, sdatatype, sbuffer, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vector_register_generic ( 1, &rcount, 0, *rvmap, rdatatype, rbuffer, rvec );
   if ( ADCL_SUCCESS != ret) return ret;
@@ -329,8 +369,13 @@ int ADCL_Alltoallv_init ( void *sbuffer, int* scounts, int *sdispls, MPI_Datatyp
   ret = ADCL_Topology_create ( comm, topo );
   if ( ADCL_SUCCESS != ret) return ret;
 
-  ret = ADCL_Vmap_list_allocate( size, scounts, sdispls, svmap );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vmap_inplace_allocate( svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vmap_list_allocate( size, scounts, sdispls, svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vmap_list_allocate( size, rcounts, rdispls, rvmap );
   if ( ADCL_SUCCESS != ret) return ret;
@@ -339,8 +384,13 @@ int ADCL_Alltoallv_init ( void *sbuffer, int* scounts, int *sdispls, MPI_Datatyp
   scount = sdispls[size-1] + scounts[size-1];
   rcount = rdispls[size-1] + rcounts[size-1];
 
-  ret = ADCL_Vector_register_generic ( 1, &scount, 0, *svmap, sdatatype, sbuffer, svec );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vector_allocate_generic ( 0, NULL, 0, *svmap, MPI_DATATYPE_NULL, NULL, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vector_register_generic ( 1, &scount, 0, *svmap, sdatatype, sbuffer, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vector_register_generic ( 1, &rcount, 0, *rvmap, rdatatype, rbuffer, rvec );
   if ( ADCL_SUCCESS != ret) return ret;
@@ -389,8 +439,13 @@ int ADCL_Allgatherv_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, vo
   ret = ADCL_Topology_create ( comm, topo );
   if ( ADCL_SUCCESS != ret) return ret;
 
-  ret = ADCL_Vmap_all_allocate( svmap );
-  if ( ADCL_SUCCESS != ret) return ret;
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vmap_inplace_allocate( svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vmap_all_allocate( svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
 
   ret = ADCL_Vmap_list_allocate( size, rcounts, displs, rvmap );
   if ( ADCL_SUCCESS != ret) return ret;
@@ -398,9 +453,14 @@ int ADCL_Allgatherv_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, vo
   // Calculating the required buffer size for receive
   rcount = displs[size-1] + rcounts[size-1];
 
-  ret = ADCL_Vector_register_generic ( 1, &scount, 0, *svmap, sdatatype, sbuffer, svec );
-  if ( ADCL_SUCCESS != ret) return ret;
-
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vector_allocate_generic ( 0, NULL, 0, *svmap, MPI_DATATYPE_NULL, NULL, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vector_register_generic ( 1, &scount, 0, *svmap, sdatatype, sbuffer, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
+  
   ret = ADCL_Vector_register_generic ( 1, &rcount, 0, *rvmap, rdatatype, rbuffer, rvec );
   if ( ADCL_SUCCESS != ret) return ret;
 
