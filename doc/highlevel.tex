@@ -35,18 +35,52 @@ with
 
 \begin{verbatim}
 int ADCL_Ialltoall_init ( void *sendbuf, int sendcount, MPI_Datatype sendtype,
-         void *recvbuf, int recvcount, MPI_Datatype recvdatatype, MPI_Comm
-comm,
+         void *recvbuf, int recvcount, MPI_Datatype recvdatatype, MPI_Comm comm,
          ADCL_Request* req)
 \end{verbatim}
 with
 \begin{itemize}
 \item {\tt sendbuf}(IN): starting address of send buffer.
 \item {\tt sendcount}(IN): number of elements to send to each process.
-\item {\tt sendtype}(IN): data type of send buffer elements.
+\item {\tt sendtype}(IN): data type of elements of send buffer.
 \item {\tt recvbuf}(OUT): address of receive buffer.
 \item {\tt recvcount}(IN): number of elements received from any process.
-\item {\tt recvtype}(IN): data type of receive buffer elements.
+\item {\tt recvtype}(IN): data type of elements of receive buffer.
+\item {\tt comm}(IN): MPI communicator.
+\item {\tt req}(OUT): handle to the newly created ADCL request object.
+\end{itemize}
+
+\subsection{Reduce}
+
+\begin{verbatim}
+int ADCL_Reduce_init ( void *sendbuf, void *recvbuf, int count, MPI_Datatype
+         datatype, MPI_Op op, int root, MPI_Comm comm, ADCL_Request* req)
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt sendbuf}(IN): starting address of send buffer.
+\item {\tt recvbuf}(OUT): address of receive buffer.
+\item {\tt count}(IN): number of elements in send buffer.
+\item {\tt datatype}(IN): data type of elements.
+\item {\tt op}(IN): MPI operation to perform (eg. MPI_SUM).
+\item {\tt root}(IN): rank of root process.
+\item {\tt comm}(IN): MPI communicator.
+\item {\tt req}(OUT): handle to the newly created ADCL request object.
+\end{itemize}
+
+\subsection{Allreduce}
+
+\begin{verbatim}
+int ADCL_Allreduce_init ( void *sendbuf, void *recvbuf, int count,
+         MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, ADCL_Request* req)
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt sendbuf}(IN): starting address of send buffer.
+\item {\tt recvbuf}(OUT): address of receive buffer.
+\item {\tt count}(IN): number of elements send buffer.
+\item {\tt datatype}(IN): data type of elements.
+\item {\tt op}(IN): MPI operation to perform (eg. MPI_SUM).
 \item {\tt comm}(IN): MPI communicator.
 \item {\tt req}(OUT): handle to the newly created ADCL request object.
 \end{itemize}
@@ -62,7 +96,7 @@ with
 \begin{itemize}
 \item {\tt sendbuf}(IN): starting address of send buffer.
 \item {\tt sendcount}(IN): number of elements to send to each process.
-\item {\tt sendtype}(IN): data type of send buffer elements.
+\item {\tt sendtype}(IN): data type of elements of send buffer.
 \item {\tt recvbuf}(OUT): address of receive buffer.
 \item {\tt recvcount}(IN): number of elements received from any process.
 \item {\tt recvtype}(IN): data type of receive buffer elements.
@@ -70,6 +104,46 @@ with
 \item {\tt req}(OUT): handle to the newly created ADCL request object.
 \end{itemize}
 
+\subsection{Alltoallv}
+
+\begin{verbatim}
+int ADCL_Alltoallv_init ( void *sendbuf, int* sendcnts, int *sdispls,
+         MPI_Datatype sendtype, void *recvbuf, int* recvcnts, int *rdispls,
+         MPI_Datatype recvtype, MPI_Comm comm, ADCL_Request* req)
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt sendbuf}(IN): starting address of send buffer.
+\item {\tt sendcnts}(IN): integer array equal to the group size specifying the number of elements to send to each process.
+\item {\tt sdispls}(IN): integer array (of length group size). Entry j specifies the displacement (relative to sendbuf from which to take the outgoing data destined for process j.
+\item {\tt sendtype}(IN): data type of elements of send buffer.
+\item {\tt recvbuf}(OUT): address of receive buffer.
+\item {\tt recvcnts}(IN): integer array equal to the group size specifying the maximum number of elements that can be received from each process.
+\item {\tt rdispls}(IN): integer array (of length group size). Entry i specifies the displacement (relative to recvbuf) at which to place the incoming data from process i
+\item {\tt recvtype}(IN): data type of receive buffer elements.
+\item {\tt comm}(IN): MPI communicator.
+\item {\tt req}(OUT): handle to the newly created ADCL request object.
+\end{itemize}
+
+\subsection{Allgatherv}
+
+\begin{verbatim}
+int ADCL_Allgatherv_init ( void *sendbuf, int sendcount, MPI_Datatype sendtype,
+         void *recvbuf, int* recvcnts, int *displs, MPI_Datatype recvtype,
+         MPI_Comm comm, ADCL_Request* req)
+\end{verbatim}
+with
+\begin{itemize}
+\item {\tt sendbuf}(IN): starting address of send buffer.
+\item {\tt sendcount}(IN): number of elements in send buffer.
+\item {\tt sendtype}(IN): data type of elements of send buffer.
+\item {\tt recvbuf}(OUT): address of receive buffer.
+\item {\tt recvcnts}(IN): integer array (of length group size) containing the number of elements that are to be received from each process.
+\item {\tt rdispls}(IN): integer array (of length group size). Entry i specifies the displacement (relative to recvbuf ) at which to place the incoming data from process i.
+\item {\tt recvtype}(IN): data type of receive buffer elements.
+\item {\tt comm}(IN): MPI communicator.
+\item {\tt req}(OUT): handle to the newly created ADCL request object.
+\end{itemize}
 
 \subsection{Example}
 

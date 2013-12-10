@@ -48,6 +48,8 @@ with
   to {\tt ADCL\_TIMER\_NULL}.
 \end{itemize}
 
+\textbf{Important} The timer object should be freed before freeing the
+requests attached to it, otherwise you can get an unexpected behavior in some cases.
 
 \begin{verbatim}
 int ADCL_Timer_start ( ADCL_Timer timer );
