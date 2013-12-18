@@ -149,7 +149,7 @@ int ADCL_array_remove_element ( ADCL_array_t *arr, int pos )
     if ( 1 == arr->array[pos].in_use ) {
     arr->array[pos].ptr    = NULL;
     arr->array[pos].id     = MPI_UNDEFINED;
-    arr->array[pos].in_use = FALSE;
+    arr->array[pos].in_use = 0;
 
     if ( pos == arr->last ) { 
       arr->last--; 
@@ -171,7 +171,7 @@ int ADCL_array_get_number_elements ( ADCL_array_t *arr ) {
     int pos, count; 
 
     count = 0;
-    for ( pos=0; pos<arr->size; pos++ ) {
+    for ( pos=0; pos <= arr->last; pos++ ) {
       if ( 1 == arr->array[pos].in_use ) 
          count++;
     }

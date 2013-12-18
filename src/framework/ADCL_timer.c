@@ -41,7 +41,7 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
 /* all requests associated with an emethod have been added to the timer object                     */
 /***************************************************************************************************/
 {
-    int i, j, id;
+    int i, j, pos;
     int done;
     int aoffset, foffset;     /* offsets for attributes and functions, resp. */ 
     int nems_tot;             /* number of emethods in array ADCL_emethod_array */
@@ -99,8 +99,8 @@ int ADCL_timer_create ( int nreq_in, ADCL_request_t **reqs_in, ADCL_timer_t **ti
     nmetaattrs = 0;
 
     nems_tot = ADCL_array_get_number_elements ( ADCL_emethod_array ); 
-    for ( id=0; id<nems_tot; id++ ) {
-        e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_id ( ADCL_emethod_array, id );
+    for ( pos=0; pos<nems_tot; pos++ ) {
+        e = ( ADCL_emethod_t * ) ADCL_array_get_ptr_by_pos ( ADCL_emethod_array, pos );
 	// case where the emethod has been deleted already
 	if (e == NULL) continue;
         if (e->em_assoc_with_timer != ttimer->t_id ) 
