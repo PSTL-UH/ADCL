@@ -17,7 +17,7 @@ CEXECS = first second third fourth \
 	 attrs_1 attrs_2 attrs_3 attrs_3a attrs_4 \
 	 data_1 twok_1 PbSizes_1D PbSizes_2D PbSizes_3D \
 	 test-fnctset-extneigh-2d test-fnctset-extneigh-3d \
-	test-timerobject test-timerobject-onereq test-timerobject-tworeq
+	 test-timerobject test-timerobject-onereq test-timerobject-tworeq test-timerobjec-multireqs
 
 
 FEXECS = first_f second_f \
@@ -143,13 +143,16 @@ test-fnctset-extneigh-3d: aux-data-3D.o aux-data-4D.o test-fnctset-extneigh-3d.o
 ###################################################################################################
 
 test-timerobject:  test-timerobject.o aux-data-2D.o
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
+	$(CXX) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 test-timerobject-onereq:  test-timerobject-onereq.o aux-data-2D.o
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
+	$(CXX) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 test-timerobject-tworeq:  test-timerobject-tworeq.o aux-data-2D.o
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
+	$(CXX) $(CFLAGS) $^ $(LDFLAGS) -o $@
+
+test-timerobject-multireqs:  test-timerobject-multireqs.o aux-data-2D.o
+	$(CXX) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 ###################################################################################################
 ibcast:  ibcast.o 
