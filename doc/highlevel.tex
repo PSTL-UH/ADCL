@@ -3,21 +3,34 @@
 
 The high level API in ADCL imitates the classic MPI collective communications
 API. It allows the user to bypass the creation of {\tt ADCL\_Topology}, {\tt
-  ADCL\_Vmap} and {\tt ADCL\_Vector} when using the ADCL predefined
+ ADCL\_Vmap} and {\tt ADCL\_Vector} when using the ADCL predefined
 function-sets. So far, it has been implemented for {\tt
-  ADCL\_FNCTSET\_IBCAST}, {\tt ADCL\_FNCT\_IALLTOALL}, {\tt
-  ADCL\_FNCT\_ALLTOALL}, {\tt ADCL\_FNCT\_ALLTOALLV}, {\tt
-  ADCL\_FNCT\_REDUCE}, {\tt ADCL\_FNCT\_ALLREDUCE} and {\tt ADCL\_FNCT\_ALLGATHERV} function-sets. When the user calls a high
+  ADCL\_FNCTSET\_IBCAST}, {\tt ADCL\_FNCTSET\_IALLTOALL}, {\tt
+  ADCL\_FNCTSET\_ALLTOALL}, {\tt ADCL\_FNCTSET\_ALLTOALLV}, {\tt
+  ADCL\_FNCTSET\_REDUCE}, {\tt ADCL\_FNCTSET\_ALLREDUCE} and 
+  {\tt ADCL\_FNCTSET\_ALLGATHERV} function-sets. When the user calls a high
 level function, all these steps are handled internally, and a persistent ADCL
-request is created in the same way as {\tt MPI\_Send\_init}.
+request is created in the same way as {\tt MPI\_Send\_init}. Cartesian
+neighorhood communication is as of today the only operation that still has to
+use the original and slightly more complex API outlined later in the document.
+
+Once a persistent comminication handle has been created, an actual
+communication step can be started using either {\tt ADCL\_Request\_start)
+for blocking operations or using a {\tt ADCL\_Request\_init) and {\tt
+ADCL\_Request\_wait} for non-blocking operations. For more details on the
+  operations permitted on the request object, please refer to section
+  \ref{sec:requests}. A request object can also be used in combination with
+  the timer object as explained in section \ref{sec:timer}.
+ 
 
 \subsection{Ibcast}
 
 (Requires a functional implementation of the LibNBC library)
 
 \begin{verbatim}
-int ADCL_Ibcast_init int ADCL_Ibcast_init ( void *buffer, int count,
-         MPI_Datatype datatype, int root, MPI_Comm comm, ADCL_Request* req);
+int ADCL_Ibcast_init ( void *buffer, int count,
+         MPI_Datatype datatype, int root, MPI_Comm comm, 
+         ADCL_Request* req);
 \end{verbatim}
 with
 \begin{itemize}
@@ -34,9 +47,9 @@ with
 (Requires a functional implementation of the LibNBC library)
 
 \begin{verbatim}
-int ADCL_Ialltoall_init ( void *sendbuf, int sendcount, MPI_Datatype sendtype,
-         void *recvbuf, int recvcount, MPI_Datatype recvdatatype, MPI_Comm comm,
-         ADCL_Request* req)
+int ADCL_Ialltoall_init ( void *sendbuf, int sendcount, 
+         MPI_Datatype sendtype, void *recvbuf, int recvcount, 
+         MPI_Datatype recvtype, MPI_Comm comm, ADCL_Request* req)
 \end{verbatim}
 with
 \begin{itemize}
@@ -53,8 +66,9 @@ with
 \subsection{Reduce}
 
 \begin{verbatim}
-int ADCL_Reduce_init ( void *sendbuf, void *recvbuf, int count, MPI_Datatype
-         datatype, MPI_Op op, int root, MPI_Comm comm, ADCL_Request* req)
+int ADCL_Reduce_init ( void *sendbuf, void *recvbuf, int count, 
+         MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, 
+         ADCL_Request* req)
 \end{verbatim}
 with
 \begin{itemize}
@@ -62,7 +76,7 @@ with
 \item {\tt recvbuf}(OUT): address of receive buffer.
 \item {\tt count}(IN): number of elements in send buffer.
 \item {\tt datatype}(IN): data type of elements.
-\item {\tt op}(IN): MPI operation to perform (eg. MPI_SUM).
+\item {\tt op}(IN): MPI operation to perform (eg. MPI\_SUM).
 \item {\tt root}(IN): rank of root process.
 \item {\tt comm}(IN): MPI communicator.
 \item {\tt req}(OUT): handle to the newly created ADCL request object.
@@ -72,7 +86,8 @@ with
 
 \begin{verbatim}
 int ADCL_Allreduce_init ( void *sendbuf, void *recvbuf, int count,
-         MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, ADCL_Request* req)
+         MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, 
+         ADCL_Request* req)
 \end{verbatim}
 with
 \begin{itemize}
@@ -80,7 +95,7 @@ with
 \item {\tt recvbuf}(OUT): address of receive buffer.
 \item {\tt count}(IN): number of elements send buffer.
 \item {\tt datatype}(IN): data type of elements.
-\item {\tt op}(IN): MPI operation to perform (eg. MPI_SUM).
+\item {\tt op}(IN): MPI operation to perform (eg. MPI\_SUM).
 \item {\tt comm}(IN): MPI communicator.
 \item {\tt req}(OUT): handle to the newly created ADCL request object.
 \end{itemize}
@@ -88,9 +103,9 @@ with
 \subsection{Alltoall}
 
 \begin{verbatim}
-int ADCL_Alltoall_init ( void *sendbuf, int sendcount, MPI_Datatype sendtype,
-         void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm,
-         ADCL_Request* req)
+int ADCL_Alltoall_init ( void *sendbuf, int sendcount, 
+         MPI_Datatype sendtype, void *recvbuf, int recvcount, 
+         MPI_Datatype recvtype, MPI_Comm comm, ADCL_Request* req)
 \end{verbatim}
 with
 \begin{itemize}
@@ -108,8 +123,9 @@ with
 
 \begin{verbatim}
 int ADCL_Alltoallv_init ( void *sendbuf, int* sendcnts, int *sdispls,
-         MPI_Datatype sendtype, void *recvbuf, int* recvcnts, int *rdispls,
-         MPI_Datatype recvtype, MPI_Comm comm, ADCL_Request* req)
+         MPI_Datatype sendtype, void *recvbuf, int* recvcnts, 
+         int *rdispls, MPI_Datatype recvtype, MPI_Comm comm, 
+         ADCL_Request* req)
 \end{verbatim}
 with
 \begin{itemize}
@@ -128,9 +144,10 @@ with
 \subsection{Allgatherv}
 
 \begin{verbatim}
-int ADCL_Allgatherv_init ( void *sendbuf, int sendcount, MPI_Datatype sendtype,
-         void *recvbuf, int* recvcnts, int *displs, MPI_Datatype recvtype,
-         MPI_Comm comm, ADCL_Request* req)
+int ADCL_Allgatherv_init ( void *sendbuf, int sendcount, 
+         MPI_Datatype sendtype, void *recvbuf, int* recvcnts, 
+         int *displs, MPI_Datatype recvtype, MPI_Comm comm, 
+         ADCL_Request* req)
 \end{verbatim}
 with
 \begin{itemize}
@@ -165,11 +182,12 @@ int main ( int argc, char ** argv )
     
     int data = 10;
     
-    /******************************************************************/
+    /****************************************************************/
 
     ADCL_Ibcast_init(&data, 1, MPI_INT, 0, MPI_COMM_WORLD, &request);
     
-    /* start the communication. call the following function an arbitrary number of times */ 
+    /* start the communication. call the following function an 
+       arbitrary number of times */ 
     ADCL_Request_start ( request );
 
 
