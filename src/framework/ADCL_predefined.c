@@ -58,6 +58,8 @@ extern ADCL_fnctset_t *ADCL_reduce_fnctset;
 #ifdef ADCL_LIBNBC
 extern ADCL_fnctset_t *ADCL_ibcast_fnctset;
 extern ADCL_fnctset_t *ADCL_ialltoall_fnctset;
+extern ADCL_fnctset_t *ADCL_iallgather_fnctset;
+extern ADCL_fnctset_t *ADCL_ireduce_fnctset;
 #endif
 
 int ADCL_predefined_init ( void )
@@ -93,18 +95,27 @@ int ADCL_predefined_init ( void )
 /* ******************************************************************** */
     ADCL_predefined_reduce ();
 
+#ifdef ADCL_LIBNBC
 /* ******************************************************************** */
 /* IBCAST - Fortran function set 6	                                */
 /* ******************************************************************** */
-#ifdef ADCL_LIBNBC
     ADCL_predefined_ibcast ();
-#endif
 
 /* ******************************************************************** */
 /* IALLTOALL - Fortran function set 7	                                */
 /* ******************************************************************** */
-#ifdef ADCL_LIBNBC
     ADCL_predefined_ialltoall ();
+
+/* ******************************************************************** */
+/* IALLGATHER - Fortran function set 8	                                */
+/* ******************************************************************** */
+    ADCL_predefined_iallgather ();
+
+/* ******************************************************************** */
+/* IREDUCE - Fortran function set 8	                                */
+/* ******************************************************************** */
+    ADCL_predefined_ireduce ();
+
 #endif
 
     return ADCL_SUCCESS;
@@ -125,6 +136,8 @@ int ADCL_predefined_finalize ( void )
 #ifdef ADCL_LIBNBC
     ADCL_Fnctset_free ( &ADCL_ibcast_fnctset );
     ADCL_Fnctset_free ( &ADCL_ialltoall_fnctset );
+    ADCL_Fnctset_free ( &ADCL_iallgather_fnctset );
+    ADCL_Fnctset_free ( &ADCL_ireduce_fnctset );
 #endif
 
     return ADCL_SUCCESS;

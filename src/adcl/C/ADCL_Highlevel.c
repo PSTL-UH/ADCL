@@ -132,6 +132,144 @@ int ADCL_Ialltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, voi
 
 }
 
+int ADCL_Iallgather_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void *rbuffer, int rcount, MPI_Datatype rdatatype, MPI_Comm comm, ADCL_Request* req)
+{
+
+  int size, ret;
+
+  ADCL_Topology *topo;
+  ADCL_Vmap *svmap,*rvmap;
+  ADCL_Vector *svec,*rvec;
+
+  topo = (ADCL_Topology *) calloc ( 1, sizeof (ADCL_Topology) );
+  svmap = (ADCL_Vmap *) calloc ( 1, sizeof (ADCL_Vmap) );
+  rvmap = (ADCL_Vmap *) calloc ( 1, sizeof (ADCL_Vmap) );
+  svec = (ADCL_Vector *) calloc ( 1, sizeof (ADCL_Vector) );
+  rvec = (ADCL_Vector *) calloc ( 1, sizeof (ADCL_Vector) );
+
+  MPI_Comm_size (comm, &size);
+
+  if ( scount == 0 ) {
+      return ADCL_SUCCESS;
+  }
+
+  if ( NULL == sbuffer || NULL == rbuffer ) {
+      return ADCL_INVALID_ARG;
+  }
+
+  ret = ADCL_Topology_create ( comm, topo );
+  if ( ADCL_SUCCESS != ret) return ret;
+
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vmap_inplace_allocate( svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vmap_alltoall_allocate( scount, scount, svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
+
+  ret = ADCL_Vmap_alltoall_allocate( rcount, rcount, rvmap );
+  if ( ADCL_SUCCESS != ret) return ret;
+
+  // Calculating the required buffer sizes
+  scount = scount*size;
+  rcount = rcount*size;
+
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vector_allocate_generic ( 0, NULL, 0, *svmap, MPI_DATATYPE_NULL, NULL, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vector_register_generic ( 1, &scount, 0, *svmap, sdatatype, sbuffer, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
+
+  ret = ADCL_Vector_register_generic ( 1, &rcount, 0, *rvmap, rdatatype, rbuffer, rvec );
+  if ( ADCL_SUCCESS != ret) return ret;
+
+  ret = ADCL_Request_create_generic ( *svec, *rvec, *topo, ADCL_FNCTSET_IALLGATHER, req );
+  if ( ADCL_SUCCESS != ret) return ret;
+
+  (*req)->r_Highlevel.topo = topo;
+  (*req)->r_Highlevel.svmap = svmap;
+  (*req)->r_Highlevel.svec = svec;
+  (*req)->r_Highlevel.rvmap = rvmap;
+  (*req)->r_Highlevel.rvec = rvec;
+
+  (*req)->r_highlevel = 1;
+
+  return ADCL_SUCCESS;
+
+}
+
+int ADCL_Ireduce_init ( void *sbuffer, void *rbuffer, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, ADCL_Request* req)
+{
+
+  int size, ret;
+
+  ADCL_Topology *topo;
+  ADCL_Vmap *svmap,*rvmap;
+  ADCL_Vector *svec,*rvec;
+
+  topo = (ADCL_Topology *) calloc ( 1, sizeof (ADCL_Topology) );
+  svmap = (ADCL_Vmap *) calloc ( 1, sizeof (ADCL_Vmap) );
+  rvmap = (ADCL_Vmap *) calloc ( 1, sizeof (ADCL_Vmap) );
+  svec = (ADCL_Vector *) calloc ( 1, sizeof (ADCL_Vector) );
+  rvec = (ADCL_Vector *) calloc ( 1, sizeof (ADCL_Vector) );
+
+  MPI_Comm_size (comm, &size);
+
+  if ( count == 0 ) {
+      return ADCL_SUCCESS;
+  }
+
+  if ( NULL == sbuffer || NULL == rbuffer ) {
+      return ADCL_INVALID_ARG;
+  }
+
+  if ( root < 0 || root >= size ) {
+      return ADCL_INVALID_ARG;
+  }
+
+  ret = ADCL_Topology_create ( comm, topo );
+  if ( ADCL_SUCCESS != ret) return ret;
+
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vmap_inplace_allocate( svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vmap_reduce_allocate( op, svmap );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
+
+  ret = ADCL_Vmap_reduce_allocate( op, rvmap );
+  if ( ADCL_SUCCESS != ret) return ret;
+
+  if(sbuffer == MPI_IN_PLACE){
+    ret = ADCL_Vector_allocate_generic ( 0, NULL, 0, *svmap, MPI_DATATYPE_NULL, NULL, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }else{
+    ret = ADCL_Vector_register_generic ( 1, &count, 0, *svmap, datatype, sbuffer, svec );
+    if ( ADCL_SUCCESS != ret) return ret;
+  }
+
+  ret = ADCL_Vector_register_generic ( 1, &count, 0, *rvmap, datatype, rbuffer, rvec );
+  if ( ADCL_SUCCESS != ret) return ret;
+
+  ret = ADCL_Request_create_generic_rooted ( *svec, *rvec, *topo, ADCL_FNCTSET_IREDUCE, root, req );
+  if ( ADCL_SUCCESS != ret) return ret;
+
+  (*req)->r_Highlevel.topo = topo;
+  (*req)->r_Highlevel.svmap = svmap;
+  (*req)->r_Highlevel.svec = svec;
+  (*req)->r_Highlevel.rvmap = rvmap;
+  (*req)->r_Highlevel.rvec = rvec;
+
+  (*req)->r_highlevel = 1;
+
+  return ADCL_SUCCESS;
+
+}
+
 #endif
 
 int ADCL_Reduce_init ( void *sbuffer, void *rbuffer, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, ADCL_Request* req)
@@ -443,7 +581,7 @@ int ADCL_Allgatherv_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, vo
     ret = ADCL_Vmap_inplace_allocate( svmap );
     if ( ADCL_SUCCESS != ret) return ret;
   }else{
-    ret = ADCL_Vmap_all_allocate( svmap );
+    ret = ADCL_Vmap_alltoall_allocate( scount, scount, svmap );
     if ( ADCL_SUCCESS != ret) return ret;
   }
 

@@ -21,6 +21,8 @@ int ADCL_emethod_alltoallv_selection = -1;
 #ifdef ADCL_LIBNBC
 int ADCL_emethod_ibcast_selection = -1;
 int ADCL_emethod_ialltoall_selection = -1;
+int ADCL_emethod_iallgather_selection = -1;
+int ADCL_emethod_ireduce_selection = -1;
 #endif
 int ADCL_merge_requests = 1;
 int ADCL_emethod_numtests = ADCL_EMETHOD_NUMTESTS;
@@ -166,6 +168,18 @@ ADCL_emethod_t *ADCL_emethod_init (ADCL_topology_t *t, ADCL_vector_t *v,
         if ( -1 != ADCL_emethod_ialltoall_selection ) {
             e->em_state = ADCL_STATE_REGULAR;
             e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_ialltoall_selection );
+        }
+    }
+    if ( 0 == strcmp ( f->fs_name , "Iallgather") ) {
+        if ( -1 != ADCL_emethod_iallgather_selection ) {
+            e->em_state = ADCL_STATE_REGULAR;
+            e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_iallgather_selection );
+        }
+    }
+    if ( 0 == strcmp ( f->fs_name , "Ireduce") ) {
+        if ( -1 != ADCL_emethod_ireduce_selection ) {
+            e->em_state = ADCL_STATE_REGULAR;
+            e->em_wfunction = ADCL_emethod_get_function ( e, ADCL_emethod_ireduce_selection );
         }
     }
 #endif

@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#include "ADCL_config.h"
+#include "ADCL_sysconfig.h"
 
 typedef struct ADCL_array_elem_s ADCL_array_elem_t;
 typedef struct ADCL_array_s ADCL_array_t;
@@ -32,6 +34,12 @@ typedef struct ADCL_topology_s ADCL_topology_t;
 typedef struct ADCL_vector_s ADCL_vector_t;
 typedef struct ADCL_vectset_s ADCL_vectset_t;
 typedef struct ADCL_vmap_s ADCL_vmap_t;
+#ifdef ADCL_LIBNBC
+typedef struct ADCL_Ibcast_args_s ADCL_Ibcast_args_t;
+typedef struct ADCL_Ialltoall_args_s ADCL_Ialltoall_args_t;
+typedef struct ADCL_Iallgather_args_s ADCL_Iallgather_args_t;
+typedef struct ADCL_Ireduce_args_s ADCL_Ireduce_args_t;
+#endif
 
 #include "ADCL.h"
 #include "ADCL_array.h"
@@ -62,9 +70,11 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 #include "ADCL_hist.h"
 #include "ADCL_timer.h"
 #ifdef ADCL_LIBNBC
-//#include "ADCL_nbc.h"
+#include "ADCL_nbc.h"
 #include "ADCL_ibcast.h"
 #include "ADCL_ialltoall.h"
+#include "ADCL_iallgather.h"
+#include "ADCL_ireduce.h"
 #endif
 
 #define ADCL_DISPLAY 
@@ -73,9 +83,6 @@ typedef struct ADCL_vmap_s ADCL_vmap_t;
 #ifdef ADCL_DUMMY_MPI
 #include "ADCL_dummy_mpi.h"
 #endif
-
-#include "ADCL_config.h"
-#include "ADCL_sysconfig.h"
 
 #define TRUE                           1
 #define FALSE                          0
@@ -120,6 +127,8 @@ int ADCL_predefined_reduce ( void );
 #ifdef ADCL_LIBNBC
 int ADCL_predefined_ibcast ( void );
 int ADCL_predefined_ialltoall ( void );
+int ADCL_predefined_iallgather ( void );
+int ADCL_predefined_ireduce ( void );
 #endif
 
 int ADCL_hypothesis_init ( ADCL_emethod_t *e );

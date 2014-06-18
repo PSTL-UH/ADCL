@@ -178,6 +178,8 @@ extern struct ADCL_fnctset_s *ADCL_alltoall_fnctset;
 #ifdef ADCL_LIBNBC
 extern struct ADCL_fnctset_s *ADCL_ibcast_fnctset;
 extern struct ADCL_fnctset_s *ADCL_ialltoall_fnctset;
+extern struct ADCL_fnctset_s *ADCL_iallgather_fnctset;
+extern struct ADCL_fnctset_s *ADCL_ireduce_fnctset;
 #endif
 extern struct ADCL_fnctset_s *ADCL_fnctset_rtol;
 extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
@@ -191,6 +193,8 @@ extern struct ADCL_fnctset_s *ADCL_fnctset_ltor;
 #ifdef ADCL_LIBNBC
 #define ADCL_FNCTSET_IBCAST       ADCL_ibcast_fnctset
 #define ADCL_FNCTSET_IALLTOALL    ADCL_ialltoall_fnctset
+#define ADCL_FNCTSET_IALLGATHER   ADCL_iallgather_fnctset
+#define ADCL_FNCTSET_IREDUCE   ADCL_ireduce_fnctset
 #endif
 
 struct ADCL_neighborhood_criteria_s {
@@ -356,8 +360,10 @@ int ADCL_Timer_stop ( ADCL_Timer timer );
 
 #ifdef ADCL_LIBNBC
 int ADCL_Request_get_handle(ADCL_Request req, NBC_Handle **handle);
-  int ADCL_Ibcast_init ( void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, ADCL_Request* req);
+int ADCL_Ibcast_init ( void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, ADCL_Request* req);
 int ADCL_Ialltoall_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void *rbuffer, int rcount, MPI_Datatype rdatatype, MPI_Comm comm, ADCL_Request* req);
+int ADCL_Iallgather_init ( void *sbuffer, int scount, MPI_Datatype sdatatype, void *rbuffer, int rcount, MPI_Datatype rdatatype, MPI_Comm comm, ADCL_Request* req);
+int ADCL_Ireduce_init ( void *sbuffer, void *rbuffer, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, ADCL_Request* req);
 #endif
 
 int ADCL_Reduce_init ( void *sbuffer, void *rbuffer, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, ADCL_Request* req);

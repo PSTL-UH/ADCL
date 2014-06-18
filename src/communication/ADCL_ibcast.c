@@ -89,7 +89,7 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int segsize, int fanout) {
 
 #ifdef ADCL_CACHE_SCHEDULE
   /* Check if alg or fanout changed */
-  if( req->r_Ibcast_args.schedule == NULL || alg != req->r_Ibcast_args.alg || segsize != req->r_Ibcast_args.segsize || fanout != req->r_Ibcast_args.fanout) {
+  if( req->r_Ibcast_args->schedule == NULL || alg != req->r_Ibcast_args->alg || segsize != req->r_Ibcast_args->segsize || fanout != req->r_Ibcast_args->fanout) {
 #endif
     schedule = (NBC_Schedule*)malloc(sizeof(NBC_Schedule));
     
@@ -111,12 +111,12 @@ int ADCL_ibcast(ADCL_request_t *req, int alg, int segsize, int fanout) {
     if (NBC_OK != res) { printf("Error in NBC_Sched_commit() (%i)\n", res); return res; }
 #ifdef ADCL_CACHE_SCHEDULE
     /* save schedule to list */
-    req->r_Ibcast_args.alg = alg;
-    req->r_Ibcast_args.segsize = segsize;
-    req->r_Ibcast_args.fanout = fanout;
-    req->r_Ibcast_args.schedule = schedule;
+    req->r_Ibcast_args->alg = alg;
+    req->r_Ibcast_args->segsize = segsize;
+    req->r_Ibcast_args->fanout = fanout;
+    req->r_Ibcast_args->schedule = schedule;
   }else{
-    schedule = req->r_Ibcast_args.schedule;
+    schedule = req->r_Ibcast_args->schedule;
   }
 #endif
   

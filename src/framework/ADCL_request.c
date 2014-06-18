@@ -38,6 +38,7 @@ int ADCL_request_create_generic_rooted ( ADCL_vector_t **svecs,
     //int tsize;
     MPI_Aint tcount=1;
 #endif
+
     //int vectype;
     /*
     ** Since the dimension of all vector objects has to be the same,
@@ -53,10 +54,21 @@ int ADCL_request_create_generic_rooted ( ADCL_vector_t **svecs,
         return ADCL_NO_MEMORY;
     }
 
-    #ifdef ADCL_LIBNBC
+#ifdef ADCL_LIBNBC
+    // If the request is attached to a non-blocking predefined functionset, then allocate memory for caching the nbc schedules
+    if(!strcmp(fnctset->fs_name,"Ibcast")){
+      newreq->r_Ibcast_args = (ADCL_Ibcast_args_t *) calloc (1, sizeof (ADCL_Ibcast_args_t));
+    }else if(!strcmp(fnctset->fs_name,"Ialltoall")){
+      newreq->r_Ialltoall_args = (ADCL_Ialltoall_args_t *) malloc (sizeof (ADCL_Ialltoall_args_t));
+    }else if(!strcmp(fnctset->fs_name,"Iallgather")){
+      newreq->r_Iallgather_args = (ADCL_Iallgather_args_t *) malloc (sizeof (ADCL_Iallgather_args_t));
+    }else if(!strcmp(fnctset->fs_name,"Ireduce")){
+      newreq->r_Ireduce_args = (ADCL_Ireduce_args_t *) malloc (sizeof (ADCL_Ireduce_args_t));
+    }
+#endif
+
     // Assume the request is not created from a high level interface
     newreq->r_highlevel = 0;
-    #endif
 	    
     /* Fill in the according elements, start with the simple ones */
     newreq->r_id = ADCL_local_id_counter++;

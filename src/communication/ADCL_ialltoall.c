@@ -154,7 +154,7 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
   
   char *rbuf, *sbuf, inplace;
 
-  int rank, p, res, a2asize, sndsize, datasize;
+  int rank, p, res, sndsize, datasize;
   NBC_Schedule *schedule;
   MPI_Aint rcvext, sndext;
 
@@ -221,7 +221,7 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
 
 #ifdef ADCL_CACHE_SCHEDULE
   /* Check if alg or fanout changed */
-  if( req->r_Ialltoall_args.schedule == NULL || alg != req->r_Ialltoall_args.alg) {
+  if( req->r_Ialltoall_args->schedule == NULL || alg != req->r_Ialltoall_args->alg) {
 #endif
     schedule = (NBC_Schedule*)malloc(sizeof(NBC_Schedule));
     
@@ -247,10 +247,10 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
 
 #ifdef ADCL_CACHE_SCHEDULE
     /* save schedule to list */
-    req->r_Ialltoall_args.alg = alg;
-    req->r_Ialltoall_args.schedule = schedule;
+    req->r_Ialltoall_args->alg = alg;
+    req->r_Ialltoall_args->schedule = schedule;
   }else{
-    schedule = req->r_Ialltoall_args.schedule;
+    schedule = req->r_Ialltoall_args->schedule;
   }
 #endif
   

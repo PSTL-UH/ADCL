@@ -30,6 +30,8 @@ extern int ADCL_emethod_alltoallv_selection;
 #ifdef ADCL_LIBNBC
 extern int ADCL_emethod_ibcast_selection;
 extern int ADCL_emethod_ialltoall_selection;
+extern int ADCL_emethod_iallgather_selection;
+extern int ADCL_emethod_ireduce_selection;
 #endif
 extern int ADCL_emethod_numtests;
 extern int ADCL_printf_silence;
@@ -191,6 +193,16 @@ int ADCL_readenv()
             ADCL_set_predefined_function( ptr, "ADCL_EMETHOD_IALLTOALL_SELECTION", ADCL_ialltoall_fnctset->fs_maxnum,
                     ADCL_ialltoall_fnctset->fs_fptrs, &ADCL_emethod_ialltoall_selection );
         }
+        /*  ADCL_EMETHOD_IALLGATHER_SELECTION */
+        else if ( ADCL_is_keyword(keyword,"ADCL_EMETHOD_IALLGATHER_SELECTION") ) {
+            ADCL_set_predefined_function( ptr, "ADCL_EMETHOD_IALLGATHER_SELECTION", ADCL_iallgather_fnctset->fs_maxnum,
+                    ADCL_iallgather_fnctset->fs_fptrs, &ADCL_emethod_iallgather_selection );
+        }
+        /*  ADCL_EMETHOD_IREDUCE_SELECTION */
+        else if ( ADCL_is_keyword(keyword,"ADCL_EMETHOD_IREDUCE_SELECTION") ) {
+            ADCL_set_predefined_function( ptr, "ADCL_EMETHOD_IREDUCE_SELECTION", ADCL_ireduce_fnctset->fs_maxnum,
+                    ADCL_ireduce_fnctset->fs_fptrs, &ADCL_emethod_ireduce_selection );
+        }
 #endif
         /*  ADCL_PRINTF_SILENCE  */
         else if ( ADCL_is_keyword(keyword, "ADCL_PRINTF_SILENCE") ) {
@@ -279,6 +291,14 @@ int ADCL_readenv()
     /*  ADCL_EMETHOD_IALLTOALL_SELECTION */
     if ( 0 <= ADCL_emethod_ialltoall_selection ) {
         ADCL_print_keyword_int_value ( "ADCL_EMETHOD_IALLTOALL_SELECTION",  &ADCL_emethod_ialltoall_selection );
+    }
+    /*  ADCL_EMETHOD_IALLGATHER_SELECTION */
+    if ( 0 <= ADCL_emethod_iallgather_selection ) {
+        ADCL_print_keyword_int_value ( "ADCL_EMETHOD_IALLGATHER_SELECTION",  &ADCL_emethod_iallgather_selection );
+    }
+    /*  ADCL_EMETHOD_IREDUCE_SELECTION */
+    if ( 0 <= ADCL_emethod_ireduce_selection ) {
+        ADCL_print_keyword_int_value ( "ADCL_EMETHOD_IREDUCE_SELECTION",  &ADCL_emethod_ireduce_selection );
     }
 #endif
  

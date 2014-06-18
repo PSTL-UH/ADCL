@@ -21,6 +21,10 @@
 #pragma weak adcl_ialltoall_init_  = adcl_ialltoall_init
 #pragma weak adcl_ialltoall_init__ = adcl_ialltoall_init
 #pragma weak ADCL_IALLTOALL_INIT   = adcl_ialltoall_init
+
+#pragma weak adcl_iallgather_init_  = adcl_iallgather_init
+#pragma weak adcl_iallgather_init__ = adcl_iallgather_init
+#pragma weak ADCL_IALLGATHER_INIT   = adcl_iallgather_init
 #endif
 
 #ifdef _SX
@@ -133,6 +137,60 @@ void adcl_ialltoall_init  ( void* sbuffer, int* scount, int* sdatatype, void* rb
   return ;
 }
 
+#ifdef _SX
+void adcl_iallgather_init_ ( void* sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror)
+#else
+void adcl_iallgather_init  ( void* sbuffer, int* scount, int* sdatatype, void* rbuffer, int* rcount, int* rdatatype, int* comm, int* req, int* ierror)
+#endif
+{
+
+  MPI_Datatype csdatatype, crdatatype;
+  MPI_Comm ccomm;
+  ADCL_Request *creq;
+
+  if ( ( NULL == sbuffer )     ||
+       ( NULL == scount )    ||
+       ( NULL == sdatatype ) ||
+       ( NULL == rbuffer )     ||
+       ( NULL == rcount )    ||
+       ( NULL == rdatatype ) ||
+       ( NULL == comm ) ||
+       ( NULL == req ) ){
+    *ierror = ADCL_INVALID_ARG;
+    return;
+  }
+
+  if ( *scount == 0 ) {
+    *ierror = ADCL_SUCCESS;
+    return;
+  }
+
+  csdatatype = MPI_Type_f2c (*sdatatype);
+  if ( csdatatype == MPI_DATATYPE_NULL ) {
+    *ierror = ADCL_INVALID_TYPE;
+    return;
+  }
+
+  crdatatype = MPI_Type_f2c (*rdatatype);
+  if ( crdatatype == MPI_DATATYPE_NULL ) {
+    *ierror = ADCL_INVALID_TYPE;
+    return;
+  }
+
+  ccomm = MPI_Comm_f2c (*comm);
+  if ( ccomm == MPI_COMM_NULL ) {
+    *ierror = ADCL_INVALID_COMM;
+    return;
+  }
+
+  creq = (ADCL_Request *) calloc ( 1, sizeof (ADCL_Request) );
+
+  *ierror = ADCL_Iallgather_init ( sbuffer, *scount, csdatatype, rbuffer, *rcount, crdatatype, ccomm, creq);
+
+  *req = (*creq)->r_findex;
+
+  return ;
+}
 #endif
 
 #ifndef _SX

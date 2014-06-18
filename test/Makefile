@@ -155,10 +155,10 @@ test-timerobject-multireqs:  test-timerobject-multireqs.o aux-data-2D.o
 	$(CXX) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 ###################################################################################################
-ibcast:  ibcast.o 
+test-fnctset-ibcast:  test-fnctset-ibcast.o 
 	$(CXX) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
-ialltoall:  ialltoall.o 
+test-fnctset-ialltoall:  test-fnctset-ialltoall.o 
 	$(CXX) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 ###################################################################################################
@@ -279,4 +279,4 @@ clean:
 	      ./test-fnctset-alltoall_f  ./test-fnctset-allreduce_f \
 	      ./test-prometheus
 
-	rm -f ./ibcast ./ialltoall
+	rm -f ./test-fnctset-ibcast ./test-fnctset-ialltoall
