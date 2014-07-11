@@ -35,6 +35,7 @@ struct ADCL_Iallgather_args_s {
 
 struct ADCL_Ireduce_args_s {
   int alg;
+  int segsize;
   NBC_Schedule *schedule;
 };
 

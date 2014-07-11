@@ -94,14 +94,14 @@ static __inline__ int NBC_Type_intrinsic(MPI_Datatype type) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int ADCL_ireduce(ADCL_request_t *req, int alg);
+int ADCL_ireduce(ADCL_request_t *req, int alg, int segsize);
 static __inline__ int red_sched_binomial(int rank, int p, int root, void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, void *redbuf, NBC_Schedule *schedule, NBC_Handle *handle);
 static __inline__ int red_sched_chain(int rank, int p, int root, void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int ext, int size, NBC_Schedule *schedule, NBC_Handle *handle, int fragsize);
 
 
 void ADCL_ireduce_binomial( ADCL_request_t *req )
 {
-  ADCL_ireduce(req, ADCL_IREDUCE_BINOMIAL);
+  ADCL_ireduce(req, ADCL_IREDUCE_BINOMIAL, 0);
 
   /* All done */
   return;
@@ -109,7 +109,8 @@ void ADCL_ireduce_binomial( ADCL_request_t *req )
 
 void ADCL_ireduce_chain( ADCL_request_t *req )
 {
-  ADCL_ireduce(req, ADCL_IREDUCE_CHAIN);
+  int segsize = req->r_function->f_attrvals[1] * 1024;
+  ADCL_ireduce(req, ADCL_IREDUCE_CHAIN, segsize);
 
   /* All done */
   return;
@@ -125,7 +126,7 @@ void ADCL_ireduce_wait( ADCL_request_t *req )
 #define NBC_Ireduce PNBC_Ireduce
 #endif
 
-int ADCL_ireduce(ADCL_request_t *req, int alg) {
+int ADCL_ireduce(ADCL_request_t *req, int alg, int segsize) {
 
   ADCL_topology_t *topo = req->r_emethod->em_topo;
 
@@ -144,7 +145,7 @@ int ADCL_ireduce(ADCL_request_t *req, int alg) {
   
   char *redbuf=NULL, inplace;
 
-  int rank, p, res, segsize, size;
+  int rank, p, res, size;
   NBC_Schedule *schedule;
   MPI_Aint ext;
 
@@ -169,7 +170,7 @@ int ADCL_ireduce(ADCL_request_t *req, int alg) {
 
 #ifdef ADCL_CACHE_SCHEDULE
   /* Check if alg or fanout changed */
-  if( req->r_Ireduce_args->schedule == NULL || alg != req->r_Ireduce_args->alg) {
+  if( req->r_Ireduce_args->schedule == NULL || alg != req->r_Ireduce_args->alg || segsize != req->r_Ireduce_args->segsize) {
 #endif
 
     schedule = (NBC_Schedule*)malloc(sizeof(NBC_Schedule));
@@ -193,7 +194,6 @@ int ADCL_ireduce(ADCL_request_t *req, int alg) {
       break;
     case ADCL_IREDUCE_CHAIN:
       handle->tmpbuf = malloc(ext*count);
-      segsize = 16384/2;
       if (NULL == handle->tmpbuf) { printf("Error in malloc() (%i)\n", res); return res; }
       res = red_sched_chain(rank, p, root, sendbuf, recvbuf, count, datatype, op, ext, size, schedule, handle, segsize);
       break;
@@ -205,6 +205,7 @@ int ADCL_ireduce(ADCL_request_t *req, int alg) {
 #ifdef ADCL_CACHE_SCHEDULE
     /* save schedule to list */
     req->r_Ireduce_args->alg = alg;
+    req->r_Ireduce_args->segsize = segsize;
     req->r_Ireduce_args->schedule = schedule;
   }else{
     schedule = req->r_Ireduce_args->schedule;

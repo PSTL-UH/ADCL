@@ -17,12 +17,12 @@ extern "C" {
 #include "ADCL.h"
 #include "ADCL_internal.h" 
 
-#define ADCL_ATTR_IREDUCE_TOTAL_NUM    1
+#define ADCL_ATTR_IREDUCE_TOTAL_NUM    2
 
 #define ADCL_ATTR_IREDUCE_ALG_MAX      2
+#define ADCL_ATTR_IREDUCE_SEGSIZE_MAX 3
 
-#define ADCL_METHOD_IREDUCE_TOTAL_NUM  2
-
+#define ADCL_METHOD_IREDUCE_TOTAL_NUM  4
 
 #define ADCL_IREDUCE_BINOMIAL     1
 #define ADCL_IREDUCE_CHAIN     2
