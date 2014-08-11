@@ -32,7 +32,7 @@ OBJ = 	ADCL_array.o 		          \
 	ADCL_predefined_allreduce.o       \
 	ADCL_predefined_alltoallv.o       \
 	ADCL_predefined_alltoall.o        \
-	ADCL_predefined_reduce.o  @adcl_predefined_ibcast_o@  @adcl_predefined_ialltoall_o@    \
+	ADCL_predefined_reduce.o  @adcl_predefined_ibcast_o@  @adcl_predefined_ialltoall_o@  @adcl_predefined_iallgather_o@  @adcl_predefined_ireduce_o@ \
 	ADCL_reduce.o                     \
 	ADCL_vmap.o                       \
 	ADCL_reduce.o                     \
