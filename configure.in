@@ -392,6 +392,10 @@ AC_SUBST(adcl_ibcast_o)
 AC_SUBST(adcl_predefined_ibcast_o)
 AC_SUBST(adcl_ialltoall_o)
 AC_SUBST(adcl_predefined_ialltoall_o)
+AC_SUBST(adcl_iallgather_o)
+AC_SUBST(adcl_predefined_iallgather_o)
+AC_SUBST(adcl_ireduce_o)
+AC_SUBST(adcl_predefined_ireduce_o)
 
 dnl ==================================================
 dnl Try to compile a trivial C MPI application
