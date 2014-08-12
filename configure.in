@@ -354,8 +354,8 @@ AC_MSG_CHECKING(for linNBC main directory)
        adcl_predefined_ialltoall_o="ADCL_predefined_ialltoall.o"
        adcl_iallgather_o="ADCL_iallgather.o"
        adcl_predefined_iallgather_o="ADCL_predefined_iallgather.o"
-       adcl_iallreduce_o="ADCL_iallreduce.o"
-       adcl_predefined_iallreduce_o="ADCL_predefined_iallreduce.o"
+       adcl_ireduce_o="ADCL_ireduce.o"
+       adcl_predefined_ireduce_o="ADCL_predefined_ireduce.o"
     fi
     AC_MSG_RESULT(${libnbc_dir})
   dnl ==================================================	
