@@ -31,9 +31,13 @@ int ADCL_Init (void )
     ADCL_array_init ( &(ADCL_timer_farray),     "ADCL_timer",     ADCL_MAX_ARRAYSIZE );
 
     ret = ADCL_predefined_init ();
+    if(ret != ADCL_SUCCESS)
+      printf("Error in ADCL_Init -> ADCL_predefined_init, Error n. %d",ret);
     ret = ADCL_readenv();
+      printf("Error in ADCL_Init -> ADCL_readenv, Error n. %d",ret);
 #ifdef ADCL_DISPLAY
     ret = ADCL_display_init();
+      printf("Error in ADCL_Init -> ADCL_display_init, Error n. %d",ret);
 #endif
     return ret;
 }

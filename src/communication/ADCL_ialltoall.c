@@ -282,7 +282,7 @@ static __inline__ int a2a_sched_pairwise(int rank, int p, MPI_Aint sndext, MPI_A
 
     if (r < p) {
       res = NBC_Sched_barrier(schedule);
-      if (NBC_OK != res) { printf("Error in NBC_Sched_barr() (%i)\n", res); return res; }
+      if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; }
     }
   }
 
@@ -290,20 +290,71 @@ static __inline__ int a2a_sched_pairwise(int rank, int p, MPI_Aint sndext, MPI_A
 }
 
 static __inline__ int a2a_sched_linear(int rank, int p, MPI_Aint sndext, MPI_Aint rcvext, NBC_Schedule* schedule, void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm) {
-  int res, r;
+
+  /*  return a2a_sched_pairwise(rank, p, sndext, rcvext, schedule, sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm);
+
+  int res, r, sndpeer, rcvpeer;
   char *rbuf, *sbuf;
 
   res = NBC_OK;
+  if(p < 2) return res;
+
+  for(r=1;r<p;r++) {
+
+    sndpeer = (rank+r)%p;
+    rcvpeer = (rank-r+p)%p;
+
+    rbuf = ((char *) recvbuf) + (rcvpeer*recvcount*rcvext);
+    res = NBC_Sched_recv(rbuf, false, recvcount, recvtype, rcvpeer, schedule);
+    if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
+    sbuf = ((char *) sendbuf) + (sndpeer*sendcount*sndext);
+    res = NBC_Sched_send(sbuf, false, sendcount, sendtype, sndpeer, schedule);
+    if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
+
+    if (r < p) {
+      res = NBC_Sched_barrier(schedule);
+      if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; }
+    }
+  }
+
+  return res;
+  */
+  int res, r;
+    //int res, r, sndpeer, rcvpeer;
+  char *rbuf, *sbuf;
+
+  res = NBC_OK;
+  if(p < 2) return res;
 
   for(r=0;r<p;r++) {
     /* easy algorithm */
+
     if ((r == rank)) { continue; }
+    /* if ((r == 0)) { continue; } */
+
+    /* sndpeer = (rank+r)%p; */
+    /* rcvpeer = (rank-r+p)%p; */
+
+    /* rbuf = ((char *) recvbuf) + (rcvpeer*recvcount*rcvext); */
+    /* res = NBC_Sched_recv(rbuf, false, recvcount, recvtype, rcvpeer, schedule); */
+    /* if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; } */
+    /* sbuf = ((char *) sendbuf) + (sndpeer*sendcount*sndext); */
+    /* res = NBC_Sched_send(sbuf, false, sendcount, sendtype, sndpeer, schedule); */
+    /* if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; } */
+
+
     rbuf = ((char *) recvbuf) + (r*recvcount*rcvext);
     res = NBC_Sched_recv(rbuf, false, recvcount, recvtype, r, schedule);
     if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
     sbuf = ((char *) sendbuf) + (r*sendcount*sndext);
     res = NBC_Sched_send(sbuf, false, sendcount, sendtype, r, schedule);
     if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
+
+    /* if (r < p) { */
+    /*   res = NBC_Sched_barrier(schedule); */
+    /*   if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; } */
+    /* } */
+
   }
 
   return res;

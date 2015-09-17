@@ -65,56 +65,68 @@ extern ADCL_fnctset_t *ADCL_ireduce_fnctset;
 int ADCL_predefined_init ( void )
 {
 
+  int ret;
+
 /* ******************************************************************** */
 /* NEIGHBORHOOD  - Fortran function set 0                               */
 /* ******************************************************************** */
-    ADCL_predefined_neighborhood ( );
+    ret = ADCL_predefined_neighborhood ( );
+    if(ret != ADCL_SUCCESS) return ret;
 
 /* ******************************************************************** */
 /* ALLGATHERV  - Fortran function set 1                                 */
 /* ******************************************************************** */
-    ADCL_predefined_allgatherv ();
+    ret = ADCL_predefined_allgatherv ();
+    if(ret != ADCL_SUCCESS) return ret;
 
 /* ******************************************************************** */
 /* ALLREDUCE - Fortran function set 2                                   */
 /* ******************************************************************** */
-    ADCL_predefined_allreduce ();
+    ret = ADCL_predefined_allreduce ();
+    if(ret != ADCL_SUCCESS) return ret;
 
 /* ******************************************************************** */
 /* ALLTOALLV - Fortran function set 3                                   */
 /* ******************************************************************** */
-    ADCL_predefined_alltoallv ();
+    ret = ADCL_predefined_alltoallv ();
+    if(ret != ADCL_SUCCESS) return ret;
 
 /* ******************************************************************** */
 /* ALLTOALL - Fortran function set 4                                    */
 /* ******************************************************************** */
-    ADCL_predefined_alltoall ();
+    ret = ADCL_predefined_alltoall ();
+    if(ret != ADCL_SUCCESS) return ret;
 
 /* ******************************************************************** */
 /* REDUCE - Fortran function set 5                                      */
 /* ******************************************************************** */
-    ADCL_predefined_reduce ();
+    ret = ADCL_predefined_reduce ();
+    if(ret != ADCL_SUCCESS) return ret;
 
 #ifdef ADCL_LIBNBC
 /* ******************************************************************** */
 /* IBCAST - Fortran function set 6	                                */
 /* ******************************************************************** */
-    ADCL_predefined_ibcast ();
+    ret = ADCL_predefined_ibcast ();
+    if(ret != ADCL_SUCCESS) return ret;
 
 /* ******************************************************************** */
 /* IALLTOALL - Fortran function set 7	                                */
 /* ******************************************************************** */
-    ADCL_predefined_ialltoall ();
+    ret = ADCL_predefined_ialltoall ();
+    if(ret != ADCL_SUCCESS) return ret;
 
 /* ******************************************************************** */
 /* IALLGATHER - Fortran function set 8	                                */
 /* ******************************************************************** */
-    ADCL_predefined_iallgather ();
+    ret = ADCL_predefined_iallgather ();
+    if(ret != ADCL_SUCCESS) return ret;
 
 /* ******************************************************************** */
 /* IREDUCE - Fortran function set 8	                                */
 /* ******************************************************************** */
-    ADCL_predefined_ireduce ();
+    ret = ADCL_predefined_ireduce ();
+    if(ret != ADCL_SUCCESS) return ret;
 
 #endif
 
