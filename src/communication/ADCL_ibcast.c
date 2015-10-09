@@ -1,6 +1,5 @@
 
-#include "nbc.h"
-
+#include "nbc_internal.h"
 #include "mpi.h"
 #include "ADCL.h"
 #include "ADCL_internal.h"

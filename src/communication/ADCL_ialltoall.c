@@ -1,99 +1,28 @@
 
-#include "nbc.h"
-
 #include "mpi.h"
+#include "nbc_internal.h"
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
 #include <math.h>
 
-  //////////////////////// NBC required definitions ////////////////////////
+#ifdef ADCL_CACHE_SCHEDULE
+int NBC_Alltoall_args_compare(NBC_Alltoall_args *a, NBC_Alltoall_args *b, void *param) {
 
-#ifndef MPI_IN_PLACE
-#define MPI_IN_PLACE (void*)1
+  if( (a->sendbuf == b->sendbuf) &&
+      (a->sendcount == b->sendcount) &&
+      (a->sendtype == b->sendtype) &&
+      (a->recvbuf == b->recvbuf) &&
+      (a->recvcount == b->recvcount) &&
+      (a->recvtype == b->recvtype) ) {
+    return  0;
+  }
+  if( a->sendbuf < b->sendbuf ) {
+    return -1;
+  }
+  return +1;
+}
 #endif
-
-  static __inline__ int NBC_Copy(void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, MPI_Comm comm);
-  static __inline__ int NBC_Type_intrinsic(MPI_Datatype type);
-
-#define NBC_IN_PLACE(sendbuf, recvbuf, inplace) \
-  {						\
-    inplace = 0;				\
-    if(recvbuf == sendbuf) {			\
-      inplace = 1;				\
-    } else					\
-      if(sendbuf == MPI_IN_PLACE) {		\
-	sendbuf = recvbuf;			\
-	inplace = 1;				\
-      } else					\
-	if(recvbuf == MPI_IN_PLACE) {		\
-	  recvbuf = sendbuf;			\
-	  inplace = 1;				\
-	}					\
-  }
-
-  static __inline__ int NBC_Copy(void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, MPI_Comm comm) {
-    int size, pos, res;
-    MPI_Aint ext;
-    void *packbuf;
-
-    if((srctype == tgttype) && NBC_Type_intrinsic(srctype)) {
-      /* if we have the same types and they are contiguous (intrinsic                                                                                                                 
-       * types are contiguous), we can just use a single memcpy */
-      res = MPI_Type_extent(srctype, &ext);
-      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Type_extent() (%i)\n", res); return res; }
-      memcpy(tgt, src, srccount*ext);
-    } else {
-      /* we have to pack and unpack */
-      res = MPI_Pack_size(srccount, srctype, comm, &size);
-      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Pack_size() (%i)\n", res); return res; }
-      packbuf = malloc(size);
-      if (NULL == packbuf) { printf("Error in malloc()\n"); return res; }
-      pos=0;
-      res = MPI_Pack(src, srccount, srctype, packbuf, size, &pos, comm);
-      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Pack() (%i)\n", res); return res; }
-      pos=0;
-      res = MPI_Unpack(packbuf, size, &pos, tgt, tgtcount, tgttype, comm);
-      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Unpack() (%i)\n", res); return res; }
-      free(packbuf);
-    }
-
-    return NBC_OK;
-  }
-
-  static __inline__ int NBC_Type_intrinsic(MPI_Datatype type) {
-
-    if( ( type == MPI_INT ) ||
-	( type == MPI_LONG ) ||
-	( type == MPI_SHORT ) ||
-	( type == MPI_UNSIGNED ) ||
-	( type == MPI_UNSIGNED_SHORT ) ||
-	( type == MPI_UNSIGNED_LONG ) ||
-	( type == MPI_FLOAT ) ||
-	( type == MPI_DOUBLE ) ||
-	( type == MPI_LONG_DOUBLE ) ||
-	( type == MPI_BYTE ) ||
-	( type == MPI_FLOAT_INT) ||
-	( type == MPI_DOUBLE_INT) ||
-	( type == MPI_LONG_INT) ||
-	( type == MPI_2INT) ||
-	( type == MPI_SHORT_INT) ||
-	( type == MPI_LONG_DOUBLE_INT))
-      return 1;
-    else
-      return 0;
-  }
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-/* log(2) */
-#define LOG2 0.69314718055994530941
-
-/* true/false */
-#define true 1
-#define false 0
-
 
 int ADCL_ialltoall(ADCL_request_t *req, int alg);
 static __inline__ int a2a_sched_linear(int rank, int p, MPI_Aint sndext, MPI_Aint rcvext, NBC_Schedule *schedule, void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm);
@@ -138,7 +67,7 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
 
   ADCL_topology_t *topo = req->r_emethod->em_topo;
 
-  int root = req->r_emethod->em_root;
+  //int root = req->r_emethod->em_root;
   MPI_Comm comm = topo->t_comm;
 
   NBC_Handle *handle = &(req->r_handle);
@@ -157,6 +86,10 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
   int rank, p, res, sndsize, datasize;
   NBC_Schedule *schedule;
   MPI_Aint rcvext, sndext;
+
+#ifdef NBC_CACHE_SCHEDULE
+  NBC_Alltoall_args *args, *found, search;
+#endif
 
   NBC_IN_PLACE(sendbuf, recvbuf, inplace);
 
@@ -219,9 +152,20 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
     handle->tmpbuf=NULL;
   }
 
+/*#ifdef ADCL_CACHE_SCHEDULE
+  // Check if alg or fanout changed
+  if( req->r_Ialltoall_args->schedule == NULL || alg != req->r_Ialltoall_args->alg) {*/
+
 #ifdef ADCL_CACHE_SCHEDULE
-  /* Check if alg or fanout changed */
-  if( req->r_Ialltoall_args->schedule == NULL || alg != req->r_Ialltoall_args->alg) {
+    /* search schedule in communicator specific tree */
+    search.sendbuf=sendbuf;
+    search.sendcount=sendcount;
+    search.sendtype=sendtype;
+    search.recvbuf=recvbuf;
+    search.recvcount=recvcount;
+    search.recvtype=recvtype;
+    found = (NBC_Alltoall_args*)hb_tree_search((hb_tree*)handle->comminfo->NBC_Dict[NBC_ALLTOALL], &search);
+    if(found == NULL) {
 #endif
     schedule = (NBC_Schedule*)malloc(sizeof(NBC_Schedule));
     
@@ -246,13 +190,48 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
     if (NBC_OK != res) { printf("Error in NBC_Sched_commit() (%i)\n", res); return res; }
 
 #ifdef ADCL_CACHE_SCHEDULE
-    /* save schedule to list */
+    /* save schedule to tree */
+    args = (NBC_Alltoall_args*)malloc(sizeof(NBC_Alltoall_args));
+    args->sendbuf=sendbuf;
+    args->sendcount=sendcount;
+    args->sendtype=sendtype;
+    args->recvbuf=recvbuf;
+    args->recvcount=recvcount;
+    args->recvtype=recvtype;
+    args->schedule=schedule;
+    res = hb_tree_insert ((hb_tree*)handle->comminfo->NBC_Dict[NBC_ALLTOALL], args, args, 0);
+    if(res != 0) printf("error in dict_insert() (%i)\n", res);
+    /* increase number of elements for A2A */
+    if(++handle->comminfo->NBC_Dict_size[NBC_ALLTOALL] > NBC_SCHED_DICT_UPPER) {
+      NBC_SchedCache_dictwipe((hb_tree*)handle->comminfo->NBC_Dict[NBC_ALLTOALL], &handle->comminfo->NBC_Dict_size[NBC_ALLTOALL]);
+      /*if(!rank) printf("[%i] removing %i elements - new size: %i \n", rank, SCHED_DICT_UPPER-SCHED_DICT_LOWER, handle->comminfo->NBC_Alltoall_size);*/
+    }
+    /*if(!rank) printf("[%i] added new schedule to tree - number %i\n", rank, handle->comminfo->NBC_Dict_size[NBC_ALLTOALL]);*/
+    } else {
+      /* found schedule */
+      schedule=found->schedule;
+    }
+#endif
+
+/*#ifdef ADCL_CACHE_SCHEDULE
+    // save schedule to list
+    int my_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    if(my_rank == 0){
+      printf("Stored alg.: %d\n",alg);
+      printf("Stored sched.: %p\n",schedule);
+    }
     req->r_Ialltoall_args->alg = alg;
     req->r_Ialltoall_args->schedule = schedule;
   }else{
+    int my_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    if(my_rank == 0){
+      printf("Retrieved sched.: %p\n",schedule);
+    }
     schedule = req->r_Ialltoall_args->schedule;
   }
-#endif
+#endif*/
   
   res = NBC_Start(handle, schedule);
   if (NBC_OK != res) { printf("Error in NBC_Start() (%i)\n", res); return res; }
@@ -262,6 +241,7 @@ int ADCL_ialltoall(ADCL_request_t *req, int alg) {
 
 static __inline__ int a2a_sched_pairwise(int rank, int p, MPI_Aint sndext, MPI_Aint rcvext, NBC_Schedule* schedule, void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm)
 {
+
   int res, r, sndpeer, rcvpeer;
   char *rbuf, *sbuf;
 
@@ -290,71 +270,20 @@ static __inline__ int a2a_sched_pairwise(int rank, int p, MPI_Aint sndext, MPI_A
 }
 
 static __inline__ int a2a_sched_linear(int rank, int p, MPI_Aint sndext, MPI_Aint rcvext, NBC_Schedule* schedule, void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm) {
-
-  /*  return a2a_sched_pairwise(rank, p, sndext, rcvext, schedule, sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm);
-
-  int res, r, sndpeer, rcvpeer;
-  char *rbuf, *sbuf;
-
-  res = NBC_OK;
-  if(p < 2) return res;
-
-  for(r=1;r<p;r++) {
-
-    sndpeer = (rank+r)%p;
-    rcvpeer = (rank-r+p)%p;
-
-    rbuf = ((char *) recvbuf) + (rcvpeer*recvcount*rcvext);
-    res = NBC_Sched_recv(rbuf, false, recvcount, recvtype, rcvpeer, schedule);
-    if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
-    sbuf = ((char *) sendbuf) + (sndpeer*sendcount*sndext);
-    res = NBC_Sched_send(sbuf, false, sendcount, sendtype, sndpeer, schedule);
-    if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
-
-    if (r < p) {
-      res = NBC_Sched_barrier(schedule);
-      if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; }
-    }
-  }
-
-  return res;
-  */
   int res, r;
-    //int res, r, sndpeer, rcvpeer;
   char *rbuf, *sbuf;
 
   res = NBC_OK;
   if(p < 2) return res;
-
   for(r=0;r<p;r++) {
     /* easy algorithm */
-
     if ((r == rank)) { continue; }
-    /* if ((r == 0)) { continue; } */
-
-    /* sndpeer = (rank+r)%p; */
-    /* rcvpeer = (rank-r+p)%p; */
-
-    /* rbuf = ((char *) recvbuf) + (rcvpeer*recvcount*rcvext); */
-    /* res = NBC_Sched_recv(rbuf, false, recvcount, recvtype, rcvpeer, schedule); */
-    /* if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; } */
-    /* sbuf = ((char *) sendbuf) + (sndpeer*sendcount*sndext); */
-    /* res = NBC_Sched_send(sbuf, false, sendcount, sendtype, sndpeer, schedule); */
-    /* if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; } */
-
-
     rbuf = ((char *) recvbuf) + (r*recvcount*rcvext);
     res = NBC_Sched_recv(rbuf, false, recvcount, recvtype, r, schedule);
     if (NBC_OK != res) { printf("Error in NBC_Sched_recv() (%i)\n", res); return res; }
     sbuf = ((char *) sendbuf) + (r*sendcount*sndext);
     res = NBC_Sched_send(sbuf, false, sendcount, sendtype, r, schedule);
     if (NBC_OK != res) { printf("Error in NBC_Sched_send() (%i)\n", res); return res; }
-
-    /* if (r < p) { */
-    /*   res = NBC_Sched_barrier(schedule); */
-    /*   if (NBC_OK != res) { printf("Error in NBC_Sched_barrier() (%i)\n", res); return res; } */
-    /* } */
-
   }
 
   return res;

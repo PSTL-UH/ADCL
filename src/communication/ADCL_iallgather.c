@@ -1,99 +1,10 @@
 
-#include "nbc.h"
-
+#include "nbc_internal.h"
 #include "mpi.h"
 #include "ADCL.h"
 #include "ADCL_internal.h"
 
 #include <math.h>
-
-  //////////////////////// NBC required definitions ////////////////////////
-
-#ifndef MPI_IN_PLACE
-#define MPI_IN_PLACE (void*)1
-#endif
-
-  static __inline__ int NBC_Copy(void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, MPI_Comm comm);
-  static __inline__ int NBC_Type_intrinsic(MPI_Datatype type);
-
-#define NBC_IN_PLACE(sendbuf, recvbuf, inplace) \
-  {						\
-    inplace = 0;				\
-    if(recvbuf == sendbuf) {			\
-      inplace = 1;				\
-    } else					\
-      if(sendbuf == MPI_IN_PLACE) {		\
-	sendbuf = recvbuf;			\
-	inplace = 1;				\
-      } else					\
-	if(recvbuf == MPI_IN_PLACE) {		\
-	  recvbuf = sendbuf;			\
-	  inplace = 1;				\
-	}					\
-  }
-
-  static __inline__ int NBC_Copy(void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, MPI_Comm comm) {
-    int size, pos, res;
-    MPI_Aint ext;
-    void *packbuf;
-
-    if((srctype == tgttype) && NBC_Type_intrinsic(srctype)) {
-      /* if we have the same types and they are contiguous (intrinsic                                                                                                                 
-       * types are contiguous), we can just use a single memcpy */
-      res = MPI_Type_extent(srctype, &ext);
-      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Type_extent() (%i)\n", res); return res; }
-      memcpy(tgt, src, srccount*ext);
-    } else {
-      /* we have to pack and unpack */
-      res = MPI_Pack_size(srccount, srctype, comm, &size);
-      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Pack_size() (%i)\n", res); return res; }
-      packbuf = malloc(size);
-      if (NULL == packbuf) { printf("Error in malloc()\n"); return res; }
-      pos=0;
-      res = MPI_Pack(src, srccount, srctype, packbuf, size, &pos, comm);
-      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Pack() (%i)\n", res); return res; }
-      pos=0;
-      res = MPI_Unpack(packbuf, size, &pos, tgt, tgtcount, tgttype, comm);
-      if (MPI_SUCCESS != res) { printf("MPI Error in MPI_Unpack() (%i)\n", res); return res; }
-      free(packbuf);
-    }
-
-    return NBC_OK;
-  }
-
-  static __inline__ int NBC_Type_intrinsic(MPI_Datatype type) {
-
-    if( ( type == MPI_INT ) ||
-	( type == MPI_LONG ) ||
-	( type == MPI_SHORT ) ||
-	( type == MPI_UNSIGNED ) ||
-	( type == MPI_UNSIGNED_SHORT ) ||
-	( type == MPI_UNSIGNED_LONG ) ||
-	( type == MPI_FLOAT ) ||
-	( type == MPI_DOUBLE ) ||
-	( type == MPI_LONG_DOUBLE ) ||
-	( type == MPI_BYTE ) ||
-	( type == MPI_FLOAT_INT) ||
-	( type == MPI_DOUBLE_INT) ||
-	( type == MPI_LONG_INT) ||
-	( type == MPI_2INT) ||
-	( type == MPI_SHORT_INT) ||
-	( type == MPI_LONG_DOUBLE_INT))
-      return 1;
-    else
-      return 0;
-  }
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-/* log(2) */
-#define LOG2 0.69314718055994530941
-
-/* true/false */
-#define true 1
-#define false 0
-
 
 int ADCL_iallgather(ADCL_request_t *req, int alg);
 static __inline__ int allgather_sched_linear(int rank, int p, MPI_Aint sndext, MPI_Aint rcvext, NBC_Schedule *schedule, void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm);

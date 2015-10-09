@@ -10,11 +10,13 @@
 #include <math.h>
 #include "ADCL_ialltoall.h"
 #include "ADCL_config.h"
+#include "ADCL_internal.h"
 
-const int ADCL_attr_ialltoall_alg_linear=1000; 
+//const int ADCL_attr_ialltoall_alg_native=1000;
+const int ADCL_attr_ialltoall_alg_linear=1000;
 const int ADCL_attr_ialltoall_alg_pairwise=1001;
 const int ADCL_attr_ialltoall_alg_diss=1002;
-const int ADCL_attr_ialltoall_alg_native=1003; 
+
 
 ADCL_attribute_t *ADCL_ialltoall_attrs[ADCL_ATTR_IALLTOALL_TOTAL_NUM];
 ADCL_attrset_t *ADCL_ialltoall_attrset;
@@ -29,12 +31,12 @@ int ADCL_predefined_ialltoall ( void )
     int ADCL_attr_ialltoall_alg[ADCL_ATTR_IALLTOALL_ALG_MAX];
 
     char * ADCL_attr_ialltoall_alg_names[ADCL_ATTR_IALLTOALL_ALG_MAX] = 
-      {"Ialltoall_linear",  "Ialltoall_pair", "Ialltoall_diss","Ialltoall_native"};
+      {"Ialltoall_linear","Ialltoall_pairwise","Ialltoall_diss"};
 
-    ADCL_attr_ialltoall_alg[0] = ADCL_attr_ialltoall_alg_native;
-    ADCL_attr_ialltoall_alg[1] = ADCL_attr_ialltoall_alg_linear;
-    ADCL_attr_ialltoall_alg[2] = ADCL_attr_ialltoall_alg_pairwise;
-    ADCL_attr_ialltoall_alg[3] = ADCL_attr_ialltoall_alg_diss;
+    //ADCL_attr_ialltoall_alg[0] = ADCL_attr_ialltoall_alg_native;
+    ADCL_attr_ialltoall_alg[0] = ADCL_attr_ialltoall_alg_linear;
+    ADCL_attr_ialltoall_alg[1] = ADCL_attr_ialltoall_alg_pairwise;
+    ADCL_attr_ialltoall_alg[2] = ADCL_attr_ialltoall_alg_diss;
 
 
     ADCL_attribute_create ( ADCL_ATTR_IALLTOALL_ALG_MAX, ADCL_attr_ialltoall_alg, 
@@ -45,13 +47,23 @@ int ADCL_predefined_ialltoall ( void )
 
     count=0;
 
-    m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_pairwise;
-    ADCL_function_create_async ( ADCL_ialltoall_pairwise, ADCL_ialltoall_wait, ADCL_ialltoall_attrset,
-        			 m_ialltoall_attrs, "Ialltoall_pairwise", 
+#if 0
+    m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_native;
+    ADCL_function_create_async ( ADCL_alltoall_native, NULL, ADCL_ialltoall_attrset,
+        			 m_ialltoall_attrs, "Alltoall_native", 
         			 &ADCL_ialltoall_functions[count]);
     count++;
+#endif
 
 #if 1
+    m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_linear;
+    ADCL_function_create_async ( ADCL_ialltoall_linear, ADCL_ialltoall_wait, ADCL_ialltoall_attrset,
+        			 m_ialltoall_attrs, "Ialltoall_linear", 
+        			 &ADCL_ialltoall_functions[count]);
+    count++;
+#endif
+
+#if 0
     m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_linear;
     ADCL_function_create_async ( ADCL_alltoall_linear_sync, NULL, ADCL_ialltoall_attrset,
                                  m_ialltoall_attrs, "Alltoall_linear_sync_SR",
@@ -83,22 +95,22 @@ int ADCL_predefined_ialltoall ( void )
     count++;
 #endif
 
-    m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_linear;
+    m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_pairwise;
     ADCL_function_create_async ( ADCL_ialltoall_linear, ADCL_ialltoall_wait, ADCL_ialltoall_attrset,
-        			 m_ialltoall_attrs, "Ialltoall_linear", 
+        			 m_ialltoall_attrs, "Ialltoall_pairwise", 
         			 &ADCL_ialltoall_functions[count]);
     count++;
 
-#if 1
+#if 0
     m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_pairwise;
     ADCL_function_create_async ( ADCL_alltoall_pairwise, NULL, ADCL_ialltoall_attrset,
-                                 m_ialltoall_attrs, "Alltoall_pair_SR",
+                                 m_ialltoall_attrs, "Alltoall_pairwise_SR",
                                  &ADCL_ialltoall_functions[count]);
     count++;
 
     m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_pairwise;
     ADCL_function_create_async ( ADCL_alltoall_pairwise_excl, NULL, ADCL_ialltoall_attrset,
-                                 m_ialltoall_attrs, "Alltoall_pair_excl_SR",
+                                 m_ialltoall_attrs, "Alltoall_pairwise_excl_SR",
                                  &ADCL_ialltoall_functions[count]);
     count++;
 #endif
@@ -108,14 +120,6 @@ int ADCL_predefined_ialltoall ( void )
         			 m_ialltoall_attrs, "Ialltoall_diss", 
         			 &ADCL_ialltoall_functions[count]);
     count++;
-
-#if 1
-    m_ialltoall_attrs[0] = ADCL_attr_ialltoall_alg_native;
-    ADCL_function_create_async ( ADCL_alltoall_native, NULL, ADCL_ialltoall_attrset,
-        			 m_ialltoall_attrs, "Alltoall_native", 
-        			 &ADCL_ialltoall_functions[count]);
-    count++;
-#endif
 
     if ( count != ADCL_METHOD_IALLTOALL_TOTAL_NUM ) {
 	ADCL_printf ("Ialltoall: Total Number wrong\n");

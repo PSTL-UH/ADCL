@@ -67,7 +67,7 @@ int ADCL_request_create_generic_rooted ( ADCL_vector_t **svecs,
     }
 #endif
 
-    // Assume the request is not created from a high level interface
+    // Assume the request is not created from a high level interface by default. The value is updated by the highlevel interface if it is not the case.
     newreq->r_highlevel = 0;
 	    
     /* Fill in the according elements, start with the simple ones */

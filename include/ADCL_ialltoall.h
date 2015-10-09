@@ -19,22 +19,24 @@ extern "C" {
 
 #define ADCL_ATTR_IALLTOALL_TOTAL_NUM    1
 
-#define ADCL_ATTR_IALLTOALL_ALG_MAX      4
-//#define ADCL_ATTR_IALLTOALL_ALG_MAX      3
+//#define ADCL_ATTR_IALLTOALL_ALG_MAX      2
+#define ADCL_ATTR_IALLTOALL_ALG_MAX      3
+//#define ADCL_ATTR_IALLTOALL_ALG_MAX      4
 
-#define ADCL_METHOD_IALLTOALL_TOTAL_NUM  11
-//#define ADCL_METHOD_IALLTOALL_TOTAL_NUM  3
+//#define ADCL_METHOD_IALLTOALL_TOTAL_NUM  2
+#define ADCL_METHOD_IALLTOALL_TOTAL_NUM  3
+//#define ADCL_METHOD_IALLTOALL_TOTAL_NUM  4
+//#define ADCL_METHOD_IALLTOALL_TOTAL_NUM  10
+//#define ADCL_METHOD_IALLTOALL_TOTAL_NUM  11
 
 
 #define ADCL_IALLTOALL_LINEAR     1
 #define ADCL_IALLTOALL_PAIRWISE   2
 #define ADCL_IALLTOALL_DISS       3
-#define ADCL_IALLTOALL_NATIVE     4
 
 void ADCL_ialltoall_linear (ADCL_request_t *req );
 void ADCL_ialltoall_pairwise( ADCL_request_t *req );
 void ADCL_ialltoall_diss( ADCL_request_t *req );
-void ADCL_ialltoall_native (ADCL_request_t *req );
 void ADCL_ialltoall_wait( ADCL_request_t *req );
 
 
