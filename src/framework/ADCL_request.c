@@ -587,7 +587,7 @@ int ADCL_request_init ( ADCL_request_t *req, int *db )
 /**********************************************************************/
 /**********************************************************************/
 
-int ADCL_request_progress ( ADCL_request_t *req ){
+int ADCL_request_progress ( ADCL_request_t *req, int depth ){
 
 #ifdef ADCL_LIBNBC
   CHECK_COMM_STATE ( req->r_comm_state, ADCL_COMM_ACTIVE );
@@ -602,7 +602,8 @@ int ADCL_request_progress ( ADCL_request_t *req ){
   // div_res = div (req->r_progress,10);
   // if( !(div_res.rem % div_res.quot)){
 #endif
-  if(flag){
+  // Progress only if flag is set to 1, and if the depth is right (depth indicates the position of the progress call in a nested loop, '0' means no progress is performed, e.g. when the collective is blocking)
+  if(flag && (req->r_function->f_attrvals[2]-1000 == depth)){
     ret =  NBC_Progress ( &(req->r_handle));
     if( ret == NBC_OK) {
       return ADCL_request_wait(req);

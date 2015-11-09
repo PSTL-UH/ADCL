@@ -32,14 +32,14 @@ int ADCL_Init (void )
 
     ret = ADCL_predefined_init ();
     if(ret != ADCL_SUCCESS)
-      printf("Error in ADCL_Init -> ADCL_predefined_init, Error n. %d",ret);
+      printf("Error in ADCL_Init -> ADCL_predefined_init, Error n. %d\n",ret);
     ret = ADCL_readenv();
     if(ret != ADCL_SUCCESS)
-      printf("Error in ADCL_Init -> ADCL_readenv, Error n. %d",ret);
+      printf("Error in ADCL_Init -> ADCL_readenv, Error n. %d\n",ret);
 #ifdef ADCL_DISPLAY
     ret = ADCL_display_init();
     if(ret != ADCL_SUCCESS)
-      printf("Error in ADCL_Init -> ADCL_display_init, Error n. %d",ret);
+      printf("Error in ADCL_Init -> ADCL_display_init, Error n. %d\n",ret);
 #endif
     return ret;
 }

@@ -1,9 +1,9 @@
 
-#include "mpi.h"
-#include "nbc_internal.h"
-#include "ADCL.h"
-#include "ADCL_internal.h"
 
+#include "nbc_internal.h"
+#include "ADCL_internal.h"
+#include "ADCL.h"
+#include "mpi.h"
 #include <math.h>
 
 #ifdef ADCL_CACHE_SCHEDULE

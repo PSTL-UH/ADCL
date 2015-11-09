@@ -310,7 +310,7 @@ int ADCL_Request_free   ( ADCL_Request *req );
 int ADCL_Request_start  ( ADCL_Request req );
 int ADCL_Request_init   ( ADCL_Request req );
 int ADCL_Request_wait   ( ADCL_Request req );
-int ADCL_Request_progress ( ADCL_Request req);
+int ADCL_Request_progress ( ADCL_Request req, int depth);
 int ADCL_Request_update ( ADCL_Request req, TIME_TYPE time );
 int ADCL_Request_start_overlap ( ADCL_Request req, ADCL_work_fnct_ptr* midfctn,
                                  ADCL_work_fnct_ptr *endfcnt,

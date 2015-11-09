@@ -230,10 +230,10 @@ int ADCL_Request_init ( ADCL_Request req )
     return ret;
 }
 
-int ADCL_Request_progress ( ADCL_Request req ) {
+int ADCL_Request_progress ( ADCL_Request req, int depth) {
   int ret;
 
-  ret = ADCL_request_progress( req);
+  ret = ADCL_request_progress( req, depth);
 
   return ret;
 }
